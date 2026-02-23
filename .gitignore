@@ -1,0 +1,74 @@
+# ===============================
+# Build directories
+# ===============================
+build/
+bin/
+dist/
+out/
+
+# ===============================
+# Windows build artifacts
+# ===============================
+*.exe
+*.dll
+*.lib
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.manifest
+
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.VC.db
+*.VC.opendb
+Debug/
+Release/
+x64/
+Win32/
+
+# ===============================
+# Linux / GCC / Clang artifacts
+# ===============================
+*.o
+*.out
+*.a
+*.so
+*.d
+*.gcda
+*.gcno
+*.gcov
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# ===============================
+# Logs
+# ===============================
+*.log
+
+# ===============================
+# OS junk
+# ===============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===============================
+# Editor junk
+# ===============================
+*.swp
+*.swo
+*.tmp
+.idea/
+.vscode/
+
+# ===============================
+# Runtime generated folders
+# ===============================
+sorted/
+Testing/

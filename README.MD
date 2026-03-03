@@ -1,115 +1,91 @@
-### ✅ Final Project Structure with cMakelists.txt:
-cleaner/
-│
-├── CMakeLists.txt
-├── cmake/
-│   └── CompilerWarnings.cmake
-│
-├── include/
-│   └── cleaner/
-│       │
-│       ├── config.h
-│       │
-│       ├── core/                    # PURE domain logic (NO OS headers)
-│       │   ├── processor.h
-│       │   ├── scanner.h
-│       │   ├── organizer.h
-│       │   └── renamer.h
-│       │
-│       ├── system/                  # Infrastructure orchestration
-│       │   ├── threadpool.h
-│       │   ├── logger.h
-│       │   └── metrics.h
-│       │
-│       └── platform/                # OS abstraction layer (ONLY OS contact)
-│           ├── filesystem.h
-│           ├── threads.h
-│           ├── mutex.h
-│           ├── atomic.h
-│           └── time.h
-│
-├── src/
-│   │
-│   ├── core/
-│   │   ├── processor.c
-│   │   ├── scanner.c
-│   │   ├── organizer.c
-│   │   └── renamer.c
-│   │
-│   ├── system/
-│   │   ├── threadpool.c
-│   │   ├── logger.c
-│   │   └── metrics.c
-│   │
-│   ├── platform/
-│   │   │
-│   │   ├── filesystem/
-│   │   │   ├── filesystem_win.c
-│   │   │   └── filesystem_posix.c
-│   │   │
-│   │   ├── threads/
-│   │   │   ├── threads_win.c
-│   │   │   └── threads_posix.c
-│   │   │
-│   │   ├── sync/
-│   │   │   ├── mutex_win.c
-│   │   │   ├── mutex_posix.c
-│   │   │   ├── atomic_win.c
-│   │   │   └── atomic_posix.c
-│   │   │
-│   │   └── time/
-│   │       ├── time_win.c
-│   │       └── time_posix.c
-│   │
-│   └── cli/
-│       └── main.c
-│
-├── tests/
-│   ├── CMakeLists.txt
-│   └── test_scanner.c
-│
-├── docs/
-│   └── architecture.md
-│
-└── build/
-    └── bin/
-        └── cleaner.exe
+# Cleaner — Enterprise-Grade Layered C System
 
+![Build Status](https://img.shields.io/badge/build-passing-brightgreen)
+![C Standard](https://img.shields.io/badge/C-17-blue)
+![Python](https://img.shields.io/badge/Python-3.14-yellowgreen)
 
-🧠 What You Just Achieved
+---
 
-You now have:
+## 🏗 Overview
 
-Layer	Windows	Linux	Clean
-core	same	same	✅
-system	same	same	✅
-platform	swapped	swapped	✅
+**Cleaner** is a **highly disciplined, enterprise-grade C project** following strict architectural principles and quality standards. Its design ensures:
 
+- Deterministic core logic
+- Clear separation between **Core**, **System**, and **Platform** layers
+- Optional static analysis, sanitizers, and automated formatting
+- Enforced architecture using **AST-based Python checks**
+- Fully automated quality gates
 
-Next Senior-Level Moves
+This project is suitable as a **reference for best practices** in professional C development.
 
-Pick your direction:
+---
 
-🔬 Add GitHub CI (build + test + cppcheck on push)
+## 📐 Architecture Principles
 
-📦 Add install + packaging (cmake --install)
+- **Core Layer**:  
+  - Pure, deterministic C logic  
+  - No OS/Platform dependencies
+- **System Layer**:  
+  - Orchestrates Core  
+  - Uses Platform abstractions only  
+- **Platform Layer**:  
+  - Wraps OS-specific APIs  
+  - No business logic
+- **Executable Layer**:  
+  - Links only System  
+  - System links Core + Platform
 
-🧵 Improve threadpool correctness (race detection mindset)
+> ✅ Tests are separated into **unit**, **integration**, and **benchmark** categories.
 
-📊 Add benchmark target
+---
 
-🧱 Convert scanner to fully test-driven
+### 1️⃣ Prerequisites
 
-core/      → business rules
-platform/  → Windows-specific APIs
-infra/     → threadpool, logging, metrics
+- **CMake ≥ 3.25**
+- **MinGW** on Windows
+- **Python ≥ 3.14** (for AST checks)
+- Optional: `clang-format`, `clang-tidy`, `cppcheck`, `gcovr`, `Doxygen`
 
+### 2️⃣ Configure Project
 
-cd ..
-rmdir /S /Q build
-mkdir build
-cd build
-cmake -G "MinGW Makefiles" ..
-cmake --build . -j
-cmake --build . --target static_analysis
-ctest
+### bash
+    cmake -S . -B build -G "MinGW Makefiles" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+### ⚙️ Build & Tooling
+    cmake --build build
+
+### Architecture Enforcement
+    cmake --build build --target layer_checks
+
+### Quality & Analysis Targets
+    The project includes 10 enterprise-quality targets:
+
+    Target	Description
+    layer_checks	AST-based architecture enforcement
+    format	Auto-format source using clang-format
+    format_check	Check formatting compliance
+    static_analysis	Run clang-tidy with full compile commands
+    cppcheck	Run static analysis via cppcheck
+    docs	Generate documentation with Doxygen
+    coverage	Generate test coverage reports via gcovr
+    graph	Generate CMake dependency graph (Graphviz)
+    distclean	Clean build artifacts
+    all_quality	Run all quality gates: layer_checks, format_check, static_analysis, cppcheck
+
+    Use cmake --build build --target all_quality to enforce full project quality in one command.
+
+###  Testing
+    If ENABLE_TESTING is ON:
+
+    cmake --build build --target run_tests
+
+###  Installation
+    cmake --install build
+
+    Installs:
+
+    Executable → bin/
+
+    Static library → lib/
+
+    Headers → include/

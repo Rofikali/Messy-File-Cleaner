@@ -75,6 +75,13 @@ int move_file(const char *src, const char *dest_dir)
     if (errno == EXDEV)
     {
         char temp_path[PATH_MAX];
+        // snprintf(temp_path, PATH_MAX, "%s.tmp", dest_path);
+        if (strlen(dest_path) + 4 >= PATH_MAX)
+        {
+            fprintf(stderr, "Path too long\n");
+            return -1;
+        }
+
         snprintf(temp_path, PATH_MAX, "%s.tmp", dest_path);
 
         // Step 1: Copy to temp

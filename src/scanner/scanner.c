@@ -34,9 +34,9 @@ void scan_directory(const char *path, event_handler_fn handler)
         }
         else
         {
-            handler(full_path);
+            handler(full_path); // 🔥 injected behavior
         }
-
-        closedir(dir);
     }
+
+    closedir(dir);
 }

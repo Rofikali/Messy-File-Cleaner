@@ -1,4 +1,4 @@
-#include "queue/queue.h"
+#include "core/queue.h"
 
 void enqueue(EventQueue* q, FileEvent* e) {
     q->buffer[q->tail] = *e;

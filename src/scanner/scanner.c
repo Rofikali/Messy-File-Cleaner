@@ -4,7 +4,7 @@
 #include <sys/stat.h>
 #include "scanner/scanner.h"
 
-void scan_directory(const char *path)
+void scan_directory(const char *path, event_handler_fn handler)
 {
     struct dirent *entry;
     DIR *dir = opendir(path);
@@ -30,13 +30,13 @@ void scan_directory(const char *path)
 
         if (S_ISDIR(st.st_mode))
         {
-            scan_directory(full_path);
+            scan_directory(full_path, handler);
         }
         else
         {
-            printf("File: %s\n", full_path);
+            handler(full_path);
         }
-    }
 
-    closedir(dir);
+        closedir(dir);
+    }
 }

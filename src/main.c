@@ -23,7 +23,15 @@ void init_system()
 void handle_event(const char *path)
 {
     const char *folder = classify(&classifier, path);
-    printf("Move %s → %s\n", path, folder);
+
+    if (move_file(path, folder) == 0)
+    {
+        printf("Moved: %s → %s\n", path, folder);
+    }
+    else
+    {
+        printf("Failed: %s\n", path);
+    }
 }
 
 int main(int argc, char *argv[])

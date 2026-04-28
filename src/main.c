@@ -2,6 +2,7 @@
 #include "scanner/scanner.h"
 #include "utils/hashmap.h"
 #include "classifier/classifier.h"
+#include "mover/mover.h"
 
 #define MAP_CAP 32
 
@@ -33,7 +34,6 @@ void handle_event(const char *path)
         printf("Failed: %s\n", path);
     }
 }
-
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -42,7 +42,8 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    init_system();
+    init_system(); // 🔥 MISSING LINE
+
     scan_directory(argv[1], handle_event);
     return 0;
 }

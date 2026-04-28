@@ -4,16 +4,19 @@
 #include <sys/stat.h>
 #include "scanner/scanner.h"
 
-void scan_directory(const char* path) {
-    struct dirent* entry;
-    DIR* dir = opendir(path);
+void scan_directory(const char *path)
+{
+    struct dirent *entry;
+    DIR *dir = opendir(path);
 
-    if (!dir) {
+    if (!dir)
+    {
         perror("opendir");
         return;
     }
 
-    while ((entry = readdir(dir)) != NULL) {
+    while ((entry = readdir(dir)) != NULL)
+    {
         if (strcmp(entry->d_name, ".") == 0 ||
             strcmp(entry->d_name, "..") == 0)
             continue;
@@ -22,11 +25,15 @@ void scan_directory(const char* path) {
         snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
 
         struct stat st;
-        if (stat(full_path, &st) == -1) continue;
+        if (stat(full_path, &st) == -1)
+            continue;
 
-        if (S_ISDIR(st.st_mode)) {
+        if (S_ISDIR(st.st_mode))
+        {
             scan_directory(full_path);
-        } else {
+        }
+        else
+        {
             printf("File: %s\n", full_path);
         }
     }

@@ -1,14 +1,22 @@
 #include <stdio.h>
+#include <pthread.h>
 #include "scanner/scanner.h"
 #include "utils/hashmap.h"
 #include "classifier/classifier.h"
 #include "mover/mover.h"
+#include "watcher/watcher.h"
 
 #define MAP_CAP 32
 
 static HashEntry buffer[MAP_CAP];
 static HashMap map;
 static Classifier classifier;
+
+void *watcher_thread(void *arg)
+{
+    start_watcher((const char *)arg);
+    return NULL;
+}
 
 void init_system()
 {
@@ -34,6 +42,7 @@ void handle_event(const char *path)
         printf("Failed: %s\n", path);
     }
 }
+
 int main(int argc, char *argv[])
 {
     if (argc < 2)
@@ -41,6 +50,8 @@ int main(int argc, char *argv[])
         printf("Usage: %s <directory>\n", argv[0]);
         return 1;
     }
+    pthread_t tid;
+    pthread_create(&tid, NULL, watcher_thread, argv[1]);
 
     init_system(); // 🔥 MISSING LINE
 

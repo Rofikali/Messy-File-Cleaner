@@ -1,9 +1,13 @@
+// ./src/utils/fs_utils.c
+// src/utils/fs_utils.c
+
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <string.h>
 #include <stdio.h>
+#include <sys/sendfile.h>
 
 int file_exists(const char *path)
 {
@@ -18,6 +22,7 @@ int ensure_dir(const char *path)
     return mkdir(path, 0755);
 }
 
+// int copy_file_zero_copy(const char *src, const char *dest)
 int copy_file_safe(const char *src, const char *dest)
 {
     int src_fd = open(src, O_RDONLY);
@@ -31,22 +36,49 @@ int copy_file_safe(const char *src, const char *dest)
         return -1;
     }
 
-    char buf[8192];
-    ssize_t n;
+    struct stat st;
+    fstat(src_fd, &st);
 
-    while ((n = read(src_fd, buf, sizeof(buf))) > 0)
-    {
-        if (write(dest_fd, buf, n) != n)
-        {
-            close(src_fd);
-            close(dest_fd);
-            return -1;
-        }
-    }
+    off_t offset = 0;
+    ssize_t result = sendfile(dest_fd, src_fd, &offset, st.st_size);
 
     fsync(dest_fd);
 
     close(src_fd);
     close(dest_fd);
-    return 0;
+
+    return (result == st.st_size) ? 0 : -1;
 }
+
+// int copy_file_safe(const char *src, const char *dest)
+// {
+//     int src_fd = open(src, O_RDONLY);
+//     if (src_fd < 0)
+//         return -1;
+
+//     int dest_fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+//     if (dest_fd < 0)
+//     {
+//         close(src_fd);
+//         return -1;
+//     }
+
+//     char buf[8192];
+//     ssize_t n;
+
+//     while ((n = read(src_fd, buf, sizeof(buf))) > 0)
+//     {
+//         if (write(dest_fd, buf, n) != n)
+//         {
+//             close(src_fd);
+//             close(dest_fd);
+//             return -1;
+//         }
+//     }
+
+//     fsync(dest_fd);
+
+//     close(src_fd);
+//     close(dest_fd);
+//     return 0;
+// }

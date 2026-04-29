@@ -1,3 +1,4 @@
+// ./src/scanner/scanner.c
 #include <stdio.h>
 #include <dirent.h>
 #include <string.h>

@@ -1,3 +1,4 @@
+// ./src/watcher/watcher.c
 #include <sys/inotify.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -6,32 +7,27 @@
 #include "core/event.h"
 #include "core/queue.h"
 #include "watcher/watcher.h"
+#include "core/lf_queue.h"
+#include "core/context.h"
 
 #define EVENT_BUF_LEN (1024 * (sizeof(struct inotify_event) + 16))
 
-extern EventQueue queue;
-
-// static void enqueue_path(const char *path)
-// {
-//     FileEvent e;
-//     strncpy(e.path, path, PATH_MAX);
-//     e.type = FILE_CREATED;
-
-//     enqueue(&queue, &e);
-// }
-static void enqueue_path(const char *path)
+// Update enqueue_path to accept the context
+static void enqueue_path(const char *path, AppContext *ctx)
 {
     FileEvent e;
-    // Use sizeof(e.path) to ensure you never write past the end of the struct member
     strncpy(e.path, path, sizeof(e.path) - 1);
-    e.path[sizeof(e.path) - 1] = '\0'; // Always null-terminate
+    e.path[sizeof(e.path) - 1] = '\0';
     e.type = FILE_CREATED;
 
-    enqueue(&queue, &e);
+    // Use the queue inside the context
+    lf_enqueue(&ctx->queue, &e);
 }
 
-void start_watcher(const char *path)
+// void start_watcher(const char *path)
+void start_watcher(const char *path, AppContext *ctx)
 {
+
     int fd = inotify_init();
     if (fd < 0)
     {
@@ -68,7 +64,8 @@ void start_watcher(const char *path)
                     char full_path[PATH_MAX];
                     snprintf(full_path, PATH_MAX, "%s/%s", path, event->name);
 
-                    enqueue_path(full_path);
+                    // Pass ctx to enqueue_path
+                    enqueue_path(full_path, ctx);
                 }
             }
 

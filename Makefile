@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -O2 -Iinclude
+CFLAGS = -Wall -Wextra -O2 -g -pthread -Iinclude
 TARGET = bin/file-cleaner
 SRC = $(wildcard src/**/*.c src/*.c)
 

@@ -1,36 +1,36 @@
 // ./src/core/thread_pool.c
+
 #include <pthread.h>
-#include <stdio.h>
-#include "core/queue.h"
-#include "classifier/classifier.h"
-#include "mover/mover.h"
-#include "core/lf_queue.h"
 #include <unistd.h>
-#include "core/context.h"
+#include <stdio.h>
+
+#include "core/thread_pool.h"
+#include "mover/mover.h"
+#include "classifier/classifier.h"
 
 void *worker(void *arg)
 {
-    AppContext *ctx = (AppContext *)arg;
+    WorkerArgs *w = (WorkerArgs *)arg;
+    LFQueue *q = w->queue;
+    AppContext *ctx = w->ctx;
+
     FileEvent event;
 
     while (1)
     {
-        if (lf_dequeue(&ctx->queue, &event))
+        if (lf_dequeue(q, &event))
         {
-            const char *folder = classify(&ctx->classifier, event.path);
+            const char *folder =
+                classify(&ctx->classifier, event.path);
 
-            if (move_file(event.path, folder) != 0)
-            {
-                fprintf(stderr, "Failed: %s\n", event.path);
-            }
-            else
-            {
+            if (move_file(event.path, folder) == 0)
                 fprintf(stderr, "Moved: %s\n", event.path);
-            }
+            else
+                fprintf(stderr, "Failed: %s\n", event.path);
         }
         else
         {
-            usleep(1000); // prevent CPU burn
+            usleep(1000);
         }
     }
 
@@ -40,9 +40,15 @@ void *worker(void *arg)
 void start_workers(AppContext *ctx, int num_threads)
 {
     pthread_t threads[num_threads];
+    WorkerArgs args[num_threads]; // ⚠️ stack is fine here
+
+    ctx->num_workers = num_threads; // ✅ CRITICAL
 
     for (int i = 0; i < num_threads; i++)
     {
-        pthread_create(&threads[i], NULL, worker, ctx);
+        args[i].queue = &ctx->queues[i];
+        args[i].ctx = ctx;
+
+        pthread_create(&threads[i], NULL, worker, &args[i]);
     }
 }

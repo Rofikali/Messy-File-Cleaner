@@ -1,0 +1,43 @@
+// ./src/scanner/scanner.c
+#include <stdio.h>
+#include <dirent.h>
+#include <string.h>
+#include <sys/stat.h>
+#include "scanner/scanner.h"
+
+void scan_directory(const char *path, event_handler_fn handler)
+{
+    struct dirent *entry;
+    DIR *dir = opendir(path);
+
+    if (!dir)
+    {
+        perror("opendir");
+        return;
+    }
+
+    while ((entry = readdir(dir)) != NULL)
+    {
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        char full_path[1024];
+        snprintf(full_path, sizeof(full_path), "%s/%s", path, entry->d_name);
+
+        struct stat st;
+        if (stat(full_path, &st) == -1)
+            continue;
+
+        if (S_ISDIR(st.st_mode))
+        {
+            scan_directory(full_path, handler);
+        }
+        else
+        {
+            handler(full_path); // 🔥 injected behavior
+        }
+    }
+
+    closedir(dir);
+}

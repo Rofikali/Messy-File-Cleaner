@@ -1,0 +1,121 @@
+{
+    // ============================================================
+    // Fedora 44 — Professional Dev Container Configuration
+    // Linux 6.14 | DNF5 | GNOME 48 | Released April 2026
+    // ============================================================
+    "name": "Fedora 44 — Pro Dev Environment",
+    // ── Build from our custom Dockerfile ────────────────────────
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "USERNAME": "vscode",
+            "USER_UID": "1000",
+            "USER_GID": "1000"
+        }
+    },
+    // ── Run as non-root user ─────────────────────────────────────
+    "remoteUser": "vscode",
+    // ── Container runtime settings ───────────────────────────────
+    "runArgs": [
+        "--cap-add=SYS_PTRACE",
+        "--security-opt",
+        "seccomp=unconfined"
+    ],
+    // ── Environment variables ────────────────────────────────────
+    "containerEnv": {
+        "SHELL": "/bin/zsh",
+        "TERM": "xterm-256color",
+        "COLORTERM": "truecolor"
+    },
+    // ── Port forwarding (add your app ports here) ────────────────
+    "forwardPorts": [
+        3000, // Node / React dev server
+        8000, // Django / FastAPI
+        8080, // Generic HTTP
+        5432, // PostgreSQL
+        6379 // Redis
+    ],
+    // ── VS Code customizations ───────────────────────────────────
+    "customizations": {
+        "vscode": {
+            "settings": {
+                // Terminal
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "terminal.integrated.shell.linux": "/bin/zsh",
+                "terminal.integrated.fontSize": 14,
+                "terminal.integrated.fontFamily": "'JetBrains Mono', 'Fira Code', monospace",
+                // Editor
+                "editor.fontSize": 14,
+                "editor.fontFamily": "'JetBrains Mono', 'Fira Code', Consolas, monospace",
+                "editor.fontLigatures": true,
+                "editor.tabSize": 2,
+                "editor.formatOnSave": true,
+                "editor.bracketPairColorization.enabled": true,
+                "editor.guides.bracketPairs": "active",
+                "editor.minimap.enabled": false,
+                "editor.wordWrap": "on",
+                "editor.rulers": [
+                    80,
+                    120
+                ],
+                // Git
+                "git.enableSmartCommit": true,
+                "git.autofetch": true,
+                "git.confirmSync": false,
+                // Files
+                "files.trimTrailingWhitespace": true,
+                "files.insertFinalNewline": true,
+                "files.eol": "\n",
+                "files.watcherExclude": {
+                    "**/.git/objects/**": true,
+                    "**/node_modules/**": true,
+                    "**/__pycache__/**": true
+                }
+            },
+            "extensions": [
+                // ── Core utilities ──────────────────────────────────────
+                "eamodio.gitlens",
+                "mhutchie.git-graph",
+                "donjayamanne.githistory",
+                // ── Language support ────────────────────────────────────
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-python.black-formatter",
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "rust-lang.rust-analyzer",
+                "golang.go",
+                // ── DevOps & containers ─────────────────────────────────
+                "ms-azuretools.vscode-docker",
+                "ms-kubernetes-tools.vscode-kubernetes-tools",
+                "redhat.vscode-yaml",
+                "hashicorp.terraform",
+                // ── Productivity ────────────────────────────────────────
+                "streetsidesoftware.code-spell-checker",
+                "christian-kohler.path-intellisense",
+                "wayou.vscode-todo-highlight",
+                "gruntfuss.reborntheme",
+                "pkief.material-icon-theme",
+                // ── Remote & SSH ────────────────────────────────────────
+                "ms-vscode-remote.remote-containers",
+                "ms-vscode.remote-explorer",
+                // ── Shell ───────────────────────────────────────────────
+                "timonwong.shellcheck",
+                "foxundermoon.shell-format"
+            ]
+        }
+    },
+    // ── Lifecycle hooks ──────────────────────────────────────────
+    "onCreateCommand": "bash .devcontainer/on-create.sh",
+    "postCreateCommand": "bash .devcontainer/post-create.sh",
+    "postStartCommand": "echo '🚀 Fedora 44 Dev Container Ready — $(uname -r)'",
+    // ── Mount local SSH keys into container ──────────────────────
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached,readonly"
+    ],
+    // NOTE: devcontainer features (git-lfs, github-cli) use apt-get internally
+    // and are incompatible with Fedora. Both installed via DNF5 in Dockerfile.
+    "features": {}
+}

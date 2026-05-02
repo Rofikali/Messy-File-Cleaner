@@ -3,7 +3,7 @@
 # Build directories
 # ===============================
 build/
-bin/
+*bin/
 dist/
 out/
 

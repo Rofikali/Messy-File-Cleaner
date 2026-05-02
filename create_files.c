@@ -25,7 +25,7 @@ void* create_files(void* arg) {
     for (int i = start; i < end; i++) {
         int ext_idx = rand() % num_exts;
         sprintf(filename, "generated_files/file_%d%s", i, extensions[ext_idx]);
-        
+
         FILE *f = fopen(filename, "w");
         if (f) fclose(f);
 
@@ -44,7 +44,7 @@ int main() {
     pthread_t threads[NUM_THREADS];
     int thread_ids[NUM_THREADS];
     pthread_mutex_init(&lock, NULL);
-    
+
     clock_t start_time = clock();
     srand(time(NULL));
 

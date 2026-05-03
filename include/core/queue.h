@@ -16,7 +16,7 @@ typedef struct
     pthread_mutex_t lock;
 } EventQueue;
 
-void enqueue(EventQueue *q, FileEvent *e);
+int enqueue(EventQueue *q, const FileEvent *e);
 int dequeue(EventQueue *q, FileEvent *e);
 
 #endif // QUEUE_H

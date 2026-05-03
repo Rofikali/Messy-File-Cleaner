@@ -7,14 +7,42 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
+#include <time.h>
+#include <errno.h>
 
 #include "utils/limits.h" // ✅ your central limits
 #include "watcher/watcher.h"
 
 #define EVENT_BUF_LEN (1024 * (sizeof(struct inotify_event) + 16))
 
+static void queue_backoff(AppContext *ctx)
+{
+    atomic_fetch_add(&ctx->metrics.queue_backpressure_waits, 1);
+
+    const struct timespec delay = {
+        .tv_sec = 0,
+        .tv_nsec = 1000000,
+    };
+    nanosleep(&delay, NULL);
+}
+
+static void idle_backoff(AppContext *ctx)
+{
+    atomic_fetch_add(&ctx->metrics.watcher_idle_polls, 1);
+
+    const struct timespec delay = {
+        .tv_sec = 0,
+        .tv_nsec = 1000000,
+    };
+    nanosleep(&delay, NULL);
+}
+
 static void enqueue_path(const char *path, AppContext *ctx)
 {
+    atomic_fetch_add(&ctx->metrics.events_seen, 1);
+    atomic_fetch_add(&ctx->metrics.watcher_events, 1);
+
     FileEvent e;
 
     strncpy(e.path, path, sizeof(e.path) - 1);
@@ -22,7 +50,16 @@ static void enqueue_path(const char *path, AppContext *ctx)
     e.type = FILE_CREATED;
 
     int idx = dispatch(ctx, path);
-    lf_enqueue(&ctx->queues[idx], &e);
+    while (atomic_load(&ctx->running) && !lf_enqueue(&ctx->queues[idx], &e))
+        queue_backoff(ctx);
+
+    if (!atomic_load(&ctx->running))
+        return;
+
+    atomic_fetch_add(&ctx->metrics.events_enqueued, 1);
+
+    uint64_t one = 1;
+    write(ctx->efd[idx], &one, sizeof(one));
 }
 
 int dispatch(AppContext *ctx, const char *path)
@@ -32,12 +69,15 @@ int dispatch(AppContext *ctx, const char *path)
     for (const char *p = path; *p; p++)
         h = ((h << 5) + h) + *p;
 
+    if (ctx->num_workers <= 0)
+        return 0;
+
     return h % ctx->num_workers;
 }
 
 void start_watcher(const char *path, AppContext *ctx)
 {
-    int fd = inotify_init();
+    int fd = inotify_init1(IN_NONBLOCK);
     if (fd < 0)
     {
         perror("inotify_init");
@@ -54,11 +94,19 @@ void start_watcher(const char *path, AppContext *ctx)
 
     char buffer[EVENT_BUF_LEN];
 
-    while (1)
+    // while (1)
+    while (atomic_load(&ctx->running))
     {
-        int length = read(fd, buffer, EVENT_BUF_LEN);
+        ssize_t length = read(fd, buffer, EVENT_BUF_LEN);
         if (length <= 0)
+        {
+            if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
+            {
+                idle_backoff(ctx);
+                continue;
+            }
             continue;
+        }
 
         int i = 0;
 
@@ -87,4 +135,7 @@ void start_watcher(const char *path, AppContext *ctx)
             i += sizeof(struct inotify_event) + event->len;
         }
     }
+
+    inotify_rm_watch(fd, wd);
+    close(fd);
 }

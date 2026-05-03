@@ -55,16 +55,18 @@ Key upgrades in this version:
 
 ---
 
-## 4.1 File System Traversal → Graph (DFS)
+## 4.1 File System Traversal → Graph
 
 ### Choice:
 
 * **Iterative DFS (stack-based)**
+* BFS can be added later behind configuration if directory-depth behavior requires it
 
 ### Why:
 
 * Avoid recursion stack overflow
 * Better control over memory
+* Predictable memory growth under deep directory trees
 
 ```c
 typedef struct {
@@ -83,7 +85,9 @@ High-frequency file events (scanner + watcher)
 
 ### Solution:
 
-**Lock-free circular queue (single producer, single consumer initially)**
+**Bounded circular queue**
+
+Initial implementation should use a mutex-protected queue for correctness. Lock-free SPSC queues are a future optimization and must only be used when the producer/consumer model is explicitly SPSC.
 
 ```c
 #define QUEUE_SIZE 1024
@@ -438,9 +442,226 @@ file.tmp → fsync → rename → final
 * Cleanup aggressively
 * Log everything
 
+## Error Contract:
+
+Every module must return explicit status codes. No silent failure is allowed.
+
+```c
+typedef enum {
+    FC_OK = 0,
+    FC_ERR_INVALID_PATH,
+    FC_ERR_PERMISSION,
+    FC_ERR_QUEUE_FULL,
+    FC_ERR_IO,
+    FC_ERR_COLLISION_LIMIT,
+    FC_ERR_UNSUPPORTED
+} FcStatus;
+```
+
+### Rules:
+
+* Preserve `errno` for filesystem failures
+* Log source path, destination path, operation, and error
+* Treat missing source file as a stale event, not a fatal system failure
+* Treat destination collision as expected behavior
+* Treat partial copy as a hard failure and cleanup temp files
+
 ---
 
-# 17. Symlink Handling
+# 17. File System Correctness Contract
+
+---
+
+This is the most important correctness section because the system moves user data.
+
+## Guarantees:
+
+* Source file is deleted only after destination is fully created
+* Partial destination files are never exposed as final files
+* Cross-filesystem moves use copy + fsync + rename
+* Temporary files are cleaned after failure
+* Destination collision resolution is atomic
+* Crash recovery can identify incomplete operations
+
+## Move Algorithm:
+
+```text
+1. Validate source path
+2. Validate destination directory
+3. Create destination placeholder with O_CREAT | O_EXCL
+4. Try rename(src, final)
+5. If EXDEV:
+   a. copy src -> final.tmp
+   b. fsync final.tmp
+   c. rename final.tmp -> final
+   d. fsync destination directory
+   e. unlink source
+6. Write operation result to journal
+```
+
+## Required `errno` Handling:
+
+| Error | Behavior |
+| ----- | -------- |
+| `EXDEV` | Use copy + atomic rename |
+| `EEXIST` | Generate new destination name |
+| `ENOENT` | Stale event; skip safely |
+| `EACCES` / `EPERM` | Log and skip |
+| `ENOSPC` | Stop mover, preserve source |
+| `EINTR` | Retry syscall when safe |
+| `ENAMETOOLONG` | Log and skip |
+
+## Startup Recovery:
+
+At startup, scan for leftover temp files and journal entries marked `STARTED`.
+
+Policy:
+
+* If source still exists, delete incomplete temp destination
+* If final destination exists and source exists, keep both and log conflict
+* If final destination exists and source is gone, mark operation complete
+
+---
+
+# 18. Queue Contract
+
+---
+
+The queue is a correctness boundary, not only a DSA component.
+
+## Initial Contract:
+
+* Stage 1/2: mutex-protected bounded circular queue
+* Future Stage 3/4: lock-free SPSC or sharded SPSC queues
+* MPSC requires a different design; do not use SPSC atomics with multiple producers
+
+## Required Semantics:
+
+```c
+int enqueue(EventQueue* q, const FileEvent* e);
+int dequeue(EventQueue* q, FileEvent* out);
+```
+
+Return values:
+
+* `1` = success
+* `0` = queue empty/full
+* `-1` = invalid state
+
+## Queue Rules:
+
+* Never overwrite unread events
+* Always unlock mutex before return
+* Define full condition as `next_tail == head`
+* On overflow, apply configured backpressure policy
+* Shutdown must wake blocked consumers
+
+## Backpressure Policies:
+
+| Policy | Behavior |
+| ------ | -------- |
+| `block` | Producer waits for capacity |
+| `drop_duplicate` | Drop event if same path already pending |
+| `rescan` | Mark root dirty and schedule full scan |
+| `fail_fast` | Stop processing and return error |
+
+Default policy should be `block` for scanner and `rescan` for watcher bursts.
+
+---
+
+# 19. Idempotency and Duplicate Events
+
+---
+
+Filesystem events are at-least-once, unordered, and sometimes stale.
+
+## Idempotency Rules:
+
+* Moving an already moved file must not crash the pipeline
+* Missing source means event is stale
+* Destination folders may already exist
+* Repeated collision checks must remain atomic
+* Duplicate events for the same path should be coalesced where possible
+
+## Event Coalescing:
+
+Use a small fixed-size hash/set or ring cache for recent paths.
+
+```text
+key = normalized_absolute_path
+value = last_event_time + event_type
+```
+
+If the same path appears within debounce window, merge events.
+
+---
+
+# 20. Safety Policy
+
+---
+
+The cleaner must protect users from destructive mistakes.
+
+## Default Restrictions:
+
+* Refuse to run on `/`
+* Refuse system directories like `/bin`, `/usr`, `/etc`, `/var`
+* Refuse home directory root unless `--force`
+* Skip symlinks by default
+* Skip device files, sockets, FIFOs, and special files
+* Do not follow hardlinks unless explicitly configured
+* Do not move files that are still being written
+
+## Write-Stability Check:
+
+Before moving a file from watcher mode:
+
+```text
+stat file
+wait debounce interval
+stat file again
+move only if size and mtime are stable
+```
+
+---
+
+# 21. Recovery Journal / Move Ledger
+
+---
+
+Every mutating operation should be recorded.
+
+## Journal Record:
+
+```c
+typedef enum {
+    OP_STARTED,
+    OP_COMPLETED,
+    OP_FAILED
+} OperationState;
+
+typedef struct {
+    char source[PATH_MAX];
+    char destination[PATH_MAX];
+    EventType event_type;
+    OperationState state;
+    int error_code;
+    long timestamp_ns;
+} MoveJournalRecord;
+```
+
+## Journal Uses:
+
+* Crash recovery
+* Undo support
+* Debugging user reports
+* Auditing data movement
+
+Write the journal before mutating the filesystem and update it after completion.
+
+---
+
+# 22. Symlink Handling
 
 ---
 
@@ -457,7 +678,7 @@ file.tmp → fsync → rename → final
 
 ---
 
-# 18. Performance Characteristics
+# 23. Performance Characteristics
 
 ---
 
@@ -470,7 +691,7 @@ file.tmp → fsync → rename → final
 
 ---
 
-# 19. Bottleneck Analysis
+# 24. Bottleneck Analysis
 
 ---
 
@@ -485,7 +706,36 @@ file.tmp → fsync → rename → final
 
 ---
 
-# 20. Future Optimizations
+# 25. Performance Budget
+
+---
+
+Performance claims should be measured, not guessed.
+
+## Initial Targets:
+
+| Metric | Target |
+| ------ | ------ |
+| Memory usage | O(queue size + config size) |
+| Queue operation | O(1) |
+| Classification | Average O(1) |
+| Same-filesystem move | One `rename()` fast path |
+| Cross-filesystem copy | Buffered sequential IO |
+| Watcher latency | Configurable debounce window |
+
+## Metrics to Capture:
+
+* files processed per second
+* bytes copied per second
+* queue depth
+* queue overflow count
+* move failures by `errno`
+* duplicate event count
+* average processing latency
+
+---
+
+# 26. Future Optimizations
 
 ---
 
@@ -496,7 +746,7 @@ file.tmp → fsync → rename → final
 
 ---
 
-# 21. Final Execution Flow
+# 27. Final Execution Flow
 
 ```text
 Scanner/Watcher
@@ -516,7 +766,7 @@ Observer (logging)
 
 ---
 
-# 22. Summary
+# 28. Summary
 
 This design achieves:
 

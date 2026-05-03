@@ -369,9 +369,54 @@ Queue overflow during event bursts
 * Permission checks
 * Safe file handling
 
+## Safety Boundaries:
+
+The system must be conservative because it mutates user files.
+
+Default behavior:
+
+* Dry-run mode available for all commands
+* Refuse dangerous roots like `/`, `/bin`, `/usr`, `/etc`, `/var`
+* Refuse home directory root unless `--force` is passed
+* Skip symlinks by default
+* Skip special files such as sockets, device files, and FIFOs
+* Never delete source before durable destination is confirmed
+* Never follow paths outside the configured root after normalization
+
 ---
 
-# 14. Symlink Policy
+# 14. CLI and Operating Modes
+
+---
+
+The CLI is the user-facing control plane.
+
+## Required Modes:
+
+```text
+file-cleaner --root <path> --config <file> --dry-run
+file-cleaner --root <path> --config <file> --once
+file-cleaner --root <path> --config <file> --watch
+file-cleaner --root <path> --config <file> --workers <n>
+file-cleaner --root <path> --restore <journal>
+```
+
+## Mode Semantics:
+
+| Mode | Behavior |
+| ---- | -------- |
+| `--dry-run` | Print planned operations without moving files |
+| `--once` | Run scanner once and exit |
+| `--watch` | Run scanner, then watch for new events |
+| `--workers` | Configure processing concurrency |
+| `--restore` | Use journal to inspect or reverse operations |
+| `--force` | Allow risky roots after explicit user intent |
+
+Default mode for early releases should be `--dry-run` or require explicit confirmation before mutation.
+
+---
+
+# 15. Symlink Policy
 
 ---
 
@@ -388,7 +433,7 @@ Queue overflow during event bursts
 
 ---
 
-# 15. Observability
+# 16. Observability
 
 ---
 
@@ -399,14 +444,128 @@ Queue overflow during event bursts
 
 ---
 
-## Future:
+## Metrics:
 
-* Metrics (files/sec)
+* files/sec
+* bytes/sec
 * Queue depth
+* queue overflow count
+* event duplicates
+* move failures by `errno`
+* watcher debounce count
+* crash recovery count
+
+## Logs Must Include:
+
+* operation id
+* source path
+* destination path
+* event type
+* result
+* `errno` where applicable
+* elapsed time
 
 ---
 
-# 16. Performance Characteristics
+# 17. Recovery and Undo Strategy
+
+---
+
+The system should maintain a move journal for every mutating filesystem operation.
+
+## Journal Responsibilities:
+
+* Record operation before mutation
+* Mark operation complete after durable destination is confirmed
+* Mark operation failed with error code on failure
+* Support startup recovery for incomplete temp files
+* Support user-facing restore or audit flow
+
+## Recovery Guarantees:
+
+* No partial file should appear as final output
+* Source should be preserved on copy failure
+* Incomplete temp files should be cleaned on startup
+* Duplicate or stale events should not create data loss
+
+---
+
+# 18. Queue and Consistency Model
+
+---
+
+## Queue Contract:
+
+The queue is bounded. Overflow behavior must be explicit.
+
+Default policies:
+
+* Scanner producer blocks when queue is full
+* Watcher producer coalesces duplicate events
+* If watcher bursts exceed capacity, mark root dirty and schedule full scan
+* Workers must drain before shutdown
+
+## Consistency Guarantees:
+
+* At-least-once event processing
+* Eventual consistency after full scan
+* Duplicate events are allowed
+* Missing files are treated as stale events
+* File operations must be idempotent
+
+---
+
+# 19. Test and Validation Strategy
+
+---
+
+Testing must cover filesystem edge cases, not only pure data structures.
+
+## Required Test Matrix:
+
+| Area | Cases |
+| ---- | ----- |
+| Queue | empty, full, wraparound, overflow, shutdown |
+| Scanner | nested dirs, long paths, permissions, hidden files |
+| Watcher | duplicate events, burst events, file still being written |
+| Classifier | unknown extension, case normalization, default mapping |
+| Collision | existing names, high collision count, atomic create |
+| Mover | rename fast path, EXDEV copy, ENOSPC, EACCES, EINTR |
+| Recovery | crash during copy, stale temp files, incomplete journal |
+| Safety | symlink skip, special file skip, dangerous root refusal |
+
+System tests should run in temporary directories only.
+
+---
+
+# 20. Performance Budget
+
+---
+
+The system is IO-bound, so performance work should be driven by measurements.
+
+## Initial Budget:
+
+| Metric | Target Direction |
+| ------ | ---------------- |
+| Same-filesystem move | Prefer `rename()` only |
+| Cross-filesystem move | Sequential buffered copy |
+| Queue operation | O(1) bounded memory |
+| Classification | Average O(1) |
+| Memory | Preallocated hot path |
+| Watch latency | Debounce-window bounded |
+
+## Profiling Tools:
+
+* `perf stat`
+* `perf record`
+* `strace -c`
+* ASan / UBSan debug builds
+* stress tests with generated file trees
+
+---
+
+# 21. Performance Characteristics
 
 ---
 
@@ -424,7 +583,7 @@ Queue overflow during event bursts
 
 ---
 
-# 17. Bottlenecks
+# 22. Bottlenecks
 
 ---
 
@@ -436,7 +595,7 @@ Queue overflow during event bursts
 
 ---
 
-# 18. Trade-offs
+# 23. Trade-offs
 
 ---
 
@@ -445,35 +604,42 @@ Queue overflow during event bursts
 | Monolith     | Simplicity | Limited distribution     |
 | Queue        | Decoupling | Complexity               |
 | Event-driven | Real-time  | Event consistency issues |
+| Dry-run first | User safety | Slower first-run workflow |
+| Journal | Recovery and undo | Extra writes |
+| Bounded queue | Predictable memory | Backpressure complexity |
 
 ---
 
-# 19. Future Extensions
+# 24. Future Extensions
 
 ---
 
-## 19.1 Event Sources
+## 24.1 Event Sources
 
 * Cloud storage events
 * Network file systems
 
 ---
 
-## 19.2 Advanced Features
+## 24.2 Advanced Features
 
 * Duplicate detection
 * Content-based classification
+* Undo command
+* Ignore rules
+* File age and size rules
+* Quarantine mode before final move
 
 ---
 
-## 19.3 Distributed System
+## 24.3 Distributed System
 
 * Kafka-based queue
 * Multi-node workers
 
 ---
 
-# 20. System Diagram (Final Form)
+# 25. System Diagram (Final Form)
 
 ```text
           +------------------+
@@ -509,7 +675,7 @@ Queue overflow during event bursts
 
 ---
 
-# 21. Summary
+# 26. Summary
 
 This architecture provides:
 

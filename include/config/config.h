@@ -1,30 +1,12 @@
-// // ./include/core/config.h
-
-// #ifndef CONFIG_H
-// #define CONFIG_H
-
-// #include "utils/hashmap.h"
-
-// typedef struct
-// {
-//     HashMap ext_map;
-
-//     int batch_size;
-//     int worker_threads;
-//     int idle_sleep_ms;
-
-//     int fsync_batch;
-
-// } Config;
-
-// int load_config(const char *path, Config *cfg);
-
-// #endif
-
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 #include "utils/hashmap.h"
+
+typedef enum
+{
+    MODE_BATCH,
+    MODE_DAEMON
+} Mode;
 
 typedef struct
 {
@@ -33,10 +15,11 @@ typedef struct
     int batch_size;
     int worker_threads;
     int idle_sleep_ms;
-    int fsync_batch;
+
+    Mode mode;
 
 } Config;
 
+void init_config(Config *cfg);
 int load_config(const char *path, Config *cfg);
-
-#endif
+void free_config(Config *cfg);

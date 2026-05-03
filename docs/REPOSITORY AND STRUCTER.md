@@ -149,9 +149,24 @@ file-cleaner/
 ├── src/                # Source code (.c)
 ├── tests/              # Test cases
 ├── scripts/            # Utility scripts
-├── Makefile
+├── CMakeLists.txt
 └── README.md
 ```
+
+## Current Repository Notes:
+
+The current project uses **CMake**, not Makefile-first builds. If a `Makefile` is added later, it should only wrap CMake commands.
+
+Recommended generated directories:
+
+```text
+bin/        # Runtime output
+build/      # CMake build tree
+lib/        # Library output, if needed
+perf/       # perf.data, flamegraphs, profiling notes
+```
+
+Do not commit large generated binaries or profiling outputs unless they are intentionally stored as benchmark artifacts.
 
 ---
 
@@ -169,7 +184,9 @@ src/
 ├── core/                   # Core pipeline
 │   ├── pipeline.c
 │   ├── event.c
-│   └── queue.c
+│   ├── queue.c
+│   ├── lf_queue.c
+│   └── thread_pool.c
 │
 ├── scanner/                # DFS traversal
 │   ├── scanner.c
@@ -190,10 +207,6 @@ src/
 ├── mover/                  # File operations
 │   ├── mover.c
 │   └── mover.h
-│
-├── collision/              # Naming logic
-│   ├── collision.c
-│   └── collision.h
 │
 ├── config/                 # Config loader
 │   ├── config.c
@@ -223,8 +236,21 @@ include/
 ├── resolver/
 ├── mover/
 ├── config/
+├── logging/
 └── utils/
 ```
+
+## Header Ownership Rule:
+
+Public module contracts live under `include/`. Private helpers stay inside the matching `src/` module as `static` functions.
+
+Each public header should document:
+
+* ownership of pointers
+* return values
+* thread-safety
+* error behavior
+* whether the function mutates filesystem state
 
 ---
 
@@ -250,6 +276,15 @@ configs/
 default=Others/
 ```
 
+## Config Rules:
+
+* Config is loaded once at startup
+* Runtime config is immutable after initialization
+* Extensions should be normalized to lowercase
+* Destination paths must be relative to the configured output root
+* Config parse errors fail startup
+* Unknown extensions use `default`
+
 ---
 
 # 8. Tests Structure
@@ -268,29 +303,54 @@ tests/
     ├── test_full_run.sh
 ```
 
+## Required Test Matrix:
+
+| Area | Required Cases |
+| ---- | -------------- |
+| Queue | empty, full, wraparound, overflow, shutdown |
+| Hash map | collisions, missing key, resize/load factor if supported |
+| Scanner | nested dirs, hidden files, long paths, permission denied |
+| Watcher | duplicate events, burst events, file still being written |
+| Classifier | case normalization, unknown extension, default mapping |
+| Mover | rename fast path, cross-filesystem copy, collision naming |
+| Safety | symlink skip, special file skip, dangerous root refusal |
+| Recovery | temp file cleanup, incomplete journal, failed copy |
+
+System tests must use temporary directories and must never run against real user roots.
+
 ---
 
 # 9. Build System
 
 ---
 
-## Makefile Layout
+## CMake Layout
 
-```make
-srcs = $(wildcard src/**/*.c)
-objs = $(srcs:.c=.o)
-
-all:
-    gcc -O2 -Wall $(objs) -o bin/file-cleaner
+```text
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
----
+## Build Types:
 
-## Build Targets
+| Build Type | Purpose |
+| ---------- | ------- |
+| `Debug` | ASan/UBSan, symbols, local debugging |
+| `Release` | Optimized binary |
+| `Profile` | Profiling-friendly build |
 
-* `make` → build
-* `make clean`
-* `make test`
+## Optional Makefile Wrapper:
+
+If a Makefile is added, it should call CMake targets:
+
+```make
+build:
+	cmake --build build
+
+test:
+	ctest --test-dir build --output-on-failure
+```
 
 ---
 
@@ -306,6 +366,25 @@ all:
 4. Static analysis (clang-tidy)
 5. Lint check
 
+## Required Quality Gates:
+
+* Debug build with ASan/UBSan passes
+* Release build passes
+* Unit and integration tests pass
+* System tests pass in temporary directory
+* No compiler warnings in touched modules
+* No committed generated binaries unless approved
+* Documentation updated for public behavior changes
+
+## Recommended Tooling:
+
+* `clang-tidy`
+* `clang-format`
+* `cppcheck`
+* `valgrind` where sanitizer coverage is insufficient
+* `strace -c` for syscall profile
+* `perf stat` / `perf record` for IO and CPU profile
+
 ---
 
 # 11. Coding Standards
@@ -318,6 +397,11 @@ all:
 * Explicit error handling
 * No silent failures
 * Consistent naming
+* Public functions return status values
+* Filesystem mutations must be journaled
+* Hot-path allocations require justification
+* Queue operations must define full/empty behavior
+* Threaded code must document ownership and shutdown
 
 ---
 
@@ -341,10 +425,58 @@ snake_case (C style)
 ## Avoid:
 
 * Heavy external dependencies
+* Hidden global state
+* Ad hoc path parsing when POSIX helpers are available
+* Recursive directory traversal for unbounded trees
 
 ---
 
-# 13. Release Strategy
+# 13. Documentation Ownership
+
+---
+
+## Document Map:
+
+| Document | Owns |
+| -------- | ---- |
+| `HLD.md` | Architecture, evolution stages, user-visible guarantees |
+| `LLD.md` | Data structures, algorithms, contracts, failure handling |
+| `designs.md` | Main flow sketches and design notes |
+| `REPOSITORY AND STRUCTER.md` | Repo layout, branching, build, CI, standards |
+
+## Update Rule:
+
+Any PR that changes public behavior must update the matching document.
+
+Examples:
+
+* Queue behavior change → update LLD and tests
+* CLI flag change → update HLD and README
+* Directory structure change → update repository structure doc
+* File move semantics change → update LLD, HLD, and system tests
+
+---
+
+# 14. Runtime Artifacts
+
+---
+
+Runtime and generated artifacts should be separated from source.
+
+```text
+bin/                 # built executable
+build/               # CMake files
+logs/                # runtime logs, usually gitignored
+journal/             # move ledger, usually gitignored
+perf/                # local profiling output, usually gitignored
+generated_files/     # local stress-test data, gitignored
+```
+
+The move journal is runtime state, not source code. It should be configurable and excluded from normal commits.
+
+---
+
+# 15. Release Strategy
 
 ---
 
@@ -357,7 +489,7 @@ snake_case (C style)
 
 ---
 
-# 14. Future Extensions (Repo Level)
+# 16. Future Extensions (Repo Level)
 
 ---
 
@@ -366,10 +498,14 @@ snake_case (C style)
 * `perf/` → benchmarking tools
 * `bench/` → latency tests
 * `docs/architecture/` → deep dives
+* `docs/runbooks/` → recovery and debugging guides
+* `.github/workflows/` → CI automation
+* `.clang-format` → formatting rules
+* `.clang-tidy` → static analysis rules
 
 ---
 
-# 15. Summary
+# 17. Summary
 
 This setup ensures:
 

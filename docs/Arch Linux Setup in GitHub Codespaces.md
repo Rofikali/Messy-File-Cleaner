@@ -29,10 +29,12 @@ sudo pacman -S base-devel git neovim
 sudo pacman -S less
 sudo pacman -S git-lfs
 git lfs install
+sudo pacman -S cmake ninja
+sudo pacman -S perf
+
 
 git config --global user.email "alirofikr@gmail.com"
 git config --global user.name "Rofik"
-
 
 ```
 

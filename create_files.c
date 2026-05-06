@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define TOTAL_FILES 10000
+#define TOTAL_FILES 1000
 // #define TOTAL_FILES 1000000
 #define NUM_THREADS 8  // Adjust based on your CPU cores
 

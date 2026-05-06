@@ -1,0 +1,6 @@
+{
+    "name": "Arch Linux Dev",
+    "image": "archlinux:latest",
+    "features": {},
+    "postCreateCommand": "pacman -Syu --noconfirm && pacman -S --noconfirm base base-devel git"
+}

@@ -1,8 +1,9 @@
+<<<<<<< HEAD
 # ===============================
 # Build directories
 # ===============================
 build/
-bin/
+*bin/
 dist/
 out/
 
@@ -72,3 +73,13 @@ desktop.ini
 # ===============================
 sorted/
 Testing/
+=======
+*bin
+*build
+*generated_files
+*Png
+*Jpg
+*Jpeg
+*Others
+*Html
+>>>>>>> origin/develop

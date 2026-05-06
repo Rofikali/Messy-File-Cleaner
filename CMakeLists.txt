@@ -1,319 +1,130 @@
-# # tests/CMakeLists.txt
-# cmake_minimum_required(VERSION 3.20)
-
-# project(cleaner C)
-
-# set(CMAKE_C_STANDARD 11)
-# set(CMAKE_C_STANDARD_REQUIRED ON)
-
-# # --------------------------------------------------
-# # Output directories
-# # --------------------------------------------------
-# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-# set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-# # --------------------------------------------------
-# # Core Library
-# # --------------------------------------------------
-
-# # file(GLOB_RECURSE CORE_SOURCES
-# #     "${PROJECT_SOURCE_DIR}/src/core/*.c"
-# #     "${PROJECT_SOURCE_DIR}/src/system/*.c"
-# # )
-
-# # file(GLOB_RECURSE CORE_SOURCES
-# #     "${PROJECT_SOURCE_DIR}/src/core/*.c"
-# #     "${PROJECT_SOURCE_DIR}/src/system/*.c"
-# #     "${PROJECT_SOURCE_DIR}/src/platform/*.c"
-# # )
-# file(GLOB_RECURSE CORE_SOURCES
-#     "${PROJECT_SOURCE_DIR}/src/core/*.c"
-#     "${PROJECT_SOURCE_DIR}/src/system/*.c"
-# )
-
-# if(WIN32)
-#     list(APPEND CORE_SOURCES
-#         "${PROJECT_SOURCE_DIR}/src/platform/filesystem_win.c"
-#         "${PROJECT_SOURCE_DIR}/src/platform/threads_win.c"
-#     )
-# else()
-#     list(APPEND CORE_SOURCES
-#         "${PROJECT_SOURCE_DIR}/src/platform/filesystem_posix.c"
-#         "${PROJECT_SOURCE_DIR}/src/platform/threads_posix.c"
-#     )
-# endif()
-
-# add_library(cleaner_core STATIC ${CORE_SOURCES})
-
-# target_include_directories(cleaner_core
-#     PUBLIC ${PROJECT_SOURCE_DIR}/include
-# )
-
-# # if (MINGW)
-# #     target_compile_options(cleaner_core PRIVATE -Wall -Wextra -Wpedantic)
-# # endif()
-
-# if (MINGW)
-#     target_link_options(cleaner PRIVATE -mconsole)
-# endif()
-# # --------------------------------------------------
-# # CLI Executable
-# # --------------------------------------------------
-
-# add_executable(cleaner
-#     src/cli/main.c
-# )
-
-# target_link_libraries(cleaner PRIVATE cleaner_core)
-
-# if (MINGW)
-#     target_link_options(cleaner PRIVATE -municode -mconsole)
-# endif()
-
-# # --------------------------------------------------
-# # Testing
-# # --------------------------------------------------
-
-# enable_testing()
-# add_subdirectory(tests)
-
-# # --------------------------------------------------
-# # Static Analysis (Cppcheck)
-# # --------------------------------------------------
-
-# find_program(CPPCHECK cppcheck)
-
-# if(CPPCHECK)
-#     add_custom_target(
-#         static_analysis
-#         COMMAND ${CPPCHECK}
-#         --enable=all
-#         --inconclusive
-#         --std=c11
-#         ${PROJECT_SOURCE_DIR}/src
-#         ${PROJECT_SOURCE_DIR}/include
-#     )
-# endif()
-
-
-
-
-# # cmake_minimum_required(VERSION 3.20)
-
-# # project(cleaner VERSION 1.0 LANGUAGES C)
-
-# # set(CMAKE_C_STANDARD 11)
-# # set(CMAKE_C_STANDARD_REQUIRED ON)
-
-# # # --------------------------------------------------
-# # # Output directories
-# # # --------------------------------------------------
-
-# # set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-# # set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-# # # --------------------------------------------------
-# # # Core Library
-# # # --------------------------------------------------
-
-# # file(GLOB_RECURSE CORE_SOURCES
-# #     "${PROJECT_SOURCE_DIR}/src/core/*.c"
-# #     "${PROJECT_SOURCE_DIR}/src/system/*.c"
-# # )
-
-# # add_library(cleaner_core STATIC ${CORE_SOURCES})
-
-# # target_include_directories(cleaner_core
-# #     PUBLIC ${PROJECT_SOURCE_DIR}/include
-# # )
-
-# # # --------------------------------------------------
-# # # CLI Executable
-# # # --------------------------------------------------
-
-# # add_executable(cleaner
-# #     src/cli/main.c
-# # )
-
-# # target_link_libraries(cleaner PRIVATE cleaner_core)
-
-# # if (MINGW)
-# #     target_link_options(cleaner PRIVATE -municode -mconsole)
-# # endif()
-
-# # # --------------------------------------------------
-# # # Compiler Warnings (Professional Setup)
-# # # --------------------------------------------------
-
-# # add_library(project_warnings INTERFACE)
-
-# # if (MSVC)
-# #     target_compile_options(project_warnings INTERFACE /W4 /WX)
-# # else()
-# #     target_compile_options(project_warnings INTERFACE
-# #         -Wall
-# #         -Wextra
-# #         -Wpedantic
-# #         -Wconversion
-# #         -Wshadow
-# #         -Werror
-# #     )
-# # endif()
-
-# # target_link_libraries(cleaner_core PRIVATE project_warnings)
-# # target_link_libraries(cleaner PRIVATE project_warnings)
-
-# # # --------------------------------------------------
-# # # Testing
-# # # --------------------------------------------------
-
-# # enable_testing()
-# # add_subdirectory(tests)
-
-# # # --------------------------------------------------
-# # # Static Analysis (Cppcheck)
-# # # --------------------------------------------------
-
-# # option(ENABLE_STATIC_ANALYSIS "Enable static analysis" ON)
-
-# # if (ENABLE_STATIC_ANALYSIS)
-# #     find_program(CPPCHECK cppcheck)
-
-# #     if (CPPCHECK)
-# #         message(STATUS "Cppcheck found: ${CPPCHECK}")
-# #         set(CMAKE_C_CPPCHECK
-# #             ${CPPCHECK};
-# #             --enable=warning,performance,portability;
-# #             --inconclusive;
-# #             --std=c11;
-# #             --quiet
-# #         )
-# #     endif()
-# # endif()
-
-# # # Platform selection
-# # if (WIN32)
-# #     target_sources(cleaner_core PRIVATE
-# #         src/platform/filesystem_win.c
-# #         src/platform/threads_win.c
-# #     )
-# # else()
-# #     target_sources(cleaner_core PRIVATE
-# #         src/platform/filesystem_posix.c
-# #         src/platform/threads_posix.c
-# #     )
-# # endif()
-
-
-
 cmake_minimum_required(VERSION 3.20)
 
-project(cleaner VERSION 1.0 LANGUAGES C)
+# ── Project ────────────────────────────────────────────────────
+project(file-cleaner
+  VERSION 1.0.0
+  DESCRIPTION "Messy File Cleaner"
+  LANGUAGES C ASM
+)
 
-set(CMAKE_C_STANDARD 11)
+# ── Fedora 44 / GCC 16 toolchain settings ──────────────────────
+set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS OFF)
 
-# --------------------------------------------------
-# Output directories
-# --------------------------------------------------
+# ── Output directories ─────────────────────────────────────────
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-# --------------------------------------------------
-# Core Library
-# --------------------------------------------------
-
-file(GLOB_RECURSE CORE_SOURCES
-    "${PROJECT_SOURCE_DIR}/src/core/*.c"
-    "${PROJECT_SOURCE_DIR}/src/system/*.c"
+# ── Compiler flags ─────────────────────────────────────────────
+# REMOVE -fhardened from DEBUG_FLAGS:
+set(DEBUG_FLAGS
+  -O0
+  -g3
+  -fsanitize=address,undefined
+  -fno-omit-frame-pointer
 )
 
-add_library(cleaner_core STATIC)
-
-target_sources(cleaner_core PRIVATE ${CORE_SOURCES})
-
-# Platform-specific sources
-
-# if (WIN32)
-#     target_sources(cleaner_core PRIVATE
-#         src/platform/filesystem_win.c
-#         src/platform/threads_win.c
-#     )
-# else()
-#     target_sources(cleaner_core PRIVATE
-#         src/platform/filesystem_posix.c
-#         src/platform/threads_posix.c
-#     )
-# endif()
-# --------------------------------------------------
-# Platform Sources (Attach to cleaner_core)
-# --------------------------------------------------
-
-if (WIN32)
-    target_sources(cleaner_core PRIVATE
-        src/platform/filesystem/filesystem_win.c
-        src/platform/threads/threads_win.c
-        src/platform/sync/mutex_win.c
-        src/platform/sync/atomic_win.c
-        src/platform/time/time_win.c
-    )
-endif()
-
-if (UNIX AND NOT WIN32)
-    target_sources(cleaner_core PRIVATE
-        src/platform/filesystem_posix.c
-        src/platform/threads_posix.c
-        src/platform/mutex_posix.c
-        src/platform/atomic_posix.c
-        src/platform/time_posix.c
-    )
-
-    target_link_libraries(cleaner_core PRIVATE pthread)
-endif()
-
-target_include_directories(cleaner_core
-    PUBLIC ${PROJECT_SOURCE_DIR}/include
+# ADD -fhardened only to RELEASE_FLAGS where -O2/-O3 is active:
+set(RELEASE_FLAGS
+  -O3
+  -march=native
+  -flto
+  -fomit-frame-pointer
+  -fhardened
+  -DNDEBUG
 )
 
-# --------------------------------------------------
-# CLI Executable
-# --------------------------------------------------
-
-add_executable(cleaner
-    src/cli/main.c
+set(DEBUG_FLAGS
+  -O0
+  -g3
+  -fsanitize=address,undefined
+  -fno-omit-frame-pointer
 )
 
-target_link_libraries(cleaner PRIVATE cleaner_core)
+set(RELEASE_FLAGS
+  -O3
+  -march=native
+  -flto
+  -fomit-frame-pointer
+  -DNDEBUG
+)
 
-if (MINGW)
-    target_link_options(cleaner PRIVATE -mconsole)
-endif()
+set(PROFILE_FLAGS
+  -O2
+  -g
+  -pg
+  -fno-omit-frame-pointer
+  -DNDEBUG
+)
 
-# --------------------------------------------------
-# Compiler Warnings
-# --------------------------------------------------
+# ── Source collection ──────────────────────────────────────────
+file(GLOB_RECURSE C_SOURCES
+  ${CMAKE_SOURCE_DIR}/src/*.c
+  ${CMAKE_SOURCE_DIR}/src/**/*.c
+)
 
-add_library(project_warnings INTERFACE)
+file(GLOB_RECURSE ASM_SOURCES
+  ${CMAKE_SOURCE_DIR}/src/*.s
+  ${CMAKE_SOURCE_DIR}/src/*.S
+  ${CMAKE_SOURCE_DIR}/src/**/*.s
+  ${CMAKE_SOURCE_DIR}/src/**/*.S
+)
 
-if (MSVC)
-    target_compile_options(project_warnings INTERFACE /W4)
+# ── Main executable ────────────────────────────────────────────
+add_executable(${PROJECT_NAME}
+  ${C_SOURCES}
+  ${ASM_SOURCES}
+)
+
+# ── Include paths ──────────────────────────────────────────────
+target_include_directories(${PROJECT_NAME} PRIVATE
+  ${CMAKE_SOURCE_DIR}/include /configs
+)
+
+# ── Link libraries ─────────────────────────────────────────────
+target_link_libraries(${PROJECT_NAME} PRIVATE
+  pthread
+  m
+)
+
+# ── Apply flags per build type ─────────────────────────────────
+target_compile_options(${PROJECT_NAME} PRIVATE ${COMMON_FLAGS})
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message(STATUS "Build: Debug (ASan + UBSan enabled)")
+  target_compile_options(${PROJECT_NAME} PRIVATE ${DEBUG_FLAGS})
+  target_link_options(${PROJECT_NAME} PRIVATE -fsanitize=address,undefined)
+
+elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
+  message(STATUS "Build: Release (O3 + LTO + march=native)")
+  target_compile_options(${PROJECT_NAME} PRIVATE ${RELEASE_FLAGS})
+  target_link_options(${PROJECT_NAME} PRIVATE -flto)
+
+elseif(CMAKE_BUILD_TYPE STREQUAL "Profile")
+  message(STATUS "Build: Profile (perf + gprof ready)")
+  target_compile_options(${PROJECT_NAME} PRIVATE ${PROFILE_FLAGS})
+  target_link_options(${PROJECT_NAME} PRIVATE -pg)
+
 else()
-    target_compile_options(project_warnings INTERFACE
-        -Wall
-        -Wextra
-        -Wpedantic
-        -Wshadow
-        -Wconversion
-    )
+  message(STATUS "Build: Default (O2)")
+  target_compile_options(${PROJECT_NAME} PRIVATE -O2 -g)
 endif()
 
-target_link_libraries(cleaner_core PRIVATE project_warnings)
-target_link_libraries(cleaner PRIVATE project_warnings)
+# ── Assembly: enable listing output in Debug ───────────────────
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -g")
+endif()
 
-# --------------------------------------------------
-# Testing
-# --------------------------------------------------
+# ── Install target ─────────────────────────────────────────────
+install(TARGETS ${PROJECT_NAME}
+  RUNTIME DESTINATION bin
+)
 
-enable_testing()
-add_subdirectory(tests)
+# ── Print summary ──────────────────────────────────────────────
+message(STATUS "Project   : ${PROJECT_NAME} v${PROJECT_VERSION}")
+message(STATUS "Compiler  : ${CMAKE_C_COMPILER}")
+message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Sources   : ${C_SOURCES}")
+message(STATUS "ASM files : ${ASM_SOURCES}")

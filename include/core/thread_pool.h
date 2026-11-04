@@ -11,7 +11,9 @@ typedef struct
     int efd;
 } WorkerArgs;
 
-/* Starts all requested workers or cleans up every partially started worker. */
+/* Starts all requested workers or cleans up every partially started worker.
+ * The caller initializes ctx->running; this function never overrides a stop request.
+ */
 int start_workers(AppContext *ctx, int num_threads);
 
 /* Stops intake, wakes workers, drains queued work, joins threads, and closes fds. */

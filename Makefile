@@ -8,8 +8,11 @@ TARGET_DEBUG      := $(BUILD_DIR_DEBUG)/file-cleaner
 TARGET_RELEASE    := $(BUILD_DIR_RELEASE)/file-cleaner
 TARGET_PROFILE    := $(BUILD_DIR_PROFILE)/file-cleaner
 GENERATED_FILES   := ./generated_files/
+BENCH_FILES       ?= 10000
+BENCH_RUNS        ?= 30
+BENCH_OUTPUT      ?= benchmark-results/cli-dry-run
 
-.PHONY: all debug release profile run run-execute perf perf-record gprof clean asm help
+.PHONY: all debug release profile run run-execute perf perf-record gprof benchmark clean asm help
 
 all: debug
 
@@ -47,6 +50,9 @@ gprof: profile
 	@./$(TARGET_PROFILE) $(GENERATED_FILES) --dry-run
 	@gprof $(TARGET_PROFILE) gmon.out | less
 
+benchmark: release
+	@python3 tests/performance/benchmark_cli.py --binary $(TARGET_RELEASE) --config configs/default.conf --files $(BENCH_FILES) --runs $(BENCH_RUNS) --output $(BENCH_OUTPUT)
+
 asm:
 	@mkdir -p build/asm
 	@$(CC) $(CFLAGS) -O2 -S -masm=intel $$(find src -name '*.c') -I include
@@ -67,5 +73,6 @@ help:
 	@echo "make perf        -> Profile dry-run"
 	@echo "make perf-record -> Record dry-run profile"
 	@echo "make gprof       -> Generate dry-run gprof report"
+	@echo "make benchmark   -> Safe repeatable CLI dry-run benchmark"
 	@echo "make asm         -> Dump Intel-syntax assembly"
 	@echo "make clean       -> Remove build artifacts only"

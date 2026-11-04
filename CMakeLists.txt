@@ -143,6 +143,20 @@ if(BUILD_TESTING)
   )
   set_tests_properties(cli_end_to_end PROPERTIES TIMEOUT 30)
 
+  find_package(Python3 COMPONENTS Interpreter)
+  if(Python3_Interpreter_FOUND)
+    add_test(NAME cli_benchmark_smoke
+      COMMAND ${Python3_EXECUTABLE}
+              "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_cli.py"
+              --binary "$<TARGET_FILE:${PROJECT_NAME}>"
+              --config "${CMAKE_CURRENT_SOURCE_DIR}/configs/default.conf"
+              --files 30
+              --runs 3
+              --output "${CMAKE_CURRENT_BINARY_DIR}/benchmark-smoke/cli"
+    )
+    set_tests_properties(cli_benchmark_smoke PROPERTIES TIMEOUT 60)
+  endif()
+
 endif()
 
 install(TARGETS ${PROJECT_NAME}

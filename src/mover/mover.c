@@ -1,175 +1,292 @@
-// ./src/mover/mover.c
+#define _GNU_SOURCE
+#define _POSIX_C_SOURCE 200809L
 
-#define _GNU_SOURCE             // for O_DIRECTORY
-#define _POSIX_C_SOURCE 200809L // for POSIX APIs
-
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
-#include <sys/stat.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/syscall.h>
+#include <unistd.h>
+
+#include <linux/fs.h>
 
 #include "mover/mover.h"
 #include "utils/fs_utils.h"
-
-// ── Fallbacks (portable safety) ───────────────────────────────
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
 
 #ifndef NAME_MAX
 #define NAME_MAX 255
 #endif
 
-static int retry_close(int fd)
+#ifndef RENAME_NOREPLACE
+#define RENAME_NOREPLACE (1U << 0)
+#endif
+
+static unsigned long temp_sequence;
+
+static int rename_noreplace(int old_dirfd, const char *old_name,
+                            int new_dirfd, const char *new_name)
 {
-    int rc;
-    do
-    {
-        rc = close(fd);
-    } while (rc != 0 && errno == EINTR);
-    return rc;
+#ifdef SYS_renameat2
+    return (int)syscall(SYS_renameat2, old_dirfd, old_name,
+                        new_dirfd, new_name, RENAME_NOREPLACE);
+#else
+    (void)old_dirfd;
+    (void)old_name;
+    (void)new_dirfd;
+    (void)new_name;
+    errno = ENOTSUP;
+    return -1;
+#endif
 }
 
-static int retry_rename(const char *src, const char *dest)
+static int close_checked(int fd)
 {
-    int rc;
-    do
-    {
-        rc = rename(src, dest);
-    } while (rc != 0 && errno == EINTR);
-    return rc;
+    /* Do not retry close(): on Linux the descriptor may already be released. */
+    return close(fd);
 }
 
-static int retry_unlink(const char *path)
+static int split_path(const char *path, char **parent_out, char **name_out)
 {
-    int rc;
-    do
+    if (!path || !path[0] || !parent_out || !name_out)
     {
-        rc = unlink(path);
-    } while (rc != 0 && errno == EINTR);
-    return rc;
-}
-
-static int fsync_dir(const char *dir)
-{
-    int dir_fd;
-    do
-    {
-        dir_fd = open(dir, O_RDONLY | O_DIRECTORY);
-    } while (dir_fd < 0 && errno == EINTR);
-
-    if (dir_fd < 0)
+        errno = EINVAL;
         return -1;
+    }
 
-    int rc;
-    do
-    {
-        rc = fsync(dir_fd);
-    } while (rc != 0 && errno == EINTR);
-
-    retry_close(dir_fd);
-    return rc;
-}
-
-// ── extract_name ─────────────────────────────────────────────
-static int extract_name(const char *path, char *name, size_t name_size)
-{
     const char *slash = strrchr(path, '/');
-    const char *fname = slash ? slash + 1 : path;
-
-    int written = snprintf(name, name_size, "%s", fname);
-    if (written < 0 || (size_t)written >= name_size)
+    const char *name = slash ? slash + 1 : path;
+    if (!name[0] || strcmp(name, ".") == 0 || strcmp(name, "..") == 0 ||
+        strlen(name) > NAME_MAX)
     {
-        fprintf(stderr, "Error: filename too long: %s\n", path);
-        return -1;
-    }
-    return 0;
-}
-
-// ── split_name ───────────────────────────────────────────────
-static int split_name(const char *filename,
-                      char *base, size_t base_size,
-                      char *ext, size_t ext_size)
-{
-    const char *dot = strrchr(filename, '.');
-
-    if (!dot)
-    {
-        if (snprintf(base, base_size, "%s", filename) >= (int)base_size)
-            return -1;
-        ext[0] = '\0';
-    }
-    else
-    {
-        size_t base_len = (size_t)(dot - filename);
-        if (base_len >= base_size)
-            return -1;
-
-        memcpy(base, filename, base_len);
-        base[base_len] = '\0';
-
-        if (snprintf(ext, ext_size, "%s", dot) >= (int)ext_size)
-            return -1;
-    }
-    return 0;
-}
-
-// ── generate_unique_path ─────────────────────────────────────
-static int generate_unique_path(const char *dir,
-                                const char *filename,
-                                char *out, size_t out_size)
-{
-    char base[256], ext[64];
-
-    if (split_name(filename, base, sizeof(base), ext, sizeof(ext)) != 0)
-    {
-        fprintf(stderr, "Error: filename too long: %s\n", filename);
+        errno = ENAMETOOLONG;
         return -1;
     }
 
-    for (int i = 1; i < 100000; i++)
+    size_t parent_len = slash ? (size_t)(slash - path) : 1U;
+    const char *parent = slash ? path : ".";
+    if (slash && parent_len == 0)
     {
-        int written;
-        const char *separator = "";
-        size_t dir_len = strlen(dir);
+        parent = "/";
+        parent_len = 1;
+    }
 
-        if (dir_len > 0 && dir[dir_len - 1] != '/')
-            separator = "/";
+    char *parent_copy = malloc(parent_len + 1);
+    char *name_copy = strdup(name);
+    if (!parent_copy || !name_copy)
+    {
+        free(parent_copy);
+        free(name_copy);
+        return -1;
+    }
 
-        if (i == 1)
-            written = snprintf(out, out_size, "%s%s%s%s", dir, separator, base, ext);
-        else
-            written = snprintf(out, out_size, "%s%s%s_%d%s", dir, separator, base, i, ext);
+    memcpy(parent_copy, parent, parent_len);
+    parent_copy[parent_len] = '\0';
+    *parent_out = parent_copy;
+    *name_out = name_copy;
+    return 0;
+}
 
-        if (written < 0 || (size_t)written >= out_size)
+static int open_directory(const char *path)
+{
+    int fd;
+    do
+    {
+        fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    } while (fd < 0 && errno == EINTR);
+    return fd;
+}
+
+static int build_candidate(const char *original, unsigned int index,
+                           char output[NAME_MAX + 1])
+{
+    if (index == 0)
+    {
+        int n = snprintf(output, NAME_MAX + 1, "%s", original);
+        if (n < 0 || n > NAME_MAX)
         {
-            fprintf(stderr, "Error: path too long\n");
+            errno = ENAMETOOLONG;
+            return -1;
+        }
+        return 0;
+    }
+
+    const char *dot = strrchr(original, '.');
+    if (dot == original)
+        dot = NULL;
+
+    size_t base_len = dot ? (size_t)(dot - original) : strlen(original);
+    const char *extension = dot ? dot : "";
+    int n = snprintf(output, NAME_MAX + 1, "%.*s_%u%s",
+                     (int)base_len, original, index, extension);
+    if (n < 0 || n > NAME_MAX)
+    {
+        errno = ENAMETOOLONG;
+        return -1;
+    }
+    return 0;
+}
+
+static int create_temp_file(int directory_fd, char name[NAME_MAX + 1])
+{
+    for (unsigned int attempt = 0; attempt < 1000; attempt++)
+    {
+        unsigned long sequence = __atomic_add_fetch(&temp_sequence, 1, __ATOMIC_RELAXED);
+        int n = snprintf(name, NAME_MAX + 1, ".fc-tmp-%ld-%lu",
+                         (long)getpid(), sequence);
+        if (n < 0 || n > NAME_MAX)
+        {
+            errno = ENAMETOOLONG;
             return -1;
         }
 
-        int fd = open(out, O_CREAT | O_EXCL | O_WRONLY, 0644);
+        int fd = openat(directory_fd, name,
+                        O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW,
+                        0600);
         if (fd >= 0)
             return fd;
-
         if (errno != EEXIST)
-        {
-            perror("open");
             return -1;
-        }
     }
 
-    fprintf(stderr, "Error: too many collisions\n");
+    errno = EEXIST;
     return -1;
 }
 
-static int move_file_internal(const char *src,
-                              const char *dest_dir,
-                              MoveJournal *journal,
-                              MoveResult *result)
+static int copy_fd(int source_fd, int destination_fd, const struct stat *initial)
+{
+    char buffer[128 * 1024];
+
+    for (;;)
+    {
+        ssize_t count = read(source_fd, buffer, sizeof(buffer));
+        if (count < 0)
+        {
+            if (errno == EINTR)
+                continue;
+            return -1;
+        }
+        if (count == 0)
+            break;
+
+        ssize_t offset = 0;
+        while (offset < count)
+        {
+            ssize_t written = write(destination_fd, buffer + offset,
+                                    (size_t)(count - offset));
+            if (written < 0)
+            {
+                if (errno == EINTR)
+                    continue;
+                return -1;
+            }
+            if (written == 0)
+            {
+                errno = EIO;
+                return -1;
+            }
+            offset += written;
+        }
+    }
+
+    struct stat after;
+    if (fstat(source_fd, &after) != 0)
+        return -1;
+
+    if (after.st_dev != initial->st_dev || after.st_ino != initial->st_ino ||
+        after.st_size != initial->st_size ||
+        after.st_mtim.tv_sec != initial->st_mtim.tv_sec ||
+        after.st_mtim.tv_nsec != initial->st_mtim.tv_nsec ||
+        after.st_ctim.tv_sec != initial->st_ctim.tv_sec ||
+        after.st_ctim.tv_nsec != initial->st_ctim.tv_nsec)
+    {
+        errno = EBUSY;
+        return -1;
+    }
+
+    if (fchmod(destination_fd, initial->st_mode & 0777) != 0)
+        return -1;
+
+    int rc;
+    do
+    {
+        rc = fsync(destination_fd);
+    } while (rc != 0 && errno == EINTR);
+    return rc;
+}
+
+/*
+ * Move only the inode opened and validated above. First rename the source
+ * directory entry to a private, unique quarantine name, then verify that the
+ * quarantined entry is still the opened inode. If it is not, restore it
+ * without replacing anything. This prevents deleting a replacement that
+ * raced with the scan/copy.
+ */
+static int retire_source(int source_dirfd, const char *source_name,
+                         const struct stat *opened_stat)
+{
+    char quarantine[NAME_MAX + 1];
+
+    for (unsigned int attempt = 0; attempt < 1000; attempt++)
+    {
+        unsigned long sequence = __atomic_add_fetch(&temp_sequence, 1, __ATOMIC_RELAXED);
+        int n = snprintf(quarantine, sizeof(quarantine), ".fc-retire-%ld-%lu",
+                         (long)getpid(), sequence);
+        if (n < 0 || (size_t)n >= sizeof(quarantine))
+        {
+            errno = ENAMETOOLONG;
+            return -1;
+        }
+
+        if (rename_noreplace(source_dirfd, source_name,
+                             source_dirfd, quarantine) != 0)
+        {
+            if (errno == EEXIST)
+                continue;
+            return -1;
+        }
+
+        struct stat staged;
+        if (fstatat(source_dirfd, quarantine, &staged, AT_SYMLINK_NOFOLLOW) != 0)
+        {
+            int saved_errno = errno;
+            /* Leave the entry recoverable under its quarantine name. */
+            errno = saved_errno;
+            return -1;
+        }
+
+        if (staged.st_dev != opened_stat->st_dev ||
+            staged.st_ino != opened_stat->st_ino ||
+            !S_ISREG(staged.st_mode))
+        {
+            int saved_errno = EBUSY;
+            if (rename_noreplace(source_dirfd, quarantine,
+                                 source_dirfd, source_name) != 0)
+                saved_errno = errno;
+            errno = saved_errno;
+            return -1;
+        }
+
+        if (unlinkat(source_dirfd, quarantine, 0) != 0)
+            return -1;
+
+        int rc;
+        do
+        {
+            rc = fsync(source_dirfd);
+        } while (rc != 0 && errno == EINTR);
+        return rc;
+    }
+
+    errno = EEXIST;
+    return -1;
+}
+
+static int move_file_internal(const char *src, const char *dest_dir,
+                              MoveJournal *journal, MoveResult *result)
 {
     if (result)
     {
@@ -177,128 +294,191 @@ static int move_file_internal(const char *src,
         result->error_code = 0;
     }
 
-    char filename[NAME_MAX + 1];
+    if (!src || !dest_dir || !dest_dir[0])
+    {
+        errno = EINVAL;
+        goto fail_without_resources;
+    }
 
-    if (extract_name(src, filename, sizeof(filename)) != 0)
-        return -1;
+    char *source_parent = NULL;
+    char *source_name = NULL;
+    if (split_path(src, &source_parent, &source_name) != 0)
+        goto fail_without_resources;
 
     if (ensure_dir(dest_dir) != 0)
+        goto fail;
+
+    int source_dirfd = open_directory(source_parent);
+    if (source_dirfd < 0)
+        goto fail;
+
+    int destination_dirfd = open_directory(dest_dir);
+    if (destination_dirfd < 0)
+        goto fail_with_source_dir;
+
+    int source_fd;
+    do
     {
-        perror("ensure_dir");
-        return -1;
+        source_fd = openat(source_dirfd, source_name,
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+    } while (source_fd < 0 && errno == EINTR);
+    if (source_fd < 0)
+        goto fail_with_both_dirs;
+
+    struct stat source_stat;
+    if (fstat(source_fd, &source_stat) != 0)
+        goto fail_with_source_fd;
+    if (!S_ISREG(source_stat.st_mode))
+    {
+        errno = EINVAL;
+        goto fail_with_source_fd;
     }
 
-    char dest_path[PATH_MAX];
+    char temp_name[NAME_MAX + 1];
+    int temp_fd = create_temp_file(destination_dirfd, temp_name);
+    if (temp_fd < 0)
+        goto fail_with_source_fd;
 
-    int dest_fd = generate_unique_path(dest_dir, filename,
-                                       dest_path, sizeof(dest_path));
-    if (dest_fd < 0)
+    if (copy_fd(source_fd, temp_fd, &source_stat) != 0)
+        goto fail_with_temp;
+
+    if (close_checked(temp_fd) != 0)
     {
-        if (result)
-            result->error_code = errno;
-        return -1;
+        temp_fd = -1;
+        goto fail_with_temp_closed;
+    }
+    temp_fd = -1;
+
+    char destination_name[NAME_MAX + 1];
+    int published = 0;
+    for (unsigned int candidate = 0; candidate < 100000; candidate++)
+    {
+        if (build_candidate(source_name, candidate, destination_name) != 0)
+            goto fail_with_temp_closed;
+
+        char destination_path[PATH_MAX];
+        int path_len = snprintf(destination_path, sizeof(destination_path),
+                                "%s/%s", dest_dir, destination_name);
+        if (path_len < 0 || (size_t)path_len >= sizeof(destination_path))
+        {
+            errno = ENAMETOOLONG;
+            goto fail_with_temp_closed;
+        }
+
+        if (journal_record_started(journal, src, destination_path) != 0)
+            goto fail_with_temp_closed;
+
+        if (rename_noreplace(destination_dirfd, temp_name,
+                             destination_dirfd, destination_name) == 0)
+        {
+            published = 1;
+            if (result)
+                (void)snprintf(result->destination,
+                               sizeof(result->destination), "%s", destination_path);
+            break;
+        }
+
+        if (errno != EEXIST)
+            goto fail_with_temp_closed;
+
+        if (journal_record_failed(journal, src, destination_path, EEXIST) != 0)
+            goto fail_with_temp_closed;
     }
 
-    if (result)
-        snprintf(result->destination, sizeof(result->destination), "%s", dest_path);
-
-    if (journal_record_started(journal, src, dest_path) != 0)
+    if (!published)
     {
-        int saved_errno = errno;
-        retry_close(dest_fd);
-        retry_unlink(dest_path);
-        errno = saved_errno;
-        if (result)
-            result->error_code = errno;
-        return -1;
+        errno = EEXIST;
+        goto fail_with_temp_closed;
     }
 
-    retry_close(dest_fd);
-
-    if (retry_rename(src, dest_path) == 0)
+    int sync_rc;
+    do
     {
-        fsync_dir(dest_dir);
-        journal_record_completed(journal, src, dest_path);
-        return 0;
-    }
+        sync_rc = fsync(destination_dirfd);
+    } while (sync_rc != 0 && errno == EINTR);
+    if (sync_rc != 0)
+        goto fail_after_publish;
 
-    if (errno != EXDEV)
-    {
-        int saved_errno = errno;
-        retry_unlink(dest_path);
-        journal_record_failed(journal, src, dest_path, saved_errno);
-        if (result)
-            result->error_code = saved_errno;
-        errno = saved_errno;
-        perror("rename");
-        return -1;
-    }
+    if (retire_source(source_dirfd, source_name, &source_stat) != 0)
+        goto fail_after_publish;
 
-    char temp_path[PATH_MAX];
+    if (journal_record_completed(journal, src, result ? result->destination : destination_name) != 0)
+        goto fail_after_publish;
 
-    int len = snprintf(temp_path, sizeof(temp_path), "%s.tmp", dest_path);
-    if (len < 0 || (size_t)len >= sizeof(temp_path))
-    {
-        int saved_errno = ENAMETOOLONG;
-        retry_unlink(dest_path);
-        journal_record_failed(journal, src, dest_path, saved_errno);
-        if (result)
-            result->error_code = saved_errno;
-        errno = saved_errno;
-        return -1;
-    }
-
-    if (copy_file_safe(src, temp_path) != 0)
-    {
-        int saved_errno = errno;
-        retry_unlink(temp_path);
-        retry_unlink(dest_path);
-        journal_record_failed(journal, src, dest_path, saved_errno);
-        if (result)
-            result->error_code = saved_errno;
-        errno = saved_errno;
-        return -1;
-    }
-
-    if (retry_rename(temp_path, dest_path) != 0)
-    {
-        int saved_errno = errno;
-        retry_unlink(temp_path);
-        retry_unlink(dest_path);
-        journal_record_failed(journal, src, dest_path, saved_errno);
-        if (result)
-            result->error_code = saved_errno;
-        errno = saved_errno;
-        return -1;
-    }
-
-    fsync_dir(dest_dir);
-
-    if (retry_unlink(src) != 0)
-    {
-        int saved_errno = errno;
-        fprintf(stderr, "Warning: could not delete %s\n", src);
-        journal_record_failed(journal, src, dest_path, saved_errno);
-        if (result)
-            result->error_code = saved_errno;
-        errno = saved_errno;
-        return -1;
-    }
-
-    journal_record_completed(journal, src, dest_path);
+    close_checked(source_fd);
+    close_checked(destination_dirfd);
+    close_checked(source_dirfd);
+    free(source_parent);
+    free(source_name);
     return 0;
+
+fail_with_temp:
+    {
+        int saved_errno = errno;
+        close_checked(temp_fd);
+        unlinkat(destination_dirfd, temp_name, 0);
+        errno = saved_errno;
+    }
+    goto fail_with_source_fd;
+
+fail_with_temp_closed:
+    {
+        int saved_errno = errno;
+        unlinkat(destination_dirfd, temp_name, 0);
+        errno = saved_errno;
+    }
+    goto fail_with_source_fd;
+
+fail_after_publish:
+    {
+        int saved_errno = errno;
+        /* The published destination is intentionally retained; source remains
+         * available unless retire_source already completed. */
+        (void)journal_record_failed(journal, src,
+                                    result ? result->destination : destination_name,
+                                    saved_errno);
+        errno = saved_errno;
+    }
+    goto fail_with_source_fd;
+
+fail_with_source_fd:
+    {
+        int saved_errno = errno;
+        close_checked(source_fd);
+        errno = saved_errno;
+    }
+fail_with_both_dirs:
+    {
+        int saved_errno = errno;
+        close_checked(destination_dirfd);
+        errno = saved_errno;
+    }
+fail_with_source_dir:
+    {
+        int saved_errno = errno;
+        close_checked(source_dirfd);
+        errno = saved_errno;
+    }
+fail:
+    {
+        int saved_errno = errno;
+        free(source_parent);
+        free(source_name);
+        errno = saved_errno;
+    }
+fail_without_resources:
+    if (result)
+        result->error_code = errno;
+    return -1;
 }
 
-// ── move_file ───────────────────────────────────────────────
 int move_file(const char *src, const char *dest_dir)
 {
     return move_file_internal(src, dest_dir, NULL, NULL);
 }
 
-int move_file_journaled(const char *src,
-                        const char *dest_dir,
-                        MoveJournal *journal,
-                        MoveResult *result)
+int move_file_journaled(const char *src, const char *dest_dir,
+                        MoveJournal *journal, MoveResult *result)
 {
     return move_file_internal(src, dest_dir, journal, result);
 }

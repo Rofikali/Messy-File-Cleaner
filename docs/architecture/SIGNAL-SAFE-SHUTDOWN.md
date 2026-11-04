@@ -2,7 +2,7 @@
 
 ## Signal handler
 
-The SIGINT/SIGTERM handler performs one operation only: assign the signal number to `AppContext.stop_signal`, a `volatile sig_atomic_t`. It does not call stdio, allocation, pthread APIs, or atomic operations that may not be lock-free.
+The SIGINT/SIGTERM handler performs one operation only: assign the signal number to `AppContext.stop_signal`, a a lock-free `atomic_int` stop flag (the build requires `ATOMIC_INT_LOCK_FREE == 2`). It does not call stdio, allocation, pthread APIs, or non-lock-free atomic operations.
 
 ## Normal-context shutdown
 
@@ -14,4 +14,4 @@ The SIGINT/SIGTERM handler performs one operation only: assign the signal number
 
 ## Guarantees and limits
 
-The handler itself is async-signal-safe. Shutdown is cooperative: a worker already inside a filesystem operation finishes that operation before it drains and exits. A signal does not roll back a move that has already been durably published; the journal recovery protocol governs interrupted moves.
+The handler uses only lock-free atomic stores, which are signal-safe under the C atomic rules. The compile-time assertion prevents building on a target where `atomic_int` is not always lock-free. Shutdown is cooperative: a worker already inside a filesystem operation finishes that operation before it drains and exits. A signal does not roll back a move that has already been durably published; the journal recovery protocol governs interrupted moves.

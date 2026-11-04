@@ -336,9 +336,16 @@ int main(int argc, char *argv[])
         if (scan_status != 0)
         {
             int scan_error = errno;
-            fprintf(stderr, "Directory scan failed: %s\n", strerror(scan_error));
-            exit_status = 1;
+            if (ctx.stop_signal != 0 && scan_error == ECANCELED)
+                exit_status = 128 + ctx.stop_signal;
+            else
+            {
+                fprintf(stderr, "Directory scan failed: %s\\n", strerror(scan_error));
+                exit_status = 1;
+            }
         }
+        if (ctx.stop_signal != 0)
+            atomic_store(&ctx.metrics.signals_received, 1);
 
         atomic_store(&ctx.scanning_done, 1);
 

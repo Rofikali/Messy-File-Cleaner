@@ -38,6 +38,9 @@ int main(void)
     lf_init(&ctx.queues[1]);
     assert(start_workers(&ctx, 2) == 0);
     assert(ctx.num_workers == 2);
+    errno = 0;
+    assert(notify_worker(&ctx, 2) == -1);
+    assert(errno == EINVAL);
 
     /* Queue many items before notifying: one eventfd wake drains the queue. */
     for (int i = 0; i < 32; i++)

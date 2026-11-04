@@ -33,3 +33,23 @@ This produces benchmark-results/cli-dry-run.csv and benchmark-results/cli-dry-ru
 ## Assembly/SIMD gate
 
 Do not add handwritten assembly based on intuition. First use profiling to identify a repeatable CPU-bound hotspot. Any optimized implementation must have a portable C fallback, correctness tests, ABI-safe calling conventions, and a measurable end-to-end improvement without weakening filesystem safety or durability.
+
+
+## Real-move benchmark (disposable only)
+
+The separate tests/performance/benchmark_moves.py harness measures actual batch moves and journal durability. Each repetition gets a fresh temporary workspace; fixture generation is outside the timed interval. The harness verifies that the source tree is empty, all expected files exist in category output directories, and the journal is nonempty before accepting a sample.
+
+~~~bash
+make release
+python3 tests/performance/benchmark_moves.py \
+  --binary build/release/file-cleaner \
+  --config configs/default.conf \
+  --files 1000 \
+  --bytes-per-file 1024 \
+  --runs 10 \
+  --output benchmark-results/cli-moves
+~~~
+
+Or use make benchmark-moves. Adjust MOVE_BENCH_FILES, MOVE_BENCH_BYTES, MOVE_BENCH_RUNS, and MOVE_BENCH_OUTPUT.
+
+This benchmark measures same-filesystem disposable runs on the temporary filesystem: process startup, traversal, file copy/publish, source retirement, and journal durability. It does not model cross-filesystem mounts or per-file latency distributions. The reported amortized ns/file is total batch time divided by file count, not a measured individual-file latency. Use separate controlled experiments for cross-filesystem behavior and different storage/cache policies.

@@ -156,6 +156,17 @@ if(BUILD_TESTING)
     )
     set_tests_properties(cli_benchmark_smoke PROPERTIES TIMEOUT 60)
   endif()
+    add_test(NAME cli_move_benchmark_smoke
+      COMMAND ${Python3_EXECUTABLE}
+              "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_moves.py"
+              --binary "$<TARGET_FILE:${PROJECT_NAME}>"
+              --config "${CMAKE_CURRENT_SOURCE_DIR}/configs/default.conf"
+              --files 10
+              --bytes-per-file 128
+              --runs 2
+              --output "${CMAKE_CURRENT_BINARY_DIR}/benchmark-smoke/moves"
+    )
+    set_tests_properties(cli_move_benchmark_smoke PROPERTIES TIMEOUT 60)
 
 endif()
 

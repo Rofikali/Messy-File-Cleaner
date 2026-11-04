@@ -19,6 +19,7 @@
 
 static AppContext ctx;
 static HashEntry entries[64];
+static char test_root[128];
 
 static void *watcher_entry(void *unused)
 {
@@ -28,8 +29,6 @@ static void *watcher_entry(void *unused)
         atomic_store(&ctx.watcher_error, errno ? errno : EIO);
     return NULL;
 }
-
-static char test_root[128];
 
 static void sleep_milliseconds(long milliseconds)
 {

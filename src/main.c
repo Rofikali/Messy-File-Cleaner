@@ -350,7 +350,7 @@ int main(int argc, char *argv[])
 
     if (journal_close(&ctx.journal) != 0)
     {
-        fprintf(stderr, "Failed to flush move journal: %s\\n", strerror(errno));
+        fprintf(stderr, "Failed to flush move journal: %s\n", strerror(errno));
         exit_status = 1;
     }
     free_config(&ctx.cfg);

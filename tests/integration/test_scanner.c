@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include <assert.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,12 +12,21 @@
 static char found[8][PATH_MAX];
 static size_t found_count;
 
-static void collect(const char *path)
+static int collect(const char *path)
 {
     assert(found_count < 8);
     int n = snprintf(found[found_count], sizeof(found[found_count]), "%s", path);
     assert(n > 0 && (size_t)n < sizeof(found[found_count]));
     found_count++;
+    return 0;
+}
+
+static int fail_after_one(const char *path)
+{
+    (void)path;
+    found_count++;
+    errno = ECANCELED;
+    return -1;
 }
 
 static void write_file(const char *path)
@@ -83,6 +93,7 @@ int main(void)
     found_count = 0;
     assert(scan_directory(root, collect) == 0);
     assert(found_count == 2);
+    assert(strlen(deep_file) > 1024);
     assert((strcmp(found[0], path) == 0 && strcmp(found[1], deep_file) == 0) ||
            (strcmp(found[1], path) == 0 && strcmp(found[0], deep_file) == 0));
 
@@ -91,6 +102,12 @@ int main(void)
     assert(n > 0 && (size_t)n < sizeof(root_link));
     assert(symlink(root, root_link) == 0);
     assert(scan_directory(root_link, collect) == -1);
+
+    found_count = 0;
+    errno = 0;
+    assert(scan_directory(root, fail_after_one) == -1);
+    assert(errno == ECANCELED);
+    assert(found_count == 1);
 
     puts("scanner symlink and long-path tests passed");
     return 0;

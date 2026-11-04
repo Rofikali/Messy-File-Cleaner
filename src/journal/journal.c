@@ -7,7 +7,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/file.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
@@ -493,9 +492,16 @@ int journal_open(MoveJournal *journal, const char *path)
         return -1;
 
     struct stat st;
-    if (fstat(fd, &st) != 0 || !S_ISREG(st.st_mode))
+    if (fstat(fd, &st) != 0)
     {
-        int saved_errno = errno ? errno : EINVAL;
+        int saved_errno = errno;
+        close(fd);
+        errno = saved_errno;
+        return -1;
+    }
+    if (!S_ISREG(st.st_mode))
+    {
+        int saved_errno = EINVAL;
         close(fd);
         errno = saved_errno;
         return -1;

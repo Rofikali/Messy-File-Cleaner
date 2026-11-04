@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
     {
         if (journal_recover(DEFAULT_JOURNAL_PATH) != 0)
         {
-            fprintf(stderr, "Journal recovery failed for %s: %s\\n",
+            fprintf(stderr, "Journal recovery failed for %s: %s\n",
                     DEFAULT_JOURNAL_PATH, strerror(errno));
             free_config(&ctx.cfg);
             return 1;

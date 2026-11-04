@@ -4,6 +4,8 @@
 #include <errno.h>
 #include <poll.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <time.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/inotify.h>
@@ -11,7 +13,6 @@
 
 #include "core/thread_pool.h"
 #include "scanner/scanner.h"
-#include "utils/limits.h"
 #include "watcher/watcher.h"
 
 #define EVENT_BUF_LEN (1024U * (sizeof(struct inotify_event) + 16U))

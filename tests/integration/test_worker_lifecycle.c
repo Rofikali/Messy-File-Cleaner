@@ -28,6 +28,26 @@ int main(void)
     atomic_init(&ctx.metrics.files_moved, 0);
     atomic_init(&ctx.metrics.move_failures, 0);
 
+    atomic_store(&ctx.running, 1);
+    fc_test_fail_eventfd_after(0);
+    errno = 0;
+    assert(start_workers(&ctx, 2) == -1);
+    assert(errno == EMFILE);
+    assert(ctx.num_workers == 0);
+    for (int i = 0; i < MAX_WORKERS; i++)
+        assert(ctx.efd[i] == -1);
+
+    atomic_store(&ctx.running, 1);
+    fc_test_fail_pthread_create_after(1);
+    errno = 0;
+    assert(start_workers(&ctx, 3) == -1);
+    assert(errno == EAGAIN);
+    assert(ctx.num_workers == 0);
+    assert(atomic_load(&ctx.running) == 0);
+    for (int i = 0; i < MAX_WORKERS; i++)
+        assert(ctx.efd[i] == -1);
+
+    atomic_store(&ctx.running, 1);
     errno = 0;
     assert(start_workers(&ctx, 0) == -1);
     assert(errno == EINVAL);

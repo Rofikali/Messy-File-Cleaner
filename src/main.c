@@ -215,7 +215,7 @@ void enqueue_event(const char *path)
 
     if (notify_worker(&ctx, idx) != 0)
     {
-        fprintf(stderr, "Worker notification failed: %s\\n", strerror(errno));
+        fprintf(stderr, "Worker notification failed: %s\n", strerror(errno));
         atomic_store(&ctx.worker_error, 1);
         atomic_store(&ctx.running, 0);
     }
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
 
     if (start_workers(&ctx, ctx.cfg.worker_threads) != 0)
     {
-        fprintf(stderr, "Failed to start worker pool: %s\\n", strerror(errno));
+        fprintf(stderr, "Failed to start worker pool: %s\n", strerror(errno));
         (void)journal_close(&ctx.journal);
         free_config(&ctx.cfg);
         return 1;
@@ -310,7 +310,7 @@ int main(int argc, char *argv[])
 
         if (join_workers(&ctx) != 0)
         {
-            fprintf(stderr, "Worker shutdown failed: %s\\n", strerror(errno));
+            fprintf(stderr, "Worker shutdown failed: %s\n", strerror(errno));
             exit_status = 1;
         }
         if (atomic_load(&ctx.worker_error) != 0)
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
         int create_error = pthread_create(&tid, NULL, watcher_thread, (void *)opts.root);
         if (create_error != 0)
         {
-            fprintf(stderr, "Failed to start watcher thread: %s\\n", strerror(create_error));
+            fprintf(stderr, "Failed to start watcher thread: %s\n", strerror(create_error));
             exit_status = 1;
         }
         else
@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
             int join_error = pthread_join(tid, NULL);
             if (join_error != 0)
             {
-                fprintf(stderr, "Failed to join watcher thread: %s\\n", strerror(join_error));
+                fprintf(stderr, "Failed to join watcher thread: %s\n", strerror(join_error));
                 exit_status = 1;
             }
         }

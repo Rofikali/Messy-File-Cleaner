@@ -119,6 +119,22 @@ if(BUILD_TESTING)
   target_compile_options(test_worker_lifecycle PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME worker_lifecycle COMMAND test_worker_lifecycle)
 
+  add_executable(test_watcher
+    tests/integration/test_watcher.c
+    src/watcher/watcher.c
+    src/core/thread_pool.c
+    src/core/lf_queue.c
+    src/classifier/classifier.c
+    src/utils/hashmap.c
+    src/mover/mover.c
+    src/utils/fs_utils.c
+    src/journal/journal.c
+  )
+  target_include_directories(test_watcher PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_link_libraries(test_watcher PRIVATE Threads::Threads)
+  target_compile_options(test_watcher PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME watcher_integration COMMAND test_watcher)
+
 endif()
 
 install(TARGETS ${PROJECT_NAME}

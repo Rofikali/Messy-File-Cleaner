@@ -74,6 +74,7 @@ static void init_metrics(AppContext *app_ctx)
     atomic_store(&app_ctx->metrics.watcher_idle_polls, 0);
     atomic_store(&app_ctx->metrics.signals_received, 0);
     atomic_store(&app_ctx->worker_error, 0);
+    atomic_store(&app_ctx->watcher_error, 0);
 }
 
 static void print_metrics(const AppContext *app_ctx)
@@ -183,7 +184,13 @@ static int is_dangerous_root(const char *root)
 
 void *watcher_thread(void *arg)
 {
-    start_watcher((const char *)arg, &ctx);
+    if (start_watcher((const char *)arg, &ctx) != 0)
+    {
+        int saved_errno = errno;
+        fprintf(stderr, "Watcher failed: %s\n", strerror(saved_errno));
+        atomic_store(&ctx.watcher_error, saved_errno ? saved_errno : EIO);
+        atomic_store(&ctx.running, 0);
+    }
     return NULL;
 }
 
@@ -346,7 +353,8 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Worker shutdown failed: %s\n", strerror(errno));
             exit_status = 1;
         }
-        if (atomic_load(&ctx.worker_error) != 0)
+        if (atomic_load(&ctx.worker_error) != 0 ||
+            atomic_load(&ctx.watcher_error) != 0)
             exit_status = 1;
         print_metrics(&ctx);
     }

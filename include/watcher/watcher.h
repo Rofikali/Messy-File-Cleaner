@@ -1,12 +1,9 @@
-// ./include/watcher/watcher.h
-// include/watcher/watcher.h
-
 #ifndef WATCHER_H
 #define WATCHER_H
 
-#include "core/context.h" // <--- Add this
+#include "core/context.h"
 
 int dispatch(AppContext *ctx, const char *path);
-void start_watcher(const char *path, AppContext *ctx);
+int start_watcher(const char *path, AppContext *ctx);
 
 #endif

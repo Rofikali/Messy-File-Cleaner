@@ -230,8 +230,25 @@ int scan_directory(const char *path, event_handler_fn handler)
             continue;
         }
 
-        handler(child_path);
+        errno = 0;
+        int handler_status = handler(child_path);
+        int handler_errno = errno;
         free(child_path);
+        if (handler_status != 0)
+        {
+            status = -1;
+            saved_errno = handler_errno ? handler_errno : EIO;
+            break;
+        }
+    }
+
+    while (frame_count > 0)
+    {
+        ScanFrame *frame = &frames[frame_count - 1];
+        if (closedir(frame->directory) != 0)
+            record_failure(&status, &saved_errno);
+        free(frame->path);
+        frame_count--;
     }
 
     free(frames);

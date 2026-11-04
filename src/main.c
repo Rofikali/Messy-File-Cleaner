@@ -194,38 +194,51 @@ void *watcher_thread(void *arg)
     return NULL;
 }
 
-void enqueue_event(const char *path)
+int enqueue_event(const char *path)
 {
     atomic_fetch_add(&ctx.metrics.events_seen, 1);
 
-    FileEvent e;
+    if (!path || strlen(path) >= sizeof(((FileEvent *)0)->path))
+    {
+        errno = ENAMETOOLONG;
+        return -1;
+    }
 
-    strncpy(e.path, path, sizeof(e.path) - 1);
-    e.path[sizeof(e.path) - 1] = '\0';
-    e.type = FILE_CREATED;
+    FileEvent event = {0};
+    memcpy(event.path, path, strlen(path) + 1);
+    event.type = FILE_CREATED;
 
-    int idx = dispatch(&ctx, path);
+    int index = dispatch(&ctx, path);
+    if (index < 0)
+        return -1;
 
     int queued = 0;
     while (atomic_load(&ctx.running))
     {
-        queued = lf_enqueue(&ctx.queues[idx], &e);
+        queued = lf_enqueue(&ctx.queues[index], &event);
         if (queued)
             break;
         queue_backoff();
     }
 
     if (!queued)
-        return;
+    {
+        errno = ECANCELED;
+        return -1;
+    }
 
     atomic_fetch_add(&ctx.metrics.events_enqueued, 1);
-
-    if (notify_worker(&ctx, idx) != 0)
+    if (notify_worker(&ctx, index) != 0)
     {
-        fprintf(stderr, "Worker notification failed: %s\n", strerror(errno));
+        int saved_errno = errno;
+        fprintf(stderr, "Worker notification failed: %s\n", strerror(saved_errno));
         atomic_store(&ctx.worker_error, 1);
         atomic_store(&ctx.running, 0);
+        errno = saved_errno;
+        return -1;
     }
+
+    return 0;
 }
 
 int main(int argc, char *argv[])

@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
                 exit_status = 128 + ctx.stop_signal;
             else
             {
-                fprintf(stderr, "Directory scan failed: %s\\n", strerror(scan_error));
+                fprintf(stderr, "Directory scan failed: %s\n", strerror(scan_error));
                 exit_status = 1;
             }
         }

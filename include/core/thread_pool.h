@@ -22,4 +22,10 @@ int join_workers(AppContext *ctx);
 /* Wake the single consumer assigned to a queue after a successful enqueue. */
 int notify_worker(AppContext *ctx, int worker_index);
 
+#ifdef FC_TESTING
+/* Deterministic fault injection for worker-start cleanup tests only. */
+void fc_test_fail_eventfd_after(int successful_calls);
+void fc_test_fail_pthread_create_after(int successful_calls);
+#endif
+
 #endif

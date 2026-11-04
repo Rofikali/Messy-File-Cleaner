@@ -18,6 +18,52 @@
 static WorkerArgs args_storage[MAX_WORKERS];
 static pthread_t threads_storage[MAX_WORKERS];
 
+#ifdef FC_TESTING
+static int test_eventfd_fail_after = -1;
+static int test_pthread_fail_after = -1;
+
+void fc_test_fail_eventfd_after(int successful_calls)
+{
+    test_eventfd_fail_after = successful_calls;
+}
+
+void fc_test_fail_pthread_create_after(int successful_calls)
+{
+    test_pthread_fail_after = successful_calls;
+}
+#endif
+
+static int create_worker_eventfd(void)
+{
+#ifdef FC_TESTING
+    if (test_eventfd_fail_after == 0)
+    {
+        test_eventfd_fail_after = -1;
+        errno = EMFILE;
+        return -1;
+    }
+    if (test_eventfd_fail_after > 0)
+        test_eventfd_fail_after--;
+#endif
+    return eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+}
+
+static int create_worker_thread(pthread_t *thread, void *(*entry)(void *),
+                                void *arg)
+{
+#ifdef FC_TESTING
+    if (test_pthread_fail_after == 0)
+    {
+        test_pthread_fail_after = -1;
+        return EAGAIN;
+    }
+    if (test_pthread_fail_after > 0)
+        test_pthread_fail_after--;
+#endif
+    return pthread_create(thread, NULL, entry, arg);
+}
+
+
 int notify_worker(AppContext *ctx, int worker_index)
 {
     if (!ctx || worker_index < 0 || worker_index >= ctx->num_workers ||
@@ -181,7 +227,7 @@ int start_workers(AppContext *ctx, int num_threads)
 
     for (int i = 0; i < num_threads; i++)
     {
-        int event_fd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+        int event_fd = create_worker_eventfd();
         if (event_fd < 0)
         {
             int saved_errno = errno;
@@ -195,8 +241,8 @@ int start_workers(AppContext *ctx, int num_threads)
         args_storage[i].ctx = ctx;
         args_storage[i].efd = event_fd;
 
-        int create_error = pthread_create(&threads_storage[i], NULL,
-                                          worker, &args_storage[i]);
+        int create_error = create_worker_thread(&threads_storage[i],
+                                                worker, &args_storage[i]);
         if (create_error != 0)
         {
             close(event_fd);

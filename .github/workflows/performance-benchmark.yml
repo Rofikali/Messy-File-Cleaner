@@ -1,0 +1,110 @@
+name: Performance benchmark artifacts
+
+on:
+  workflow_dispatch:
+    inputs:
+      scan_files:
+        description: Files per scan benchmark run
+        type: number
+        default: 5000
+        required: true
+      scan_runs:
+        description: Measured scan repetitions
+        type: number
+        default: 15
+        required: true
+      move_files:
+        description: Files per real-move benchmark run
+        type: number
+        default: 500
+        required: true
+      move_runs:
+        description: Measured real-move repetitions
+        type: number
+        default: 5
+        required: true
+      move_bytes_per_file:
+        description: Fixture payload size in bytes
+        type: number
+        default: 1024
+        required: true
+  push:
+    branches: ["main"]
+    paths:
+      - "tests/performance/**"
+      - "docs/performance/**"
+      - "CMakeLists.txt"
+      - "configs/default.conf"
+      - "Makefile"
+      - ".github/workflows/performance-benchmark.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SCAN_FILES: ${{ inputs.scan_files || 5000 }}
+      SCAN_RUNS: ${{ inputs.scan_runs || 15 }}
+      MOVE_FILES: ${{ inputs.move_files || 500 }}
+      MOVE_RUNS: ${{ inputs.move_runs || 5 }}
+      MOVE_BYTES: ${{ inputs.move_bytes_per_file || 1024 }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Configure portable Release build
+        run: cmake -S . -B build/benchmark -DCMAKE_BUILD_TYPE=Release -DFC_C_STANDARD=17 -DBUILD_TESTING=OFF
+
+      - name: Build
+        run: cmake --build build/benchmark --parallel 2
+
+      - name: Capture runner metadata
+        shell: bash
+        run: |
+          mkdir -p benchmark-results
+          {
+            echo "commit=${GITHUB_SHA}"
+            echo "workflow=${GITHUB_WORKFLOW}"
+            echo "run_id=${GITHUB_RUN_ID}"
+            echo "runner=${RUNNER_NAME}"
+            echo "os=${RUNNER_OS}"
+            echo "arch=${RUNNER_ARCH}"
+            uname -a
+            lscpu | grep -E 'Model name|CPU\(s\)|Architecture' || true
+            stat -f -c 'filesystem=%T' "${RUNNER_TEMP}" || true
+          } > benchmark-results/runner-metadata.txt
+
+      - name: Benchmark dry-run scan/classification
+        run: |
+          python3 tests/performance/benchmark_cli.py \
+            --binary build/benchmark/file-cleaner \
+            --config configs/default.conf \
+            --files "$SCAN_FILES" \
+            --runs "$SCAN_RUNS" \
+            --output benchmark-results/cli-dry-run
+
+      - name: Benchmark real moves and journal durability
+        run: |
+          python3 tests/performance/benchmark_moves.py \
+            --binary build/benchmark/file-cleaner \
+            --config configs/default.conf \
+            --files "$MOVE_FILES" \
+            --bytes-per-file "$MOVE_BYTES" \
+            --runs "$MOVE_RUNS" \
+            --output benchmark-results/cli-moves
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-benchmark-${{ github.run_id }}
+          path: benchmark-results/
+          if-no-files-found: error
+          retention-days: 30

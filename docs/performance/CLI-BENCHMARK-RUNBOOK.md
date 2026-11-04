@@ -53,3 +53,10 @@ python3 tests/performance/benchmark_moves.py \
 Or use make benchmark-moves. Adjust MOVE_BENCH_FILES, MOVE_BENCH_BYTES, MOVE_BENCH_RUNS, and MOVE_BENCH_OUTPUT.
 
 This benchmark measures same-filesystem disposable runs on the temporary filesystem: process startup, traversal, file copy/publish, source retirement, and journal durability. It does not model cross-filesystem mounts or per-file latency distributions. The reported amortized ns/file is total batch time divided by file count, not a measured individual-file latency. Use separate controlled experiments for cross-filesystem behavior and different storage/cache policies.
+
+
+## Automated CI benchmark artifacts
+
+The Performance benchmark artifacts workflow runs on benchmark-related pushes to main and can also be started manually from GitHub Actions. Manual inputs let you set scan fixture size/repetitions and real-move fixture size/repetitions/payload bytes.
+
+The workflow builds a portable C17 Release binary on ubuntu-latest, runs both harnesses, records runner/commit metadata, and uploads CSV/JSON plus environment details as a 30-day artifact. These numbers are a CI-runner baseline, not a substitute for measurements on the target workstation/VPS. Use identical workflow inputs and compare runs from the same runner image when possible.

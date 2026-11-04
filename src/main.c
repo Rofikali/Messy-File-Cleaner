@@ -10,7 +10,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <stdatomic.h>
 
 _Static_assert(ATOMIC_INT_LOCK_FREE == 2, "signal handler requires lock-free atomic_int");
 
@@ -398,7 +397,7 @@ int main(int argc, char *argv[])
         if (atomic_load(&ctx.worker_error) != 0 ||
             atomic_load(&ctx.watcher_error) != 0)
             exit_status = 1;
-        if (ctx.stop_signal != 0)
+        if (atomic_load(&ctx.stop_signal) != 0)
         {
             atomic_store(&ctx.metrics.signals_received, 1);
             exit_status = 128 + atomic_load(&ctx.stop_signal);

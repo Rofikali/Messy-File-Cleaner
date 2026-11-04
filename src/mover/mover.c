@@ -357,13 +357,13 @@ static int move_file_internal(const char *src, const char *dest_dir,
     temp_fd = -1;
 
     char destination_name[NAME_MAX + 1];
+    char destination_path[PATH_MAX];
     int published = 0;
     for (unsigned int candidate = 0; candidate < 100000; candidate++)
     {
         if (build_candidate(source_name, candidate, destination_name) != 0)
             goto fail_with_temp_closed;
 
-        char destination_path[PATH_MAX];
         int path_len = snprintf(destination_path, sizeof(destination_path),
                                 "%s/%s", dest_dir, destination_name);
         if (path_len < 0 || (size_t)path_len >= sizeof(destination_path))
@@ -406,14 +406,13 @@ static int move_file_internal(const char *src, const char *dest_dir,
     if (sync_rc != 0)
         goto fail_after_publish;
 
-    if (journal_record_published(journal, src,
-                                 result ? result->destination : destination_name) != 0)
+    if (journal_record_published(journal, src, destination_path) != 0)
         goto fail_after_publish;
 
     if (retire_source(source_dirfd, source_name, &source_stat) != 0)
         goto fail_after_publish;
 
-    if (journal_record_completed(journal, src, result ? result->destination : destination_name) != 0)
+    if (journal_record_completed(journal, src, destination_path) != 0)
         goto fail_after_publish;
 
     close_checked(source_fd);
@@ -446,8 +445,7 @@ fail_after_publish:
         /* The published destination is intentionally retained; source remains
          * available unless retire_source already completed. */
         (void)journal_record_failed(journal, src,
-                                    result ? result->destination : destination_name,
-                                    saved_errno);
+                                    destination_path, saved_errno);
         errno = saved_errno;
     }
     goto fail_with_source_fd;

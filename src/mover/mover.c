@@ -32,8 +32,13 @@ static int rename_noreplace(int old_dirfd, const char *old_name,
                             int new_dirfd, const char *new_name)
 {
 #ifdef SYS_renameat2
-    return (int)syscall(SYS_renameat2, old_dirfd, old_name,
-                        new_dirfd, new_name, RENAME_NOREPLACE);
+    int rc;
+    do
+    {
+        rc = (int)syscall(SYS_renameat2, old_dirfd, old_name,
+                          new_dirfd, new_name, RENAME_NOREPLACE);
+    } while (rc != 0 && errno == EINTR);
+    return rc;
 #else
     (void)old_dirfd;
     (void)old_name;
@@ -233,7 +238,7 @@ static int retire_source(int source_dirfd, const char *source_name,
 
     for (unsigned int attempt = 0; attempt < 1000; attempt++)
     {
-        unsigned long sequence = __atomic_add_fetch(&temp_sequence, 1, __ATOMIC_RELAXED);
+        unsigned long sequence = atomic_fetch_add_explicit(&temp_sequence, 1, memory_order_relaxed) + 1UL;
         int n = snprintf(quarantine, sizeof(quarantine), ".fc-retire-%ld-%lu",
                          (long)getpid(), sequence);
         if (n < 0 || (size_t)n >= sizeof(quarantine))

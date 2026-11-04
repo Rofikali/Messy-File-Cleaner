@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <stdint.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +26,7 @@
 #define RENAME_NOREPLACE (1U << 0)
 #endif
 
-static unsigned long temp_sequence;
+static atomic_ulong temp_sequence = ATOMIC_VAR_INIT(0);
 
 static int rename_noreplace(int old_dirfd, const char *old_name,
                             int new_dirfd, const char *new_name)
@@ -134,7 +135,7 @@ static int create_temp_file(int directory_fd, char name[NAME_MAX + 1])
 {
     for (unsigned int attempt = 0; attempt < 1000; attempt++)
     {
-        unsigned long sequence = __atomic_add_fetch(&temp_sequence, 1, __ATOMIC_RELAXED);
+        unsigned long sequence = atomic_fetch_add_explicit(&temp_sequence, 1, memory_order_relaxed) + 1UL;
         int n = snprintf(name, NAME_MAX + 1, ".fc-tmp-%ld-%lu",
                          (long)getpid(), sequence);
         if (n < 0 || n > NAME_MAX)

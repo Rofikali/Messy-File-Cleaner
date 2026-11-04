@@ -1,129 +1,159 @@
-// ./src/utils/fs_utils.c
-// src/utils/fs_utils.c
+#define _POSIX_C_SOURCE 200809L
 
+#include "utils/fs_utils.h"
+
+#include <errno.h>
+#include <fcntl.h>
+#include <stdint.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <string.h>
-#include <stdio.h>
-#include <sys/sendfile.h>
 
 int file_exists(const char *path)
 {
-    return access(path, F_OK) == 0;
+    struct stat st;
+    return path && lstat(path, &st) == 0;
 }
 
 int ensure_dir(const char *path)
 {
+    if (!path || !path[0])
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
     struct stat st;
-    if (stat(path, &st) == 0)
+    if (lstat(path, &st) == 0)
+    {
+        if (S_ISDIR(st.st_mode))
+            return 0;
+        errno = ENOTDIR;
+        return -1;
+    }
+
+    if (errno != ENOENT)
+        return -1;
+
+    if (mkdir(path, 0755) == 0)
         return 0;
-    return mkdir(path, 0755);
+
+    if (errno != EEXIST)
+        return -1;
+
+    if (lstat(path, &st) == 0 && S_ISDIR(st.st_mode))
+        return 0;
+
+    errno = ENOTDIR;
+    return -1;
 }
 
 int copy_file_safe(const char *src, const char *dest)
 {
-    int src_fd;
-    do
+    if (!src || !dest)
     {
-        src_fd = open(src, O_RDONLY);
-    } while (src_fd < 0 && errno == EINTR);
-
-    if (src_fd < 0)
-        return -1;
-
-    int dest_fd;
-    do
-    {
-        dest_fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    } while (dest_fd < 0 && errno == EINTR);
-
-    if (dest_fd < 0)
-    {
-        close(src_fd);
+        errno = EINVAL;
         return -1;
     }
 
-    struct stat st;
-    if (fstat(src_fd, &st) != 0)
+    int source_fd;
+    do
     {
-        close(src_fd);
-        close(dest_fd);
+        source_fd = open(src, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+    } while (source_fd < 0 && errno == EINTR);
+    if (source_fd < 0)
+        return -1;
+
+    struct stat source_stat;
+    if (fstat(source_fd, &source_stat) != 0 || !S_ISREG(source_stat.st_mode))
+    {
+        int saved_errno = errno ? errno : EINVAL;
+        close(source_fd);
+        errno = saved_errno;
         return -1;
     }
 
-    off_t offset = 0;
-    off_t remaining = st.st_size;
-
-    while (remaining > 0)
+    int destination_fd;
+    do
     {
-        ssize_t copied = sendfile(dest_fd, src_fd, &offset, (size_t)remaining);
-        if (copied < 0)
+        destination_fd = open(dest,
+                              O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW,
+                              0600);
+    } while (destination_fd < 0 && errno == EINTR);
+    if (destination_fd < 0)
+    {
+        int saved_errno = errno;
+        close(source_fd);
+        errno = saved_errno;
+        return -1;
+    }
+
+    char buffer[64 * 1024];
+    int status = 0;
+    for (;;)
+    {
+        ssize_t count = read(source_fd, buffer, sizeof(buffer));
+        if (count < 0)
         {
-            if (errno == EINTR || errno == EAGAIN)
+            if (errno == EINTR)
                 continue;
-
-            close(src_fd);
-            close(dest_fd);
-            return -1;
+            status = -1;
+            break;
         }
-
-        if (copied == 0)
+        if (count == 0)
             break;
 
-        remaining -= copied;
+        ssize_t offset = 0;
+        while (offset < count)
+        {
+            ssize_t written = write(destination_fd, buffer + offset,
+                                    (size_t)(count - offset));
+            if (written < 0 && errno == EINTR)
+                continue;
+            if (written <= 0)
+            {
+                if (written == 0)
+                    errno = EIO;
+                status = -1;
+                break;
+            }
+            offset += written;
+        }
+        if (status != 0)
+            break;
     }
 
-    if (remaining != 0)
+    if (status == 0 && fchmod(destination_fd, source_stat.st_mode & 0777) != 0)
+        status = -1;
+
+    if (status == 0)
     {
-        errno = EIO;
-        close(src_fd);
-        close(dest_fd);
+        int rc;
+        do
+        {
+            rc = fsync(destination_fd);
+        } while (rc != 0 && errno == EINTR);
+        if (rc != 0)
+            status = -1;
+    }
+
+    int saved_errno = errno;
+    if (close(destination_fd) != 0 && status == 0)
+    {
+        status = -1;
+        saved_errno = errno;
+    }
+    if (close(source_fd) != 0 && status == 0)
+    {
+        status = -1;
+        saved_errno = errno;
+    }
+
+    if (status != 0)
+    {
+        unlink(dest);
+        errno = saved_errno;
         return -1;
     }
 
-    int sync_rc;
-    do
-    {
-        sync_rc = fsync(dest_fd);
-    } while (sync_rc != 0 && errno == EINTR);
-
-    close(src_fd);
-    close(dest_fd);
-
-    return sync_rc == 0 ? 0 : -1;
+    return 0;
 }
-
-// int copy_file_safe(const char *src, const char *dest)
-// {
-//     int src_fd = open(src, O_RDONLY);
-//     if (src_fd < 0)
-//         return -1;
-
-//     int dest_fd = open(dest, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-//     if (dest_fd < 0)
-//     {
-//         close(src_fd);
-//         return -1;
-//     }
-
-//     char buf[8192];
-//     ssize_t n;
-
-//     while ((n = read(src_fd, buf, sizeof(buf))) > 0)
-//     {
-//         if (write(dest_fd, buf, n) != n)
-//         {
-//             close(src_fd);
-//             close(dest_fd);
-//             return -1;
-//         }
-//     }
-
-//     fsync(dest_fd);
-
-//     close(src_fd);
-//     close(dest_fd);
-//     return 0;
-// }

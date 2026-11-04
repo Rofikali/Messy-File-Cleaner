@@ -1,0 +1,31 @@
+services:
+  cleaner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: messy-file-cleaner:local
+    init: true
+    user: "${PUID:-10001}:${PGID:-10001}"
+    working_dir: /output
+    command: ["/input", "--config", "/app/configs/default.conf", "--dry-run", "--once"]
+    volumes:
+      - type: bind
+        source: ./input
+        target: /input
+      - type: bind
+        source: ./output
+        target: /output
+      - type: bind
+        source: ./state
+        target: /output/journal
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=16m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    network_mode: none
+    pids_limit: 128
+    mem_limit: 512m
+    restart: "no"
+    stop_grace_period: 20s

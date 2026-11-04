@@ -33,5 +33,16 @@ Record CPU, RAM, kernel, filesystem, storage, compiler, flags, container limits,
 ## Security constraints
 Never bypass path checks for speed. Do not disable journaling or durability without an explicit documented mode. Keep bounds checks, collision safety, and source-preservation guarantees. Do not use -march=native in generic release binaries. Run correctness and sanitizer builds separately from benchmarks.
 
+## Nanosecond-level measurement
+
+Nanoseconds are a useful unit for timing CPU-bound work, but nanosecond units do not guarantee nanosecond accuracy or imply that filesystem operations complete in nanoseconds. Clock reads, scheduling, cache state, syscalls, storage, and durability all affect results.
+
+- Use CLOCK_MONOTONIC (or an appropriate monotonic high-resolution source) for elapsed time.
+- Batch many operations per timed interval to amortize timer overhead.
+- Repeat runs; report median and tail percentiles, not only the minimum.
+- Separate in-memory classifier/hash/queue microbenchmarks from end-to-end filesystem tests.
+- Report filesystem type, mount type, cache condition, and whether journal fsync is enabled.
+- Set targets only after the baseline exists. Never remove security or durability guarantees to hit a latency target.
+
 ## Performance claims
 Include workload, environment, command, repetitions, and result distribution. Do not compare different filesystems or cache states as equivalent.

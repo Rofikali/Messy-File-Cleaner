@@ -230,6 +230,7 @@ int scan_directory(const char *path, event_handler_fn handler)
             continue;
         }
 
+        errno = 0;
         int handler_status = handler(child_path);
         int handler_errno = errno;
         free(child_path);

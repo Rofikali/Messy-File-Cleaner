@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
+#include <errno.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdatomic.h>

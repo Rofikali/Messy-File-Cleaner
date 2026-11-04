@@ -32,6 +32,9 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - Default new user-facing workflows to dry-run.
 - Do not follow symlinks accidentally. Prefer descriptor-relative APIs and no-follow flags where supported.
 - Defend against traversal, symlink swaps, TOCTOU, special files, and source/destination overlap.
+- Configured output folders must be relative single components; reject absolute paths, dot-dot, nested separators, and the reserved journal directory.
+- Canonicalize the input root and reject overlap with configured outputs, fallback output, and journal paths.
+- Reject symlink input roots and symlink/non-directory output destinations; --force must not bypass these invariants.
 - Never delete source until destination is fully written and safely published.
 - Use exclusive creation; never truncate an existing user file.
 - Journal intent and completion. Recovery must be idempotent and must not guess when state is ambiguous.

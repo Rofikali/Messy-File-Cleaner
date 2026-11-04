@@ -41,7 +41,7 @@ def build_fixture(root: Path, file_count: int, bytes_per_file: int) -> None:
 
 
 def run_once(binary: Path, config: Path, file_count: int,
-             bytes_per_file: int, measured: bool) -> int:
+             bytes_per_file: int, workers: int, measured: bool) -> int:
     with tempfile.TemporaryDirectory(prefix="file-cleaner-move-bench-") as temp:
         workspace = Path(temp)
         source = workspace / "input"
@@ -49,7 +49,8 @@ def run_once(binary: Path, config: Path, file_count: int,
         (workspace / "journal").mkdir()
         build_fixture(source, file_count, bytes_per_file)
 
-        command = [str(binary), str(source), "--config", str(config), "--once"]
+        command = [str(binary), str(source), "--config", str(config), "--once",
+                   "--workers", str(workers)]
         start = time.perf_counter_ns() if measured else 0
         completed = subprocess.run(command, cwd=workspace,
                                    stdout=subprocess.DEVNULL,
@@ -95,12 +96,13 @@ def main() -> int:
     parser.add_argument("--bytes-per-file", type=int, default=1024,
                         help="Fixture payload size (default: 1024)")
     parser.add_argument("--runs", type=int, default=10, help="Measured repetitions (default: 10)")
+    parser.add_argument("--workers", type=int, default=2, help="Worker count (default: 2)")
     parser.add_argument("--output", default="benchmark-results/cli-moves",
                         help="Output base path; writes .csv and .json")
     args = parser.parse_args()
 
-    if args.files < 1 or args.runs < 1 or args.bytes_per_file < 0:
-        parser.error("--files and --runs must be positive; --bytes-per-file must be nonnegative")
+    if args.files < 1 or args.runs < 1 or args.bytes_per_file < 0 or not 1 <= args.workers <= 16:
+        parser.error("--files and --runs must be positive; --bytes-per-file must be nonnegative; --workers must be 1..16")
 
     binary = Path(args.binary).resolve()
     config = Path(args.config).resolve()
@@ -110,12 +112,12 @@ def main() -> int:
         parser.error(f"config not found: {config}")
 
     # Warm up the executable and filesystem path on a separate disposable fixture.
-    run_once(binary, config, min(args.files, 20), args.bytes_per_file, measured=False)
+    run_once(binary, config, min(args.files, 20), args.bytes_per_file, args.workers, measured=False)
 
     samples_ns: list[int] = []
     for _ in range(args.runs):
         samples_ns.append(run_once(binary, config, args.files,
-                                  args.bytes_per_file, measured=True))
+                                  args.bytes_per_file, args.workers, measured=True))
 
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]
     amortized_file_ns = [value / args.files for value in samples_ns]
@@ -149,6 +151,7 @@ def main() -> int:
         "files_per_run": args.files,
         "bytes_per_file": args.bytes_per_file,
         "measured_runs": args.runs,
+        "workers": args.workers,
         "warmup_runs": 1,
         "measurement_clock": "time.perf_counter_ns (monotonic)",
         "platform": platform.platform(),
@@ -183,7 +186,7 @@ def main() -> int:
 
     summary = metadata["elapsed_ns_summary"]
     rate = metadata["files_per_second_summary"]
-    print(f"Files/run: {args.files}; bytes/file: {args.bytes_per_file}; runs: {args.runs}")
+    print(f"Files/run: {args.files}; bytes/file: {args.bytes_per_file}; runs: {args.runs}; workers: {args.workers}")
     print(f"Elapsed ns median/p95/p99: {summary['median']:.0f} / {summary['p95']:.0f} / {summary['p99']:.0f}")
     print(f"Files/s median/p95/p99: {rate['median']:.1f} / {rate['p95']:.1f} / {rate['p99']:.1f}")
     print(f"Amortized ns/file median: {statistics.median(amortized_file_ns):.0f}")

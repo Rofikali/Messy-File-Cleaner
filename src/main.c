@@ -212,7 +212,8 @@ static int is_dangerous_root(const char *root)
         char *canonical_home = realpath(home, NULL);
         if (canonical_home)
         {
-            int overlaps_home = paths_overlap(root, canonical_home);
+            int overlaps_home = strcmp(root, canonical_home) == 0 ||
+                                path_is_within(root, canonical_home);
             free(canonical_home);
             if (overlaps_home)
                 return 1;

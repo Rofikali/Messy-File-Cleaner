@@ -47,6 +47,10 @@ int main(void)
     n = snprintf(outside_dir, sizeof(outside_dir), "%s/external", outside);
     assert(n > 0 && (size_t)n < sizeof(outside_dir));
     assert(mkdir(outside_dir, 0700) == 0);
+    char external_child[PATH_MAX];
+    n = snprintf(external_child, sizeof(external_child), "%s/hidden.txt", outside_dir);
+    assert(n > 0 && (size_t)n < sizeof(external_child));
+    write_file(external_child);
 
     char nested[PATH_MAX];
     n = snprintf(nested, sizeof(nested), "%s", root);

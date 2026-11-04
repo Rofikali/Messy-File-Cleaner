@@ -42,12 +42,13 @@ def main() -> int:
     parser.add_argument("--config", required=True, help="Configuration file")
     parser.add_argument("--files", type=int, default=10000, help="Fixture file count (default: 10000)")
     parser.add_argument("--runs", type=int, default=20, help="Measured repetitions (default: 20)")
+    parser.add_argument("--workers", type=int, default=2, help="Worker count (default: 2)")
     parser.add_argument("--output", default="benchmark-results/cli-dry-run",
                         help="Output base path; writes .csv and .json")
     args = parser.parse_args()
 
-    if args.files < 1 or args.runs < 1:
-        parser.error("--files and --runs must be positive integers")
+    if args.files < 1 or args.runs < 1 or not 1 <= args.workers <= 16:
+        parser.error("--files and --runs must be positive; --workers must be between 1 and 16")
 
     binary = Path(args.binary).resolve()
     config = Path(args.config).resolve()
@@ -64,7 +65,7 @@ def main() -> int:
         build_fixture(fixture_root, args.files)
 
         command = [str(binary), str(fixture_root), "--config", str(config),
-                   "--dry-run", "--once"]
+                   "--dry-run", "--once", "--workers", str(args.workers)]
         for _ in range(2):
             warmup = subprocess.run(command, cwd=workspace,
                                     stdout=subprocess.DEVNULL,
@@ -110,6 +111,7 @@ def main() -> int:
         "config": str(config),
         "files": args.files,
         "measured_runs": args.runs,
+        "workers": args.workers,
         "warmup_runs": 2,
         "measurement_clock": "time.perf_counter_ns (monotonic)",
         "stdout_stderr": "redirected to /dev/null",
@@ -141,7 +143,7 @@ def main() -> int:
     }
     json_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
 
-    print(f"Files/run: {args.files}; measured runs: {args.runs}")
+    print(f"Files/run: {args.files}; measured runs: {args.runs}; workers: {args.workers}")
     print(f"Elapsed ns median/p95/p99: "
           f"{metadata['elapsed_ns_summary']['median']:.0f} / "
           f"{metadata['elapsed_ns_summary']['p95']:.0f} / "

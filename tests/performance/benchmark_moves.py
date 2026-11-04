@@ -41,7 +41,8 @@ def build_fixture(root: Path, file_count: int, bytes_per_file: int) -> None:
 
 
 def run_once(binary: Path, config: Path, file_count: int,
-             bytes_per_file: int, workers: int, measured: bool) -> int:
+             bytes_per_file: int, workers: int, measured: bool,
+             diagnostics: bool = False) -> int:
     with tempfile.TemporaryDirectory(prefix="file-cleaner-move-bench-") as temp:
         workspace = Path(temp)
         source = workspace / "input"
@@ -54,11 +55,12 @@ def run_once(binary: Path, config: Path, file_count: int,
         start = time.perf_counter_ns() if measured else 0
         completed = subprocess.run(command, cwd=workspace,
                                    stdout=subprocess.DEVNULL,
-                                   stderr=subprocess.DEVNULL,
+                                   stderr=subprocess.PIPE if diagnostics else subprocess.DEVNULL,
                                    check=False)
         elapsed = time.perf_counter_ns() - start if measured else 0
         if completed.returncode != 0:
-            raise RuntimeError(f"move run failed with exit code {completed.returncode}")
+            detail = completed.stderr.decode(errors="replace")[-6000:] if diagnostics and completed.stderr else ""
+            raise RuntimeError(f"move run failed with exit code {completed.returncode}\\n{detail}")
 
         source_files = sum(1 for path in source.rglob("*") if path.is_file())
         moved_files = sum(
@@ -97,6 +99,7 @@ def main() -> int:
                         help="Fixture payload size (default: 1024)")
     parser.add_argument("--runs", type=int, default=10, help="Measured repetitions (default: 10)")
     parser.add_argument("--workers", type=int, default=2, help="Worker count (default: 2)")
+    parser.add_argument("--diagnostics", action="store_true", help="Capture and print CLI stderr on failure")
     parser.add_argument("--output", default="benchmark-results/cli-moves",
                         help="Output base path; writes .csv and .json")
     args = parser.parse_args()
@@ -112,12 +115,12 @@ def main() -> int:
         parser.error(f"config not found: {config}")
 
     # Warm up the executable and filesystem path on a separate disposable fixture.
-    run_once(binary, config, min(args.files, 20), args.bytes_per_file, args.workers, measured=False)
+    run_once(binary, config, min(args.files, 20), args.bytes_per_file, args.workers, measured=False, diagnostics=args.diagnostics)
 
     samples_ns: list[int] = []
     for _ in range(args.runs):
         samples_ns.append(run_once(binary, config, args.files,
-                                  args.bytes_per_file, args.workers, measured=True))
+                                  args.bytes_per_file, args.workers, measured=True, diagnostics=args.diagnostics))
 
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]
     amortized_file_ns = [value / args.files for value in samples_ns]

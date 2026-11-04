@@ -39,6 +39,48 @@ if "$BIN" "$ROOT/missing" --config "$CONFIG" --dry-run --once >missing.stdout 2>
 fi
 grep -q 'Directory scan failed' missing.stderr
 
+# Unsafe destination config must be rejected even in dry-run mode.
+printf 'ext.jpg=../escape\n' > unsafe.conf
+if "$BIN" "$ROOT/input" --config "$ROOT/unsafe.conf" --dry-run --once >unsafe.stdout 2>unsafe.stderr; then
+  echo "Expected unsafe config to fail" >&2
+  exit 1
+fi
+grep -q 'unsafe destination folder' unsafe.stderr
+
+# The input root must not contain the current working directory's outputs.
+if "$BIN" "$ROOT" --config "$CONFIG" --dry-run --once >overlap.stdout 2>overlap.stderr; then
+  echo "Expected root/output overlap to fail" >&2
+  exit 1
+fi
+grep -q 'overlaps output directory' overlap.stderr
+
+# An ancestor of the working directory also overlaps categorized outputs.
+if "$BIN" "$ROOT/.." --config "$CONFIG" --dry-run --once >ancestor.stdout 2>ancestor.stderr; then
+  echo "Expected ancestor root to fail" >&2
+  exit 1
+fi
+grep -q 'overlaps output directory' ancestor.stderr
+
+# A symlink supplied as the root is rejected.
+ln -s "$ROOT/input" "$ROOT/input-link"
+if "$BIN" "$ROOT/input-link" --config "$CONFIG" --dry-run --once >root-link.stdout 2>root-link.stderr; then
+  echo "Expected symlink root to fail" >&2
+  exit 1
+fi
+grep -q 'symlink input root' root-link.stderr
+
+# A category output symlink is rejected before any file is moved.
+mkdir -p "$ROOT/outside"
+ln -s "$ROOT/outside" "$ROOT/Jpeg"
+printf 'symlink output fixture\n' > input/unsafe-output.jpg
+if "$BIN" "$ROOT/input" --config "$CONFIG" --dry-run --once >out-link.stdout 2>out-link.stderr; then
+  echo "Expected symlink output directory to fail" >&2
+  exit 1
+fi
+grep -q 'real directory' out-link.stderr
+rm "$ROOT/Jpeg"
+rm input/unsafe-output.jpg
+
 # Watch mode must terminate cooperatively on SIGTERM with conventional status.
 "$BIN" "$ROOT/watch" --config "$CONFIG" --dry-run --watch >watch.stdout 2>watch.stderr &
 WATCH_PID=$!

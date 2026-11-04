@@ -22,6 +22,7 @@ printf 'dry run fixture\n' > input/dry.jpg
 test -f input/dry.jpg
 test ! -e Jpeg/dry.jpg
 grep -q 'dry_run_moves=1' dry.stderr
+rm input/dry.jpg
 
 # Real batch mode must move a fixture and persist a journal record.
 printf 'move fixture\n' > input/move.png

@@ -231,7 +231,7 @@ int enqueue_event(const char *path)
     if (notify_worker(&ctx, index) != 0)
     {
         int saved_errno = errno;
-        fprintf(stderr, "Worker notification failed: %s\\n", strerror(saved_errno));
+        fprintf(stderr, "Worker notification failed: %s\n", strerror(saved_errno));
         atomic_store(&ctx.worker_error, 1);
         atomic_store(&ctx.running, 0);
         errno = saved_errno;

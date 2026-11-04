@@ -37,18 +37,20 @@ typedef struct
 static void handle_signal(int signo)
 {
     (void)signo;
-    atomic_fetch_add(&ctx.metrics.signals_received, 1);
-    atomic_store(&ctx.running, 0);
+    ctx.stop_signal = signo;
 }
 
-static void install_signal_handlers(void)
+static int install_signal_handlers(void)
 {
     struct sigaction sa;
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = handle_signal;
     sigemptyset(&sa.sa_mask);
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGTERM, &sa, NULL);
+    if (sigaction(SIGINT, &sa, NULL) != 0)
+        return -1;
+    if (sigaction(SIGTERM, &sa, NULL) != 0)
+        return -1;
+    return 0;
 }
 
 static void queue_backoff(void)
@@ -75,6 +77,7 @@ static void init_metrics(AppContext *app_ctx)
     atomic_store(&app_ctx->metrics.signals_received, 0);
     atomic_store(&app_ctx->worker_error, 0);
     atomic_store(&app_ctx->watcher_error, 0);
+    app_ctx->stop_signal = 0;
 }
 
 static void print_metrics(const AppContext *app_ctx)
@@ -198,6 +201,12 @@ int enqueue_event(const char *path)
 {
     atomic_fetch_add(&ctx.metrics.events_seen, 1);
 
+    if (ctx.stop_signal != 0)
+    {
+        errno = ECANCELED;
+        return -1;
+    }
+
     if (!path || strlen(path) >= sizeof(((FileEvent *)0)->path))
     {
         errno = ENAMETOOLONG;
@@ -279,7 +288,12 @@ int main(int argc, char *argv[])
     atomic_store(&ctx.dry_run, opts.dry_run);
     init_metrics(&ctx);
 
-    install_signal_handlers();
+    if (install_signal_handlers() != 0)
+    {
+        fprintf(stderr, "Failed to install signal handlers: %s\\n", strerror(errno));
+        free_config(&ctx.cfg);
+        return 1;
+    }
 
     if (!opts.dry_run)
     {
@@ -318,7 +332,7 @@ int main(int argc, char *argv[])
         printf("[MODE] BATCH%s\n", opts.dry_run ? " (dry-run)" : "");
         fflush(stdout);
 
-        int scan_status = scan_directory(opts.root, enqueue_event);
+        int scan_status = scan_directory(opts.root, enqueue_event, &ctx.stop_signal);
         if (scan_status != 0)
         {
             int scan_error = errno;
@@ -369,6 +383,11 @@ int main(int argc, char *argv[])
         if (atomic_load(&ctx.worker_error) != 0 ||
             atomic_load(&ctx.watcher_error) != 0)
             exit_status = 1;
+        if (ctx.stop_signal != 0)
+        {
+            atomic_store(&ctx.metrics.signals_received, 1);
+            exit_status = 128 + ctx.stop_signal;
+        }
         print_metrics(&ctx);
     }
 

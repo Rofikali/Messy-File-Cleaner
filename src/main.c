@@ -216,7 +216,10 @@ void enqueue_event(const char *path)
     }
 
     if (!queued)
-        return;
+    {
+        errno = ECANCELED;
+        return -1;
+    }
 
     atomic_fetch_add(&ctx.metrics.events_enqueued, 1);
 
@@ -225,7 +228,9 @@ void enqueue_event(const char *path)
         fprintf(stderr, "Worker notification failed: %s\n", strerror(errno));
         atomic_store(&ctx.worker_error, 1);
         atomic_store(&ctx.running, 0);
+        return -1;
     }
+    return 0;
 }
 
 int main(int argc, char *argv[])

@@ -116,7 +116,7 @@ static void process_event(AppContext *ctx, const FileEvent *event)
     }
 }
 
-void *worker(void *arg)
+static void *worker(void *arg)
 {
     WorkerArgs *worker_args = arg;
     AppContext *ctx = worker_args->ctx;

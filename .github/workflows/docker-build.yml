@@ -1,4 +1,4 @@
-name: Docker image build
+name: Docker image build and runtime smoke tests
 
 on:
   pull_request:
@@ -10,16 +10,61 @@ permissions:
   contents: read
 
 jobs:
-  docker-build:
+  docker-build-and-smoke:
     runs-on: ubuntu-latest
     steps:
       - name: Check out source
         uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build runtime image
+
+      - name: Build and load runtime image
         uses: docker/build-push-action@v6
         with:
           context: .
+          load: true
           push: false
           tags: messy-file-cleaner:ci
+
+      - name: Verify safe dry-run and real move in isolated directories
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="$PWD/.docker-smoke"
+          mkdir -p "$ROOT/input" "$ROOT/output" "$ROOT/state"
+          chmod 0777 "$ROOT/input" "$ROOT/output" "$ROOT/state"
+
+          printf 'dry-run fixture\n' > "$ROOT/input/dry-run.jpg"
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --network none \
+            --read-only \
+            --cap-drop=ALL \
+            --security-opt=no-new-privileges \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=16m \
+            --mount "type=bind,src=$ROOT/input,dst=/input,readonly" \
+            --mount "type=bind,src=$ROOT/output,dst=/output" \
+            --mount "type=bind,src=$ROOT/state,dst=/output/journal" \
+            --workdir /output \
+            messy-file-cleaner:ci \
+            /input --config /app/configs/default.conf --dry-run --once
+
+          test -f "$ROOT/input/dry-run.jpg"
+          test ! -e "$ROOT/output/Jpeg/dry-run.jpg"
+
+          printf 'move fixture\n' > "$ROOT/input/execute.png"
+          docker run --rm \
+            --user "$(id -u):$(id -g)" \
+            --network none \
+            --read-only \
+            --cap-drop=ALL \
+            --security-opt=no-new-privileges \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=16m \
+            --mount "type=bind,src=$ROOT/input,dst=/input" \
+            --mount "type=bind,src=$ROOT/output,dst=/output" \
+            --mount "type=bind,src=$ROOT/state,dst=/output/journal" \
+            --workdir /output \
+            messy-file-cleaner:ci \
+            /input --config /app/configs/default.conf --once
+
+          test ! -e "$ROOT/input/execute.png"
+          test -f "$ROOT/output/Png/execute.png"
+          test -s "$ROOT/state/move.log"

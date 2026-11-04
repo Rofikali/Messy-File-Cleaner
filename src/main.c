@@ -73,6 +73,7 @@ static void init_metrics(AppContext *app_ctx)
     atomic_store(&app_ctx->metrics.watcher_events, 0);
     atomic_store(&app_ctx->metrics.watcher_idle_polls, 0);
     atomic_store(&app_ctx->metrics.signals_received, 0);
+    atomic_store(&app_ctx->worker_error, 0);
 }
 
 static void print_metrics(const AppContext *app_ctx)
@@ -212,18 +213,12 @@ void enqueue_event(const char *path)
 
     atomic_fetch_add(&ctx.metrics.events_enqueued, 1);
 
-    uint64_t one = 1;
-    write(ctx.efd[idx], &one, sizeof(one));
-}
-
-int queues_empty()
-{
-    for (int i = 0; i < ctx.num_workers; i++)
+    if (notify_worker(&ctx, idx) != 0)
     {
-        if (!lf_is_empty(&ctx.queues[i]))
-            return 0;
+        fprintf(stderr, "Worker notification failed: %s\\n", strerror(errno));
+        atomic_store(&ctx.worker_error, 1);
+        atomic_store(&ctx.running, 0);
     }
-    return 1;
 }
 
 int main(int argc, char *argv[])
@@ -288,7 +283,13 @@ int main(int argc, char *argv[])
     for (int i = 0; i < ctx.cfg.worker_threads; i++)
         lf_init(&ctx.queues[i]);
 
-    start_workers(&ctx, ctx.cfg.worker_threads);
+    if (start_workers(&ctx, ctx.cfg.worker_threads) != 0)
+    {
+        fprintf(stderr, "Failed to start worker pool: %s\\n", strerror(errno));
+        (void)journal_close(&ctx.journal);
+        free_config(&ctx.cfg);
+        return 1;
+    }
 
     int exit_status = 0;
 
@@ -307,23 +308,13 @@ int main(int argc, char *argv[])
 
         atomic_store(&ctx.scanning_done, 1);
 
-        while (1)
+        if (join_workers(&ctx) != 0)
         {
-            if (atomic_load(&ctx.scanning_done) &&
-                atomic_load(&ctx.active_workers) == 0 &&
-                queues_empty())
-                break;
+            fprintf(stderr, "Worker shutdown failed: %s\\n", strerror(errno));
+            exit_status = 1;
         }
-
-        atomic_store(&ctx.running, 0);
-
-        for (int i = 0; i < ctx.num_workers; i++)
-        {
-            uint64_t one = 1;
-            write(ctx.efd[i], &one, sizeof(one));
-        }
-
-        join_workers(&ctx);
+        if (atomic_load(&ctx.worker_error) != 0)
+            exit_status = 1;
 
         print_metrics(&ctx);
         printf("✅ Batch complete\n");
@@ -334,17 +325,29 @@ int main(int argc, char *argv[])
         fflush(stdout);
 
         pthread_t tid;
-        pthread_create(&tid, NULL, watcher_thread, (void *)opts.root);
-        pthread_join(tid, NULL);
-
-        atomic_store(&ctx.running, 0);
-        for (int i = 0; i < ctx.num_workers; i++)
+        int create_error = pthread_create(&tid, NULL, watcher_thread, (void *)opts.root);
+        if (create_error != 0)
         {
-            uint64_t one = 1;
-            write(ctx.efd[i], &one, sizeof(one));
+            fprintf(stderr, "Failed to start watcher thread: %s\\n", strerror(create_error));
+            exit_status = 1;
+        }
+        else
+        {
+            int join_error = pthread_join(tid, NULL);
+            if (join_error != 0)
+            {
+                fprintf(stderr, "Failed to join watcher thread: %s\\n", strerror(join_error));
+                exit_status = 1;
+            }
         }
 
-        join_workers(&ctx);
+        if (join_workers(&ctx) != 0)
+        {
+            fprintf(stderr, "Worker shutdown failed: %s\\n", strerror(errno));
+            exit_status = 1;
+        }
+        if (atomic_load(&ctx.worker_error) != 0)
+            exit_status = 1;
         print_metrics(&ctx);
     }
 

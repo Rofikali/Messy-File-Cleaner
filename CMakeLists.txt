@@ -104,6 +104,21 @@ if(BUILD_TESTING)
   target_compile_options(test_journal PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME journal_recovery_security COMMAND test_journal)
 
+  add_executable(test_worker_lifecycle
+    tests/integration/test_worker_lifecycle.c
+    src/core/thread_pool.c
+    src/core/lf_queue.c
+    src/classifier/classifier.c
+    src/utils/hashmap.c
+    src/mover/mover.c
+    src/utils/fs_utils.c
+    src/journal/journal.c
+  )
+  target_include_directories(test_worker_lifecycle PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_link_libraries(test_worker_lifecycle PRIVATE Threads::Threads)
+  target_compile_options(test_worker_lifecycle PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME worker_lifecycle COMMAND test_worker_lifecycle)
+
 endif()
 
 install(TARGETS ${PROJECT_NAME}

@@ -83,6 +83,11 @@ if(BUILD_TESTING)
   target_include_directories(test_scanner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_options(test_scanner PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME scanner_security COMMAND test_scanner)
+
+  add_executable(test_scanner tests/integration/test_scanner.c src/scanner/scanner.c)
+  target_include_directories(test_scanner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(test_scanner PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME scanner_security COMMAND test_scanner)
 endif()
 
 install(TARGETS ${PROJECT_NAME}

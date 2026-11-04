@@ -10,9 +10,11 @@ TARGET_PROFILE    := $(BUILD_DIR_PROFILE)/file-cleaner
 GENERATED_FILES   := ./generated_files/
 BENCH_FILES       ?= 10000
 BENCH_RUNS        ?= 30
+BENCH_WORKERS     ?= 2
 BENCH_OUTPUT      ?= benchmark-results/cli-dry-run
 MOVE_BENCH_FILES  ?= 1000
 MOVE_BENCH_RUNS   ?= 10
+MOVE_BENCH_WORKERS ?= 2
 MOVE_BENCH_BYTES  ?= 1024
 MOVE_BENCH_OUTPUT ?= benchmark-results/cli-moves
 
@@ -55,10 +57,10 @@ gprof: profile
 	@gprof $(TARGET_PROFILE) gmon.out | less
 
 benchmark: release
-	@python3 tests/performance/benchmark_cli.py --binary $(TARGET_RELEASE) --config configs/default.conf --files $(BENCH_FILES) --runs $(BENCH_RUNS) --output $(BENCH_OUTPUT)
+	@python3 tests/performance/benchmark_cli.py --binary $(TARGET_RELEASE) --config configs/default.conf --files $(BENCH_FILES) --runs $(BENCH_RUNS) --workers $(BENCH_WORKERS) --output $(BENCH_OUTPUT)
 
 benchmark-moves: release
-	@python3 tests/performance/benchmark_moves.py --binary $(TARGET_RELEASE) --config configs/default.conf --files $(MOVE_BENCH_FILES) --bytes-per-file $(MOVE_BENCH_BYTES) --runs $(MOVE_BENCH_RUNS) --output $(MOVE_BENCH_OUTPUT)
+	@python3 tests/performance/benchmark_moves.py --binary $(TARGET_RELEASE) --config configs/default.conf --files $(MOVE_BENCH_FILES) --bytes-per-file $(MOVE_BENCH_BYTES) --runs $(MOVE_BENCH_RUNS) --workers $(MOVE_BENCH_WORKERS) --output $(MOVE_BENCH_OUTPUT)
 
 asm:
 	@mkdir -p build/asm

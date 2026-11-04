@@ -116,6 +116,7 @@ if(BUILD_TESTING)
   )
   target_include_directories(test_worker_lifecycle PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_link_libraries(test_worker_lifecycle PRIVATE Threads::Threads)
+  target_compile_definitions(test_worker_lifecycle PRIVATE FC_TESTING)
   target_compile_options(test_worker_lifecycle PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME worker_lifecycle COMMAND test_worker_lifecycle)
 

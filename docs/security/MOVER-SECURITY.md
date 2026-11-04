@@ -1,0 +1,37 @@
+# Mover security and publication contract
+
+## Current behavior
+
+The mover uses a conservative copy-then-retire algorithm for all moves, including same-filesystem moves. This is intentionally safer but slower than a same-filesystem rename fast path; performance optimization is deferred until the safety model and benchmarks are established.
+
+1. Split the source into a parent directory and basename.
+2. Open the source parent and destination directory with directory/no-follow flags.
+3. Open the source entry with O_NOFOLLOW and verify with fstat that it is a regular file.
+4. Copy from the already-open file descriptor into an O_CREAT | O_EXCL temporary file in the destination directory.
+5. Compare source inode, size, modification time, and change time after copying; reject a file that changed while being copied.
+6. Apply ordinary permission bits, fsync the temporary file, and close it successfully.
+7. Publish with Linux renameat2(RENAME_NOREPLACE), choosing a suffixed name if a destination already exists.
+8. fsync the destination directory before attempting source retirement.
+9. Rename the source entry to a unique quarantine name, verify that quarantine still refers to the inode originally opened, and only then unlink it. If identity differs, attempt a no-replace restore and report failure.
+10. fsync the source directory and record journal completion.
+
+## Safety properties
+
+- Existing destination files are never intentionally overwritten.
+- Symlink sources, symlink destination directories, and special-file sources are rejected.
+- Failed copies remove only the temporary file created by this operation; the source remains.
+- If source identity changed during processing, the mover does not intentionally unlink the replacement.
+- If source retirement or final journaling fails after publication, the destination is retained. A duplicate may remain; data loss is not preferred over a duplicate.
+- The standalone copy helper uses exclusive creation rather than O_TRUNC.
+
+## Platform and threat-model boundaries
+
+- The no-replace publication primitive uses Linux renameat2(RENAME_NOREPLACE). Unsupported kernels fail closed rather than falling back to an overwriting rename.
+- Directory descriptors protect the final source-parent and destination path components from symlink substitution. Canonical authorization of every ancestor component and source/destination overlap policy are separate follow-up work.
+- Path-based directory creation still needs a dedicated descriptor-relative policy for hostile ancestor directories.
+- A hostile process with write access to the source directory can race directory entries. The quarantine-and-identity check reduces the destructive race window and preserves mismatched entries, but a complete adversarial multi-process filesystem policy needs explicit directory ownership/permission assumptions and dedicated stress/fault-injection tests.
+- The journal currently stores pipe-delimited path strings. Escaping, bounded parsing, and crash-recovery state-machine correctness are not solved by this milestone.
+
+## Performance decision
+
+Same-filesystem rename is normally cheaper than copying, but this milestone deliberately uses one copy/publish/retire path to simplify correctness across filesystems. Do not add a rename fast path until tests prove that it preserves the same no-overwrite, identity, crash, and recovery guarantees. Benchmark metadata-only rename separately from data copy, fsync, and journal durability.

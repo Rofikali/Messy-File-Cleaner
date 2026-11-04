@@ -269,7 +269,12 @@ int main(int argc, char *argv[])
     if (!opts.dry_run)
     {
         if (journal_recover(DEFAULT_JOURNAL_PATH) != 0)
-            fprintf(stderr, "Warning: journal recovery failed for %s\n", DEFAULT_JOURNAL_PATH);
+        {
+            fprintf(stderr, "Journal recovery failed for %s: %s\\n",
+                    DEFAULT_JOURNAL_PATH, strerror(errno));
+            free_config(&ctx.cfg);
+            return 1;
+        }
 
         if (journal_open(&ctx.journal, DEFAULT_JOURNAL_PATH) != 0)
         {

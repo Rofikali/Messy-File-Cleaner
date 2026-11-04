@@ -95,6 +95,15 @@ if(BUILD_TESTING)
   target_compile_options(test_mover PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME mover_security COMMAND test_mover)
 
+  add_executable(test_journal
+    tests/integration/test_journal.c
+    src/journal/journal.c
+  )
+  target_include_directories(test_journal PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_link_libraries(test_journal PRIVATE Threads::Threads)
+  target_compile_options(test_journal PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME journal_recovery_security COMMAND test_journal)
+
 endif()
 
 install(TARGETS ${PROJECT_NAME}

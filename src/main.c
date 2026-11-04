@@ -187,7 +187,7 @@ void *watcher_thread(void *arg)
     if (start_watcher((const char *)arg, &ctx) != 0)
     {
         int saved_errno = errno;
-        fprintf(stderr, "Watcher failed: %s\\n", strerror(saved_errno));
+        fprintf(stderr, "Watcher failed: %s\n", strerror(saved_errno));
         atomic_store(&ctx.watcher_error, saved_errno ? saved_errno : EIO);
         atomic_store(&ctx.running, 0);
     }

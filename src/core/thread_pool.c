@@ -173,7 +173,6 @@ int start_workers(AppContext *ctx, int num_threads)
         return -1;
     }
 
-    atomic_store(&ctx->running, 1);
     atomic_store(&ctx->active_workers, 0);
     atomic_store(&ctx->worker_error, 0);
     ctx->num_workers = 0;

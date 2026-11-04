@@ -38,10 +38,6 @@ static int valid_destination_folder(const char *value)
         (component_length == 7 && strncmp(value, "journal", 7) == 0))
         return 0;
 
-    /* Reject repeated trailing separators or any other separator. */
-    if (component_length != length - (value[length - 1] == '/' ? 1U : 0U))
-        return 0;
-
     return 1;
 }
 

@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -94,7 +95,8 @@ static int open_child_directory(int parent_fd, const char *name)
                   O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
 }
 
-int scan_directory(const char *path, event_handler_fn handler)
+int scan_directory(const char *path, event_handler_fn handler,
+                   const volatile sig_atomic_t *stop_signal)
 {
     if (!path || path[0] == '\0' || !handler)
     {
@@ -143,6 +145,13 @@ int scan_directory(const char *path, event_handler_fn handler)
 
     while (frame_count > 0)
     {
+        if (stop_signal && *stop_signal != 0)
+        {
+            status = -1;
+            saved_errno = ECANCELED;
+            break;
+        }
+
         ScanFrame *frame = &frames[frame_count - 1];
 
         errno = 0;

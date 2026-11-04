@@ -1,0 +1,135 @@
+#define _POSIX_C_SOURCE 200809L
+
+#include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#include "mover/mover.h"
+#include "utils/fs_utils.h"
+
+static void write_text(const char *path, const char *value)
+{
+    int fd = open(path, O_WRONLY | O_CREAT | O_EXCL, 0600);
+    assert(fd >= 0);
+    size_t length = strlen(value);
+    size_t offset = 0;
+    while (offset < length) {
+        ssize_t n = write(fd, value + offset, length - offset);
+        assert(n > 0);
+        offset += (size_t)n;
+    }
+    assert(fsync(fd) == 0);
+    assert(close(fd) == 0);
+}
+
+static void assert_text(const char *path, const char *expected)
+{
+    char actual[256];
+    int fd = open(path, O_RDONLY | O_NOFOLLOW);
+    assert(fd >= 0);
+    ssize_t n = read(fd, actual, sizeof(actual) - 1);
+    assert(n >= 0);
+    actual[n] = '\0';
+    assert(close(fd) == 0);
+    assert(strcmp(actual, expected) == 0);
+}
+
+static void make_path(char output[PATH_MAX], const char *root, const char *name)
+{
+    int n = snprintf(output, PATH_MAX, "%s/%s", root, name);
+    assert(n > 0 && n < PATH_MAX);
+}
+
+int main(void)
+{
+    char root_template[] = "/tmp/fc-mover-XXXXXX";
+    char *root = mkdtemp(root_template);
+    assert(root != NULL);
+
+    char source_dir[PATH_MAX], destination_dir[PATH_MAX], outside_dir[PATH_MAX];
+    make_path(source_dir, root, "source");
+    make_path(destination_dir, root, "destination");
+    make_path(outside_dir, root, "outside");
+    assert(mkdir(source_dir, 0700) == 0);
+    assert(mkdir(destination_dir, 0700) == 0);
+    assert(mkdir(outside_dir, 0700) == 0);
+
+    /* A collision must preserve the pre-existing destination byte-for-byte. */
+    char source[PATH_MAX], existing[PATH_MAX], expected_destination[PATH_MAX];
+    make_path(source, source_dir, "report.txt");
+    make_path(existing, destination_dir, "report.txt");
+    make_path(expected_destination, destination_dir, "report_1.txt");
+    write_text(source, "source contents");
+    write_text(existing, "do not overwrite");
+
+    MoveResult result;
+    assert(move_file_journaled(source, destination_dir, NULL, &result) == 0);
+    assert(access(source, F_OK) != 0 && errno == ENOENT);
+    assert_text(existing, "do not overwrite");
+    assert_text(expected_destination, "source contents");
+    assert(strcmp(result.destination, expected_destination) == 0);
+
+    /* A symlink source is rejected; its target and link remain untouched. */
+    char target[PATH_MAX], symlink_source[PATH_MAX];
+    make_path(target, outside_dir, "important.txt");
+    make_path(symlink_source, source_dir, "linked.txt");
+    write_text(target, "outside data");
+    assert(symlink(target, symlink_source) == 0);
+    errno = 0;
+    assert(move_file(symlink_source, destination_dir) == -1);
+    assert(errno == ELOOP);
+    assert(access(symlink_source, F_OK) == 0);
+    assert_text(target, "outside data");
+
+    /* Special files are rejected without blocking or being removed. */
+    char fifo_source[PATH_MAX];
+    make_path(fifo_source, source_dir, "pipe");
+    assert(mkfifo(fifo_source, 0600) == 0);
+    errno = 0;
+    assert(move_file(fifo_source, destination_dir) == -1);
+    assert(errno == EINVAL);
+    struct stat fifo_stat;
+    assert(lstat(fifo_source, &fifo_stat) == 0 && S_ISFIFO(fifo_stat.st_mode));
+
+    /* A symlink used as the destination directory is rejected. */
+    char destination_link[PATH_MAX];
+    make_path(destination_link, root, "destination-link");
+    assert(symlink(outside_dir, destination_link) == 0);
+    char preserved_source[PATH_MAX];
+    make_path(preserved_source, source_dir, "preserve.txt");
+    write_text(preserved_source, "must remain");
+    assert(move_file(preserved_source, destination_link) == -1);
+    assert_text(preserved_source, "must remain");
+
+    /* The standalone copy helper must never truncate an existing file. */
+    char copy_source[PATH_MAX], copy_destination[PATH_MAX];
+    make_path(copy_source, source_dir, "copy-source.bin");
+    make_path(copy_destination, destination_dir, "report.txt");
+    write_text(copy_source, "copy payload");
+    errno = 0;
+    assert(copy_file_safe(copy_source, copy_destination) == -1);
+    assert(errno == EEXIST);
+    assert_text(copy_destination, "do not overwrite");
+
+    unlink(destination_link);
+    unlink(fifo_source);
+    unlink(symlink_source);
+    unlink(target);
+    unlink(copy_source);
+    unlink(expected_destination);
+    unlink(existing);
+    unlink(preserved_source);
+    rmdir(source_dir);
+    rmdir(destination_dir);
+    rmdir(outside_dir);
+    rmdir(root);
+
+    puts("mover security tests passed");
+    return 0;
+}

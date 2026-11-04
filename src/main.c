@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
         if (scan_status != 0)
         {
             int scan_error = errno;
-            fprintf(stderr, "Directory scan failed: %s\\n", strerror(scan_error));
+            fprintf(stderr, "Directory scan failed: %s\n", strerror(scan_error));
             exit_status = 1;
         }
 

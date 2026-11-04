@@ -343,7 +343,7 @@ int main(int argc, char *argv[])
 
         if (join_workers(&ctx) != 0)
         {
-            fprintf(stderr, "Worker shutdown failed: %s\\n", strerror(errno));
+            fprintf(stderr, "Worker shutdown failed: %s\n", strerror(errno));
             exit_status = 1;
         }
         if (atomic_load(&ctx.worker_error) != 0)

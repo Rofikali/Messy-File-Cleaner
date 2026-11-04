@@ -177,7 +177,8 @@ static int parse_record(char *line, RecoveryRecord *record, int *error_code)
             parse_number(fields[3], &parsed_error) != 0 ||
             parsed_error > INT_MAX ||
             parse_number(fields[4], &src_len) != 0 ||
-            parse_number(fields[5], &dest_len) != 0)
+            parse_number(fields[5], &dest_len) != 0 ||
+            src_len >= PATH_MAX || dest_len >= PATH_MAX)
             return -1;
 
         if (hex_decode(fields[6], strlen(fields[6]), (size_t)src_len, record->src) != 0 ||
@@ -512,9 +513,14 @@ int journal_recover(const char *path)
 
 int journal_open(MoveJournal *journal, const char *path)
 {
-    if (!journal || !path || !path[0] || strlen(path) >= sizeof(journal->path))
+    if (!journal || !path || !path[0])
     {
         errno = EINVAL;
+        return -1;
+    }
+    if (strlen(path) >= sizeof(journal->path))
+    {
+        errno = ENAMETOOLONG;
         return -1;
     }
 

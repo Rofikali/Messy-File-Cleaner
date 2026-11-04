@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -91,7 +92,7 @@ int main(void)
     assert(symlink(outside_dir, link_path) == 0);
 
     found_count = 0;
-    assert(scan_directory(root, collect) == 0);
+    assert(scan_directory(root, collect, NULL) == 0);
     assert(found_count == 2);
     assert(strlen(deep_file) > 1024);
     assert((strcmp(found[0], path) == 0 && strcmp(found[1], deep_file) == 0) ||
@@ -101,14 +102,22 @@ int main(void)
     n = snprintf(root_link, sizeof(root_link), "%s/root-link", outside);
     assert(n > 0 && (size_t)n < sizeof(root_link));
     assert(symlink(root, root_link) == 0);
-    assert(scan_directory(root_link, collect) == -1);
+    assert(scan_directory(root_link, collect, NULL) == -1);
 
     found_count = 0;
     errno = 0;
-    assert(scan_directory(root, fail_after_one) == -1);
+    assert(scan_directory(root, fail_after_one, NULL) == -1);
     assert(errno == ECANCELED);
     assert(found_count == 1);
 
-    puts("scanner symlink and long-path tests passed");
+    atomic_int stop_signal;
+    atomic_init(&stop_signal, SIGTERM);
+    found_count = 0;
+    errno = 0;
+    assert(scan_directory(root, collect, &stop_signal) == -1);
+    assert(errno == ECANCELED);
+    assert(found_count == 0);
+
+    puts("scanner symlink, long-path, and cancellation tests passed");
     return 0;
 }

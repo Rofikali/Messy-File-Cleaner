@@ -42,10 +42,23 @@ static void enqueue_path(const char *path, AppContext *ctx)
     event.type = FILE_CREATED;
 
     int index = dispatch(ctx, path);
-    while (atomic_load(&ctx->running) && !lf_enqueue(&ctx->queues[index], &event))
-        queue_backoff(ctx);
+    if (index < 0)
+    {
+        atomic_store(&ctx->watcher_error, EINVAL);
+        atomic_store(&ctx->running, 0);
+        return;
+    }
 
-    if (!atomic_load(&ctx->running))
+    int queued = 0;
+    while (atomic_load(&ctx->running) && atomic_load(&ctx->stop_signal) == 0)
+    {
+        queued = lf_enqueue(&ctx->queues[index], &event);
+        if (queued)
+            break;
+        queue_backoff(ctx);
+    }
+
+    if (!queued)
         return;
 
     atomic_fetch_add(&ctx->metrics.events_enqueued, 1);
@@ -139,7 +152,7 @@ static int process_event_buffer(const char *buffer, size_t length,
             enqueue_path(full_path, ctx);
             free(full_path);
 
-            if (!atomic_load(&ctx->running))
+            if (!atomic_load(&ctx->running) || atomic_load(&ctx->stop_signal) != 0)
             {
                 errno = atomic_load(&ctx->watcher_error);
                 if (errno == 0)
@@ -178,7 +191,7 @@ int start_watcher(const char *path, AppContext *ctx)
     int status = 0;
     int saved_errno = 0;
 
-    while (atomic_load(&ctx->running))
+    while (atomic_load(&ctx->running) && atomic_load(&ctx->stop_signal) == 0)
     {
         struct pollfd descriptor = {
             .fd = fd,
@@ -223,6 +236,8 @@ int start_watcher(const char *path, AppContext *ctx)
 
         if (process_event_buffer(buffer, (size_t)count, path, ctx) != 0)
         {
+            if (atomic_load(&ctx->stop_signal) != 0 && errno == ECANCELED)
+                break;
             status = -1;
             saved_errno = errno;
             break;

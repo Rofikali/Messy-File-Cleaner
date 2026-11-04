@@ -13,6 +13,7 @@
 
 #include "utils/limits.h" // ✅ your central limits
 #include "watcher/watcher.h"
+#include "core/thread_pool.h"
 
 #define EVENT_BUF_LEN (1024 * (sizeof(struct inotify_event) + 16))
 
@@ -58,8 +59,12 @@ static void enqueue_path(const char *path, AppContext *ctx)
 
     atomic_fetch_add(&ctx->metrics.events_enqueued, 1);
 
-    uint64_t one = 1;
-    write(ctx->efd[idx], &one, sizeof(one));
+    if (notify_worker(ctx, idx) != 0)
+    {
+        fprintf(stderr, "Worker notification failed: %s\\n", strerror(errno));
+        atomic_store(&ctx->worker_error, 1);
+        atomic_store(&ctx->running, 0);
+    }
 }
 
 int dispatch(AppContext *ctx, const char *path)

@@ -284,12 +284,20 @@ int main(int argc, char *argv[])
 
     start_workers(&ctx, ctx.cfg.worker_threads);
 
+    int exit_status = 0;
+
     if (ctx.cfg.mode == MODE_BATCH)
     {
         printf("[MODE] BATCH%s\n", opts.dry_run ? " (dry-run)" : "");
         fflush(stdout);
 
-        scan_directory(opts.root, enqueue_event);
+        int scan_status = scan_directory(opts.root, enqueue_event);
+        if (scan_status != 0)
+        {
+            int scan_error = errno;
+            fprintf(stderr, "Directory scan failed: %s\\n", strerror(scan_error));
+            exit_status = 1;
+        }
 
         atomic_store(&ctx.scanning_done, 1);
 
@@ -337,5 +345,5 @@ int main(int argc, char *argv[])
     journal_close(&ctx.journal);
     free_config(&ctx.cfg);
 
-    return 0;
+    return exit_status;
 }

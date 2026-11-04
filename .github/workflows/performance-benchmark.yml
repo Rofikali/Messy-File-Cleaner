@@ -82,24 +82,34 @@ jobs:
             stat -f -c 'filesystem=%T' "${RUNNER_TEMP}" || true
           } > benchmark-results/runner-metadata.txt
 
-      - name: Benchmark dry-run scan/classification
+      - name: Benchmark dry-run scan/classification across worker counts
+        shell: bash
         run: |
-          python3 tests/performance/benchmark_cli.py \
-            --binary build/benchmark/file-cleaner \
-            --config configs/default.conf \
-            --files "$SCAN_FILES" \
-            --runs "$SCAN_RUNS" \
-            --output benchmark-results/cli-dry-run
+          set -euo pipefail
+          for worker_count in 1 2 4 8; do
+            python3 tests/performance/benchmark_cli.py \
+              --binary build/benchmark/file-cleaner \
+              --config configs/default.conf \
+              --files "$SCAN_FILES" \
+              --runs "$SCAN_RUNS" \
+              --workers "$worker_count" \
+              --output "benchmark-results/scan-workers-$worker_count"
+          done
 
-      - name: Benchmark real moves and journal durability
+      - name: Benchmark real moves across worker counts
+        shell: bash
         run: |
-          python3 tests/performance/benchmark_moves.py \
-            --binary build/benchmark/file-cleaner \
-            --config configs/default.conf \
-            --files "$MOVE_FILES" \
-            --bytes-per-file "$MOVE_BYTES" \
-            --runs "$MOVE_RUNS" \
-            --output benchmark-results/cli-moves
+          set -euo pipefail
+          for worker_count in 1 2 4 8; do
+            python3 tests/performance/benchmark_moves.py \
+              --binary build/benchmark/file-cleaner \
+              --config configs/default.conf \
+              --files "$MOVE_FILES" \
+              --bytes-per-file "$MOVE_BYTES" \
+              --runs "$MOVE_RUNS" \
+              --workers "$worker_count" \
+              --output "benchmark-results/move-workers-$worker_count"
+          done
 
       - name: Upload benchmark results
         uses: actions/upload-artifact@v4

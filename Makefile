@@ -11,8 +11,12 @@ GENERATED_FILES   := ./generated_files/
 BENCH_FILES       ?= 10000
 BENCH_RUNS        ?= 30
 BENCH_OUTPUT      ?= benchmark-results/cli-dry-run
+MOVE_BENCH_FILES  ?= 1000
+MOVE_BENCH_RUNS   ?= 10
+MOVE_BENCH_BYTES  ?= 1024
+MOVE_BENCH_OUTPUT ?= benchmark-results/cli-moves
 
-.PHONY: all debug release profile run run-execute perf perf-record gprof benchmark clean asm help
+.PHONY: all debug release profile run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help
 
 all: debug
 
@@ -53,6 +57,9 @@ gprof: profile
 benchmark: release
 	@python3 tests/performance/benchmark_cli.py --binary $(TARGET_RELEASE) --config configs/default.conf --files $(BENCH_FILES) --runs $(BENCH_RUNS) --output $(BENCH_OUTPUT)
 
+benchmark-moves: release
+	@python3 tests/performance/benchmark_moves.py --binary $(TARGET_RELEASE) --config configs/default.conf --files $(MOVE_BENCH_FILES) --bytes-per-file $(MOVE_BENCH_BYTES) --runs $(MOVE_BENCH_RUNS) --output $(MOVE_BENCH_OUTPUT)
+
 asm:
 	@mkdir -p build/asm
 	@$(CC) $(CFLAGS) -O2 -S -masm=intel $$(find src -name '*.c') -I include
@@ -74,5 +81,6 @@ help:
 	@echo "make perf-record -> Record dry-run profile"
 	@echo "make gprof       -> Generate dry-run gprof report"
 	@echo "make benchmark   -> Safe repeatable CLI dry-run benchmark"
+	@echo "make benchmark-moves -> Real moves + journal benchmark on disposable fixtures"
 	@echo "make asm         -> Dump Intel-syntax assembly"
 	@echo "make clean       -> Remove build artifacts only"

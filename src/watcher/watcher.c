@@ -50,7 +50,7 @@ static void enqueue_path(const char *path, AppContext *ctx)
     }
 
     int queued = 0;
-    while (atomic_load(&ctx->running) && ctx->stop_signal == 0)
+    while (atomic_load(&ctx->running) && atomic_load(&ctx->stop_signal) == 0)
     {
         queued = lf_enqueue(&ctx->queues[index], &event);
         if (queued)
@@ -152,7 +152,7 @@ static int process_event_buffer(const char *buffer, size_t length,
             enqueue_path(full_path, ctx);
             free(full_path);
 
-            if (!atomic_load(&ctx->running) || ctx->stop_signal != 0)
+            if (!atomic_load(&ctx->running) || atomic_load(&ctx->stop_signal) != 0)
             {
                 errno = atomic_load(&ctx->watcher_error);
                 if (errno == 0)

@@ -32,6 +32,7 @@ typedef struct
     atomic_int running;
     atomic_int active_workers;
     atomic_int scanning_done;
+    atomic_int worker_error;
     atomic_int dry_run;
 
     Classifier classifier;

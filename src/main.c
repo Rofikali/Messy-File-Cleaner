@@ -222,7 +222,7 @@ int enqueue_event(const char *path)
         return -1;
 
     int queued = 0;
-    while (atomic_load(&ctx.running))
+    while (atomic_load(&ctx.running) && ctx.stop_signal == 0)
     {
         queued = lf_enqueue(&ctx.queues[index], &event);
         if (queued)

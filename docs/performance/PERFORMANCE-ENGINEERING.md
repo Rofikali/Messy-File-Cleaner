@@ -1,0 +1,37 @@
+# Performance Engineering Policy
+
+## Objective
+Achieve high throughput and predictable latency without risking user data. Do not promise nanosecond end-to-end filesystem operations.
+
+## Cost model
+- Same-filesystem rename is metadata work and usually cheaper than copying.
+- Cross-filesystem moves read and write file contents; time scales with bytes and storage throughput.
+- Traversal incurs metadata operations.
+- Watch latency includes kernel delivery, debounce, scheduling, and worker processing.
+- CPU micro-optimizations cannot remove storage latency.
+
+## Benchmark dimensions
+Test many tiny files, a few large files, deep trees, many directories, same-filesystem rename, cross-filesystem copy, warm/cold cache, and multiple worker counts.
+
+Record CPU, RAM, kernel, filesystem, storage, compiler, flags, container limits, file count, total bytes, and cache condition.
+
+## Metrics
+- Wall-clock duration, files/sec, bytes/sec
+- CPU time/utilization and peak resident memory
+- Syscalls per file using strace -c
+- p50/p95/p99 processing latency where measurable
+- Failures by errno and count of untouched files
+
+## Optimization order
+1. Fix correctness and data-loss risks.
+2. Profile representative workloads.
+3. Remove unnecessary syscalls and repeated path work.
+4. Improve batching and memory reuse.
+5. Tune workers and queue behavior.
+6. Consider SIMD, custom allocators, or assembly only if profiling proves a CPU bottleneck.
+
+## Security constraints
+Never bypass path checks for speed. Do not disable journaling or durability without an explicit documented mode. Keep bounds checks, collision safety, and source-preservation guarantees. Do not use -march=native in generic release binaries. Run correctness and sanitizer builds separately from benchmarks.
+
+## Performance claims
+Include workload, environment, command, repetitions, and result distribution. Do not compare different filesystems or cache states as equivalent.

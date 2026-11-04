@@ -64,9 +64,16 @@ int copy_file_safe(const char *src, const char *dest)
         return -1;
 
     struct stat source_stat;
-    if (fstat(source_fd, &source_stat) != 0 || !S_ISREG(source_stat.st_mode))
+    if (fstat(source_fd, &source_stat) != 0)
     {
-        int saved_errno = errno ? errno : EINVAL;
+        int saved_errno = errno;
+        close(source_fd);
+        errno = saved_errno;
+        return -1;
+    }
+    if (!S_ISREG(source_stat.st_mode))
+    {
+        int saved_errno = EINVAL;
         close(source_fd);
         errno = saved_errno;
         return -1;

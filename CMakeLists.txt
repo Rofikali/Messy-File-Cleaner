@@ -161,6 +161,7 @@ if(BUILD_TESTING)
             --files 30
             --runs 3
             --workers 2
+            --diagnostics
             --output "${CMAKE_CURRENT_BINARY_DIR}/benchmark-smoke/cli"
   )
   set_tests_properties(cli_benchmark_smoke PROPERTIES TIMEOUT 60)
@@ -174,6 +175,7 @@ if(BUILD_TESTING)
             --bytes-per-file 128
             --runs 2
             --workers 2
+            --diagnostics
             --output "${CMAKE_CURRENT_BINARY_DIR}/benchmark-smoke/moves"
   )
   set_tests_properties(cli_move_benchmark_smoke PROPERTIES TIMEOUT 60)

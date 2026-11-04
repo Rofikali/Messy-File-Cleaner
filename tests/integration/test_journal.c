@@ -64,6 +64,10 @@ int main(void)
 
     MoveJournal journal;
     assert(journal_open(&journal, journal_path) == 0);
+    MoveJournal second_writer;
+    errno = 0;
+    assert(journal_open(&second_writer, journal_path) == -1);
+    assert(errno == EWOULDBLOCK || errno == EAGAIN);
     assert(journal_record_started(&journal, source, destination) == 0);
     assert(journal_record_published(&journal, source, destination) == 0);
     assert(journal_close(&journal) == 0);

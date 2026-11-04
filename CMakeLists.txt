@@ -74,6 +74,15 @@ if(BUILD_TESTING)
   target_compile_options(test_hashmap PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME hashmap_unit COMMAND test_hashmap)
 
+  add_executable(test_config_destination
+    tests/integration/test_config_destination.c
+    src/config/config.c
+    src/utils/hashmap.c
+  )
+  target_include_directories(test_config_destination PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(test_config_destination PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME config_destination_security COMMAND test_config_destination)
+
   add_executable(test_queue tests/unit/test_queue.c src/core/lf_queue.c)
   target_include_directories(test_queue PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_options(test_queue PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)

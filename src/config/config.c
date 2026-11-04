@@ -1,11 +1,49 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "config/config.h"
 
 #define LINE_MAX 256
 #define CONFIG_MAX_WORKERS 16
+
+static int valid_destination_folder(const char *value)
+{
+    if (!value || value[0] == '\0' || value[0] == '/' ||
+        strchr(value, '\\') != NULL)
+        return 0;
+
+    size_t length = strlen(value);
+    if (length == 0 || length >= MAX_VAL_LEN)
+        return 0;
+
+    /* A single optional trailing slash is accepted for existing configs. */
+    size_t component_length = length;
+    if (value[length - 1] == '/')
+        component_length--;
+    if (component_length == 0 || component_length >= MAX_VAL_LEN)
+        return 0;
+
+    /* Destinations are intentionally one directory component only. */
+    for (size_t i = 0; i < component_length; i++)
+    {
+        unsigned char ch = (unsigned char)value[i];
+        if (ch == '/' || ch == '\\' || iscntrl(ch) || ch == ':')
+            return 0;
+    }
+
+    if ((component_length == 1 && value[0] == '.') ||
+        (component_length == 2 && value[0] == '.' && value[1] == '.') ||
+        (component_length == 7 && strncmp(value, "journal", 7) == 0))
+        return 0;
+
+    /* Reject repeated trailing separators or any other separator. */
+    if (component_length != length - (value[length - 1] == '/' ? 1U : 0U))
+        return 0;
+
+    return 1;
+}
 
 static void config_apply_defaults(Config *cfg)
 {
@@ -54,6 +92,14 @@ int load_config(const char *path, Config *cfg)
         {
             const char *ext = key + 4;
             char normalized_key[64];
+
+            if (!valid_destination_folder(value))
+            {
+                fprintf(stderr, "config: unsafe destination folder '%s' for key '%s'\\n",
+                        value, key);
+                fclose(f);
+                return -1;
+            }
 
             if (ext[0] == '.')
             {

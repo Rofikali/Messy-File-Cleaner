@@ -45,6 +45,20 @@ This catalogue defines the knowledge required to build, review, secure, operate,
 - Logging, metrics, incident diagnosis, recovery runbooks
 - Customer validation, MVP scope, build-vs-buy, total cost, release planning, risk register, quality metrics, ROI
 
+## Milestone delivery and merge governance
+- Scope and acceptance-criteria definition for independent milestones
+- Branch-per-milestone workflow, PR review, CI evidence, security sign-off
+- Merge each passed milestone into main before beginning the next
+- Verify merge commit and main-branch checks; never claim an unconfirmed merge
+- Handle failed gates in the same milestone instead of advancing
+
+## Nanosecond-aware performance engineering
+- Distinguish clock resolution, measurement precision, and actual operation latency
+- Use monotonic clocks and batched microbenchmarks to amortize timer overhead
+- Measure median, p95, p99, throughput, variance, and warm/cold filesystem cases
+- Optimize nanosecond-scale CPU-bound paths only when repeatable evidence supports it
+- Do not promise nanosecond end-to-end file moves; report filesystem and durability costs honestly
+
 ## Learning and implementation cycle
 1. Explain the concept in plain language.
 2. Identify the concrete repository problem it solves.

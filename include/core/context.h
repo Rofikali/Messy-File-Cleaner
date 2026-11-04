@@ -1,6 +1,7 @@
 #ifndef CONTEXT_H
 #define CONTEXT_H
 
+#include <signal.h>
 #include <stdatomic.h>
 #include "core/lf_queue.h"
 #include "classifier/classifier.h"
@@ -34,6 +35,7 @@ typedef struct
     atomic_int scanning_done;
     atomic_int worker_error;
     atomic_int watcher_error;
+    volatile sig_atomic_t stop_signal;
     atomic_int dry_run;
 
     Classifier classifier;

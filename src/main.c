@@ -253,11 +253,12 @@ static int validate_root_output_overlap(const char *root, const char *cwd,
     {
         if (S_ISLNK(st.st_mode) || !S_ISDIR(st.st_mode))
         {
+            int saved_errno = S_ISLNK(st.st_mode) ? ELOOP : ENOTDIR;
             fprintf(stderr,
                     "Refusing output path '%s': it must be a real directory, not a symlink or file.\n",
                     output_path);
             free(output_path);
-            errno = ELOOP;
+            errno = saved_errno;
             return -1;
         }
         canonical_output = realpath(output_path, NULL);

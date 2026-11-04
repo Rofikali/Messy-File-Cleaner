@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/file.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -312,24 +313,51 @@ int journal_recover(const char *path)
         return -1;
     }
 
-    int fd = open(path, O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    int fd = open(path, O_RDWR | O_APPEND | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
     if (fd < 0)
         return errno == ENOENT ? 0 : -1;
 
-    struct stat journal_stat;
-    if (fstat(fd, &journal_stat) != 0 || !S_ISREG(journal_stat.st_mode))
+    int lock_rc;
+    do
     {
-        int saved_errno = errno ? errno : EINVAL;
+        lock_rc = flock(fd, LOCK_EX | LOCK_NB);
+    } while (lock_rc != 0 && errno == EINTR);
+    if (lock_rc != 0)
+    {
+        int saved_errno = errno;
         close(fd);
         errno = saved_errno;
         return -1;
     }
 
-    FILE *input = fdopen(fd, "r");
+    struct stat journal_stat;
+    if (fstat(fd, &journal_stat) != 0)
+    {
+        int saved_errno = errno;
+        close(fd);
+        errno = saved_errno;
+        return -1;
+    }
+    if (!S_ISREG(journal_stat.st_mode))
+    {
+        close(fd);
+        errno = EINVAL;
+        return -1;
+    }
+
+    FILE *input = fdopen(fd, "a+");
     if (!input)
     {
         int saved_errno = errno;
         close(fd);
+        errno = saved_errno;
+        return -1;
+    }
+
+    if (fseek(input, 0, SEEK_SET) != 0)
+    {
+        int saved_errno = errno;
+        fclose(input);
         errno = saved_errno;
         return -1;
     }
@@ -378,24 +406,36 @@ int journal_recover(const char *path)
         read_status = -1;
 
     int saved_errno = errno;
-    if (fclose(input) != 0 && read_status == 0)
-    {
-        read_status = -1;
-        saved_errno = errno;
-    }
     if (read_status != 0)
     {
+        fclose(input);
         free(records);
         errno = saved_errno ? saved_errno : EBADMSG;
         return -1;
     }
 
-    MoveJournal journal;
-    if (journal_open(&journal, path) != 0)
+    if (fseek(input, 0, SEEK_END) != 0)
     {
+        saved_errno = errno;
+        fclose(input);
         free(records);
+        errno = saved_errno;
         return -1;
     }
+
+    MoveJournal journal;
+    memset(&journal, 0, sizeof(journal));
+    int mutex_error = pthread_mutex_init(&journal.lock, NULL);
+    if (mutex_error != 0)
+    {
+        fclose(input);
+        free(records);
+        errno = mutex_error;
+        return -1;
+    }
+    journal.fp = input;
+    memcpy(journal.path, path, strlen(path) + 1);
+    journal.enabled = 1;
 
     int recovery_status = 0;
     for (size_t i = 0; i < count; i++)
@@ -485,11 +525,24 @@ int journal_open(MoveJournal *journal, const char *path)
     int fd;
     do
     {
-        fd = open(path, O_WRONLY | O_APPEND | O_CREAT | O_CLOEXEC | O_NOFOLLOW,
+        fd = open(path, O_WRONLY | O_APPEND | O_CREAT | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK,
                   0600);
     } while (fd < 0 && errno == EINTR);
     if (fd < 0)
         return -1;
+
+    int lock_rc;
+    do
+    {
+        lock_rc = flock(fd, LOCK_EX | LOCK_NB);
+    } while (lock_rc != 0 && errno == EINTR);
+    if (lock_rc != 0)
+    {
+        int saved_errno = errno;
+        close(fd);
+        errno = saved_errno;
+        return -1;
+    }
 
     struct stat st;
     if (fstat(fd, &st) != 0)
@@ -501,7 +554,13 @@ int journal_open(MoveJournal *journal, const char *path)
     }
     if (!S_ISREG(st.st_mode))
     {
-        int saved_errno = EINVAL;
+        close(fd);
+        errno = EINVAL;
+        return -1;
+    }
+    if (fchmod(fd, 0600) != 0)
+    {
+        int saved_errno = errno;
         close(fd);
         errno = saved_errno;
         return -1;

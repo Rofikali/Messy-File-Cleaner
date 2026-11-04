@@ -61,7 +61,7 @@ static void enqueue_path(const char *path, AppContext *ctx)
 
     if (notify_worker(ctx, idx) != 0)
     {
-        fprintf(stderr, "Worker notification failed: %s\\n", strerror(errno));
+        fprintf(stderr, "Worker notification failed: %s\n", strerror(errno));
         atomic_store(&ctx->worker_error, 1);
         atomic_store(&ctx->running, 0);
     }

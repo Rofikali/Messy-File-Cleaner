@@ -6,6 +6,11 @@
 
 #define QUEUE_SIZE 1024
 
+/* SPSC only: exactly one producer and one consumer may access a queue.
+ * Effective capacity is QUEUE_SIZE - 1 because one slot distinguishes full
+ * from empty. Do not share this queue among multiple producers/consumers.
+ */
+
 typedef struct
 {
     FileEvent buffer[QUEUE_SIZE];

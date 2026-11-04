@@ -46,3 +46,8 @@ Nanoseconds are a useful unit for timing CPU-bound work, but nanosecond units do
 
 ## Performance claims
 Include workload, environment, command, repetitions, and result distribution. Do not compare different filesystems or cache states as equivalent.
+
+
+## Assembly and architecture-specific optimization
+
+Handwritten assembly is not part of the initial implementation plan. Most file-cleaner cost is expected in filesystem traversal, metadata operations, copying, and journal durability; assembly cannot remove storage or syscall latency. First establish correctness and repeatable profiles. Consider architecture-specific code only when a measured CPU-bound hotspot dominates (for example, a hashing/checksum loop), the expected gain is material, and a portable C implementation remains available as the reference and fallback. Any optimized path must be selected safely for supported CPU features, tested for byte-for-byte equivalent results, benchmarked on representative hardware, and kept out of the generic build unless the evidence justifies it. Never use inline assembly as a substitute for algorithmic improvements or correct memory/concurrency design.

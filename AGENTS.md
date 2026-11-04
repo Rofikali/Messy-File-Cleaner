@@ -14,6 +14,11 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - The current lock-free queue must only be used with its proven producer/consumer topology. Never silently change SPSC assumptions to MPSC.
 
 ## C standards
+- C17 is the default project language baseline for production builds.
+- C11 compatibility is tested because the implementation relies on C11 atomics and should remain usable with mature toolchains.
+- C23 is an optional compatibility target, not a requirement for users or the production release until supported compilers are validated.
+- Select the standard explicitly with `-DFC_C_STANDARD=11`, `17`, or `23`; CI must build and test all three independently.
+- Do not add C23-only syntax to core modules unless a documented need outweighs the portability cost.
 - Use clear names, small functions, single-purpose modules, and explicit status returns.
 - Validate external input, sizes, integer conversions, path lengths, and allocations.
 - Check all correctness- and security-relevant system-call results; preserve errno across cleanup.

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.21)
 
 project(file-cleaner
   VERSION 1.0.0
@@ -6,10 +6,17 @@ project(file-cleaner
   LANGUAGES C
 )
 
-set(CMAKE_C_STANDARD 23)
+set(FC_C_STANDARD "17" CACHE STRING "C language standard (11, 17, or 23)")
+set_property(CACHE FC_C_STANDARD PROPERTY STRINGS 11 17 23)
+if(NOT FC_C_STANDARD MATCHES "^(11|17|23)$")
+  message(FATAL_ERROR "FC_C_STANDARD must be one of: 11, 17, 23")
+endif()
+
+set(CMAKE_C_STANDARD ${FC_C_STANDARD})
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
+include(CTest)
 find_package(Threads REQUIRED)
 
 file(GLOB_RECURSE C_SOURCES CONFIGURE_DEPENDS
@@ -61,10 +68,23 @@ else()
   target_compile_options(${PROJECT_NAME} PRIVATE -O2 -g)
 endif()
 
+if(BUILD_TESTING)
+  add_executable(test_hashmap tests/unit/test_hashmap.c src/utils/hashmap.c)
+  target_include_directories(test_hashmap PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(test_hashmap PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME hashmap_unit COMMAND test_hashmap)
+
+  add_executable(test_queue tests/unit/test_queue.c src/core/lf_queue.c)
+  target_include_directories(test_queue PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(test_queue PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME queue_unit COMMAND test_queue)
+endif()
+
 install(TARGETS ${PROJECT_NAME}
   RUNTIME DESTINATION bin
 )
 
-message(STATUS "Project   : ${PROJECT_NAME} v${PROJECT_VERSION}")
-message(STATUS "Compiler  : ${CMAKE_C_COMPILER}")
-message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+message(STATUS "Project      : ${PROJECT_NAME} v${PROJECT_VERSION}")
+message(STATUS "Compiler     : ${CMAKE_C_COMPILER}")
+message(STATUS "Build type   : ${CMAKE_BUILD_TYPE}")
+message(STATUS "C standard   : C${CMAKE_C_STANDARD}")

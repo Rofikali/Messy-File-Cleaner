@@ -290,7 +290,7 @@ int main(int argc, char *argv[])
 
     if (install_signal_handlers() != 0)
     {
-        fprintf(stderr, "Failed to install signal handlers: %s\\n", strerror(errno));
+        fprintf(stderr, "Failed to install signal handlers: %s\n", strerror(errno));
         free_config(&ctx.cfg);
         return 1;
     }

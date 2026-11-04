@@ -13,8 +13,9 @@
 
 int main(void)
 {
-    AppContext ctx = {0};
-    HashEntry entries[64];
+    /* AppContext embeds large per-worker queues; keep it out of the small test stack. */
+    static AppContext ctx;
+    static HashEntry entries[64];
     hashmap_init(&ctx.cfg.ext_map, entries, 64);
     classifier_init(&ctx.classifier, &ctx.cfg.ext_map, "Others/");
 

@@ -95,7 +95,7 @@ int load_config(const char *path, Config *cfg)
 
             if (!valid_destination_folder(value))
             {
-                fprintf(stderr, "config: unsafe destination folder '%s' for key '%s'\\n",
+                fprintf(stderr, "config: unsafe destination folder '%s' for key '%s'\n",
                         value, key);
                 fclose(f);
                 return -1;

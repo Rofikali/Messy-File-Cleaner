@@ -191,7 +191,7 @@ int start_watcher(const char *path, AppContext *ctx)
     int status = 0;
     int saved_errno = 0;
 
-    while (atomic_load(&ctx->running) && ctx->stop_signal == 0)
+    while (atomic_load(&ctx->running) && atomic_load(&ctx->stop_signal) == 0)
     {
         struct pollfd descriptor = {
             .fd = fd,
@@ -236,7 +236,7 @@ int start_watcher(const char *path, AppContext *ctx)
 
         if (process_event_buffer(buffer, (size_t)count, path, ctx) != 0)
         {
-            if (ctx->stop_signal != 0 && errno == ECANCELED)
+            if (atomic_load(&ctx->stop_signal) != 0 && errno == ECANCELED)
                 break;
             status = -1;
             saved_errno = errno;

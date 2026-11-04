@@ -84,6 +84,17 @@ if(BUILD_TESTING)
   target_compile_options(test_scanner PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME scanner_security COMMAND test_scanner)
 
+  add_executable(test_mover
+    tests/integration/test_mover.c
+    src/mover/mover.c
+    src/utils/fs_utils.c
+    src/journal/journal.c
+  )
+  target_include_directories(test_mover PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_link_libraries(test_mover PRIVATE Threads::Threads)
+  target_compile_options(test_mover PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME mover_security COMMAND test_mover)
+
 endif()
 
 install(TARGETS ${PROJECT_NAME}

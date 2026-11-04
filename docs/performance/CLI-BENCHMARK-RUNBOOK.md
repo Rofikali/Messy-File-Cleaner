@@ -60,3 +60,8 @@ This benchmark measures same-filesystem disposable runs on the temporary filesys
 The Performance benchmark artifacts workflow runs on benchmark-related pushes to main and can also be started manually from GitHub Actions. Manual inputs let you set scan fixture size/repetitions and real-move fixture size/repetitions/payload bytes.
 
 The workflow builds a portable C17 Release binary on ubuntu-latest, runs both harnesses, records runner/commit metadata, and uploads CSV/JSON plus environment details as a 30-day artifact. These numbers are a CI-runner baseline, not a substitute for measurements on the target workstation/VPS. Use identical workflow inputs and compare runs from the same runner image when possible.
+
+
+## Worker-count scaling
+
+Both harnesses accept --workers 1..16. The CI artifact workflow runs worker counts 1, 2, 4, and 8, producing separate scan-workers-N and move-workers-N result files. This helps determine whether extra workers improve throughput or instead increase synchronization/storage contention. Compare runs on the same runner and do not assume the optimal count transfers to a different CPU or filesystem.

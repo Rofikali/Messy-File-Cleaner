@@ -5,6 +5,16 @@ BIN="$1"
 CONFIG="$2"
 ROOT="$(mktemp -d)"
 cleanup() {
+  local status=$?
+  if [[ "$status" -ne 0 ]]; then
+    echo "CLI system test failed; captured stderr follows:" >&2
+    for log in "$ROOT"/*.stderr; do
+      if [[ -f "$log" ]]; then
+        echo "--- $log ---" >&2
+        cat "$log" >&2
+      fi
+    done
+  fi
   if [[ -n "${WATCH_PID:-}" ]]; then
     kill -TERM "$WATCH_PID" 2>/dev/null || true
     wait "$WATCH_PID" 2>/dev/null || true

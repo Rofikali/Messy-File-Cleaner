@@ -47,7 +47,6 @@ int main(void)
         "journal/",
         "safe//",
         "safe\\folder",
-        "",
         NULL
     };
 

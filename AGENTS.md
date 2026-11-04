@@ -46,6 +46,10 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - Prefer algorithmic and syscall improvements over speculative assembly.
 - Do not use -march=native in portable release artifacts.
 - Run sanitizers and correctness tests before performance comparisons.
+- Treat nanoseconds as a measurement unit, not a promise that filesystem operations complete in nanoseconds.
+- Target nanosecond-level latency only for suitable CPU-bound operations (for example, in-memory classification or hashing) when repeatable measurements support it.
+- For filesystem operations, report realistic distributions and throughput; separate metadata-only rename from cross-filesystem copy, cold-cache traversal, and durable journal writes.
+- Use monotonic clocks, batched microbenchmarks, repeated runs, and median/tail percentiles. Account for timer overhead and measurement noise; never optimize from a single minimum sample.
 
 ## API, ABI, and FFI
 - Keep the public C API small, versioned, and independent of internal structs.
@@ -67,6 +71,22 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - Update README, HLD/LLD, and runbooks when behavior changes.
 - PRs state scope, risk, security impact, tests actually run, gaps, and rollback plan.
 - Never claim tests, builds, merges, or runtime behavior without evidence.
+
+## Milestone completion and merge governance
+
+Every milestone is an independently reviewable delivery unit with written scope and acceptance criteria.
+
+1. Work on a dedicated milestone branch created from the latest `main`.
+2. Before implementation, record the objective, scope, risks, security impact, and measurable acceptance criteria.
+3. A milestone passes only when its required tests, security checks, documentation, and acceptance criteria pass. A successful compile alone is not a pass.
+4. Record exact commands, CI run links/results, test outcomes, and known limitations in the pull request.
+5. After the milestone passes, merge its PR into `main` (subject to required owner review and repository protections).
+6. Verify the merge commit and rerun/inspect required checks on `main`.
+7. Start the next milestone from the updated `main`; do not stack the next milestone on an unmerged branch.
+8. If any gate fails, keep work within that milestone, fix it, and rerun the gates. Do not declare it complete or advance.
+9. Never merge a failing, unreviewed, or unverified milestone just to maintain schedule. If GitHub permissions or branch protections prevent the merge, report the blocker and ask the repository owner to resolve it.
+
+The repository owner expects each passed milestone to reach `main` before the next milestone begins. The assistant must not claim a merge until GitHub confirms it.
 
 ## Product and management
 Prioritize customer value, data safety, reliability, support cost, and total cost of ownership. Build the smallest reliable product first. Add GUI, API server, cloud, and distributed processing only when customer demand justifies them.

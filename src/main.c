@@ -226,7 +226,7 @@ int enqueue_event(const char *path)
         return -1;
 
     int queued = 0;
-    while (atomic_load(&ctx.running) && ctx.stop_signal == 0)
+    while (atomic_load(&ctx.running) && atomic_load(&ctx.stop_signal) == 0)
     {
         queued = lf_enqueue(&ctx.queues[index], &event);
         if (queued)
@@ -349,7 +349,11 @@ int main(int argc, char *argv[])
             }
         }
         if (atomic_load(&ctx.stop_signal) != 0)
+        {
             atomic_store(&ctx.metrics.signals_received, 1);
+            if (exit_status == 0)
+                exit_status = 128 + atomic_load(&ctx.stop_signal);
+        }
 
         atomic_store(&ctx.scanning_done, 1);
 

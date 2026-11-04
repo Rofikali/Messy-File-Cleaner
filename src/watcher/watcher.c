@@ -42,17 +42,30 @@ static void enqueue_path(const char *path, AppContext *ctx)
     event.type = FILE_CREATED;
 
     int index = dispatch(ctx, path);
-    while (atomic_load(&ctx->running) && ctx->stop_signal == 0 && !lf_enqueue(&ctx->queues[index], &event))
-        queue_backoff(ctx);
+    if (index < 0)
+    {
+        atomic_store(&ctx->watcher_error, EINVAL);
+        atomic_store(&ctx->running, 0);
+        return;
+    }
 
-    if (!atomic_load(&ctx->running))
+    int queued = 0;
+    while (atomic_load(&ctx->running) && ctx->stop_signal == 0)
+    {
+        queued = lf_enqueue(&ctx->queues[index], &event);
+        if (queued)
+            break;
+        queue_backoff(ctx);
+    }
+
+    if (!queued)
         return;
 
     atomic_fetch_add(&ctx->metrics.events_enqueued, 1);
     if (notify_worker(ctx, index) != 0)
     {
         int saved_errno = errno;
-        fprintf(stderr, "Worker notification failed: %s\n", strerror(saved_errno));
+        fprintf(stderr, "Worker notification failed: %s\\n", strerror(saved_errno));
         atomic_store(&ctx->worker_error, 1);
         atomic_store(&ctx->running, 0);
     }
@@ -223,6 +236,8 @@ int start_watcher(const char *path, AppContext *ctx)
 
         if (process_event_buffer(buffer, (size_t)count, path, ctx) != 0)
         {
+            if (ctx->stop_signal != 0 && errno == ECANCELED)
+                break;
             status = -1;
             saved_errno = errno;
             break;

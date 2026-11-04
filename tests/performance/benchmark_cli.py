@@ -43,6 +43,7 @@ def main() -> int:
     parser.add_argument("--files", type=int, default=10000, help="Fixture file count (default: 10000)")
     parser.add_argument("--runs", type=int, default=20, help="Measured repetitions (default: 20)")
     parser.add_argument("--workers", type=int, default=2, help="Worker count (default: 2)")
+    parser.add_argument("--diagnostics", action="store_true", help="Capture and print CLI stderr on failure")
     parser.add_argument("--output", default="benchmark-results/cli-dry-run",
                         help="Output base path; writes .csv and .json")
     args = parser.parse_args()
@@ -69,20 +70,22 @@ def main() -> int:
         for _ in range(2):
             warmup = subprocess.run(command, cwd=workspace,
                                     stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.DEVNULL,
+                                    stderr=subprocess.PIPE if args.diagnostics else subprocess.DEVNULL,
                                     check=False)
             if warmup.returncode != 0:
-                raise RuntimeError(f"warm-up run failed with exit code {warmup.returncode}")
+                detail = warmup.stderr.decode(errors="replace")[-6000:] if args.diagnostics and warmup.stderr else ""
+                raise RuntimeError(f"warm-up run failed with exit code {warmup.returncode}\\n{detail}")
 
         for _ in range(args.runs):
             start = time.perf_counter_ns()
             completed = subprocess.run(command, cwd=workspace,
                                        stdout=subprocess.DEVNULL,
-                                       stderr=subprocess.DEVNULL,
+                                       stderr=subprocess.PIPE if args.diagnostics else subprocess.DEVNULL,
                                        check=False)
             elapsed = time.perf_counter_ns() - start
             if completed.returncode != 0:
-                raise RuntimeError(f"measured run failed with exit code {completed.returncode}")
+                detail = completed.stderr.decode(errors="replace")[-6000:] if args.diagnostics and completed.stderr else ""
+                raise RuntimeError(f"measured run failed with exit code {completed.returncode}\\n{detail}")
             samples_ns.append(elapsed)
 
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]

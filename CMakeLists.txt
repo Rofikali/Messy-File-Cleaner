@@ -136,6 +136,13 @@ if(BUILD_TESTING)
   target_compile_options(test_watcher PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME watcher_integration COMMAND test_watcher)
 
+  add_test(NAME cli_end_to_end
+    COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/tests/system/test_full_run.sh"
+            "$<TARGET_FILE:${PROJECT_NAME}>"
+            "${CMAKE_CURRENT_SOURCE_DIR}/configs/default.conf"
+  )
+  set_tests_properties(cli_end_to_end PROPERTIES TIMEOUT 30)
+
 endif()
 
 install(TARGETS ${PROJECT_NAME}

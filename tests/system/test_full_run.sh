@@ -37,7 +37,7 @@ if "$BIN" "$ROOT/missing" --config "$CONFIG" --dry-run --once >missing.stdout 2>
   echo "Expected missing-root scan to fail" >&2
   exit 1
 fi
-grep -q 'Directory scan failed' missing.stderr
+grep -q 'not accessible' missing.stderr
 
 # Unsafe destination config must be rejected even in dry-run mode.
 printf 'ext.jpg=../escape\n' > unsafe.conf

@@ -406,6 +406,10 @@ static int move_file_internal(const char *src, const char *dest_dir,
     if (sync_rc != 0)
         goto fail_after_publish;
 
+    if (journal_record_published(journal, src,
+                                 result ? result->destination : destination_name) != 0)
+        goto fail_after_publish;
+
     if (retire_source(source_dirfd, source_name, &source_stat) != 0)
         goto fail_after_publish;
 

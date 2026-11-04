@@ -109,7 +109,8 @@ int main(void)
     assert(errno == ECANCELED);
     assert(found_count == 1);
 
-    volatile sig_atomic_t stop_signal = SIGTERM;
+    atomic_int stop_signal;
+    atomic_init(&stop_signal, SIGTERM);
     found_count = 0;
     errno = 0;
     assert(scan_directory(root, collect, &stop_signal) == -1);

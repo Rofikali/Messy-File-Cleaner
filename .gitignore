@@ -1,85 +1,64 @@
-<<<<<<< HEAD
-# ===============================
-# Build directories
-# ===============================
-build/
-*bin/
-dist/
-out/
+# Build outputs
+/build/
+/bin/
+/lib/
+/dist/
+/out/
+/Testing/
+/CMakeFiles/
+/CMakeCache.txt
+/cmake_install.cmake
+/compile_commands.json
 
-# ===============================
-# Windows build artifacts
-# ===============================
-*.exe
+# Compiled artifacts
+*.o
+*.a
+*.so
 *.dll
-*.lib
-*.obj
+*.exe
 *.pdb
 *.ilk
 *.exp
-*.manifest
-
-# Visual Studio
-.vs/
-*.vcxproj.user
-*.VC.db
-*.VC.opendb
-Debug/
-Release/
-x64/
-Win32/
-
-# ===============================
-# Linux / GCC / Clang artifacts
-# ===============================
-*.o
-*.out
-*.a
-*.so
-*.d
 *.gcda
 *.gcno
 *.gcov
+*.d
 
-# CMake
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile
+# Profiling output
+/perf.data
+/gprof.txt
+/gmon.out
 
-# ===============================
-# Logs
-# ===============================
+# Runtime output and test data
+/generated_files/
+/Jpeg/
+/JPG/
+/JPEG/
+/Png/
+/PNG/
+/Html/
+/Others/
+/journal/
+/input/
+/output/
+/state/
+
+# Logs and temporary files
 *.log
+*.tmp
 
-# ===============================
-# OS junk
-# ===============================
+# Editors and operating systems
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# ===============================
-# Editor junk
-# ===============================
-*.swp
-*.swo
-*.tmp
-.idea/
-.vscode/
-
-# ===============================
-# Runtime generated folders
-# ===============================
-sorted/
-Testing/
-=======
-*bin
-*build
-*generated_files
-*Png
-*Jpg
-*Jpeg
-*Others
-*Html
->>>>>>> origin/develop
+# Windows build output
+Debug/
+Release/
+x64/
+Win32/

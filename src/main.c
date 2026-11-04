@@ -10,6 +10,9 @@
 #include <time.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <stdatomic.h>
+
+_Static_assert(ATOMIC_INT_LOCK_FREE == 2, "signal handler requires lock-free atomic_int");
 
 #include "scanner/scanner.h"
 #include "watcher/watcher.h"
@@ -37,7 +40,8 @@ typedef struct
 static void handle_signal(int signo)
 {
     (void)signo;
-    ctx.stop_signal = signo;
+    atomic_store_explicit(&ctx.stop_signal, signo, memory_order_relaxed);
+    atomic_store_explicit(&ctx.running, 0, memory_order_relaxed);
 }
 
 static int install_signal_handlers(void)
@@ -77,7 +81,7 @@ static void init_metrics(AppContext *app_ctx)
     atomic_store(&app_ctx->metrics.signals_received, 0);
     atomic_store(&app_ctx->worker_error, 0);
     atomic_store(&app_ctx->watcher_error, 0);
-    app_ctx->stop_signal = 0;
+    atomic_store(&app_ctx->stop_signal, 0);
 }
 
 static void print_metrics(const AppContext *app_ctx)
@@ -201,7 +205,7 @@ int enqueue_event(const char *path)
 {
     atomic_fetch_add(&ctx.metrics.events_seen, 1);
 
-    if (ctx.stop_signal != 0)
+    if (atomic_load(&ctx.stop_signal) != 0)
     {
         errno = ECANCELED;
         return -1;
@@ -336,15 +340,15 @@ int main(int argc, char *argv[])
         if (scan_status != 0)
         {
             int scan_error = errno;
-            if (ctx.stop_signal != 0 && scan_error == ECANCELED)
-                exit_status = 128 + ctx.stop_signal;
+            if (atomic_load(&ctx.stop_signal) != 0 && scan_error == ECANCELED)
+                exit_status = 128 + atomic_load(&ctx.stop_signal);
             else
             {
                 fprintf(stderr, "Directory scan failed: %s\n", strerror(scan_error));
                 exit_status = 1;
             }
         }
-        if (ctx.stop_signal != 0)
+        if (atomic_load(&ctx.stop_signal) != 0)
             atomic_store(&ctx.metrics.signals_received, 1);
 
         atomic_store(&ctx.scanning_done, 1);
@@ -393,7 +397,7 @@ int main(int argc, char *argv[])
         if (ctx.stop_signal != 0)
         {
             atomic_store(&ctx.metrics.signals_received, 1);
-            exit_status = 128 + ctx.stop_signal;
+            exit_status = 128 + atomic_load(&ctx.stop_signal);
         }
         print_metrics(&ctx);
     }

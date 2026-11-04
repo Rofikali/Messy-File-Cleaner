@@ -26,7 +26,8 @@
 #define RENAME_NOREPLACE (1U << 0)
 #endif
 
-static atomic_ulong temp_sequence = ATOMIC_VAR_INIT(0);
+/* Static-duration atomic objects are zero-initialized in C11 and later. */
+static atomic_ulong temp_sequence;
 
 static int rename_noreplace(int old_dirfd, const char *old_name,
                             int new_dirfd, const char *new_name)

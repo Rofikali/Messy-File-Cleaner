@@ -346,7 +346,7 @@ int journal_recover(const char *path)
     char leaf[PATH_MAX];
     int parent_fd = open_parent_dir(path, leaf, 0);
     if (parent_fd < 0)
-        return -1;
+        return errno == ENOENT ? 0 : -1;
     int fd = openat(parent_fd, leaf,
                     O_RDWR | O_APPEND | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
     int open_errno = errno;

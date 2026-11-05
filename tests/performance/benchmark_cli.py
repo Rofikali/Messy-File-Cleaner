@@ -40,7 +40,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
     parser.add_argument("--config", required=True, help="Configuration file")
-    parser.add_argument("--files", type=int, default=10000, help="Fixture file count (default: 10000)")
+    parser.add_argument("--files", type=int, default=10000, help="Fixture file count (default: 10000; maximum: 1000000)")
     parser.add_argument("--runs", type=int, default=20, help="Measured repetitions (default: 20)")
     parser.add_argument("--workers", type=int, default=2, help="Worker count (default: 2)")
     parser.add_argument("--diagnostics", action="store_true", help="Capture and print CLI stderr on failure")

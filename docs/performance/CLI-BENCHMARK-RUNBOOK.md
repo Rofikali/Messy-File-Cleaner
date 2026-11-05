@@ -69,7 +69,7 @@ Both harnesses accept --workers 1..16. The CI artifact workflow runs worker coun
 
 ## Large-scale scan benchmarks (5,000 to 1,000,000 files)
 
-Use the dedicated manual workflow \`.github/workflows/large-scale-scan-benchmark.yml\` for large fixtures. It is intentionally not part of every pull request or every push because creating one million filesystem entries consumes substantial time, inodes, and runner resources.
+Use the dedicated manual workflow `.github/workflows/large-scale-scan-benchmark.yml` for large fixtures. It is intentionally not part of every pull request or every push because creating one million filesystem entries consumes substantial time, inodes, and runner resources.
 
 The harness supports up to 1,000,000 files and reports fixture-creation time separately from scan measurements. The fixture contains small files arranged in directories of 100 entries; all files are created in a temporary workspace and removed automatically. Only dry-run scans are timed, so files are not moved.
 

@@ -1,0 +1,100 @@
+name: Large-scale scan benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      scan_files:
+        description: Scan fixture size (5000, 100000, or 1000000)
+        type: choice
+        options:
+          - "5000"
+          - "100000"
+          - "1000000"
+        default: "1000000"
+        required: true
+      scan_runs:
+        description: Measured repetitions (3-5 recommended for 1M)
+        type: number
+        default: 5
+        required: true
+      workers:
+        description: Worker count for this run
+        type: choice
+        options:
+          - "1"
+          - "2"
+          - "4"
+          - "8"
+        default: "4"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  large-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      SCAN_FILES: \${{ inputs.scan_files }}
+      SCAN_RUNS: \${{ inputs.scan_runs }}
+      WORKERS: \${{ inputs.workers }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Check runner capacity
+        shell: bash
+        run: |
+          set -euo pipefail
+          df -h "\${RUNNER_TEMP}"
+          df -i "\${RUNNER_TEMP}"
+          free -h || true
+
+      - name: Configure portable Release build
+        run: cmake -S . -B build/benchmark -DCMAKE_BUILD_TYPE=Release -DFC_C_STANDARD=17 -DBUILD_TESTING=OFF
+
+      - name: Build
+        run: cmake --build build/benchmark --parallel 2
+
+      - name: Capture runner metadata
+        shell: bash
+        run: |
+          mkdir -p benchmark-results
+          {
+            echo "commit=\${GITHUB_SHA}"
+            echo "run_id=\${GITHUB_RUN_ID}"
+            echo "runner=\${RUNNER_NAME}"
+            echo "os=\${RUNNER_OS}"
+            echo "arch=\${RUNNER_ARCH}"
+            uname -a
+            lscpu | grep -E 'Model name|CPU\\(s\\)|Architecture' || true
+            stat -f -c 'filesystem=%T' "\${RUNNER_TEMP}" || true
+            df -h "\${RUNNER_TEMP}"
+            df -i "\${RUNNER_TEMP}"
+          } > benchmark-results/runner-metadata.txt
+
+      - name: Run scan-only benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/performance/benchmark_cli.py \\
+            --binary build/benchmark/file-cleaner \\
+            --config configs/default.conf \\
+            --files "\${SCAN_FILES}" \\
+            --runs "\${SCAN_RUNS}" \\
+            --workers "\${WORKERS}" \\
+            --output "benchmark-results/scan-\${SCAN_FILES}-workers-\${WORKERS}"
+
+      - name: Upload large-scale results
+        uses: actions/upload-artifact@v4
+        with:
+          name: large-scan-\${{ inputs.scan_files }}-workers-\${{ inputs.workers }}-\${{ github.run_id }}
+          path: benchmark-results/
+          if-no-files-found: error
+          retention-days: 30

@@ -285,10 +285,18 @@ int main(int argc, char **argv)
     }
 
     {
-        const uint64_t elapsed_ns =
-            (uint64_t)(end_time.tv_sec - start_time.tv_sec) *
-                UINT64_C(1000000000) +
-            (uint64_t)(end_time.tv_nsec - start_time.tv_nsec);
+        int64_t elapsed_seconds = (int64_t)end_time.tv_sec -
+                                  (int64_t)start_time.tv_sec;
+        int64_t elapsed_nanoseconds = (int64_t)end_time.tv_nsec -
+                                      (int64_t)start_time.tv_nsec;
+        uint64_t elapsed_ns;
+
+        if (elapsed_nanoseconds < 0) {
+            --elapsed_seconds;
+            elapsed_nanoseconds += INT64_C(1000000000);
+        }
+        elapsed_ns = (uint64_t)elapsed_seconds * UINT64_C(1000000000) +
+                     (uint64_t)elapsed_nanoseconds;
 
         printf("Created %" PRIu64 " empty files in '%s' using %u threads\n",
                created, output_dir, thread_count);

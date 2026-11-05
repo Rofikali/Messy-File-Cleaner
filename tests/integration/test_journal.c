@@ -137,6 +137,13 @@ int main(void)
     make_path(untouched, real_parent, "journal.log");
     assert(access(untouched, F_OK) != 0 && errno == ENOENT);
 
+    /* Recovery of an absent journal must not create parent directories. */
+    char absent_parent_journal[PATH_MAX], absent_parent[PATH_MAX];
+    make_path(absent_parent_journal, root, "absent-parent/child/journal.log");
+    make_path(absent_parent, root, "absent-parent");
+    assert(journal_recover(absent_parent_journal) == 0);
+    assert(access(absent_parent, F_OK) != 0 && errno == ENOENT);
+
     /* The journal itself must not be a symlink. */
     char journal_link[PATH_MAX];
     make_path(journal_link, root, "journal-link");

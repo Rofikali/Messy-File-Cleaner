@@ -107,6 +107,41 @@ int main(void)
     assert(move_file(preserved_source, destination_link) == -1);
     assert_text(preserved_source, "must remain");
 
+    /* Symlink ancestors must not redirect source or destination traversal. */
+    char source_ancestor_link[PATH_MAX], linked_source_path[PATH_MAX];
+    make_path(source_ancestor_link, root, "source-ancestor-link");
+    assert(symlink(outside_dir, source_ancestor_link) == 0);
+    make_path(linked_source_path, source_ancestor_link, "important.txt");
+    errno = 0;
+    assert(move_file(linked_source_path, destination_dir) == -1);
+    assert(errno == ENOTDIR || errno == ELOOP);
+    assert_text(target, "outside data");
+
+    char destination_ancestor_link[PATH_MAX], redirected_destination[PATH_MAX];
+    make_path(destination_ancestor_link, root, "destination-ancestor-link");
+    assert(symlink(outside_dir, destination_ancestor_link) == 0);
+    make_path(redirected_destination, destination_ancestor_link, "nested");
+    char ancestor_test_source[PATH_MAX];
+    make_path(ancestor_test_source, source_dir, "ancestor-test.txt");
+    write_text(ancestor_test_source, "source must survive");
+    errno = 0;
+    assert(move_file(ancestor_test_source, redirected_destination) == -1);
+    assert(errno == ENOTDIR || errno == ELOOP);
+    assert_text(ancestor_test_source, "source must survive");
+
+    /* Dot-dot traversal is rejected rather than normalized implicitly. */
+    errno = 0;
+    assert(move_file(ancestor_test_source, "../outside") == -1);
+    assert(errno == EINVAL);
+    assert_text(ancestor_test_source, "source must survive");
+
+    /* Missing destination components are created descriptor-relatively. */
+    char nested_destination[PATH_MAX], nested_destination_file[PATH_MAX];
+    make_path(nested_destination, root, "new-parent/new-child");
+    make_path(nested_destination_file, nested_destination, "nested.txt");
+    assert(move_file(ancestor_test_source, nested_destination) == 0);
+    assert_text(nested_destination_file, "source must survive");
+
     /* The standalone copy helper must never truncate an existing file. */
     char copy_source[PATH_MAX], copy_destination[PATH_MAX];
     make_path(copy_source, source_dir, "copy-source.bin");
@@ -118,6 +153,8 @@ int main(void)
     assert_text(copy_destination, "do not overwrite");
 
     unlink(destination_link);
+    unlink(source_ancestor_link);
+    unlink(destination_ancestor_link);
     unlink(fifo_source);
     unlink(symlink_source);
     unlink(target);
@@ -125,6 +162,11 @@ int main(void)
     unlink(expected_destination);
     unlink(existing);
     unlink(preserved_source);
+    unlink(nested_destination_file);
+    rmdir(nested_destination);
+    char nested_parent[PATH_MAX];
+    make_path(nested_parent, root, "new-parent");
+    rmdir(nested_parent);
     rmdir(source_dir);
     rmdir(destination_dir);
     rmdir(outside_dir);

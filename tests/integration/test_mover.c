@@ -141,7 +141,7 @@ int main(void)
     /* Missing destination components are created descriptor-relatively. */
     char nested_destination[PATH_MAX], nested_destination_file[PATH_MAX];
     make_path(nested_destination, root, "new-parent/new-child");
-    make_path(nested_destination_file, nested_destination, "nested.txt");
+    make_path(nested_destination_file, nested_destination, "ancestor-test.txt");
     assert(move_file(ancestor_test_source, nested_destination) == 0);
     assert_text(nested_destination_file, "source must survive");
 

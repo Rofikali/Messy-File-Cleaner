@@ -16,7 +16,6 @@
 #include <linux/fs.h>
 
 #include "mover/mover.h"
-#include "utils/fs_utils.h"
 
 #ifndef NAME_MAX
 #define NAME_MAX 255
@@ -97,13 +96,71 @@ static int split_path(const char *path, char **parent_out, char **name_out)
     return 0;
 }
 
-static int open_directory(const char *path)
+/* Resolve each directory component relative to an already-open directory.
+ * Symlink ancestors and dot traversal are rejected. Missing destination
+ * components are created with mkdirat(), never path-based mkdir(). */
+static int open_directory_path(const char *path, int create_missing)
 {
+    if (!path || !path[0] || strlen(path) >= PATH_MAX) {
+        errno = EINVAL;
+        return -1;
+    }
+
+    char copy[PATH_MAX];
+    memcpy(copy, path, strlen(path) + 1);
+    int absolute = copy[0] == '/';
     int fd;
-    do
-    {
-        fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    do {
+        fd = open(absolute ? "/" : ".",
+                  O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
     } while (fd < 0 && errno == EINTR);
+    if (fd < 0)
+        return -1;
+
+    if (strcmp(copy, ".") == 0 || strcmp(copy, "/") == 0)
+        return fd;
+
+    char *save = NULL;
+    for (char *part = strtok_r(copy, "/", &save);
+         part; part = strtok_r(NULL, "/", &save)) {
+        if (strcmp(part, ".") == 0 || strcmp(part, "..") == 0) {
+            close(fd);
+            errno = EINVAL;
+            return -1;
+        }
+
+        int next;
+        do {
+            next = openat(fd, part,
+                          O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        } while (next < 0 && errno == EINTR);
+
+        if (next < 0 && errno == ENOENT && create_missing) {
+            if (mkdirat(fd, part, 0755) != 0 && errno != EEXIST) {
+                int saved_errno = errno;
+                close(fd);
+                errno = saved_errno;
+                return -1;
+            }
+            do {
+                next = openat(fd, part,
+                              O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+            } while (next < 0 && errno == EINTR);
+        }
+        if (next < 0) {
+            int saved_errno = errno;
+            close(fd);
+            errno = saved_errno;
+            return -1;
+        }
+        if (close(fd) != 0) {
+            int saved_errno = errno;
+            close(next);
+            errno = saved_errno;
+            return -1;
+        }
+        fd = next;
+    }
     return fd;
 }
 
@@ -312,14 +369,11 @@ static int move_file_internal(const char *src, const char *dest_dir,
     if (split_path(src, &source_parent, &source_name) != 0)
         goto fail_without_resources;
 
-    if (ensure_dir(dest_dir) != 0)
-        goto fail;
-
-    int source_dirfd = open_directory(source_parent);
+    int source_dirfd = open_directory_path(source_parent, 0);
     if (source_dirfd < 0)
         goto fail;
 
-    int destination_dirfd = open_directory(dest_dir);
+    int destination_dirfd = open_directory_path(dest_dir, 1);
     if (destination_dirfd < 0)
         goto fail_with_source_dir;
 

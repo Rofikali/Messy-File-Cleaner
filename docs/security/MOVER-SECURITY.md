@@ -27,8 +27,9 @@ The mover uses a conservative copy-then-retire algorithm for all moves, includin
 ## Platform and threat-model boundaries
 
 - The no-replace publication primitive uses Linux renameat2(RENAME_NOREPLACE). Unsupported kernels fail closed rather than falling back to an overwriting rename.
-- Directory descriptors protect the final source-parent and destination path components from symlink substitution. Canonical authorization of every ancestor component and source/destination overlap policy are separate follow-up work.
-- Path-based directory creation still needs a dedicated descriptor-relative policy for hostile ancestor directories.
+- Source-parent and destination paths are traversed one component at a time from an open root/current-directory descriptor. Each component is opened with `openat()` plus `O_DIRECTORY | O_NOFOLLOW`.
+- Missing destination components are created with `mkdirat()` relative to the already-open parent descriptor, then reopened with no-follow flags.
+- `.` and `..` path components are rejected by the directory traversal helper; callers should provide normalized paths. A plain `.` path and `/` root are valid directory roots.
 - A hostile process with write access to the source directory can race directory entries. The quarantine-and-identity check reduces the destructive race window and preserves mismatched entries, but a complete adversarial multi-process filesystem policy needs explicit directory ownership/permission assumptions and dedicated stress/fault-injection tests.
 - Journal parent traversal uses directory descriptors and no-follow opens for each traversed component; missing components are created with `mkdirat()` and reopened descriptor-relatively. Symlinked ancestors are rejected.
 - Journal paths containing `.` or `..` components are rejected. This is a conservative path policy; callers should provide normalized paths.

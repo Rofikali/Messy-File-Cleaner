@@ -153,6 +153,18 @@ if(BUILD_TESTING)
   set_tests_properties(cli_end_to_end PROPERTIES TIMEOUT 30)
 
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
+  add_executable(create-files create_files.c)
+  target_link_libraries(create-files PRIVATE Threads::Threads)
+  target_compile_options(create-files PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes
+  )
+  add_test(NAME fixture_generator_safety
+    COMMAND ${Python3_EXECUTABLE}
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/test_create_files.py"
+            "$<TARGET_FILE:create-files>"
+  )
+  set_tests_properties(fixture_generator_safety PROPERTIES TIMEOUT 60)
   add_test(NAME cli_benchmark_smoke
     COMMAND ${Python3_EXECUTABLE}
             "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_cli.py"

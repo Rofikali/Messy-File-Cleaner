@@ -39,45 +39,74 @@ static long long now_ns(void)
     return (long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
-static int ensure_parent_dir(const char *path)
+/* Open the journal's parent by walking each component from a trusted root
+ * descriptor. Reject dot components and symlinks rather than resolving them. */
+static int open_parent_dir(const char *path, char leaf[PATH_MAX])
 {
-    const char *slash = strrchr(path, '/');
-    if (!slash)
-        return 0;
-
-    size_t length = (size_t)(slash - path);
-    if (length == 0)
-        return 0;
-    if (length >= PATH_MAX)
-    {
-        errno = ENAMETOOLONG;
+    if (!path || !path[0] || strlen(path) >= PATH_MAX) {
+        errno = EINVAL;
         return -1;
     }
 
-    char parent[PATH_MAX];
-    memcpy(parent, path, length);
-    parent[length] = '\0';
-
-    struct stat st;
-    if (lstat(parent, &st) == 0)
-    {
-        if (S_ISDIR(st.st_mode))
-            return 0;
-        errno = ENOTDIR;
+    char copy[PATH_MAX];
+    memcpy(copy, path, strlen(path) + 1);
+    char *slash = strrchr(copy, '/');
+    char *base = copy;
+    const char *parent = ".";
+    if (slash) {
+        *slash = '\0';
+        base = slash + 1;
+        parent = copy[0] ? copy : "/";
+    }
+    if (!base[0] || strcmp(base, ".") == 0 || strcmp(base, "..") == 0 ||
+        strlen(base) >= PATH_MAX) {
+        errno = EINVAL;
         return -1;
     }
-    if (errno != ENOENT)
+    memcpy(leaf, base, strlen(base) + 1);
+
+    int fd = open(parent[0] == '/' ? "/" : ".",
+                  O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (fd < 0)
         return -1;
 
-    if (mkdir(parent, 0700) == 0)
-        return 0;
-    if (errno != EEXIST)
-        return -1;
+    const char *walk = parent;
+    while (*walk == '/')
+        walk++;
+    if (strcmp(parent, ".") == 0 || strcmp(parent, "/") == 0)
+        return fd;
 
-    if (lstat(parent, &st) == 0 && S_ISDIR(st.st_mode))
-        return 0;
-    errno = ENOTDIR;
-    return -1;
+    char *save = NULL;
+    for (char *component = strtok_r((char *)walk, "/", &save);
+         component; component = strtok_r(NULL, "/", &save)) {
+        if (!component[0] || strcmp(component, ".") == 0 ||
+            strcmp(component, "..") == 0) {
+            close(fd);
+            errno = EINVAL;
+            return -1;
+        }
+        int next = openat(fd, component,
+                          O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        if (next < 0 && errno == ENOENT) {
+            if (mkdirat(fd, component, 0700) != 0 && errno != EEXIST) {
+                int saved_errno = errno;
+                close(fd);
+                errno = saved_errno;
+                return -1;
+            }
+            next = openat(fd, component,
+                          O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        }
+        if (next < 0) {
+            int saved_errno = errno;
+            close(fd);
+            errno = saved_errno;
+            return -1;
+        }
+        close(fd);
+        fd = next;
+    }
+    return fd;
 }
 
 static int hex_encode(const char *input, char *output, size_t output_size)
@@ -314,9 +343,18 @@ int journal_recover(const char *path)
         return -1;
     }
 
-    int fd = open(path, O_RDWR | O_APPEND | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
-    if (fd < 0)
+    char leaf[PATH_MAX];
+    int parent_fd = open_parent_dir(path, leaf);
+    if (parent_fd < 0)
+        return -1;
+    int fd = openat(parent_fd, leaf,
+                    O_RDWR | O_APPEND | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
+    int open_errno = errno;
+    close(parent_fd);
+    if (fd < 0) {
+        errno = open_errno;
         return errno == ENOENT ? 0 : -1;
+    }
 
     int lock_rc;
     do
@@ -525,17 +563,23 @@ int journal_open(MoveJournal *journal, const char *path)
     }
 
     memset(journal, 0, sizeof(*journal));
-    if (ensure_parent_dir(path) != 0)
+    char leaf[PATH_MAX];
+    int parent_fd = open_parent_dir(path, leaf);
+    if (parent_fd < 0)
         return -1;
 
     int fd;
-    do
-    {
-        fd = open(path, O_WRONLY | O_APPEND | O_CREAT | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK,
-                  0600);
+    do {
+        fd = openat(parent_fd, leaf,
+                    O_WRONLY | O_APPEND | O_CREAT | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK,
+                    0600);
     } while (fd < 0 && errno == EINTR);
-    if (fd < 0)
+    int open_errno = errno;
+    close(parent_fd);
+    if (fd < 0) {
+        errno = open_errno;
         return -1;
+    }
 
     int lock_rc;
     do

@@ -30,7 +30,10 @@ The mover uses a conservative copy-then-retire algorithm for all moves, includin
 - Directory descriptors protect the final source-parent and destination path components from symlink substitution. Canonical authorization of every ancestor component and source/destination overlap policy are separate follow-up work.
 - Path-based directory creation still needs a dedicated descriptor-relative policy for hostile ancestor directories.
 - A hostile process with write access to the source directory can race directory entries. The quarantine-and-identity check reduces the destructive race window and preserves mismatched entries, but a complete adversarial multi-process filesystem policy needs explicit directory ownership/permission assumptions and dedicated stress/fault-injection tests.
-- The journal currently stores pipe-delimited path strings. Escaping, bounded parsing, and crash-recovery state-machine correctness are not solved by this milestone.
+- Journal parent traversal uses directory descriptors and no-follow opens for each traversed component; missing components are created with `mkdirat()` and reopened descriptor-relatively. Symlinked ancestors are rejected.
+- Journal paths containing `.` or `..` components are rejected. This is a conservative path policy; callers should provide normalized paths.
+- Descriptor-relative traversal prevents ancestor substitution through symlinks, but does not defend against a hostile process that can rename or replace entries inside directories it controls. Directory ownership/permissions remain part of the threat model.
+- The journal stores versioned hex-encoded paths with bounded parsing and fail-closed recovery; source/destination recovery checks remain pathname-based and are a separate hardening area.
 
 ## Performance decision
 

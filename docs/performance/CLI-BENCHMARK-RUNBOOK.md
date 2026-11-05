@@ -65,3 +65,19 @@ The workflow builds a portable C17 Release binary on ubuntu-latest, runs both ha
 ## Worker-count scaling
 
 Both harnesses accept --workers 1..16. The CI artifact workflow runs worker counts 1, 2, 4, and 8, producing separate scan-workers-N and move-workers-N result files. This helps determine whether extra workers improve throughput or instead increase synchronization/storage contention. Compare runs on the same runner and do not assume the optimal count transfers to a different CPU or filesystem.
+
+
+## Large-scale scan benchmarks (5,000 to 1,000,000 files)
+
+Use the dedicated manual workflow \`.github/workflows/large-scale-scan-benchmark.yml\` for large fixtures. It is intentionally not part of every pull request or every push because creating one million filesystem entries consumes substantial time, inodes, and runner resources.
+
+The harness supports up to 1,000,000 files and reports fixture-creation time separately from scan measurements. The fixture contains small files arranged in directories of 100 entries; all files are created in a temporary workspace and removed automatically. Only dry-run scans are timed, so files are not moved.
+
+Recommended scale tiers:
+- 5,000 files: baseline/quick comparison.
+- 100,000 files: medium-scale behavior.
+- 1,000,000 files: large-scale scan stress run.
+
+For a million-file run, use a manual workflow dispatch, 3–5 measured repetitions, and a single selected worker count. Compare worker counts with separate runs on the same runner image. Fixture creation time is not included in scan elapsed time, but should be retained as operational context. A million-file fixture can fail due to runner disk/inode limits; such a run should be marked resource-limited, not treated as a scanner failure or performance result.
+
+The benchmark measures end-to-end dry-run process time including startup and scan/classification, not pure traversal syscall latency. It does not report memory yet; use a separate profiler/measurement step before drawing conclusions about peak RSS.

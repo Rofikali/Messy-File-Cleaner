@@ -32,6 +32,9 @@ static void assert_text(const char *path, const char *expected)
 {
     char actual[256];
     int fd = open(path, O_RDONLY | O_NOFOLLOW);
+    if (fd < 0)
+        fprintf(stderr, "assert_text: cannot open '%s': errno=%d (%s)\\n",
+                path, errno, strerror(errno));
     assert(fd >= 0);
     ssize_t n = read(fd, actual, sizeof(actual) - 1);
     assert(n >= 0);

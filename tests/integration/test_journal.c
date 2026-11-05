@@ -117,6 +117,26 @@ int main(void)
     assert(journal_recover(malformed_path) == -1);
     assert(access(malformed_path, F_OK) == 0);
 
+    /* Descriptor-relative traversal creates nested parents and rejects
+     * symlink ancestors without touching the symlink target. */
+    char nested_path[PATH_MAX], nested_parent[PATH_MAX], real_parent[PATH_MAX];
+    make_path(nested_parent, root, "nested/child");
+    make_path(nested_path, root, "nested/child/journal.log");
+    assert(journal_open(&journal, nested_path) == 0);
+    assert(journal_close(&journal) == 0);
+    make_path(real_parent, root, "real-parent");
+    assert(mkdir(real_parent, 0700) == 0);
+    char link_parent[PATH_MAX], linked_journal[PATH_MAX];
+    make_path(link_parent, root, "linked-parent");
+    make_path(linked_journal, root, "linked-parent/journal.log");
+    assert(symlink(real_parent, link_parent) == 0);
+    errno = 0;
+    assert(journal_open(&journal, linked_journal) == -1);
+    assert(errno == ELOOP || errno == ENOTDIR);
+    char untouched[PATH_MAX];
+    make_path(untouched, real_parent, "journal.log");
+    assert(access(untouched, F_OK) != 0 && errno == ENOENT);
+
     /* The journal itself must not be a symlink. */
     char journal_link[PATH_MAX];
     make_path(journal_link, root, "journal-link");
@@ -126,12 +146,19 @@ int main(void)
     assert(errno == ELOOP);
 
     unlink(journal_link);
+    unlink(link_parent);
+    unlink(nested_path);
+    rmdir(nested_parent);
+    char nested_root[PATH_MAX];
+    make_path(nested_root, root, "nested");
+    rmdir(nested_root);
     unlink(malformed_path);
     unlink(source);
     unlink(destination);
     unlink(source_only);
     unlink(ambiguous_destination);
     unlink(journal_path);
+    rmdir(real_parent);
     rmdir(root);
 
     puts("journal recovery security tests passed");

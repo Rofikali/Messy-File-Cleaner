@@ -68,3 +68,8 @@ This catalogue defines the knowledge required to build, review, secure, operate,
 6. Document the decision and limitations.
 
 Do not add technology merely to make the architecture look advanced.
+
+## Filesystem path boundary validation
+- Validate destination configuration as untrusted input.
+- Canonicalize input roots and compare path components safely (not string-prefix-only checks).
+- Test root/output overlap, symlink roots, symlink destinations, reserved journal paths, and forced-root behavior in temporary directories.

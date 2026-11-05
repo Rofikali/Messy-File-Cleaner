@@ -369,14 +369,13 @@ static int move_file_internal(const char *src, const char *dest_dir,
     if (split_path(src, &source_parent, &source_name) != 0)
         goto fail_without_resources;
 
-    int destination_dirfd = open_directory_path(dest_dir, 1);
-    if (destination_dirfd < 0)
-        goto fail;
-
     int source_dirfd = open_directory_path(source_parent, 0);
     if (source_dirfd < 0)
         goto fail;
 
+    int destination_dirfd = open_directory_path(dest_dir, 1);
+    if (destination_dirfd < 0)
+        goto fail_with_source_dir;
 
     int source_fd;
     do

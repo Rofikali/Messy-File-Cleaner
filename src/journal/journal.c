@@ -41,7 +41,7 @@ static long long now_ns(void)
 
 /* Open the journal's parent by walking each component from a trusted root
  * descriptor. Reject dot components and symlinks rather than resolving them. */
-static int open_parent_dir(const char *path, char leaf[PATH_MAX])
+static int open_parent_dir(const char *path, char leaf[PATH_MAX], int create_dirs)
 {
     if (!path || !path[0] || strlen(path) >= PATH_MAX) {
         errno = EINVAL;
@@ -87,7 +87,7 @@ static int open_parent_dir(const char *path, char leaf[PATH_MAX])
         }
         int next = openat(fd, component,
                           O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-        if (next < 0 && errno == ENOENT) {
+        if (next < 0 && errno == ENOENT && create_dirs) {
             if (mkdirat(fd, component, 0700) != 0 && errno != EEXIST) {
                 int saved_errno = errno;
                 close(fd);
@@ -344,7 +344,7 @@ int journal_recover(const char *path)
     }
 
     char leaf[PATH_MAX];
-    int parent_fd = open_parent_dir(path, leaf);
+    int parent_fd = open_parent_dir(path, leaf, 0);
     if (parent_fd < 0)
         return -1;
     int fd = openat(parent_fd, leaf,
@@ -564,7 +564,7 @@ int journal_open(MoveJournal *journal, const char *path)
 
     memset(journal, 0, sizeof(*journal));
     char leaf[PATH_MAX];
-    int parent_fd = open_parent_dir(path, leaf);
+    int parent_fd = open_parent_dir(path, leaf, 1);
     if (parent_fd < 0)
         return -1;
 

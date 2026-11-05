@@ -48,8 +48,8 @@ def main() -> int:
                         help="Output base path; writes .csv and .json")
     args = parser.parse_args()
 
-    if args.files < 1 or args.runs < 1 or not 1 <= args.workers <= 16:
-        parser.error("--files and --runs must be positive; --workers must be between 1 and 16")
+    if args.files < 1 or args.files > 1_000_000 or args.runs < 1 or not 1 <= args.workers <= 16:
+        parser.error("--files must be between 1 and 1000000; --runs must be positive; --workers must be between 1 and 16")
 
     binary = Path(args.binary).resolve()
     config = Path(args.config).resolve()
@@ -59,11 +59,17 @@ def main() -> int:
         parser.error(f"config not found: {config}")
 
     samples_ns: list[int] = []
+    fixture_creation_ns = 0
+    fixture_directory_count = 0
     with tempfile.TemporaryDirectory(prefix="file-cleaner-bench-") as temp:
         workspace = Path(temp)
         fixture_root = workspace / "input"
         fixture_root.mkdir()
+        fixture_start = time.perf_counter_ns()
         build_fixture(fixture_root, args.files)
+        fixture_creation_ns = time.perf_counter_ns() - fixture_start
+        fixture_directory_count = sum(1 for path in fixture_root.iterdir() if path.is_dir())
+        print(f"Fixture ready: {args.files:,} files in {fixture_directory_count:,} directories; creation {fixture_creation_ns / 1_000_000_000:.1f}s", flush=True)
 
         command = [str(binary), str(fixture_root), "--config", str(config),
                    "--dry-run", "--once", "--workers", str(args.workers)]
@@ -113,6 +119,9 @@ def main() -> int:
         "binary": str(binary),
         "config": str(config),
         "files": args.files,
+        "fixture_directories": fixture_directory_count,
+        "fixture_creation_elapsed_ns": fixture_creation_ns,
+        "fixture_file_bytes": len(b"benchmark fixture\\n"),
         "measured_runs": args.runs,
         "workers": args.workers,
         "warmup_runs": 2,

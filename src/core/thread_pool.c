@@ -133,6 +133,13 @@ static int create_worker_thread(pthread_t *thread, void *(*entry)(void *),
 
 int notify_worker(AppContext *ctx, int worker_index)
 {
+    if (!ctx || worker_index < 0 || worker_index >= ctx->num_workers ||
+        ctx->efd[worker_index] < 0)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
 #ifdef FC_TESTING
     if (test_notify_fail_after == 0) {
         test_notify_fail_after = -1;
@@ -142,12 +149,6 @@ int notify_worker(AppContext *ctx, int worker_index)
     if (test_notify_fail_after > 0)
         test_notify_fail_after--;
 #endif
-    if (!ctx || worker_index < 0 || worker_index >= ctx->num_workers ||
-        ctx->efd[worker_index] < 0)
-    {
-        errno = EINVAL;
-        return -1;
-    }
 
     const uint64_t increment = 1;
     for (;;)

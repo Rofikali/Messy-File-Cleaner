@@ -26,6 +26,10 @@ int notify_worker(AppContext *ctx, int worker_index);
 /* Deterministic fault injection for worker-start cleanup tests only. */
 void fc_test_fail_eventfd_after(int successful_calls);
 void fc_test_fail_pthread_create_after(int successful_calls);
+void fc_test_fail_notify_after(int successful_calls);
+void fc_test_pause_worker_before_process(void);
+int fc_test_wait_for_worker_pause(int timeout_ms);
+void fc_test_release_worker(void);
 #endif
 
 #endif

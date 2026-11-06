@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include <sys/eventfd.h>
 #include <unistd.h>
 
@@ -21,6 +22,11 @@ static pthread_t threads_storage[MAX_WORKERS];
 #ifdef FC_TESTING
 static int test_eventfd_fail_after = -1;
 static int test_pthread_fail_after = -1;
+static int test_notify_fail_after = -1;
+static pthread_mutex_t test_gate_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_cond_t test_gate_cond = PTHREAD_COND_INITIALIZER;
+static int test_gate_enabled;
+static int test_gate_entered;
 
 void fc_test_fail_eventfd_after(int successful_calls)
 {
@@ -30,6 +36,67 @@ void fc_test_fail_eventfd_after(int successful_calls)
 void fc_test_fail_pthread_create_after(int successful_calls)
 {
     test_pthread_fail_after = successful_calls;
+}
+
+void fc_test_fail_notify_after(int successful_calls)
+{
+    test_notify_fail_after = successful_calls;
+}
+
+void fc_test_pause_worker_before_process(void)
+{
+    (void)pthread_mutex_lock(&test_gate_mutex);
+    test_gate_enabled = 1;
+    test_gate_entered = 0;
+    (void)pthread_mutex_unlock(&test_gate_mutex);
+}
+
+int fc_test_wait_for_worker_pause(int timeout_ms)
+{
+    struct timespec deadline;
+    int wait_error = 0;
+
+    if (timeout_ms < 0 || clock_gettime(CLOCK_REALTIME, &deadline) != 0)
+        return -1;
+
+    deadline.tv_sec += timeout_ms / 1000;
+    deadline.tv_nsec += (long)(timeout_ms % 1000) * 1000000L;
+    if (deadline.tv_nsec >= 1000000000L) {
+        deadline.tv_sec++;
+        deadline.tv_nsec -= 1000000000L;
+    }
+
+    (void)pthread_mutex_lock(&test_gate_mutex);
+    while (!test_gate_entered && wait_error == 0)
+        wait_error = pthread_cond_timedwait(&test_gate_cond,
+                                            &test_gate_mutex, &deadline);
+    (void)pthread_mutex_unlock(&test_gate_mutex);
+
+    if (wait_error != 0) {
+        errno = wait_error;
+        return -1;
+    }
+    return 0;
+}
+
+void fc_test_release_worker(void)
+{
+    (void)pthread_mutex_lock(&test_gate_mutex);
+    test_gate_enabled = 0;
+    (void)pthread_cond_broadcast(&test_gate_cond);
+    (void)pthread_mutex_unlock(&test_gate_mutex);
+}
+
+static void test_worker_gate(void)
+{
+    (void)pthread_mutex_lock(&test_gate_mutex);
+    if (test_gate_enabled) {
+        test_gate_entered = 1;
+        (void)pthread_cond_broadcast(&test_gate_cond);
+        while (test_gate_enabled)
+            (void)pthread_cond_wait(&test_gate_cond, &test_gate_mutex);
+    }
+    (void)pthread_mutex_unlock(&test_gate_mutex);
 }
 #endif
 
@@ -72,6 +139,16 @@ int notify_worker(AppContext *ctx, int worker_index)
         errno = EINVAL;
         return -1;
     }
+
+#ifdef FC_TESTING
+    if (test_notify_fail_after == 0) {
+        test_notify_fail_after = -1;
+        errno = EIO;
+        return -1;
+    }
+    if (test_notify_fail_after > 0)
+        test_notify_fail_after--;
+#endif
 
     const uint64_t increment = 1;
     for (;;)
@@ -174,6 +251,9 @@ static void *worker(void *arg)
         if (lf_dequeue(queue, &event))
         {
             atomic_fetch_add(&ctx->active_workers, 1);
+#ifdef FC_TESTING
+            test_worker_gate();
+#endif
             process_event(ctx, &event);
             atomic_fetch_sub(&ctx->active_workers, 1);
             continue;

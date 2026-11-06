@@ -5,6 +5,14 @@ This file is the working contract for every human and automated contributor.
 ## Mission and priorities
 Build a dependable file-management engine that is safe with user data. Priorities: correctness and preservation of files; security and least privilege; recoverability and observability; measured performance; maintainability and delivery speed. Never trade data safety for a benchmark result. No performance claim without a reproducible benchmark and recorded environment.
 
+## Supported development environment
+- Ubuntu 24.04 LTS is the canonical Codespaces and container-development baseline.
+- Use the repository Dev Container definition in `.devcontainer/`; do not install toolchains ad hoc into an unrelated base image.
+- The development image must provide GCC, Clang, CMake, Ninja, Python 3, Git, and static-analysis/debugging tools.
+- The production image is a separate multi-stage image based on Ubuntu 24.04 LTS. Keep build dependencies out of its runtime stage.
+- Keep compiler, C standard, and build type explicit in validation commands. Record OS/image, compiler version, CMake version, flags, and container limits with benchmark results.
+- Do not assume that Arch Linux, Debian, or host-installed tools are equivalent to the canonical development image.
+
 ## Architecture
 - Keep the first product as a modular C application. Do not introduce microservices, brokers, databases, or a web server without a demonstrated requirement.
 - Keep CLI, configuration, scanning, classification, queueing, moving, journaling, and platform filesystem operations behind clear module boundaries.

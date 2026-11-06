@@ -1,0 +1,87 @@
+name: Ubuntu 24.04 LTS validation
+
+on:
+  pull_request:
+    paths:
+      - ".devcontainer/**"
+      - "Dockerfile"
+      - "CMakeLists.txt"
+      - "AGENTS.md"
+      - "src/**"
+      - "include/**"
+      - "configs/**"
+      - "tests/**"
+      - ".github/workflows/ubuntu-24.04-validation.yml"
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ubuntu-24.04-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  c-build-and-test:
+    name: C${{ matrix.c-standard }} build and tests
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        c-standard: ["11", "17", "23"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake ninja-build build-essential python3
+
+      - name: Configure
+        run: >-
+          cmake -S . -B build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DBUILD_TESTING=ON
+          -DFC_C_STANDARD=${{ matrix.c-standard }}
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  container-build:
+    name: Build Ubuntu development and production images
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build development image
+        run: docker build --pull -f .devcontainer/Dockerfile -t messy-file-cleaner-dev:ci .devcontainer
+
+      - name: Verify development toolchain and user
+        run: |
+          docker run --rm --user vscode --entrypoint /bin/sh messy-file-cleaner-dev:ci -ec '
+            test "$(id -un)" = "vscode"
+            gcc --version
+            clang --version
+            cmake --version
+            python3 --version
+            git --version
+            cppcheck --version
+          '
+
+      - name: Build production image
+        run: docker build --pull -t messy-file-cleaner:ci .
+
+      - name: Verify production image is non-root
+        run: |
+          docker run --rm --entrypoint /bin/sh messy-file-cleaner:ci -ec '
+            test "$(id -u)" = "10001"
+            test -x /usr/local/bin/file-cleaner
+          '

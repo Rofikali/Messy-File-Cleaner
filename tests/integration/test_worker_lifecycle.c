@@ -157,9 +157,11 @@ int main(void)
     assert(pthread_create(&shutdown_thread, NULL, join_workers_entry,
                           &join_args) == 0);
 
-    for (int i = 0; i < 2000 && !atomic_load(&join_args.started); i++)
+    for (int i = 0; i < 2000 &&
+         (!atomic_load(&join_args.started) || atomic_load(&ctx.running) != 0); i++)
         sleep_milliseconds(1);
     assert(atomic_load(&join_args.started) == 1);
+    assert(atomic_load(&ctx.running) == 0);
     sleep_milliseconds(50);
     assert(atomic_load(&join_args.finished) == 0);
 

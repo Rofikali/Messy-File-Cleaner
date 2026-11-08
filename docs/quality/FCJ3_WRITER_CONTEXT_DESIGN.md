@@ -14,7 +14,7 @@ The initializer receives:
 - nonempty source and destination path strings, each shorter than PATH_MAX;
 - a destination-directory stat snapshot that must identify a directory;
 - a staging-component name in the reserved `.fc-tmp-` namespace, with a nonempty suffix and fewer than NAME_MAX bytes;
-- a staging-inode stat snapshot that must identify a regular file, have `st_nlink == 0` (still anonymous), and have the same `st_dev` as the destination directory.
+- a staging-inode stat snapshot that must identify a regular file, be owned by the effective service UID, have `st_nlink == 0` (still anonymous), and have the same `st_dev` as the destination directory.
 
 The caller is responsible for obtaining these stat snapshots from the actual validated destination directory and anonymous O_TMPFILE descriptor, before the staging inode is linked by name. The initializer copies all values into the context. It does not open paths, follow symlinks, or perform filesystem operations.
 
@@ -33,7 +33,7 @@ The context owns:
 - source and destination path bytes;
 - destination directory device/inode;
 - staging component bytes;
-- staging inode device/inode;
+- staging inode device/inode and owner UID;
 - current committed state and sequence;
 - an uncertainty/poison flag.
 

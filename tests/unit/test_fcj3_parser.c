@@ -234,6 +234,19 @@ static void test_invalid_state_error_and_component_rules(void)
     length = make_line(line, sizeof(line), valid_id, 1, "STARTED", 0);
     expect_bad(line, length, EBADMSG);
 
+    /* The reserved staging namespace requires the exact prefix and a suffix. */
+    int bad_prefix_length = snprintf(line, sizeof(line),
+        "FCJ3|1|%s|1|STAGED|0|5|6|1|2|1|3|9|"
+        "2f73726331|2f6465737431|6e6f742d746d702d31\\n", valid_id);
+    assert(bad_prefix_length > 0 && (size_t)bad_prefix_length < sizeof(line));
+    expect_bad(line, (size_t)bad_prefix_length, EBADMSG);
+
+    int empty_suffix_length = snprintf(line, sizeof(line),
+        "FCJ3|1|%s|1|STAGED|0|5|6|1|2|1|3|8|"
+        "2f73726331|2f6465737431|2e66632d746d702d\\n", valid_id);
+    assert(empty_suffix_length > 0 && (size_t)empty_suffix_length < sizeof(line));
+    expect_bad(line, (size_t)empty_suffix_length, EBADMSG);
+
     length = make_line(line, sizeof(line), valid_id, 1, "STAGED", 0);
     char *stage_hex = strstr(line, "|2e66632d746d702d31\n");
     assert(stage_hex != NULL);

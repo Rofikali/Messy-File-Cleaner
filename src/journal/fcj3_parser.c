@@ -224,7 +224,8 @@ static int parse_record(const char *line, size_t length, ParsedRecord *parsed)
         numbers[2] > (uint64_t)INT_MAX ||
         numbers[1] == 0 || numbers[1] > 4U ||
         !fits_dev_t(numbers[5]) || !fits_ino_t(numbers[6]) ||
-        !fits_dev_t(numbers[7]) || !fits_ino_t(numbers[8]))
+        !fits_dev_t(numbers[7]) || !fits_ino_t(numbers[8]) ||
+        numbers[5] != numbers[7])
         goto malformed;
 
     if (parse_state(fields[4], &tx->state) != 0 ||

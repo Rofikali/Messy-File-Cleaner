@@ -24,6 +24,8 @@ typedef struct
     char stage_path[PATH_MAX];
     int directory_fd;
     int staging_fd;
+    int journal_fd;
+    char journal_path[PATH_MAX];
     struct stat directory_stat;
     struct stat staging_stat;
 } Fixture;
@@ -61,15 +63,41 @@ static void fixture_init(Fixture *fixture)
     assert(fstat(fixture->staging_fd, &fixture->staging_stat) == 0);
     /* Model the anonymous O_TMPFILE snapshot before it is linked by name. */
     fixture->staging_stat.st_nlink = 0;
+
+    length = snprintf(fixture->journal_path, sizeof(fixture->journal_path),
+                      "%s/test.journal", fixture->root);
+    assert(length > 0 && (size_t)length < sizeof(fixture->journal_path));
+    fixture->journal_fd = open(fixture->journal_path,
+        O_WRONLY | O_CREAT | O_EXCL | O_APPEND | O_CLOEXEC, 0600);
+    assert(fixture->journal_fd >= 0);
+}
+
+static void durably_append_test_record(int journal_fd,
+                                       const Fcj3PreparedRecord *prepared)
+{
+    size_t offset = 0;
+    while (offset < prepared->length)
+    {
+        ssize_t written = write(journal_fd, prepared->line + offset,
+                                prepared->length - offset);
+        if (written < 0 && errno == EINTR)
+            continue;
+        assert(written > 0);
+        offset += (size_t)written;
+    }
+    assert(fsync(journal_fd) == 0);
 }
 
 static void fixture_destroy(Fixture *fixture)
 {
     if (fixture->staging_fd >= 0)
         assert(close(fixture->staging_fd) == 0);
+    if (fixture->journal_fd >= 0)
+        assert(close(fixture->journal_fd) == 0);
     if (fixture->directory_fd >= 0)
         assert(close(fixture->directory_fd) == 0);
     assert(unlink(fixture->stage_path) == 0);
+    assert(unlink(fixture->journal_path) == 0);
     assert(rmdir(fixture->root) == 0);
 }
 
@@ -112,6 +140,7 @@ static void test_secure_context_and_serialized_lifecycle(void)
                                                    0, 100U, &prepared), 0);
     assert(context.sequence == 0 && context.state == FCJ3_STATE_NONE);
     CHECK_RESULT(fcj3_replay_add_line(&replay, prepared.line, prepared.length), 0);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     assert(context.sequence == 1 && context.state == FCJ3_STATE_STAGED);
 
@@ -178,12 +207,14 @@ static void test_failed_recovered_and_error_semantics(void)
 
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STAGED,
                                                    0, 1U, &prepared), 0);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_FAILED,
                                                    EIO, 2U, &prepared), 0);
     char failed_marker[32];
     (void)snprintf(failed_marker, sizeof(failed_marker), "|FAILED|%d|", EIO);
     assert(strstr(prepared.line, failed_marker) != NULL);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     assert(context.state == FCJ3_STATE_FAILED);
 
@@ -195,6 +226,7 @@ static void test_failed_recovered_and_error_semantics(void)
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_RECOVERED,
                                                    EIO, 2U, &prepared), 0);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     assert(context.state == FCJ3_STATE_RECOVERED);
 
@@ -227,6 +259,7 @@ static void test_stale_prepared_record_and_uncertainty(void)
     assert(context.sequence == 0);
 
     stale = first;
+    durably_append_test_record(fixture.journal_fd, &first);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &first), 0);
     errno = 0;
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &stale), -1);

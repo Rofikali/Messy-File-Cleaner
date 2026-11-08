@@ -83,6 +83,7 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     write_text(source, "0123456789abcdef");
 
     MoveResult result;
+    int move_rc;
     fc_test_mover_set_write_fault(FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL, 4);
     errno = 0;
     int move_rc = move_file_journaled(source, destination_dir, NULL, &result);
@@ -97,7 +98,7 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     /* A partial write followed by EIO has the same source-preservation rule. */
     fc_test_mover_set_write_fault(FC_TEST_WRITE_EIO_AFTER_PARTIAL, 5);
     errno = 0;
-    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
     assert(move_rc == -1);
     (void)move_rc;
     assert(errno == EIO);
@@ -109,15 +110,17 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     /* Permission failure at temp creation is deterministic, even as root. */
     fc_test_mover_set_temp_create_error(EACCES);
     errno = 0;
-    assert(move_file_journaled(source, destination_dir, NULL, &result) == -1);
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == -1);
+    (void)move_rc;
     assert(errno == EACCES);
     assert(result.error_code == EACCES);
     assert_text(source, "0123456789abcdef");
-    assert(access(destination, F_OK) != 0 && errno == ENOENT);
+    assert_path_missing(destination);
     assert_no_private_destination_files(destination_dir);
 
     fc_test_mover_set_write_fault(FC_TEST_WRITE_EINTR_ONCE, 0);
-    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
     assert(move_rc == 0);
     (void)move_rc;
     assert_text(destination, "0123456789abcdef");

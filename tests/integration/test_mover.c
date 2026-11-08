@@ -11,7 +11,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#define FC_TESTING
 #include "mover/mover.h"
 #include "utils/fs_utils.h"
 

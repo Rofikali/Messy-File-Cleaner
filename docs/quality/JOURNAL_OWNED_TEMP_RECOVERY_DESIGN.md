@@ -56,7 +56,7 @@ inode identities before the staging name can become visible.
 
 ### Filesystem compatibility and capability checks
 
-`O_TMPFILE` and `AT_EMPTY_PATH` are Linux-specific and filesystem support
+`O_TMPFILE` and proc-fd linking are Linux-specific and filesystem/runtime support
 varies. Do not silently fall back to visible named-temp creation and then claim
 the same crash-cleanup guarantee. If the destination filesystem does not
 support the required operations, fail safely with a clear, actionable error
@@ -66,7 +66,7 @@ entries).
 
 **Capability is destination-specific.** A successful probe under `/tmp` does
 not prove that the configured destination supports `O_TMPFILE`, `fsync`, or
-`linkat(AT_EMPTY_PATH)`. The runtime capability check must use the already
+`linkat(AT_SYMLINK_FOLLOW)` from the verified proc-fd entry. The runtime capability check must use the already
 validated, open descriptor for the actual destination directory, under the
 same effective UID, mount namespace, and security policy as the real move.
 The probe must use a unique disposable name, verify the linked inode identity,
@@ -81,11 +81,11 @@ not proof that every user destination is compatible.
 
 ### Link operation permissions
 
-`linkat(..., AT_EMPTY_PATH)` can be restricted by kernel permissions,
-capabilities, filesystem behavior, or security policy. Treat every failure as
-a real capability failure. Do not silently switch to a weaker linking method
-or named temporary-file fallback. Validate behavior in the actual non-root
-production runtime, not only as root in CI.
+The AT_EMPTY_PATH form requires CAP_DAC_READ_SEARCH and is not the selected
+non-root method. Use the proc-fd link method defined in
+FCJ3_STAGING_INTEGRATION_DESIGN.md. Verify procfs and exact inode identity in
+the actual non-root production runtime. If procfs or linking is unavailable,
+fail closed; do not grant a capability or fall back to named temporary files.
 
 ## Journal format and compatibility
 
@@ -187,8 +187,8 @@ successful recovery.
   entry.
 - A file with a similar `.fc-tmp-*` prefix but no matching journal identity is
   never touched.
-- Unsupported `O_TMPFILE` / `AT_EMPTY_PATH` filesystems fail safely; no
-  silent weaker fallback is enabled.
+- Unsupported `O_TMPFILE` / proc-fd linking environments fail safely; no
+  capability grant or named-temp fallback is enabled.
 - The actual destination directory is probed; a successful `/tmp` probe alone
   is insufficient.
 - Quarantine directory symlink, wrong owner, permissive mode, replacement, and

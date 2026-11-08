@@ -27,9 +27,11 @@ enum
 {
     FC_TEST_WRITE_NONE = 0,
     FC_TEST_WRITE_EINTR_ONCE = 1,
-    FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL = 2
+    FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL = 2,
+    FC_TEST_WRITE_EIO_AFTER_PARTIAL = 3
 };
 void fc_test_mover_set_write_fault(int fault, long bytes_before_failure);
+void fc_test_mover_set_temp_create_error(int error_code);
 #endif
 
 #endif

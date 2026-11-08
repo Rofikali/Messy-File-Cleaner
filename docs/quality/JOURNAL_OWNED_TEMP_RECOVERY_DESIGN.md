@@ -60,15 +60,14 @@ inode identities before the staging name can become visible.
 varies. Do not silently fall back to visible named-temp creation and then claim
 the same crash-cleanup guarantee. If the destination filesystem does not
 support the required operations, fail safely with a clear, actionable error
-(or use a separately designed fallback whose weaker recovery guarantee is
-explicitly documented and never performs automatic cleanup of unverified
-entries).
+There is no fallback in the initial supported mode; unsupported destinations
+are rejected before source retirement.
 
 **Capability is destination-specific.** A successful probe under `/tmp` does
 not prove that the configured destination supports `O_TMPFILE`, `fsync`, or
-`linkat(AT_SYMLINK_FOLLOW)` from the verified proc-fd entry. The runtime capability check must use the already
-validated, open descriptor for the actual destination directory, under the
-same effective UID, mount namespace, and security policy as the real move.
+proc-fd linking. The runtime capability check must use the already validated,
+open descriptor for the actual destination directory, under the same
+effective UID, mount namespace, and security policy as the real move.
 The probe must use a unique disposable name, verify the linked inode identity,
 unlink only its own probe entry, and fsync the destination directory. A
 capability result must not be cached across different destination filesystems

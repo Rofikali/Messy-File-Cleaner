@@ -21,7 +21,6 @@
 typedef struct
 {
     char root[PATH_MAX];
-    char stage_path[PATH_MAX];
     int directory_fd;
     int staging_fd;
     int journal_fd;
@@ -54,17 +53,28 @@ static void fixture_init(Fixture *fixture)
     assert(fixture->directory_fd >= 0);
     assert(fstat(fixture->directory_fd, &fixture->directory_stat) == 0);
 
-    int length = snprintf(fixture->stage_path, sizeof(fixture->stage_path),
-                          "%s/.fc-tmp-test", fixture->root);
-    assert(length > 0 && (size_t)length < sizeof(fixture->stage_path));
-    fixture->staging_fd = open(fixture->stage_path,
-        O_RDWR | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
-    assert(fixture->staging_fd >= 0);
+    fixture->staging_fd = openat(fixture->directory_fd, ".",
+        O_TMPFILE | O_RDWR | O_CLOEXEC, 0600);
+    if (fixture->staging_fd < 0)
+    {
+        int saved_errno = errno;
+        (void)close(fixture->directory_fd);
+        (void)rmdir(fixture->root);
+        if (saved_errno == EOPNOTSUPP || saved_errno == ENOTSUP ||
+            saved_errno == EINVAL || saved_errno == EISDIR ||
+            saved_errno == EPERM || saved_errno == ENOSYS)
+        {
+            fprintf(stderr, "SKIP: O_TMPFILE unavailable for FCJ3 context test: %s\\n",
+                    strerror(saved_errno));
+            exit(77);
+        }
+        errno = saved_errno;
+        assert(fixture->staging_fd >= 0);
+    }
     assert(fstat(fixture->staging_fd, &fixture->staging_stat) == 0);
-    /* Model the anonymous O_TMPFILE snapshot before it is linked by name. */
-    fixture->staging_stat.st_nlink = 0;
+    assert(fixture->staging_stat.st_nlink == 0);
 
-    length = snprintf(fixture->journal_path, sizeof(fixture->journal_path),
+    int length = snprintf(fixture->journal_path, sizeof(fixture->journal_path),
                       "%s/test.journal", fixture->root);
     assert(length > 0 && (size_t)length < sizeof(fixture->journal_path));
     fixture->journal_fd = open(fixture->journal_path,
@@ -96,7 +106,6 @@ static void fixture_destroy(Fixture *fixture)
         assert(close(fixture->journal_fd) == 0);
     if (fixture->directory_fd >= 0)
         assert(close(fixture->directory_fd) == 0);
-    assert(unlink(fixture->stage_path) == 0);
     assert(unlink(fixture->journal_path) == 0);
     assert(rmdir(fixture->root) == 0);
 }
@@ -297,15 +306,22 @@ static void test_random_failure_and_invalid_inputs(void)
 
     CHECK_RESULT(fstat(fixture.staging_fd, &regular_stat), 0);
     CHECK_RESULT(fstat(fixture.directory_fd, &directory_stat), 0);
-    assert(regular_stat.st_nlink > 0);
+    assert(regular_stat.st_nlink == 0);
 
     /* A named file cannot masquerade as the pre-link O_TMPFILE inode. */
+    int named_fd = openat(fixture.directory_fd, "named-stage",
+        O_RDWR | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+    assert(named_fd >= 0);
+    struct stat named_stat;
+    CHECK_RESULT(fstat(named_fd, &named_stat), 0);
+    assert(named_stat.st_nlink > 0);
     errno = 0;
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,
-        &directory_stat, ".fc-tmp-test", &regular_stat), -1);
+        &directory_stat, ".fc-tmp-test", &named_stat), -1);
     assert(errno == EINVAL);
+    assert(close(named_fd) == 0);
+    assert(unlinkat(fixture.directory_fd, "named-stage", 0) == 0);
 
-    regular_stat.st_nlink = 0;
     struct stat different_device = regular_stat;
     different_device.st_dev = (dev_t)(different_device.st_dev + 1);
     errno = 0;

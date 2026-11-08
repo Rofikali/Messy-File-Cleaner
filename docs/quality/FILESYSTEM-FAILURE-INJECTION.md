@@ -60,3 +60,16 @@ permissions, disk exhaustion, or timing races.
   claims require explicit `fsync` ordering and crash/recovery tests.
 - Preserve the priority order: data safety, security, correctness, maintainability,
   then performance.
+
+
+## Journal append and durability failure slice
+
+The journal test target now supports deterministic, test-only failures at three boundaries:
+
+- **Before write:** no record bytes are appended. The record call returns an error.
+- **Partial write:** only a prefix is appended and the record call returns an error. Recovery rejects the incomplete tail instead of guessing, silently accepting it, or truncating evidence.
+- **After complete write, at fsync:** the record bytes may be visible, but durability is uncertain. The caller receives an error; recovery parses the actual complete record and applies the existing conservative state rules.
+
+All mutable injection controls are compiled only when `FC_TESTING` is defined. Production builds use the normal POSIX `write()` and `fsync()` calls.
+
+The tests verify that source and pre-existing destination files remain present across these journal failures. This slice does not attempt automatic repair of a malformed tail: preserving evidence and failing closed is safer than making an unproven assumption about which bytes reached stable storage.

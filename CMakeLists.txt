@@ -158,6 +158,7 @@ if(BUILD_TESTING)
     -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
   )
   add_test(NAME fcj3_writer_unit COMMAND test_fcj3_writer)
+  set_tests_properties(fcj3_writer_unit PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 10)
 
   add_executable(test_process_crash_recovery
     tests/integration/test_process_crash_recovery.c

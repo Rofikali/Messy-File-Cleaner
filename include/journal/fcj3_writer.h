@@ -38,8 +38,11 @@ typedef struct
 } Fcj3PreparedRecord;
 
 /* Captures immutable metadata from already-validated stat snapshots.
- * The directory must be a directory and the staging inode a regular file.
+ * The directory must be a directory; the staging inode must be a regular,
+ * anonymous (st_nlink == 0) file on the same device.
  * Generates the operation ID only with Linux getrandom(); no fallback exists.
+ * After initialization, treat context fields as private and serialize access
+ * from one owner; the context is not internally thread-safe.
  */
 int fcj3_operation_init(Fcj3OperationContext *context,
                         const char *source, const char *destination,

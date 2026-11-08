@@ -138,7 +138,11 @@ static int fits_ino_t(uint64_t value)
 
 static int valid_staging_component(const char *component, size_t length)
 {
-    if (!component || length == 0 || length >= NAME_MAX ||
+    /* The recovery design reserves the .fc-tmp- namespace for journal-owned
+     * staging entries. Require a nonempty suffix; the name alone is never
+     * treated as proof of ownership. */
+    if (!component || length <= 8U || length >= NAME_MAX ||
+        strncmp(component, ".fc-tmp-", 8U) != 0 ||
         strcmp(component, ".") == 0 || strcmp(component, "..") == 0)
         return 0;
 

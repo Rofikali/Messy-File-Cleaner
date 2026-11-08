@@ -78,11 +78,11 @@ endif
 
 perf: profile
 	@echo "Profiling dry-run path; this does not move files."
-	@sudo perf stat -e cycles,instructions,cache-misses,branch-misses ./ "$(TARGET_PROFILE)" $(call shquote,$(GENERATED_FILES)) --dry-run
+	@sudo perf stat -e cycles,instructions,cache-misses,branch-misses ./"$(TARGET_PROFILE)" $(call shquote,$(GENERATED_FILES)) --dry-run
 
 perf-record: profile
 	@echo "Recording dry-run profile."
-	@sudo perf record -g ./ "$(TARGET_PROFILE)" $(call shquote,$(GENERATED_FILES)) --dry-run
+	@sudo perf record -g ./"$(TARGET_PROFILE)" $(call shquote,$(GENERATED_FILES)) --dry-run
 	@sudo perf report
 
 gprof: profile

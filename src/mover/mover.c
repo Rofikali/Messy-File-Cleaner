@@ -28,6 +28,47 @@
 /* Static-duration atomic objects are zero-initialized in C11 and later. */
 static atomic_ulong temp_sequence;
 
+#ifdef FC_TESTING
+static atomic_int test_write_fault;
+static atomic_long test_write_budget;
+
+void fc_test_mover_set_write_fault(int fault, long bytes_before_failure)
+{
+    atomic_store_explicit(&test_write_budget, bytes_before_failure, memory_order_relaxed);
+    atomic_store_explicit(&test_write_fault, fault, memory_order_release);
+}
+
+static ssize_t mover_write(int fd, const void *buffer, size_t count)
+{
+    int fault = atomic_load_explicit(&test_write_fault, memory_order_acquire);
+    if (fault == FC_TEST_WRITE_EINTR_ONCE) {
+        int expected = FC_TEST_WRITE_EINTR_ONCE;
+        if (atomic_compare_exchange_strong_explicit(&test_write_fault, &expected,
+                                                    FC_TEST_WRITE_NONE,
+                                                    memory_order_acq_rel,
+                                                    memory_order_relaxed)) {
+            errno = EINTR;
+            return -1;
+        }
+    } else if (fault == FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL) {
+        long budget = atomic_load_explicit(&test_write_budget, memory_order_relaxed);
+        if (budget <= 0) {
+            errno = ENOSPC;
+            return -1;
+        }
+        if ((size_t)budget < count)
+            count = (size_t)budget;
+        ssize_t written = write(fd, buffer, count);
+        if (written > 0)
+            atomic_fetch_sub_explicit(&test_write_budget, written, memory_order_relaxed);
+        return written;
+    }
+    return write(fd, buffer, count);
+}
+#else
+#define mover_write write
+#endif
+
 static int rename_noreplace(int old_dirfd, const char *old_name,
                             int new_dirfd, const char *new_name)
 {
@@ -239,7 +280,7 @@ static int copy_fd(int source_fd, int destination_fd, const struct stat *initial
         ssize_t offset = 0;
         while (offset < count)
         {
-            ssize_t written = write(destination_fd, buffer + offset,
+            ssize_t written = mover_write(destination_fd, buffer + offset,
                                     (size_t)(count - offset));
             if (written < 0)
             {

@@ -143,8 +143,8 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
 
-  # FCJ3 context/serializer remains test-only until the O_TMPFILE lifecycle
-  # and durable journal adapter are implemented and separately reviewed.
+  # FCJ3 parser, operation context, and durable append adapter remain test-only.
+  # Production use waits for the staging lifecycle and FCJ3 recovery phases.
   add_executable(test_fcj3_writer
     tests/unit/test_fcj3_writer.c
     src/journal/fcj3_writer.c
@@ -159,6 +159,25 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_writer_unit COMMAND test_fcj3_writer)
   set_tests_properties(fcj3_writer_unit PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 10)
+
+  # Durable FCJ3 append adapter is isolated to disposable integration fixtures.
+  # It must never be linked into the production executable before recovery exists.
+  add_executable(test_fcj3_journal
+    tests/integration/test_fcj3_journal.c
+    src/journal/fcj3_journal.c
+    src/journal/fcj3_writer.c
+    src/journal/fcj3_parser.c
+  )
+  target_include_directories(test_fcj3_journal PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_link_libraries(test_fcj3_journal PRIVATE Threads::Threads)
+  target_compile_definitions(test_fcj3_journal PRIVATE FC_TESTING)
+  target_compile_options(test_fcj3_journal PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_journal_integration COMMAND test_fcj3_journal)
+  set_tests_properties(fcj3_journal_integration PROPERTIES TIMEOUT 20)
 
   add_executable(test_process_crash_recovery
     tests/integration/test_process_crash_recovery.c

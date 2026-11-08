@@ -85,3 +85,20 @@ The journal integration tests inject a failure before writing the named state tr
 - A failed `RECOVERED` append returns an error; a later recovery attempt can retry, while user data remains unchanged.
 
 The injected state selection and fault controls are test-only under `FC_TESTING`.
+
+
+## Journal shutdown durability failure slice
+
+Journal shutdown now uses the same retry-on-`EINTR` synchronization wrapper as record append. The journal integration tests cover:
+
+- A final journal `fsync()` failure during `journal_close()`: close reports the synchronization error but still closes the stream; recovery then inspects the actual complete records and preserves source/destination contents.
+- A simulated close-error report after the underlying `fclose()` has succeeded: the API reports the error, while a subsequent recovery can acquire the journal lock and read the journal. This validates cleanup and error propagation; it is **not** a simulation of a storage device or kernel returning an error from its real close operation.
+
+The close-error hook exists only under `FC_TESTING`. It intentionally performs the real `fclose()` before injecting the reported error so the test cannot leak the descriptor or retain the journal lock.
+
+The journal uses descriptor-based `write()` calls for records and synchronizes them before returning. The stream flush checks remain defensive handle-coordination checks; the tests do not claim to simulate a buffered stdio flush failure when the journal has no pending stdio output.
+
+
+## Journal lifecycle contract
+
+The journal mutex serializes concurrent record appends. It does not make `journal_close()` safe to race with a record call: the close path disables the journal and destroys its mutex after closing the stream. The application must stop and join all worker threads that can append journal records before closing the journal. The current application shutdown sequence joins workers before calling `journal_close()`. This ownership/lifecycle rule is part of the journal API contract.

@@ -21,6 +21,8 @@ typedef struct
 /* Recovery is fail-closed: malformed/ambiguous journal state is an error. */
 int journal_recover(const char *path);
 int journal_open(MoveJournal *journal, const char *path);
+/* Stop and join every thread that can append before closing. The mutex
+ * serializes record calls, but concurrent close/record races are unsupported. */
 int journal_close(MoveJournal *journal);
 
 int journal_record_started(MoveJournal *journal, const char *src, const char *dest);
@@ -37,6 +39,7 @@ int journal_record_recovered(MoveJournal *journal, const char *src, const char *
 #define FC_TEST_JOURNAL_WRITE_FAIL_PARTIAL 2
 void fc_test_journal_set_write_failure(int mode, int error_code, size_t partial_bytes);
 void fc_test_journal_set_fsync_error(int error_code);
+void fc_test_journal_set_close_error(int error_code);
 void fc_test_journal_set_state_write_failure(const char *state, int mode,
                                              int error_code, size_t partial_bytes);
 #endif

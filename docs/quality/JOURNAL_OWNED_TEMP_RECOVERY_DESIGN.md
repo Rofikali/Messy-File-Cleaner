@@ -54,7 +54,7 @@ directory entry and disappears automatically if the process dies. After
 `STAGED` is durable, the journal already contains the expected directory and
 inode identities before the staging name can become visible.
 
-### Filesystem compatibility
+### Filesystem compatibility and capability checks
 
 `O_TMPFILE` and `AT_EMPTY_PATH` are Linux-specific and filesystem support
 varies. Do not silently fall back to visible named-temp creation and then claim
@@ -64,8 +64,28 @@ support the required operations, fail safely with a clear, actionable error
 explicitly documented and never performs automatic cleanup of unverified
 entries).
 
+**Capability is destination-specific.** A successful probe under `/tmp` does
+not prove that the configured destination supports `O_TMPFILE`, `fsync`, or
+`linkat(AT_EMPTY_PATH)`. The runtime capability check must use the already
+validated, open descriptor for the actual destination directory, under the
+same effective UID, mount namespace, and security policy as the real move.
+The probe must use a unique disposable name, verify the linked inode identity,
+unlink only its own probe entry, and fsync the destination directory. A
+capability result must not be cached across different destination filesystems
+or mount points.
+
 The project already uses Linux-specific `renameat2(RENAME_NOREPLACE)`; still,
-the supported filesystem matrix must be tested rather than assumed.
+the supported filesystem matrix must be tested rather than assumed. The
+capability probe in the test suite is a test of its own temporary filesystem,
+not proof that every user destination is compatible.
+
+### Link operation permissions
+
+`linkat(..., AT_EMPTY_PATH)` can be restricted by kernel permissions,
+capabilities, filesystem behavior, or security policy. Treat every failure as
+a real capability failure. Do not silently switch to a weaker linking method
+or named temporary-file fallback. Validate behavior in the actual non-root
+production runtime, not only as root in CI.
 
 ## Journal format and compatibility
 
@@ -99,24 +119,31 @@ For an incomplete operation with durable staging metadata:
 5. If present, require a regular file and exact match of recorded `st_dev` and
    `st_ino`. A symlink, special file, inode mismatch, or unexpected type is
    an ambiguity: preserve it and fail closed.
-6. To reduce name-swap risk, move the exact component to a fresh private
-   quarantine name with no-replace semantics, then verify the quarantined
-   entry still has the recorded device/inode before unlinking it. If verification
-   fails, attempt a no-replace restore and report an error; never unlink a
-   mismatched entry.
-7. Sync the destination directory after successful cleanup, then append and
-   fsync the appropriate recovery record. Recovery must remain idempotent.
+6. Move the exact component into a private quarantine directory using
+   descriptor-relative, no-replace rename semantics. The quarantine directory
+   must be opened by descriptor, owned by the effective service UID, a real
+   directory, and have mode `0700` (no group/other permissions). Verify its
+   device/inode identity after opening. Verify the moved entry's type, device,
+   and inode from inside that private directory before unlinking it.
+7. If the moved entry does not match, do not unlink it. Attempt a no-replace
+   restore to the original component; if restore is blocked, leave the entry
+   in quarantine and report the ambiguity. Never delete a mismatched entry.
+8. Sync the quarantine and destination directories after successful cleanup,
+   then append and fsync the appropriate recovery record. Recovery must remain
+   idempotent.
 
-The quarantine operation must be factored into a small C helper with explicit
-ownership and error contracts. A broad `.fc-tmp-*` or `.fc-retire-*` sweep
-is prohibited.
+The quarantine directory must not be created or accepted inside an attacker-
+controlled location without the ownership/mode checks above. A process running
+with the same UID as the cleaner can generally modify that UID's files and is
+outside this filesystem permission boundary; the product threat model must say
+so explicitly. If the quarantine directory cannot be made private to the
+cleaner UID, automatic cleanup must be disabled.
 
-The implementation threat model must explicitly state that a process with
-write access to the same destination directory can race directory entries.
-Descriptor-relative operations, inode checks, no-follow flags, and quarantine
-reduce risk; they do not create an unlink-by-inode primitive. If the directory
-is writable by an untrusted principal, automatic cleanup must be disabled
-unless a stronger platform primitive or permission model is established.
+A broad `.fc-tmp-*` or `.fc-retire-*` sweep is prohibited. Descriptor-
+relative checks alone do not make unlink-by-name race-free. The private
+quarantine directory is the required access-control boundary that prevents a
+different untrusted UID from swapping the quarantined name between verification
+and unlink.
 
 ## Required tests before enabling cleanup
 
@@ -162,6 +189,11 @@ successful recovery.
   never touched.
 - Unsupported `O_TMPFILE` / `AT_EMPTY_PATH` filesystems fail safely; no
   silent weaker fallback is enabled.
+- The actual destination directory is probed; a successful `/tmp` probe alone
+  is insufficient.
+- Quarantine directory symlink, wrong owner, permissive mode, replacement, and
+  same-UID threat-model cases are covered.
+- Run the probe and move tests as the production non-root UID.
 
 ### Regression and quality gates
 

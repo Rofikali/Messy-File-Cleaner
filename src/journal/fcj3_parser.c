@@ -282,7 +282,7 @@ int fcj3_transition_is_valid(Fcj3State previous, Fcj3State next)
 {
     switch (previous)
     {
-        case 0:
+        case FCJ3_STATE_NONE:
             return next == FCJ3_STATE_STAGED;
         case FCJ3_STATE_STAGED:
             return next == FCJ3_STATE_STARTED ||

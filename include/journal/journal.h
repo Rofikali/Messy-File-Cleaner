@@ -37,6 +37,7 @@ int journal_record_recovered(MoveJournal *journal, const char *src, const char *
 #define FC_TEST_JOURNAL_WRITE_FAIL_PARTIAL 2
 void fc_test_journal_set_write_failure(int mode, int error_code, size_t partial_bytes);
 void fc_test_journal_set_fsync_error(int error_code);
+void fc_test_journal_set_close_error(int error_code);
 void fc_test_journal_set_state_write_failure(const char *state, int mode,
                                              int error_code, size_t partial_bytes);
 #endif

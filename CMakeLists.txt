@@ -146,6 +146,17 @@ if(BUILD_TESTING)
   add_test(NAME process_crash_recovery COMMAND test_process_crash_recovery)
   set_tests_properties(process_crash_recovery PROPERTIES TIMEOUT 40)
 
+  # Runtime capability probe for the anonymous staging design. Unsupported
+  # filesystems are reported as skipped; production code does not depend on it.
+  add_executable(test_otmpfile_capability
+    tests/integration/test_otmpfile_capability.c
+  )
+  target_compile_options(test_otmpfile_capability PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes
+  )
+  add_test(NAME otmpfile_capability COMMAND test_otmpfile_capability)
+  set_tests_properties(otmpfile_capability PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 10)
+
   add_executable(test_worker_lifecycle
     tests/integration/test_worker_lifecycle.c
     src/core/thread_pool.c

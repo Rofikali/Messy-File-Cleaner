@@ -142,8 +142,9 @@ Threat: implementation assumes a capability supported on one filesystem is suppo
 Controls:
 - Probe the actual validated destination directory under the production UID, mount namespace, and security context.
 - A successful `/tmp` probe does not establish destination support.
-- Treat `O_TMPFILE` / `AT_EMPTY_PATH` support as filesystem- and policy-dependent.
-- No silent weaker fallback. Unsupported capability must fail safely or use a separately designed, reviewed mode with clearly weaker guarantees.
+- Treat `O_TMPFILE` and the selected proc-fd linking method as filesystem/runtime-dependent.
+- Do not grant `CAP_DAC_READ_SEARCH` merely to use `AT_EMPTY_PATH`; the initial non-root design selects `/proc/self/fd/<fd>` with `AT_SYMLINK_FOLLOW`.
+- Verify procfs and the exact linked inode against the still-open descriptor. Unsupported capability fails safely; no named-temp or privileged fallback is permitted.
 - Never cache capability globally across different destination mounts.
 
 ### 6.10 Denial of service and resource exhaustion

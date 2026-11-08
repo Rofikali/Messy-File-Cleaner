@@ -73,6 +73,7 @@ void fcj3_operation_mark_uncertain(Fcj3OperationContext *context);
 
 #ifdef FC_TESTING
 void fcj3_test_set_random_error(int error_code);
+void fcj3_test_set_random_chunk_limit(size_t limit);
 #endif
 
 #endif

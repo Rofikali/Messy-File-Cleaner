@@ -106,3 +106,19 @@ The repository owner expects each passed milestone to reach `main` before the ne
 
 ## Product and management
 Prioritize customer value, data safety, reliability, support cost, and total cost of ownership. Build the smallest reliable product first. Add GUI, API server, cloud, and distributed processing only when customer demand justifies them.
+
+
+## Mandatory language decision: pure C
+
+The project owner has made a firm product and engineering decision: **this repository is a pure C project, not a C++ project**.
+
+- Implement the application, core modules, tests, tools that ship with the product, and native build targets in C.
+- Do not introduce C++ source files or C++ implementation: no `.cpp`, `.cc`, or `.cxx` files; no C++ classes, templates, exceptions, STL, or C++ runtime dependency.
+- Do not enable CXX in CMake or add C++ compiler/build targets.
+- Use C17 as the default production language baseline. Preserve C11 compatibility where practical and validate C23 as an optional compatibility target; do not let C23-only features silently raise the minimum compiler requirement.
+- Use portable, well-defined C and documented POSIX/Linux interfaces. Keep platform-specific code behind narrow C module boundaries.
+- If interoperability is ever required, expose a documented, versioned C ABI with explicit ownership, lifetime, error, and thread-safety contracts. A C ABI does not authorize rewriting the core in C++.
+- Assembly may be considered only for a measured, CPU-bound bottleneck. Keep it isolated behind a C interface, provide a tested portable C fallback, and verify correctness and security implications. Never use assembly speculatively.
+- Do not introduce Rust, C++, or another implementation language into the core without an explicit new decision from the project owner and a documented architecture/security review.
+
+This policy overrides generic examples or recommendations that suggest C++ as an option. When in doubt, choose C.

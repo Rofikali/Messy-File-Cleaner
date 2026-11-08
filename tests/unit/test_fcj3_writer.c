@@ -140,6 +140,7 @@ static void test_secure_context_and_serialized_lifecycle(void)
     assert(context.sequence == 0);
     assert(context.state == FCJ3_STATE_NONE);
     assert(context.poisoned == 0);
+    assert(context.staging_uid == geteuid());
     assert_lower_hex_id(context.operation_id);
 
     fcj3_replay_init(&replay);

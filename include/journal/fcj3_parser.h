@@ -65,4 +65,8 @@ void fcj3_replay_destroy(Fcj3Replay *replay);
  */
 int fcj3_replay_add_line(Fcj3Replay *replay, const char *line, size_t length);
 
+/* Shared protocol policy used by both replay and the operation-context writer. */
+int fcj3_transition_is_valid(Fcj3State previous, Fcj3State next);
+int fcj3_error_code_is_valid(Fcj3State state, int error_code);
+
 #endif

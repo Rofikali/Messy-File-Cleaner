@@ -21,6 +21,8 @@ typedef struct
 /* Recovery is fail-closed: malformed/ambiguous journal state is an error. */
 int journal_recover(const char *path);
 int journal_open(MoveJournal *journal, const char *path);
+/* Stop and join every thread that can append before closing. The mutex
+ * serializes record calls, but concurrent close/record races are unsupported. */
 int journal_close(MoveJournal *journal);
 
 int journal_record_started(MoveJournal *journal, const char *src, const char *dest);

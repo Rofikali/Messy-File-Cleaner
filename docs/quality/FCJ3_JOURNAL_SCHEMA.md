@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed protocol contract for review. This document defines the format to implement; it does not change the current FCJ2 writer, recovery behavior, or authorize staging cleanup.
+Accepted protocol contract. The FCJ3 parser/replay implementation is being introduced as an isolated, read-only module and test target; it is not connected to the current FCJ2 writer or recovery path and does not authorize staging cleanup.
 
 ## 1. Why FCJ3 exists
 
@@ -64,10 +64,12 @@ These fields must be byte-for-byte/value-for-value identical in every record for
 - staging inode device and inode
 
 The staging component is one filename component, not a path. It must:
-- be nonempty and shorter than `NAME_MAX`;
+- start with the exact reserved prefix `.fc-tmp-` and have a nonempty suffix;
+- be shorter than `NAME_MAX`;
 - not equal `.` or `..`;
-- contain no slash, NUL, control byte, or path separator;
-- satisfy the documented private staging-name policy.
+- contain no slash, NUL, control byte, or path separator.
+
+The `.fc-tmp-` prefix is a namespace check, not ownership proof. Recovery must still verify the recorded parent directory and exact staging inode identity, and must use the private quarantine boundary before any unlink.
 
 The component name alone never proves ownership. Cleanup requires the operation ID's durable record plus exact parent-directory and staging inode identity checks. No prefix sweep is permitted.
 
@@ -147,14 +149,19 @@ On any such error, recovery returns an error and leaves journal bytes and user f
 
 ## 8. Resource bounds
 
-Define and document:
-- maximum journal line bytes derived from maximum encoded source/destination/component lengths and fixed field widths;
-- maximum replay transaction count;
-- maximum operation-ID count and memory cost;
-- maximum decimal field width;
-- maximum component length.
+The first parser implementation fixes these bounds explicitly:
+- source path: 1 through `PATH_MAX - 1` bytes;
+- destination path: 1 through `PATH_MAX - 1` bytes;
+- staging component: 1 through `NAME_MAX - 1` bytes;
+- decimal field: at most 20 digits (the canonical unsigned 64-bit range);
+- operation ID: exactly 32 lowercase hexadecimal characters;
+- replay transaction count: at most 4,096 distinct operation IDs;
+- transitions per operation: at most 4, because the legal state graph is strictly sequential and terminal;
+- maximum line bytes: `261 + 4 * (PATH_MAX - 1) + 2 * (NAME_MAX - 1)`, including the final LF. On Linux systems with `PATH_MAX=4096` and `NAME_MAX=255`, this is 17,149 bytes.
 
-All allocation sizes and arithmetic must be overflow-checked. If the journal exceeds a configured bound, fail closed with a distinct resource-limit error; do not allocate without limit.
+The replay table grows dynamically and never exceeds 4,096 entries. On a typical LP64 Linux build, a fully populated table is approximately 34 MiB; the exact allocation is `FCJ3_MAX_TRANSACTIONS * sizeof(Fcj3Transaction)` and is platform/compiler dependent. The parser does not allocate a transaction table merely to parse one record.
+
+The parser reports malformed or illegal records as `EBADMSG`, configured line/transaction limits as `E2BIG`, and allocation failure as `ENOMEM`. Every allocation-size multiplication and line-length calculation is bounded before use. It does not allocate based on untrusted numeric fields beyond these fixed limits.
 
 ## 9. Writer/API migration
 
@@ -171,8 +178,8 @@ FCJ3 writing is enabled only when the O_TMPFILE staging lifecycle can provide al
 
 ## 10. Implementation phases
 
-1. **Schema contract:** this document and review.
-2. **Pure parser/model:** FCJ3 parser and transaction replay tests; no writer or recovery side effects.
+1. **Schema contract:** accepted in PR #42.
+2. **Pure parser/model:** implemented as `include/journal/fcj3_parser.h`, `src/journal/fcj3_parser.c`, and `tests/unit/test_fcj3_parser.c`. The parser is currently compiled only into its dedicated test target; it is not linked into the production executable or called by `journal_recover()`. It has no file I/O and no recovery side effects.
 3. **Writer/context:** secure operation-ID generation, immutable metadata, transition API, serialization tests.
 4. **Staging integration:** destination-specific O_TMPFILE probe, staging/link order and fault injection.
 5. **Recovery:** exact identity checks, private quarantine and crash/adversarial tests.

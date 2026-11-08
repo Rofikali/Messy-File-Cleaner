@@ -29,7 +29,7 @@ typedef struct {
     const char *label;
     int source_expected;
     int destination_expected;
-    int destination_is_published;
+    size_t expected_orphan_temp_files;
 } CrashCase;
 
 static void make_path(char output[PATH_MAX], const char *parent, const char *leaf)
@@ -98,6 +98,30 @@ static size_t count_recovered_records(const char *journal_path)
     return count;
 }
 
+
+static size_t remove_child_temp_files(const char *directory, pid_t child_pid)
+{
+    char prefix[64];
+    int n = snprintf(prefix, sizeof(prefix), ".fc-tmp-%ld-", (long)child_pid);
+    CHECK(n > 0 && (size_t)n < sizeof(prefix));
+
+    DIR *stream = opendir(directory);
+    CHECK(stream != NULL);
+    int directory_fd = dirfd(stream);
+    CHECK(directory_fd >= 0);
+
+    size_t count = 0;
+    struct dirent *entry;
+    while ((entry = readdir(stream)) != NULL) {
+        if (strncmp(entry->d_name, prefix, strlen(prefix)) == 0) {
+            CHECK(unlinkat(directory_fd, entry->d_name, 0) == 0);
+            count++;
+        }
+    }
+    CHECK(closedir(stream) == 0);
+    return count;
+}
+
 static void run_crash_case(const char *root, const CrashCase *test_case)
 {
     char source_dir[PATH_MAX], destination_dir[PATH_MAX];
@@ -140,6 +164,8 @@ static void run_crash_case(const char *root, const CrashCase *test_case)
     CHECK(kill(child, SIGKILL) == 0);
     CHECK(waitpid(child, &status, 0) == child);
     CHECK(WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL);
+    CHECK(remove_child_temp_files(destination_dir, child) ==
+          test_case->expected_orphan_temp_files);
 
     /* A fresh process context reopens the journal after the killed process
        releases its flock. Recovery is deliberately run twice. */
@@ -160,10 +186,6 @@ static void run_crash_case(const char *root, const CrashCase *test_case)
     CHECK(before.st_size == after.st_size);
     CHECK(count_recovered_records(journal_path) == 1U);
 
-    /* Keep the published-destination expectation explicit in the case table:
-       all destination-present outcomes must contain the original payload. */
-    CHECK(test_case->destination_is_published == test_case->destination_expected);
-
     CHECK(unlink(journal_path) == 0);
     if (test_case->source_expected)
         CHECK(unlink(source) == 0);
@@ -181,9 +203,9 @@ int main(void)
     (void)alarm(30);
 
     static const CrashCase cases[] = {
-        {FC_TEST_CRASH_AFTER_STARTED, "started", 1, 0, 0},
-        {FC_TEST_CRASH_AFTER_PUBLISHED, "published", 1, 1, 1},
-        {FC_TEST_CRASH_AFTER_SOURCE_RETIRED, "retired", 0, 1, 1}
+        {FC_TEST_CRASH_AFTER_STARTED, "started", 1, 0, 1},
+        {FC_TEST_CRASH_AFTER_PUBLISHED, "published", 1, 1, 0},
+        {FC_TEST_CRASH_AFTER_SOURCE_RETIRED, "retired", 0, 1, 0}
     };
 
     for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++)

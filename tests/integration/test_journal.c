@@ -227,9 +227,6 @@ int main(void)
     assert(file_equals(protected_destination, "destination must not be overwritten"));
 
 
-
-    assert(file_equals(protected_destination, "destination must not be overwritten"));
-
     /* journal_close must use the same injectable fsync path as record append.
        Even when final synchronization fails, it must close the stream and
        report the durability error; recovery then reads the actual journal. */
@@ -258,7 +255,6 @@ int main(void)
     assert(file_equals(protected_source, "source must survive"));
     assert(file_equals(protected_destination, "destination must not be overwritten"));
 
-    
     /* State-specific failures: the last durable state governs recovery. */
     char published_fail_log[PATH_MAX], failed_fail_log[PATH_MAX];
     char completed_fail_log[PATH_MAX], recovered_fail_log[PATH_MAX];

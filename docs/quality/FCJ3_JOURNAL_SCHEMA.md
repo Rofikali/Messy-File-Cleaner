@@ -73,7 +73,7 @@ The `.fc-tmp-` prefix is a namespace check, not ownership proof. Recovery must s
 
 The component name alone never proves ownership. Cleanup requires the operation ID's durable record plus exact parent-directory and staging inode identity checks. No prefix sweep is permitted.
 
-Because the staging inode is created with O_TMPFILE in the recorded destination directory, its `st_dev` must equal the destination directory's `st_dev`. The context initializer must inspect the anonymous inode before linking and require `st_nlink == 0`; the later linked name is not used as the initialization proof.
+Because the staging inode is created with O_TMPFILE in the recorded destination directory, its `st_dev` must equal the destination directory's `st_dev`. The context initializer must inspect the anonymous inode before linking, require `st_nlink == 0`, and require `st_uid` to equal the effective service UID; the later linked name is not used as the initialization proof. The UID is checked and retained in memory but is not serialized because the service identity is an installation/runtime property.
 
 The four device/inode values are decimal unsigned integers parsed without overflow into the platform representation. The implementation must verify round-trip representability before comparing them with `struct stat`. Do not assume `dev_t` or `ino_t` is always 64-bit.
 

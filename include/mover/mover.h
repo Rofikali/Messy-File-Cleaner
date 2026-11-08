@@ -32,6 +32,10 @@ enum
 };
 void fc_test_mover_set_write_fault(int fault, long bytes_before_failure);
 void fc_test_mover_set_temp_create_error(int error_code);
+/* fsync call order: 1=temp file, 2=destination directory, 3=source directory. */
+void fc_test_mover_set_fsync_fault(unsigned int call_number, int error_code);
+void fc_test_mover_set_publish_error(int error_code);
+void fc_test_mover_set_retire_error(int error_code);
 #endif
 
 #endif

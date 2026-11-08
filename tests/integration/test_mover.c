@@ -129,6 +129,98 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     unlink(destination);
 }
 
+static void test_post_copy_failure_states(const char *source_dir,
+                                              const char *destination_dir)
+{
+    char source[PATH_MAX], destination[PATH_MAX];
+    MoveResult result;
+    int move_rc;
+    int saved_errno;
+
+    /* Failure syncing the complete temporary file: source remains the only copy. */
+    make_path(source, source_dir, "file-sync-failure.bin");
+    make_path(destination, destination_dir, "file-sync-failure.bin");
+    write_text(source, "durable source bytes");
+    fc_test_mover_set_fsync_fault(1U, EIO);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    saved_errno = errno;
+    assert(move_rc == -1 && saved_errno == EIO);
+    assert_text(source, "durable source bytes");
+    assert_path_missing(destination);
+    assert_no_private_destination_files(destination_dir);
+
+    /* Publication failure: no destination may appear and source is preserved. */
+    make_path(source, source_dir, "publish-failure.bin");
+    make_path(destination, destination_dir, "publish-failure.bin");
+    write_text(source, "publication source bytes");
+    fc_test_mover_set_publish_error(EACCES);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    saved_errno = errno;
+    assert(move_rc == -1 && saved_errno == EACCES);
+    assert_text(source, "publication source bytes");
+    assert_path_missing(destination);
+    assert_no_private_destination_files(destination_dir);
+
+    /* Destination-directory fsync fails after publication: retain both copies. */
+    make_path(source, source_dir, "destination-dir-sync-failure.bin");
+    make_path(destination, destination_dir, "destination-dir-sync-failure.bin");
+    write_text(source, "both copies must survive");
+    fc_test_mover_set_fsync_fault(2U, EIO);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    saved_errno = errno;
+    assert(move_rc == -1 && saved_errno == EIO);
+    assert_text(source, "both copies must survive");
+    assert_text(destination, "both copies must survive");
+    assert_no_private_destination_files(destination_dir);
+
+    /* Source-retirement failure occurs before quarantine rename: keep both copies. */
+    make_path(source, source_dir, "retire-failure.bin");
+    make_path(destination, destination_dir, "retire-failure.bin");
+    write_text(source, "source retirement must not lose data");
+    fc_test_mover_set_retire_error(EACCES);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    saved_errno = errno;
+    assert(move_rc == -1 && saved_errno == EACCES);
+    assert_text(source, "source retirement must not lose data");
+    assert_text(destination, "source retirement must not lose data");
+    assert_no_private_destination_files(destination_dir);
+    assert_no_private_destination_files(source_dir);
+
+    /* Source-directory fsync fails after unlink: destination remains complete.
+     * The API reports the durability error; the published copy is not removed. */
+    make_path(source, source_dir, "source-dir-sync-failure.bin");
+    make_path(destination, destination_dir, "source-dir-sync-failure.bin");
+    write_text(source, "published destination survives");
+    fc_test_mover_set_fsync_fault(3U, EIO);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    saved_errno = errno;
+    assert(move_rc == -1 && saved_errno == EIO);
+    assert_path_missing(source);
+    assert_text(destination, "published destination survives");
+    assert_no_private_destination_files(destination_dir);
+    assert_no_private_destination_files(source_dir);
+    unlink(destination);
+
+    /* Clean the retained source/destination pairs from earlier failure cases. */
+    make_path(source, source_dir, "file-sync-failure.bin");
+    unlink(source);
+    make_path(source, source_dir, "publish-failure.bin");
+    unlink(source);
+    make_path(source, source_dir, "destination-dir-sync-failure.bin");
+    unlink(source);
+    make_path(destination, destination_dir, "destination-dir-sync-failure.bin");
+    unlink(destination);
+    make_path(source, source_dir, "retire-failure.bin");
+    unlink(source);
+    make_path(destination, destination_dir, "retire-failure.bin");
+    unlink(destination);
+}
+
 int main(void)
 {
     char root_template[] = "/tmp/fc-mover-XXXXXX";
@@ -160,6 +252,7 @@ int main(void)
 
     /* Injected partial-write ENOSPC and one-shot EINTR are deterministic. */
     test_copy_failure_preserves_source(source_dir, destination_dir);
+    test_post_copy_failure_states(source_dir, destination_dir);
 
     /* A symlink source is rejected; its target and link remain untouched. */
     char target[PATH_MAX], symlink_source[PATH_MAX];

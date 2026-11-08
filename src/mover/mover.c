@@ -32,6 +32,11 @@ static atomic_ulong temp_sequence;
 static atomic_int test_write_fault;
 static atomic_long test_write_budget;
 static atomic_int test_temp_create_error;
+static atomic_uint test_fsync_count;
+static atomic_uint test_fsync_fail_call;
+static atomic_int test_fsync_error;
+static atomic_int test_publish_error;
+static atomic_int test_retire_error;
 
 void fc_test_mover_set_write_fault(int fault, long bytes_before_failure)
 {
@@ -42,6 +47,28 @@ void fc_test_mover_set_write_fault(int fault, long bytes_before_failure)
 void fc_test_mover_set_temp_create_error(int error_code)
 {
     atomic_store_explicit(&test_temp_create_error, error_code, memory_order_release);
+}
+
+void fc_test_mover_set_fsync_fault(unsigned int call_number, int error_code)
+{
+    atomic_store_explicit(&test_fsync_count, 0, memory_order_relaxed);
+    atomic_store_explicit(&test_fsync_error, error_code, memory_order_relaxed);
+    atomic_store_explicit(&test_fsync_fail_call, call_number, memory_order_release);
+}
+
+void fc_test_mover_set_publish_error(int error_code)
+{
+    atomic_store_explicit(&test_publish_error, error_code, memory_order_release);
+}
+
+void fc_test_mover_set_retire_error(int error_code)
+{
+    atomic_store_explicit(&test_retire_error, error_code, memory_order_release);
+}
+
+static int consume_injected_error(atomic_int *error_slot)
+{
+    return atomic_exchange_explicit(error_slot, 0, memory_order_acq_rel);
 }
 
 static ssize_t mover_write(int fd, const void *buffer, size_t count)
@@ -96,6 +123,44 @@ static int rename_noreplace(int old_dirfd, const char *old_name,
     return -1;
 #endif
 }
+
+
+static int mover_fsync(int fd)
+{
+#ifdef FC_TESTING
+    unsigned int call_number =
+        atomic_fetch_add_explicit(&test_fsync_count, 1, memory_order_relaxed) + 1U;
+    unsigned int fail_call =
+        atomic_load_explicit(&test_fsync_fail_call, memory_order_acquire);
+    if (fail_call != 0U && call_number == fail_call) {
+        atomic_store_explicit(&test_fsync_fail_call, 0U, memory_order_release);
+        errno = atomic_load_explicit(&test_fsync_error, memory_order_relaxed);
+        return -1;
+    }
+#endif
+    return fsync(fd);
+}
+
+#ifdef FC_TESTING
+static int publish_temp_file(int directory_fd, const char *temp_name,
+                             const char *destination_name)
+{
+    int injected_error = consume_injected_error(&test_publish_error);
+    if (injected_error != 0) {
+        errno = injected_error;
+        return -1;
+    }
+    return rename_noreplace(directory_fd, temp_name,
+                            directory_fd, destination_name);
+}
+#else
+static int publish_temp_file(int directory_fd, const char *temp_name,
+                             const char *destination_name)
+{
+    return rename_noreplace(directory_fd, temp_name,
+                            directory_fd, destination_name);
+}
+#endif
 
 static int close_checked(int fd)
 {
@@ -333,7 +398,7 @@ static int copy_fd(int source_fd, int destination_fd, const struct stat *initial
     int rc;
     do
     {
-        rc = fsync(destination_fd);
+        rc = mover_fsync(destination_fd);
     } while (rc != 0 && errno == EINTR);
     return rc;
 }
@@ -348,6 +413,13 @@ static int copy_fd(int source_fd, int destination_fd, const struct stat *initial
 static int retire_source(int source_dirfd, const char *source_name,
                          const struct stat *opened_stat)
 {
+#ifdef FC_TESTING
+    int injected_error = consume_injected_error(&test_retire_error);
+    if (injected_error != 0) {
+        errno = injected_error;
+        return -1;
+    }
+#endif
     char quarantine[NAME_MAX + 1];
 
     for (unsigned int attempt = 0; attempt < 1000; attempt++)
@@ -396,7 +468,7 @@ static int retire_source(int source_dirfd, const char *source_name,
         int rc;
         do
         {
-            rc = fsync(source_dirfd);
+            rc = mover_fsync(source_dirfd);
         } while (rc != 0 && errno == EINTR);
         return rc;
     }
@@ -485,8 +557,7 @@ static int move_file_internal(const char *src, const char *dest_dir,
         if (journal_record_started(journal, src, destination_path) != 0)
             goto fail_with_temp_closed;
 
-        if (rename_noreplace(destination_dirfd, temp_name,
-                             destination_dirfd, destination_name) == 0)
+        if (publish_temp_file(destination_dirfd, temp_name, destination_name) == 0)
         {
             published = 1;
             if (result)
@@ -511,7 +582,7 @@ static int move_file_internal(const char *src, const char *dest_dir,
     int sync_rc;
     do
     {
-        sync_rc = fsync(destination_dirfd);
+        sync_rc = mover_fsync(destination_dirfd);
     } while (sync_rc != 0 && errno == EINTR);
     if (sync_rc != 0)
         goto fail_after_publish;

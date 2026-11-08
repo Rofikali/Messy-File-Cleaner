@@ -215,3 +215,8 @@ This design is ready for implementation only when reviewers agree on:
 
 Production recovery must not delete any temporary entry until all acceptance
 criteria are implemented and their tests pass.
+
+
+## FCJ3 protocol contract
+
+The exact proposed FCJ3 record grammar, operation identity, immutable metadata, sequence rules, state-transition graph, compatibility model, parser bounds, and implementation phases are specified in [FCJ3_JOURNAL_SCHEMA.md](FCJ3_JOURNAL_SCHEMA.md). The architectural rationale and alternatives are recorded in [ADR 0001](../architecture/adr/0001-fcj3-transaction-identity.md). These documents are protocol design only: they do not enable FCJ3 writes, temporary-file cleanup, or changes to current recovery behavior.

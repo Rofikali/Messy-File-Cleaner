@@ -66,20 +66,6 @@ void fc_test_mover_set_retire_error(int error_code)
     atomic_store_explicit(&test_retire_error, error_code, memory_order_release);
 }
 
-static int mover_fsync(int fd)
-{
-    unsigned int call_number =
-        atomic_fetch_add_explicit(&test_fsync_count, 1, memory_order_relaxed) + 1U;
-    unsigned int fail_call =
-        atomic_load_explicit(&test_fsync_fail_call, memory_order_acquire);
-    if (fail_call != 0U && call_number == fail_call) {
-        atomic_store_explicit(&test_fsync_fail_call, 0U, memory_order_release);
-        errno = atomic_load_explicit(&test_fsync_error, memory_order_relaxed);
-        return -1;
-    }
-    return fsync(fd);
-}
-
 static int consume_injected_error(atomic_int *error_slot)
 {
     return atomic_exchange_explicit(error_slot, 0, memory_order_acq_rel);
@@ -113,31 +99,8 @@ static ssize_t mover_write(int fd, const void *buffer, size_t count)
     }
     return write(fd, buffer, count);
 }
-static int mover_fsync(int fd)
-{
-    return fsync(fd);
-}
-#endif
-
-#ifdef FC_TESTING
-static int publish_temp_file(int directory_fd, const char *temp_name,
-                             const char *destination_name)
-{
-    int injected_error = consume_injected_error(&test_publish_error);
-    if (injected_error != 0) {
-        errno = injected_error;
-        return -1;
-    }
-    return rename_noreplace(directory_fd, temp_name,
-                            directory_fd, destination_name);
-}
 #else
-static int publish_temp_file(int directory_fd, const char *temp_name,
-                             const char *destination_name)
-{
-    return rename_noreplace(directory_fd, temp_name,
-                            directory_fd, destination_name);
-}
+#define mover_write write
 #endif
 
 static int rename_noreplace(int old_dirfd, const char *old_name,
@@ -160,6 +123,44 @@ static int rename_noreplace(int old_dirfd, const char *old_name,
     return -1;
 #endif
 }
+
+
+static int mover_fsync(int fd)
+{
+#ifdef FC_TESTING
+    unsigned int call_number =
+        atomic_fetch_add_explicit(&test_fsync_count, 1, memory_order_relaxed) + 1U;
+    unsigned int fail_call =
+        atomic_load_explicit(&test_fsync_fail_call, memory_order_acquire);
+    if (fail_call != 0U && call_number == fail_call) {
+        atomic_store_explicit(&test_fsync_fail_call, 0U, memory_order_release);
+        errno = atomic_load_explicit(&test_fsync_error, memory_order_relaxed);
+        return -1;
+    }
+#endif
+    return fsync(fd);
+}
+
+#ifdef FC_TESTING
+static int publish_temp_file(int directory_fd, const char *temp_name,
+                             const char *destination_name)
+{
+    int injected_error = consume_injected_error(&test_publish_error);
+    if (injected_error != 0) {
+        errno = injected_error;
+        return -1;
+    }
+    return rename_noreplace(directory_fd, temp_name,
+                            directory_fd, destination_name);
+}
+#else
+static int publish_temp_file(int directory_fd, const char *temp_name,
+                             const char *destination_name)
+{
+    return rename_noreplace(directory_fd, temp_name,
+                            directory_fd, destination_name);
+}
+#endif
 
 static int close_checked(int fd)
 {

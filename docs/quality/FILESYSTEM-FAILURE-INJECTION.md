@@ -72,4 +72,4 @@ The journal test target now supports deterministic, test-only failures at three 
 
 All mutable injection controls are compiled only when `FC_TESTING` is defined. Production builds use the normal POSIX `write()` and `fsync()` calls.
 
-The tests verify that source and pre-existing destination files remain present across these journal failures. This slice does not attempt automatic repair of a malformed tail: preserving evidence and failing closed is safer than making an unproven assumption about which bytes reached stable storage.
+The tests verify that source and pre-existing destination files remain present and byte-for-byte unchanged across these journal failures. This slice does not attempt automatic repair of a malformed tail: preserving evidence and failing closed is safer than making an unproven assumption about which bytes reached stable storage.

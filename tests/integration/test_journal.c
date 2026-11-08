@@ -33,6 +33,20 @@ static void create_file(const char *path, const char *value)
     assert(close(fd) == 0);
 }
 
+static int file_equals(const char *path, const char *expected)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp)
+        return 0;
+    size_t expected_length = strlen(expected);
+    char buffer[PATH_MAX];
+    size_t actual_length = fread(buffer, 1, sizeof(buffer), fp);
+    int extra = fgetc(fp);
+    int close_status = fclose(fp);
+    return close_status == 0 && actual_length == expected_length &&
+           extra == EOF && memcmp(buffer, expected, expected_length) == 0;
+}
+
 static size_t count_lines(const char *path)
 {
     FILE *fp = fopen(path, "r");
@@ -190,6 +204,8 @@ int main(void)
     assert(journal_recover(fail_before_path) == 0);
     assert(access(protected_source, F_OK) == 0);
     assert(access(protected_destination, F_OK) == 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
 
     assert(journal_open(&journal, partial_path) == 0);
     fc_test_journal_set_write_failure(FC_TEST_JOURNAL_WRITE_FAIL_PARTIAL, ENOSPC, 12);
@@ -202,6 +218,8 @@ int main(void)
     assert(errno == EBADMSG || errno == EOVERFLOW);
     assert(access(protected_source, F_OK) == 0);
     assert(access(protected_destination, F_OK) == 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
 
     assert(journal_open(&journal, sync_fail_path) == 0);
     fc_test_journal_set_fsync_error(EIO);
@@ -214,6 +232,8 @@ int main(void)
     assert(journal_recover(sync_fail_path) == 0);
     assert(access(protected_source, F_OK) == 0);
     assert(access(protected_destination, F_OK) == 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
 
 
     unlink(protected_source);

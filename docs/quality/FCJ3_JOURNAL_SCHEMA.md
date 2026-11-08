@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted protocol contract. The FCJ3 parser/replay implementation is being introduced as an isolated, read-only module and test target; it is not connected to the current FCJ2 writer or recovery path and does not authorize staging cleanup.
+Accepted protocol contract. The FCJ3 parser/replay implementation is in main as an isolated, read-only module and test target; it is not connected to the current FCJ2 writer or recovery path and does not authorize staging cleanup.
 
 ## 1. Why FCJ3 exists
 
@@ -79,7 +79,7 @@ The four device/inode values are decimal unsigned integers parsed without overfl
 
 ## 5. State machine
 
-The initial FCJ3 transition graph is:
+The implementation uses an internal `FCJ3_STATE_NONE` sentinel to represent an in-memory context before its first record. It is not a serialized state. The initial FCJ3 transition graph is:
 
 ```text
                  +----------+

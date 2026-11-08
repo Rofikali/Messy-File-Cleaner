@@ -131,3 +131,48 @@ The project owner has made a firm product and engineering decision: **this repos
 - Do not introduce Rust, C++, or another implementation language into the core without an explicit new decision from the project owner and a documented architecture/security review.
 
 This policy overrides generic examples or recommendations that suggest C++ as an option. When in doubt, choose C.
+
+
+## Mandatory engineering playbook and skills
+
+The detailed, enforceable engineering standards live in:
+- `skills.md` — day-to-day contributor and coding-agent workflow, review checklist, and implementation skills.
+- `docs/architecture/ENGINEERING_PLAYBOOK.md` — HLD/LLD, module design, architecture styles, design patterns, SOLID/DRY/KISS, testing, and documentation rules.
+- `docs/security/THREAT_MODEL.md` — assets, trust boundaries, attacker model, filesystem threats, controls, and security acceptance gates.
+
+These documents are normative together with this file. If guidance conflicts, apply this precedence:
+1. Explicit project-owner decisions (especially pure C).
+2. Safety and security invariants in this file and the threat model.
+3. Public API/ABI and journal-format compatibility contracts.
+4. Architecture playbook and skills.
+5. Local implementation convenience.
+
+### Design and implementation rules
+- Apply SOLID as a design aid, not as a requirement to create one-file-per-function abstractions. In C, use cohesive modules, opaque context structs where useful, narrow headers, and explicit function contracts.
+- Apply DRY to duplicated knowledge and policy, not merely repeated syntax. Do not create premature generic frameworks.
+- Prefer KISS and YAGNI. Every abstraction, dependency, thread, cache, state, and configuration option must have a documented reason.
+- Use DDD selectively: name core concepts consistently (scan, classification, move operation, journal transaction, recovery); keep domain decisions independent from OS calls where practical. Do not create artificial aggregates/repositories for simple local data.
+- Use Hexagonal Architecture at real boundaries (filesystem, journal persistence, clock, logging, randomness, and test fault injection). Keep adapters replaceable in tests; do not build a framework around every call.
+- Use pipeline/producer-consumer for bounded work flow. Preserve documented queue topology and ownership transfer.
+- Treat journal processing as a durable transaction state machine. Journal records are not a distributed event bus. Do not claim full Event-Driven Architecture unless independent producers/consumers communicate through an explicit event contract and delivery semantics.
+- Design state transitions explicitly: allowed predecessor, next state, immutable transaction identity, idempotency, failure semantics, and crash points must be documented and tested.
+- Keep platform-specific Linux/POSIX behavior behind narrow C interfaces and document unsupported filesystems/platforms.
+
+### Required change discipline
+- Before changing a module, read its public header, implementation, callers, tests, and relevant design docs.
+- Before changing persistent formats, public APIs, concurrency, filesystem mutation, or recovery, write/update an ADR or design document and obtain review before implementation.
+- For every behavior change, update focused unit/integration/fault-injection tests and user/operator documentation.
+- Never weaken an invariant to make a test pass. Fix the test only when its assumption is demonstrably wrong and explain why.
+- Do not use `assert()` for expressions with side effects. Tests must remain meaningful in Release/NDEBUG builds.
+- Keep production behavior independent from test-only hooks. Compile test fault injection only under the designated test configuration.
+- Preserve errno and original failure context across cleanup paths. Cleanup failures must be reported without hiding the primary failure.
+- Use bounded inputs, checked arithmetic, explicit integer conversions, and allocation overflow checks.
+- No silent fallback to a weaker security or durability guarantee. Unsupported capability means an explicit safe failure or documented non-destructive mode.
+
+### Required verification and reporting
+- Run the narrowest relevant test first, then `make test`, then `make validate` for changes that can affect core behavior.
+- Run static analysis, sanitizer, Docker/non-root, and crash/fault-injection checks according to the risk of the change.
+- For journal, mover, recovery, path, or deletion changes, require adversarial filesystem tests and crash-boundary tests; a normal happy-path test is insufficient.
+- Report exact commands and observed results. Separate tests passed, tests not run, known limitations, and inferred risks.
+- A benchmark is evidence only for the measured workload and environment. Never generalize one filesystem, one machine, or one run into a universal performance claim.
+- Do not modify or delete user data during development. Destructive tests must create and verify disposable fixtures.

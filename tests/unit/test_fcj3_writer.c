@@ -110,7 +110,7 @@ static void test_secure_context_and_serialized_lifecycle(void)
     /* Prepare is side-effect-free on the context; commit follows durable append. */
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STAGED,
                                                    0, 100U, &prepared), 0);
-    assert(context.sequence == 0 && context.state == 0);
+    assert(context.sequence == 0 && context.state == FCJ3_STATE_NONE);
     CHECK_RESULT(fcj3_replay_add_line(&replay, prepared.line, prepared.length), 0);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     assert(context.sequence == 1 && context.state == FCJ3_STATE_STAGED);
@@ -212,8 +212,8 @@ static void test_stale_prepared_record_and_uncertainty(void)
     char destination[PATH_MAX];
 
     fixture_init(&fixture);
-    (void)snprintf(source, sizeof(source), "%s/source", fixture.root);
-    (void)snprintf(destination, sizeof(destination), "%s/dest", fixture.root);
+    make_child_path(source, fixture.root, "source");
+    make_child_path(destination, fixture.root, "dest");
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,
         &fixture.directory_stat, ".fc-tmp-test", &fixture.staging_stat), 0);
 
@@ -255,8 +255,8 @@ static void test_random_failure_and_invalid_inputs(void)
     char destination[PATH_MAX];
 
     fixture_init(&fixture);
-    (void)snprintf(source, sizeof(source), "%s/source", fixture.root);
-    (void)snprintf(destination, sizeof(destination), "%s/dest", fixture.root);
+    make_child_path(source, fixture.root, "source");
+    make_child_path(destination, fixture.root, "dest");
 
     CHECK_RESULT(fstat(fixture.staging_fd, &regular_stat), 0);
     CHECK_RESULT(fstat(fixture.directory_fd, &directory_stat), 0);

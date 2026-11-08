@@ -96,6 +96,26 @@ static const char *state_name(Fcj3State state)
     }
 }
 
+static int dev_to_u64(dev_t value, uint64_t *output)
+{
+    uintmax_t wide = (uintmax_t)value;
+    uint64_t narrowed = (uint64_t)wide;
+    if (!output || (uintmax_t)narrowed != wide)
+        return -1;
+    *output = narrowed;
+    return 0;
+}
+
+static int ino_to_u64(ino_t value, uint64_t *output)
+{
+    uintmax_t wide = (uintmax_t)value;
+    uint64_t narrowed = (uint64_t)wide;
+    if (!output || (uintmax_t)narrowed != wide)
+        return -1;
+    *output = narrowed;
+    return 0;
+}
+
 static int hex_encode(const char *input, size_t length,
                       char *output, size_t capacity)
 {
@@ -191,6 +211,19 @@ static int encode_record(const Fcj3OperationContext *context,
     size_t source_length = strlen(context->source);
     size_t destination_length = strlen(context->destination);
     size_t staging_length = strlen(context->staging_component);
+    uint64_t destination_dir_dev;
+    uint64_t destination_dir_ino;
+    uint64_t staging_dev;
+    uint64_t staging_ino;
+
+    if (dev_to_u64(context->destination_dir_dev, &destination_dir_dev) != 0 ||
+        ino_to_u64(context->destination_dir_ino, &destination_dir_ino) != 0 ||
+        dev_to_u64(context->staging_dev, &staging_dev) != 0 ||
+        ino_to_u64(context->staging_ino, &staging_ino) != 0)
+    {
+        errno = EOVERFLOW;
+        return -1;
+    }
 
     if (hex_encode(context->source, source_length,
                    source_hex, sizeof(source_hex)) != 0 ||
@@ -205,10 +238,7 @@ static int encode_record(const Fcj3OperationContext *context,
         "|%" PRIuMAX "|%" PRIuMAX "|%" PRIuMAX "|%zu|%s|%s|%s\n",
         timestamp_ns, context->operation_id, sequence, state_name(state),
         error_code, source_length, destination_length,
-        (uintmax_t)context->destination_dir_dev,
-        (uintmax_t)context->destination_dir_ino,
-        (uintmax_t)context->staging_dev,
-        (uintmax_t)context->staging_ino,
+        destination_dir_dev, destination_dir_ino, staging_dev, staging_ino,
         staging_length, source_hex, destination_hex, staging_hex);
 
     if (length < 0 || (size_t)length > FCJ3_MAX_LINE_BYTES)

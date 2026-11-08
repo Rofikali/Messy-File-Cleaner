@@ -166,23 +166,6 @@ int main(void)
     assert(journal_open(&journal, journal_link) == -1);
     assert(errno == ELOOP);
 
-    unlink(journal_link);
-    unlink(link_parent);
-    unlink(nested_path);
-    rmdir(nested_parent);
-    char nested_root[PATH_MAX];
-    make_path(nested_root, root, "nested");
-    rmdir(nested_root);
-    unlink(malformed_path);
-    unlink(source);
-    unlink(destination);
-    unlink(source_only);
-    unlink(ambiguous_destination);
-    unlink(journal_path);
-    rmdir(real_parent);
-    rmdir(root);
-
-
     /* Journal append failures never authorize a move or overwrite. */
     char fail_before_path[PATH_MAX], partial_path[PATH_MAX], sync_fail_path[PATH_MAX];
     make_path(fail_before_path, root, "fail-before.log");
@@ -241,6 +224,22 @@ int main(void)
     unlink(fail_before_path);
     unlink(partial_path);
     unlink(sync_fail_path);
+
+    unlink(journal_link);
+    unlink(link_parent);
+    unlink(nested_path);
+    rmdir(nested_parent);
+    char nested_root[PATH_MAX];
+    make_path(nested_root, root, "nested");
+    rmdir(nested_root);
+    unlink(malformed_path);
+    unlink(source);
+    unlink(destination);
+    unlink(source_only);
+    unlink(ambiguous_destination);
+    unlink(journal_path);
+    rmdir(real_parent);
+    rmdir(root);
 
     puts("journal recovery security tests passed");
     return 0;

@@ -1,0 +1,50 @@
+name: Makefile developer workflow
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  makefile-validation:
+    name: Makefile safety and validation targets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            build-essential cmake ninja-build python3
+
+      - name: Show supported commands
+        run: make help
+
+      - name: Run default Debug sanitizer suite through Makefile
+        run: make test JOBS=2
+
+      - name: Run C11, C17, and C23 validation through Makefile
+        run: make validate JOBS=2
+
+      - name: Verify safe execution defaults
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if make run-execute; then
+            echo "ERROR: run-execute unexpectedly allowed real file operations."
+            exit 1
+          fi
+
+          make --dry-run run | grep -- '--dry-run'
+
+          if make --dry-run debug JOBS=0; then
+            echo "ERROR: invalid JOBS value was accepted."
+            exit 1
+          fi

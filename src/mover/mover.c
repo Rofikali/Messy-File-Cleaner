@@ -114,10 +114,6 @@ static ssize_t mover_write(int fd, const void *buffer, size_t count)
     }
     return write(fd, buffer, count);
 }
-static void test_crash_checkpoint(int stage)
-{
-    (void)stage;
-}
 #else
 #define mover_write write
 #endif
@@ -576,7 +572,9 @@ static int move_file_internal(const char *src, const char *dest_dir,
         if (journal_record_started(journal, src, destination_path) != 0)
             goto fail_with_temp_closed;
 
+#ifdef FC_TESTING
         test_crash_checkpoint(FC_TEST_CRASH_AFTER_STARTED);
+#endif
 
         if (publish_temp_file(destination_dirfd, temp_name, destination_name) == 0)
         {
@@ -611,12 +609,16 @@ static int move_file_internal(const char *src, const char *dest_dir,
     if (journal_record_published(journal, src, destination_path) != 0)
         goto fail_after_publish;
 
+#ifdef FC_TESTING
     test_crash_checkpoint(FC_TEST_CRASH_AFTER_PUBLISHED);
+#endif
 
     if (retire_source(source_dirfd, source_name, &source_stat) != 0)
         goto fail_after_publish;
 
+#ifdef FC_TESTING
     test_crash_checkpoint(FC_TEST_CRASH_AFTER_SOURCE_RETIRED);
+#endif
 
     if (journal_record_completed(journal, src, destination_path) != 0)
         goto fail_after_publish;

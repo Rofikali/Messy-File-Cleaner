@@ -136,7 +136,7 @@ Controls:
 - This does not protect against a fully capable same-UID attacker; state that limitation.
 - Never claim that a prior `fstatat` alone makes a later unlink race-free.
 
-### 6.9 O_TMPFILE capability and fallback
+### 6.9 O_TMPFILE capability and unprivileged linking
 Threat: implementation assumes a capability supported on one filesystem is supported on another, or silently falls back to a weaker named-temp strategy.
 
 Controls:
@@ -218,9 +218,3 @@ A security-sensitive milestone is accepted only when:
 7. The PR records evidence, limitations, and rollback/recovery plan.
 8. Required owner review and repository protections are satisfied.
 
-
-### 6.9.1 Unprivileged O_TMPFILE linking
-- Do not grant `CAP_DAC_READ_SEARCH` merely to enable `linkat(..., AT_EMPTY_PATH)`.
-- The selected non-root design uses the kernel-managed `/proc/self/fd/<fd>` entry with `linkat(..., AT_SYMLINK_FOLLOW)`; verify `/proc/self/fd` is procfs and verify the resulting destination inode against the still-open descriptor.
-- If procfs is unavailable or the exact link/identity checks fail, stop without a named-temp or privileged fallback.
-- Keep the O_TMPFILE descriptor exclusively owned and open until linking and identity verification complete.

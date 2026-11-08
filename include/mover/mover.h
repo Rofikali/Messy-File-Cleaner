@@ -30,6 +30,15 @@ enum
     FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL = 2,
     FC_TEST_WRITE_EIO_AFTER_PARTIAL = 3
 };
+
+enum
+{
+    FC_TEST_CRASH_NONE = 0,
+    FC_TEST_CRASH_AFTER_STARTED = 1,
+    FC_TEST_CRASH_AFTER_PUBLISHED = 2,
+    FC_TEST_CRASH_AFTER_SOURCE_RETIRED = 3
+};
+void fc_test_mover_stop_at_crash_stage(int stage);
 void fc_test_mover_set_write_fault(int fault, long bytes_before_failure);
 void fc_test_mover_set_temp_create_error(int error_code);
 /* fsync call order: 1=temp file, 2=destination directory, 3=source directory. */

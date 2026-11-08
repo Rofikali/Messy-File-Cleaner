@@ -145,6 +145,7 @@ int fcj3_operation_init(Fcj3OperationContext *context,
     size_t source_length;
     size_t destination_length;
     size_t staging_length;
+    uint64_t identity_check;
 
     if (!context)
     {
@@ -172,6 +173,15 @@ int fcj3_operation_init(Fcj3OperationContext *context,
         !valid_staging_component(staging_component, staging_length))
     {
         errno = EINVAL;
+        return -1;
+    }
+
+    if (dev_to_u64(destination_directory->st_dev, &identity_check) != 0 ||
+        ino_to_u64(destination_directory->st_ino, &identity_check) != 0 ||
+        dev_to_u64(staging_inode->st_dev, &identity_check) != 0 ||
+        ino_to_u64(staging_inode->st_ino, &identity_check) != 0)
+    {
+        errno = EOVERFLOW;
         return -1;
     }
 

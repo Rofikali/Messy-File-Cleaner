@@ -14,7 +14,7 @@ The current production journal is `journal/move.log`, written as FCJ2 and legacy
 
 1. Use `linkat(AT_FDCWD, "/proc/self/fd/<fd>", dirfd, name, AT_SYMLINK_FOLLOW)` as the single supported unprivileged O_TMPFILE linking mechanism. Verify `/proc/self/fd` is procfs and the exact linked inode matches the still-open descriptor. No AT_EMPTY_PATH, capability grant, named-temp fallback, or silent alternative is allowed.
 2. Probe the actual validated destination directory under the production UID/mount/security context. Probe O_TMPFILE creation, write/fsync, proc-fd linking, exact inode verification, unlink of the exact probe inode, and directory fsync. Do not cache capability across destinations.
-3. Write FCJ3 records only to a distinct `journal/move.fcj3` file. Keep `journal/move.log` FCJ2/legacy-only until a separate recovery milestone implements coordinated parsing.
+3. Keep this staging/append integration test-only. Use disposable FCJ3 journal files in integration fixtures; do not create a production `journal/move.fcj3` or change the production mover until the separate recovery milestone implements coordinated parsing. At that later point, use a distinct `journal/move.fcj3`; keep `journal/move.log` FCJ2/legacy-only.
 4. Use a dedicated append adapter with process mutex + exclusive flock, descriptor-only append, short-write/EINTR handling, fsync, and commit-after-fsync semantics. Any append/fsync failure poisons the context; no in-place repair/truncation.
 5. Keep recovery, quarantine, staging cleanup, and production enablement out of this milestone until separately reviewed and tested.
 
@@ -40,8 +40,8 @@ Rejected: current recovery reads FCJ2/legacy, not FCJ3. Mixed-format append is u
 
 - Non-root deployments require procfs mounted and accessible for the linking step.
 - Some filesystems/security environments will not support the full lifecycle; those destinations fail safely.
-- A separate FCJ3 log exists alongside the legacy log; later recovery must inspect both without confusing their formats.
-- This phase may create durable STAGED/STARTED records and named staging entries, but must not delete or recover them. Source and destination data are preserved on uncertainty.
+- The test phase does not create a production FCJ3 log. Later production enablement introduces a separate FCJ3 log; recovery must inspect both without confusing their formats.
+- This phase creates durable records and named staging entries only in disposable test fixtures. Production remains FCJ2 until FCJ3 recovery is implemented. No cleanup is enabled.
 - No additional Linux capability is required.
 
 ## References

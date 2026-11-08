@@ -54,15 +54,19 @@ static void assert_no_private_destination_files(const char *directory)
 {
     DIR *dir = opendir(directory);
     assert(dir != NULL);
+    if (dir == NULL)
+        return;
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
         assert(strncmp(entry->d_name, ".fc-tmp-", 8) != 0);
         assert(strncmp(entry->d_name, ".fc-retire-", 11) != 0);
     }
-    assert(closedir(dir) == 0);
+    int close_rc = closedir(dir);
+    assert(close_rc == 0);
+    (void)close_rc;
 }
 
-static void test_copy_failure_preserves_source(const char *source_dir,
+static void assert_path_missing(const char *path)\n{\n    int rc = access(path, F_OK);\n    int saved_errno = errno;\n    assert(rc != 0 && saved_errno == ENOENT);\n    (void)rc;\n}\n\nstatic void test_copy_failure_preserves_source(const char *source_dir,
                                                const char *destination_dir)
 {
     char source[PATH_MAX], destination[PATH_MAX];
@@ -73,11 +77,11 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     MoveResult result;
     fc_test_mover_set_write_fault(FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL, 4);
     errno = 0;
-    assert(move_file_journaled(source, destination_dir, NULL, &result) == -1);
+    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);\n    assert(move_rc == -1);\n    (void)move_rc;
     assert(errno == ENOSPC);
     assert(result.error_code == ENOSPC);
     assert_text(source, "0123456789abcdef");
-    assert(access(destination, F_OK) != 0 && errno == ENOENT);
+    assert_path_missing(destination);
     assert_no_private_destination_files(destination_dir);
 
     /* A partial write followed by EIO has the same source-preservation rule. */
@@ -101,9 +105,9 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     assert_no_private_destination_files(destination_dir);
 
     fc_test_mover_set_write_fault(FC_TEST_WRITE_EINTR_ONCE, 0);
-    assert(move_file_journaled(source, destination_dir, NULL, &result) == 0);
+    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);\n    assert(move_rc == 0);\n    (void)move_rc;
     assert_text(destination, "0123456789abcdef");
-    assert(access(source, F_OK) != 0 && errno == ENOENT);
+    assert_path_missing(source);
     assert_no_private_destination_files(destination_dir);
     unlink(destination);
 }

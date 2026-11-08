@@ -43,7 +43,7 @@ inode to remove that window:
    - a generated, single-component staging name (not a path);
    - staging inode identity (`st_dev`, `st_ino`).
 6. Link the already-open anonymous inode into the destination directory with
-   `linkat(temp_fd, "", dirfd, temp_name, AT_EMPTY_PATH)`. Then fsync the
+   `linkat(AT_FDCWD, "/proc/self/fd/<temp_fd>", dirfd, temp_name, AT_SYMLINK_FOLLOW)`. Then fsync the
    destination directory.
 7. Append and fsync `STARTED`, then continue with no-replace publication,
    destination-directory sync, `PUBLISHED`, source retirement, and
@@ -56,19 +56,18 @@ inode identities before the staging name can become visible.
 
 ### Filesystem compatibility and capability checks
 
-`O_TMPFILE` and `AT_EMPTY_PATH` are Linux-specific and filesystem support
+`O_TMPFILE` and proc-fd linking are Linux-specific and filesystem/runtime support
 varies. Do not silently fall back to visible named-temp creation and then claim
 the same crash-cleanup guarantee. If the destination filesystem does not
 support the required operations, fail safely with a clear, actionable error
-(or use a separately designed fallback whose weaker recovery guarantee is
-explicitly documented and never performs automatic cleanup of unverified
-entries).
+There is no fallback in the initial supported mode; unsupported destinations
+are rejected before source retirement.
 
 **Capability is destination-specific.** A successful probe under `/tmp` does
 not prove that the configured destination supports `O_TMPFILE`, `fsync`, or
-`linkat(AT_EMPTY_PATH)`. The runtime capability check must use the already
-validated, open descriptor for the actual destination directory, under the
-same effective UID, mount namespace, and security policy as the real move.
+proc-fd linking. The runtime capability check must use the already validated,
+open descriptor for the actual destination directory, under the same
+effective UID, mount namespace, and security policy as the real move.
 The probe must use a unique disposable name, verify the linked inode identity,
 unlink only its own probe entry, and fsync the destination directory. A
 capability result must not be cached across different destination filesystems
@@ -81,11 +80,11 @@ not proof that every user destination is compatible.
 
 ### Link operation permissions
 
-`linkat(..., AT_EMPTY_PATH)` can be restricted by kernel permissions,
-capabilities, filesystem behavior, or security policy. Treat every failure as
-a real capability failure. Do not silently switch to a weaker linking method
-or named temporary-file fallback. Validate behavior in the actual non-root
-production runtime, not only as root in CI.
+The AT_EMPTY_PATH form requires CAP_DAC_READ_SEARCH and is not the selected
+non-root method. Use the proc-fd link method defined in
+FCJ3_STAGING_INTEGRATION_DESIGN.md. Verify procfs and exact inode identity in
+the actual non-root production runtime. If procfs or linking is unavailable,
+fail closed; do not grant a capability or fall back to named temporary files.
 
 ## Journal format and compatibility
 
@@ -187,8 +186,8 @@ successful recovery.
   entry.
 - A file with a similar `.fc-tmp-*` prefix but no matching journal identity is
   never touched.
-- Unsupported `O_TMPFILE` / `AT_EMPTY_PATH` filesystems fail safely; no
-  silent weaker fallback is enabled.
+- Unsupported `O_TMPFILE` / proc-fd linking environments fail safely; no
+  capability grant or named-temp fallback is enabled.
 - The actual destination directory is probed; a successful `/tmp` probe alone
   is insufficient.
 - Quarantine directory symlink, wrong owner, permissive mode, replacement, and
@@ -224,4 +223,4 @@ The exact proposed FCJ3 record grammar, operation identity, immutable metadata, 
 
 ## FCJ3 operation context and encoding
 
-The next implementation boundary is documented in [FCJ3_WRITER_CONTEXT_DESIGN.md](FCJ3_WRITER_CONTEXT_DESIGN.md) and [ADR 0002](../architecture/adr/0002-fcj3-operation-context.md). The operation-context/serializer module is test-only: it does not append FCJ3 records to the production journal, alter the mover, or authorize cleanup. Durable append must remain a separate adapter step that commits the in-memory transition only after a complete record has been fsynced. Any partial-write or fsync uncertainty must poison the operation context until recovery resolves the journal.
+The writer/context boundary is documented in [FCJ3_WRITER_CONTEXT_DESIGN.md](FCJ3_WRITER_CONTEXT_DESIGN.md) and [ADR 0002](../architecture/adr/0002-fcj3-operation-context.md). The next staging/append boundary is specified in [FCJ3_STAGING_INTEGRATION_DESIGN.md](FCJ3_STAGING_INTEGRATION_DESIGN.md) and [ADR 0003](../architecture/adr/0003-fcj3-unprivileged-staging.md). The operation-context/serializer module is test-only: it does not append FCJ3 records to the production journal, alter the mover, or authorize cleanup. Durable append must remain a separate adapter step that commits the in-memory transition only after a complete record has been fsynced. Any partial-write or fsync uncertainty must poison the operation context until recovery resolves the journal.

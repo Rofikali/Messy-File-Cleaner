@@ -136,14 +136,15 @@ Controls:
 - This does not protect against a fully capable same-UID attacker; state that limitation.
 - Never claim that a prior `fstatat` alone makes a later unlink race-free.
 
-### 6.9 O_TMPFILE capability and fallback
+### 6.9 O_TMPFILE capability and unprivileged linking
 Threat: implementation assumes a capability supported on one filesystem is supported on another, or silently falls back to a weaker named-temp strategy.
 
 Controls:
 - Probe the actual validated destination directory under the production UID, mount namespace, and security context.
 - A successful `/tmp` probe does not establish destination support.
-- Treat `O_TMPFILE` / `AT_EMPTY_PATH` support as filesystem- and policy-dependent.
-- No silent weaker fallback. Unsupported capability must fail safely or use a separately designed, reviewed mode with clearly weaker guarantees.
+- Treat `O_TMPFILE` and the selected proc-fd linking method as filesystem/runtime-dependent.
+- Do not grant `CAP_DAC_READ_SEARCH` merely to use `AT_EMPTY_PATH`; the initial non-root design selects `/proc/self/fd/<fd>` with `AT_SYMLINK_FOLLOW`.
+- Verify procfs and the exact linked inode against the still-open descriptor. Unsupported capability fails safely; no named-temp or privileged fallback is permitted.
 - Never cache capability globally across different destination mounts.
 
 ### 6.10 Denial of service and resource exhaustion
@@ -216,3 +217,4 @@ A security-sensitive milestone is accepted only when:
 6. Tests run under the intended non-root identity and actual destination filesystem where required.
 7. The PR records evidence, limitations, and rollback/recovery plan.
 8. Required owner review and repository protections are satisfied.
+

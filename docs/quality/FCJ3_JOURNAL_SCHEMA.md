@@ -180,8 +180,8 @@ FCJ3 writing is enabled only when the O_TMPFILE staging lifecycle can provide al
 
 1. **Schema contract:** accepted in PR #42.
 2. **Pure parser/model:** implemented as `include/journal/fcj3_parser.h`, `src/journal/fcj3_parser.c`, and `tests/unit/test_fcj3_parser.c`. The parser is currently compiled only into its dedicated test target; it is not linked into the production executable or called by `journal_recover()`. It has no file I/O and no recovery side effects.
-3. **Writer/context:** secure operation-ID generation, immutable metadata, transition API, serialization tests.
-4. **Staging integration:** destination-specific O_TMPFILE probe, staging/link order and fault injection.
+3. **Writer/context:** implemented in `include/journal/fcj3_writer.h`, `src/journal/fcj3_writer.c`, and `tests/unit/test_fcj3_writer.c`. This module generates IDs with Linux `getrandom()`, captures immutable metadata from caller-provided stat snapshots, prepares canonical transition lines, and advances state only through an explicit commit call. It is compiled only into a dedicated test target; no production append or mover integration is enabled. See [FCJ3 Writer Context Design](FCJ3_WRITER_CONTEXT_DESIGN.md) and [ADR 0002](../architecture/adr/0002-fcj3-operation-context.md).
+4. **Staging integration:** destination-specific O_TMPFILE probe, staging/link order, durable journal adapter, and fault injection.
 5. **Recovery:** exact identity checks, private quarantine and crash/adversarial tests.
 6. **Enablement:** only after non-root, supported-filesystem, C11/C17/C23, Debug/Release, sanitizer, static-analysis, Docker, and crash test gates pass.
 

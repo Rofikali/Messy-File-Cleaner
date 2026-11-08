@@ -66,7 +66,15 @@ static void assert_no_private_destination_files(const char *directory)
     (void)close_rc;
 }
 
-static void assert_path_missing(const char *path)\n{\n    int rc = access(path, F_OK);\n    int saved_errno = errno;\n    assert(rc != 0 && saved_errno == ENOENT);\n    (void)rc;\n}\n\nstatic void test_copy_failure_preserves_source(const char *source_dir,
+static void assert_path_missing(const char *path)
+{
+    int rc = access(path, F_OK);
+    int saved_errno = errno;
+    assert(rc != 0 && saved_errno == ENOENT);
+    (void)rc;
+}
+
+static void test_copy_failure_preserves_source(const char *source_dir,
                                                const char *destination_dir)
 {
     char source[PATH_MAX], destination[PATH_MAX];
@@ -77,7 +85,9 @@ static void assert_path_missing(const char *path)\n{\n    int rc = access(path, 
     MoveResult result;
     fc_test_mover_set_write_fault(FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL, 4);
     errno = 0;
-    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);\n    assert(move_rc == -1);\n    (void)move_rc;
+    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == -1);
+    (void)move_rc;
     assert(errno == ENOSPC);
     assert(result.error_code == ENOSPC);
     assert_text(source, "0123456789abcdef");
@@ -87,11 +97,13 @@ static void assert_path_missing(const char *path)\n{\n    int rc = access(path, 
     /* A partial write followed by EIO has the same source-preservation rule. */
     fc_test_mover_set_write_fault(FC_TEST_WRITE_EIO_AFTER_PARTIAL, 5);
     errno = 0;
-    assert(move_file_journaled(source, destination_dir, NULL, &result) == -1);
+    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == -1);
+    (void)move_rc;
     assert(errno == EIO);
     assert(result.error_code == EIO);
     assert_text(source, "0123456789abcdef");
-    assert(access(destination, F_OK) != 0 && errno == ENOENT);
+    assert_path_missing(destination);
     assert_no_private_destination_files(destination_dir);
 
     /* Permission failure at temp creation is deterministic, even as root. */
@@ -105,7 +117,9 @@ static void assert_path_missing(const char *path)\n{\n    int rc = access(path, 
     assert_no_private_destination_files(destination_dir);
 
     fc_test_mover_set_write_fault(FC_TEST_WRITE_EINTR_ONCE, 0);
-    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);\n    assert(move_rc == 0);\n    (void)move_rc;
+    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == 0);
+    (void)move_rc;
     assert_text(destination, "0123456789abcdef");
     assert_path_missing(source);
     assert_no_private_destination_files(destination_dir);

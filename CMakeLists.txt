@@ -129,6 +129,20 @@ if(BUILD_TESTING)
   target_compile_options(test_journal PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME journal_recovery_security COMMAND test_journal)
 
+  # FCJ3 parser remains isolated from production journal recovery until the
+  # writer/staging/recovery phases are separately reviewed and enabled.
+  add_executable(test_fcj3_parser
+    tests/unit/test_fcj3_parser.c
+    src/journal/fcj3_parser.c
+  )
+  target_include_directories(test_fcj3_parser PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_compile_options(test_fcj3_parser PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
+
   add_executable(test_process_crash_recovery
     tests/integration/test_process_crash_recovery.c
     src/mover/mover.c

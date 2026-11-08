@@ -1,4 +1,4 @@
-#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 
 #include "journal/fcj3_writer.h"
 
@@ -169,7 +169,9 @@ static void test_failed_recovered_and_error_semantics(void)
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_FAILED,
                                                    EIO, 2U, &prepared), 0);
-    assert(strstr(prepared.line, "|FAILED|5|") != NULL);
+    char failed_marker[32];
+    (void)snprintf(failed_marker, sizeof(failed_marker), "|FAILED|%d|", EIO);
+    assert(strstr(prepared.line, failed_marker) != NULL);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     assert(context.state == FCJ3_STATE_FAILED);
 
@@ -232,12 +234,10 @@ static void test_random_failure_and_invalid_inputs(void)
     struct stat directory_stat;
     char source[PATH_MAX];
     char destination[PATH_MAX];
-    char other_path[PATH_MAX];
 
     fixture_init(&fixture);
     (void)snprintf(source, sizeof(source), "%s/source", fixture.root);
     (void)snprintf(destination, sizeof(destination), "%s/dest", fixture.root);
-    (void)snprintf(other_path, sizeof(other_path), "%s/other", fixture.root);
 
     CHECK_RESULT(fstat(fixture.staging_fd, &regular_stat), 0);
     CHECK_RESULT(fstat(fixture.directory_fd, &directory_stat), 0);
@@ -276,7 +276,6 @@ static void test_random_failure_and_invalid_inputs(void)
         &directory_stat, ".fc-tmp-test", &directory_stat), -1);
     assert(errno == EINVAL);
 
-    (void)other_path;
     fixture_destroy(&fixture);
 }
 

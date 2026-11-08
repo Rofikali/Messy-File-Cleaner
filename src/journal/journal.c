@@ -334,7 +334,7 @@ static int append_record(FILE *fp, const char *state,
     }
 
     char line[JOURNAL_LINE_MAX + 1U];
-    int length = snprintf(line, sizeof(line), "FCJ2|%lld|%s|%d|%d|%d|%s|%s\\n",
+    int length = snprintf(line, sizeof(line), "FCJ2|%lld|%s|%d|%d|%d|%s|%s\n",
                           timestamp, state, error_code, src_len, dest_len,
                           src_hex, dest_hex);
     free(src_hex);

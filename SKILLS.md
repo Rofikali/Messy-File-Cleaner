@@ -73,3 +73,18 @@ Do not add technology merely to make the architecture look advanced.
 - Validate destination configuration as untrusted input.
 - Canonicalize input roots and compare path components safely (not string-prefix-only checks).
 - Test root/output overlap, symlink roots, symlink destinations, reserved journal paths, and forced-root behavior in temporary directories.
+
+
+## Mandatory project language: pure C
+
+The owner has selected **pure C** for this project. This is a firm constraint, not an open C-versus-C++ evaluation.
+
+- Core implementation, tests, native tools, and product build targets use C only.
+- Never add C++ source files (`.cpp`, `.cc`, `.cxx`), C++ classes/templates/exceptions/STL, C++ runtime dependencies, or CXX build targets.
+- C17 is the default; C11 compatibility is maintained where practical; C23 is an optional compatibility target after toolchain validation.
+- Use explicit C interfaces, opaque handles where useful, clear ownership/lifetime contracts, and modular boundaries.
+- Interoperability uses a stable, documented C ABI. It does not justify a C++ rewrite.
+- Assembly is allowed only as an isolated, benchmark-justified optimization with a portable and tested C fallback.
+- Do not add Rust or another implementation language to the core without an explicit owner decision and documented review.
+
+When a proposed design or tool suggests C++, translate the design into idiomatic, safe, maintainable C instead.

@@ -24,6 +24,7 @@ static atomic_int test_write_mode;
 static atomic_int test_write_error;
 static atomic_size_t test_partial_bytes;
 static atomic_int test_fsync_error;
+static atomic_int test_close_error;
 static char test_failure_state[16];
 static int test_failure_mode;
 static int test_failure_error;
@@ -39,6 +40,11 @@ void fc_test_journal_set_write_failure(int mode, int error_code, size_t partial_
 void fc_test_journal_set_fsync_error(int error_code)
 {
     atomic_store_explicit(&test_fsync_error, error_code, memory_order_release);
+}
+
+void fc_test_journal_set_close_error(int error_code)
+{
+    atomic_store_explicit(&test_close_error, error_code, memory_order_release);
 }
 
 void fc_test_journal_set_state_write_failure(const char *state, int mode,
@@ -90,6 +96,31 @@ static int journal_sync(int fd)
     }
 #endif
     return fsync(fd);
+}
+
+static int journal_sync_retry(int fd)
+{
+    int rc;
+    do {
+        rc = journal_sync(fd);
+    } while (rc != 0 && errno == EINTR);
+    return rc;
+}
+
+static int journal_close_stream(FILE *stream)
+{
+    int rc = fclose(stream);
+#ifdef FC_TESTING
+    int injected = atomic_exchange_explicit(&test_close_error, 0,
+                                            memory_order_acq_rel);
+    /* Simulate a close error report after the real stream has been closed.
+       This exercises caller error handling without leaking the descriptor. */
+    if (rc == 0 && injected != 0) {
+        errno = injected;
+        return EOF;
+    }
+#endif
+    return rc;
 }
 
 
@@ -390,11 +421,7 @@ static int append_record(FILE *fp, const char *state,
         offset += (size_t)written;
     }
 
-    int sync_rc;
-    do {
-        sync_rc = journal_sync(fd);
-    } while (sync_rc != 0 && errno == EINTR);
-    return sync_rc;
+    return journal_sync_retry(fd);
 }
 
 static RecoveryRecord *find_or_add(RecoveryRecord *records, size_t *count,
@@ -761,7 +788,7 @@ int journal_close(MoveJournal *journal)
         status = -1;
         saved_errno = errno;
     }
-    if (fsync(fileno(journal->fp)) != 0 && status == 0)
+    if (journal_sync_retry(fileno(journal->fp)) != 0 && status == 0)
     {
         status = -1;
         saved_errno = errno;
@@ -772,7 +799,7 @@ int journal_close(MoveJournal *journal)
     journal->enabled = 0;
     pthread_mutex_unlock(&journal->lock);
 
-    if (fclose(stream) != 0 && status == 0)
+    if (journal_close_stream(stream) != 0 && status == 0)
     {
         status = -1;
         saved_errno = errno;

@@ -17,6 +17,7 @@ typedef struct
     ino_t destination_dir_ino;
     dev_t staging_dev;
     ino_t staging_ino;
+    uid_t staging_uid;
     uint64_t sequence;
     Fcj3State state;
     int initialized;

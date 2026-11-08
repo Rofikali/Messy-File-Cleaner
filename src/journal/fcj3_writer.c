@@ -215,6 +215,7 @@ int fcj3_operation_init(Fcj3OperationContext *context,
     context->destination_dir_ino = destination_directory->st_ino;
     context->staging_dev = staging_inode->st_dev;
     context->staging_ino = staging_inode->st_ino;
+    context->staging_uid = staging_inode->st_uid;
     context->initialized = 1;
     return 0;
 }

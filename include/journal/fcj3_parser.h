@@ -22,6 +22,7 @@
 
 typedef enum
 {
+    FCJ3_STATE_NONE = 0,
     FCJ3_STATE_STAGED = 1,
     FCJ3_STATE_STARTED,
     FCJ3_STATE_PUBLISHED,

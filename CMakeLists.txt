@@ -143,6 +143,23 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
 
+  # FCJ3 context/serializer remains test-only until the O_TMPFILE lifecycle
+  # and durable journal adapter are implemented and separately reviewed.
+  add_executable(test_fcj3_writer
+    tests/unit/test_fcj3_writer.c
+    src/journal/fcj3_writer.c
+    src/journal/fcj3_parser.c
+  )
+  target_include_directories(test_fcj3_writer PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_compile_definitions(test_fcj3_writer PRIVATE FC_TESTING)
+  target_compile_options(test_fcj3_writer PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_writer_unit COMMAND test_fcj3_writer)
+  set_tests_properties(fcj3_writer_unit PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 10)
+
   add_executable(test_process_crash_recovery
     tests/integration/test_process_crash_recovery.c
     src/mover/mover.c

@@ -122,6 +122,13 @@ static void test_transition_and_identity_rejection(void)
     CHECK_RESULT(fcj3_replay_add_line(&replay, line, length), -1);
     assert(errno == EBADMSG);
 
+    /* A staging inode on another device cannot belong to this O_TMPFILE directory. */
+    length = make_line(line, sizeof(line), valid_id, 1, "STAGED", 0);
+    char *device_identity = strstr(line, "|1|2|1|3|9|");
+    assert(device_identity != NULL);
+    device_identity[5] = '9';
+    expect_bad(line, length, EBADMSG);
+
     /* A changed staging inode under the same operation ID is corruption. */
     length = make_line(line, sizeof(line), valid_id, 2, "STARTED", 0);
     char *stage_identity = strstr(line, "|1|3|9|");

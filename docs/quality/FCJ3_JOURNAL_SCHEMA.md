@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted protocol contract. The FCJ3 parser/replay implementation is being introduced as an isolated, read-only module and test target; it is not connected to the current FCJ2 writer or recovery path and does not authorize staging cleanup.
+Accepted protocol contract. The FCJ3 parser/replay implementation is in main as an isolated, read-only module and test target; it is not connected to the current FCJ2 writer or recovery path and does not authorize staging cleanup.
 
 ## 1. Why FCJ3 exists
 
@@ -73,11 +73,13 @@ The `.fc-tmp-` prefix is a namespace check, not ownership proof. Recovery must s
 
 The component name alone never proves ownership. Cleanup requires the operation ID's durable record plus exact parent-directory and staging inode identity checks. No prefix sweep is permitted.
 
+Because the staging inode is created with O_TMPFILE in the recorded destination directory, its `st_dev` must equal the destination directory's `st_dev`. The context initializer must inspect the anonymous inode before linking, require `st_nlink == 0`, and require `st_uid` to equal the effective service UID; the later linked name is not used as the initialization proof. The UID is checked and retained in memory but is not serialized because the service identity is an installation/runtime property.
+
 The four device/inode values are decimal unsigned integers parsed without overflow into the platform representation. The implementation must verify round-trip representability before comparing them with `struct stat`. Do not assume `dev_t` or `ino_t` is always 64-bit.
 
 ## 5. State machine
 
-The initial FCJ3 transition graph is:
+The implementation uses an internal `FCJ3_STATE_NONE` sentinel to represent an in-memory context before its first record. It is not a serialized state. The initial FCJ3 transition graph is:
 
 ```text
                  +----------+
@@ -180,8 +182,8 @@ FCJ3 writing is enabled only when the O_TMPFILE staging lifecycle can provide al
 
 1. **Schema contract:** accepted in PR #42.
 2. **Pure parser/model:** implemented as `include/journal/fcj3_parser.h`, `src/journal/fcj3_parser.c`, and `tests/unit/test_fcj3_parser.c`. The parser is currently compiled only into its dedicated test target; it is not linked into the production executable or called by `journal_recover()`. It has no file I/O and no recovery side effects.
-3. **Writer/context:** secure operation-ID generation, immutable metadata, transition API, serialization tests.
-4. **Staging integration:** destination-specific O_TMPFILE probe, staging/link order and fault injection.
+3. **Writer/context:** implemented in `include/journal/fcj3_writer.h`, `src/journal/fcj3_writer.c`, and `tests/unit/test_fcj3_writer.c`. This module generates IDs with Linux `getrandom()`, captures immutable metadata from caller-provided stat snapshots, prepares canonical transition lines, and advances state only through an explicit commit call. It is compiled only into a dedicated test target; no production append or mover integration is enabled. See [FCJ3 Writer Context Design](FCJ3_WRITER_CONTEXT_DESIGN.md) and [ADR 0002](../architecture/adr/0002-fcj3-operation-context.md).
+4. **Staging integration:** destination-specific O_TMPFILE probe, staging/link order, durable journal adapter, and fault injection.
 5. **Recovery:** exact identity checks, private quarantine and crash/adversarial tests.
 6. **Enablement:** only after non-root, supported-filesystem, C11/C17/C23, Debug/Release, sanitizer, static-analysis, Docker, and crash test gates pass.
 

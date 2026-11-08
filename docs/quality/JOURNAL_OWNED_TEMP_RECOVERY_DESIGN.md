@@ -220,3 +220,8 @@ criteria are implemented and their tests pass.
 ## FCJ3 protocol contract
 
 The exact proposed FCJ3 record grammar, operation identity, immutable metadata, sequence rules, state-transition graph, compatibility model, parser bounds, and implementation phases are specified in [FCJ3_JOURNAL_SCHEMA.md](FCJ3_JOURNAL_SCHEMA.md). The architectural rationale and alternatives are recorded in [ADR 0001](../architecture/adr/0001-fcj3-transaction-identity.md). These documents are protocol design only: they do not enable FCJ3 writes, temporary-file cleanup, or changes to current recovery behavior.
+
+
+## FCJ3 operation context and encoding
+
+The next implementation boundary is documented in [FCJ3_WRITER_CONTEXT_DESIGN.md](FCJ3_WRITER_CONTEXT_DESIGN.md) and [ADR 0002](../architecture/adr/0002-fcj3-operation-context.md). The operation-context/serializer module is test-only: it does not append FCJ3 records to the production journal, alter the mover, or authorize cleanup. Durable append must remain a separate adapter step that commits the in-memory transition only after a complete record has been fsynced. Any partial-write or fsync uncertainty must poison the operation context until recovery resolves the journal.

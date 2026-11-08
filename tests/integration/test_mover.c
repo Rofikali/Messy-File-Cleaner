@@ -80,6 +80,26 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     assert(access(destination, F_OK) != 0 && errno == ENOENT);
     assert_no_private_destination_files(destination_dir);
 
+    /* A partial write followed by EIO has the same source-preservation rule. */
+    fc_test_mover_set_write_fault(FC_TEST_WRITE_EIO_AFTER_PARTIAL, 5);
+    errno = 0;
+    assert(move_file_journaled(source, destination_dir, NULL, &result) == -1);
+    assert(errno == EIO);
+    assert(result.error_code == EIO);
+    assert_text(source, "0123456789abcdef");
+    assert(access(destination, F_OK) != 0 && errno == ENOENT);
+    assert_no_private_destination_files(destination_dir);
+
+    /* Permission failure at temp creation is deterministic, even as root. */
+    fc_test_mover_set_temp_create_error(EACCES);
+    errno = 0;
+    assert(move_file_journaled(source, destination_dir, NULL, &result) == -1);
+    assert(errno == EACCES);
+    assert(result.error_code == EACCES);
+    assert_text(source, "0123456789abcdef");
+    assert(access(destination, F_OK) != 0 && errno == ENOENT);
+    assert_no_private_destination_files(destination_dir);
+
     fc_test_mover_set_write_fault(FC_TEST_WRITE_EINTR_ONCE, 0);
     assert(move_file_journaled(source, destination_dir, NULL, &result) == 0);
     assert_text(destination, "0123456789abcdef");

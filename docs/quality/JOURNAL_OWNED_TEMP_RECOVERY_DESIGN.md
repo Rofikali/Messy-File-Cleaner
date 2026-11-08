@@ -43,7 +43,7 @@ inode to remove that window:
    - a generated, single-component staging name (not a path);
    - staging inode identity (`st_dev`, `st_ino`).
 6. Link the already-open anonymous inode into the destination directory with
-   `linkat(temp_fd, "", dirfd, temp_name, AT_EMPTY_PATH)`. Then fsync the
+   `linkat(AT_FDCWD, "/proc/self/fd/<temp_fd>", dirfd, temp_name, AT_SYMLINK_FOLLOW)`. Then fsync the
    destination directory.
 7. Append and fsync `STARTED`, then continue with no-replace publication,
    destination-directory sync, `PUBLISHED`, source retirement, and

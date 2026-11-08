@@ -61,7 +61,7 @@ int fcj3_operation_prepare_transition(const Fcj3OperationContext *context,
                                      Fcj3PreparedRecord *prepared);
 
 /* Commit only after the prepared line is known to be durably appended.
- * A stale prepared record is rejected.
+ * Any stale/tampered commit attempt poisons the context; recovery is required.
  */
 int fcj3_operation_commit_transition(Fcj3OperationContext *context,
                                      const Fcj3PreparedRecord *prepared);

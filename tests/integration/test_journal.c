@@ -10,6 +10,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define CHECK_RESULT(expression, expected) do { \
+    int check_result_ = (expression); \
+    assert(check_result_ == (expected)); \
+} while (0)
+
 #include "journal/journal.h"
 
 static void make_path(char output[PATH_MAX], const char *root, const char *name)
@@ -219,11 +224,86 @@ int main(void)
     assert(file_equals(protected_destination, "destination must not be overwritten"));
 
 
+
+    /* State-specific failures: the last durable state governs recovery. */
+    char published_fail_log[PATH_MAX], failed_fail_log[PATH_MAX];
+    char completed_fail_log[PATH_MAX], recovered_fail_log[PATH_MAX];
+    char transition_source[PATH_MAX], transition_dest[PATH_MAX];
+    make_path(published_fail_log, root, "published-fail.log");
+    make_path(failed_fail_log, root, "failed-fail.log");
+    make_path(completed_fail_log, root, "completed-fail.log");
+    make_path(recovered_fail_log, root, "recovered-fail.log");
+    make_path(transition_source, root, "transition-source.txt");
+    make_path(transition_dest, root, "transition-destination.txt");
+
+    create_file(transition_source, "transition source");
+    create_file(transition_dest, "existing published destination");
+    CHECK_RESULT(journal_open(&journal, published_fail_log), 0);
+    CHECK_RESULT(journal_record_started(&journal, transition_source, transition_dest), 0);
+    fc_test_journal_set_state_write_failure("PUBLISHED",
+        FC_TEST_JOURNAL_WRITE_FAIL_BEFORE, EIO, 0);
+    errno = 0;
+    CHECK_RESULT(journal_record_published(&journal, transition_source, transition_dest), -1);
+    assert(errno == EIO);
+    CHECK_RESULT(journal_close(&journal), 0);
+    CHECK_RESULT(journal_recover(published_fail_log), 0);
+    assert(file_equals(transition_source, "transition source"));
+    assert(file_equals(transition_dest, "existing published destination"));
+
+    CHECK_RESULT(journal_open(&journal, failed_fail_log), 0);
+    CHECK_RESULT(journal_record_started(&journal, transition_source, transition_dest), 0);
+    fc_test_journal_set_state_write_failure("FAILED",
+        FC_TEST_JOURNAL_WRITE_FAIL_BEFORE, EIO, 0);
+    errno = 0;
+    CHECK_RESULT(journal_record_failed(&journal, transition_source, transition_dest, EIO), -1);
+    assert(errno == EIO);
+    CHECK_RESULT(journal_close(&journal), 0);
+    CHECK_RESULT(journal_recover(failed_fail_log), 0);
+    assert(file_equals(transition_source, "transition source"));
+    assert(file_equals(transition_dest, "existing published destination"));
+
+    /* A completed filesystem operation with a failed COMPLETED append leaves
+       the durable PUBLISHED record; recovery records a conservative outcome. */
+    CHECK_RESULT(journal_open(&journal, completed_fail_log), 0);
+    CHECK_RESULT(journal_record_started(&journal, transition_source, transition_dest), 0);
+    CHECK_RESULT(journal_record_published(&journal, transition_source, transition_dest), 0);
+    fc_test_journal_set_state_write_failure("COMPLETED",
+        FC_TEST_JOURNAL_WRITE_FAIL_BEFORE, EIO, 0);
+    errno = 0;
+    CHECK_RESULT(journal_record_completed(&journal, transition_source, transition_dest), -1);
+    assert(errno == EIO);
+    CHECK_RESULT(journal_close(&journal), 0);
+    CHECK_RESULT(unlink(transition_source), 0);
+    CHECK_RESULT(journal_recover(completed_fail_log), 0);
+    assert(file_equals(transition_dest, "existing published destination"));
+
+    /* Recreate the source for a separate STARTED-only recovery case. */
+    create_file(transition_source, "transition source");
+
+    /* Failure to append RECOVERED is retryable and never mutates user paths. */
+    CHECK_RESULT(journal_open(&journal, recovered_fail_log), 0);
+    CHECK_RESULT(journal_record_started(&journal, transition_source, transition_dest), 0);
+    CHECK_RESULT(journal_close(&journal), 0);
+    fc_test_journal_set_state_write_failure("RECOVERED",
+        FC_TEST_JOURNAL_WRITE_FAIL_BEFORE, EIO, 0);
+    errno = 0;
+    CHECK_RESULT(journal_recover(recovered_fail_log), -1);
+    assert(errno == EIO);
+    assert(file_equals(transition_dest, "existing published destination"));
+    CHECK_RESULT(journal_recover(recovered_fail_log), 0);
+    assert(file_equals(transition_dest, "existing published destination"));
+
     unlink(protected_source);
     unlink(protected_destination);
     unlink(fail_before_path);
     unlink(partial_path);
     unlink(sync_fail_path);
+    unlink(published_fail_log);
+    unlink(failed_fail_log);
+    unlink(completed_fail_log);
+    unlink(recovered_fail_log);
+    unlink(transition_source);
+    unlink(transition_dest);
 
     unlink(journal_link);
     unlink(link_parent);

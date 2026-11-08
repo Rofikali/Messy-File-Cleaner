@@ -73,3 +73,15 @@ The journal test target now supports deterministic, test-only failures at three 
 All mutable injection controls are compiled only when `FC_TESTING` is defined. Production builds use the normal POSIX `write()` and `fsync()` calls.
 
 The tests verify that source and pre-existing destination files remain present and byte-for-byte unchanged across these journal failures. This slice does not attempt automatic repair of a malformed tail: preserving evidence and failing closed is safer than making an unproven assumption about which bytes reached stable storage.
+
+
+## Journal state-transition failure slice
+
+The journal integration tests inject a failure before writing the named state transition: `PUBLISHED`, `FAILED`, `COMPLETED`, or `RECOVERED`. Each test checks the behavior determined by the last complete journal state:
+
+- A failed `PUBLISHED` append leaves only `STARTED`; recovery preserves source and destination.
+- A failed `FAILED` append leaves the earlier `STARTED` state; recovery remains conservative.
+- A failed `COMPLETED` append after a durable `PUBLISHED` record is recovered from the published state without modifying the remaining destination.
+- A failed `RECOVERED` append returns an error; a later recovery attempt can retry, while user data remains unchanged.
+
+The injected state selection and fault controls are test-only under `FC_TESTING`.

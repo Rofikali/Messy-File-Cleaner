@@ -115,12 +115,14 @@ static int parse_state(const char *text, Fcj3State *state)
     return 0;
 }
 
-static int state_error_is_valid(Fcj3State state, uint64_t error_code)
+int fcj3_error_code_is_valid(Fcj3State state, int error_code)
 {
+    if (error_code < 0)
+        return 0;
     if (state == FCJ3_STATE_FAILED)
-        return error_code > 0 && error_code <= (uint64_t)INT_MAX;
+        return error_code != 0;
     if (state == FCJ3_STATE_RECOVERED)
-        return error_code <= (uint64_t)INT_MAX;
+        return 1;
     return error_code == 0;
 }
 
@@ -226,7 +228,7 @@ static int parse_record(const char *line, size_t length, ParsedRecord *parsed)
         goto malformed;
 
     if (parse_state(fields[4], &tx->state) != 0 ||
-        !state_error_is_valid(tx->state, numbers[2]))
+        !fcj3_error_code_is_valid(tx->state, (int)numbers[2]))
         goto malformed;
 
     memcpy(tx->operation_id, fields[2], FCJ3_OPERATION_ID_HEX_LENGTH + 1U);
@@ -275,10 +277,12 @@ static int metadata_matches(const Fcj3Transaction *left,
            left->staging_ino == right->staging_ino;
 }
 
-static int legal_next_state(Fcj3State previous, Fcj3State next)
+int fcj3_transition_is_valid(Fcj3State previous, Fcj3State next)
 {
     switch (previous)
     {
+        case 0:
+            return next == FCJ3_STATE_STAGED;
         case FCJ3_STATE_STAGED:
             return next == FCJ3_STATE_STARTED ||
                    next == FCJ3_STATE_FAILED ||
@@ -332,7 +336,7 @@ int fcj3_replay_add_line(Fcj3Replay *replay, const char *line, size_t length)
         if (!metadata_matches(existing, &parsed.transaction) ||
             existing->sequence >= 4U ||
             parsed.transaction.sequence != existing->sequence + 1U ||
-            !legal_next_state(existing->state, parsed.transaction.state))
+            !fcj3_transition_is_valid(existing->state, parsed.transaction.state))
         {
             errno = EBADMSG;
             return -1;

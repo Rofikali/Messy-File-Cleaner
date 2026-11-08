@@ -19,11 +19,25 @@ set(CMAKE_C_EXTENSIONS OFF)
 include(CTest)
 find_package(Threads REQUIRED)
 
-file(GLOB_RECURSE C_SOURCES CONFIGURE_DEPENDS
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c"
+# Keep the production source list explicit. Placeholder translation units are
+# intentionally excluded until their module contracts have real implementations.
+# Add each new production source here as part of the same reviewed change.
+set(FC_SOURCES
+  src/main.c
+  src/classifier/classifier.c
+  src/config/config.c
+  src/core/lf_queue.c
+  src/core/queue.c
+  src/core/thread_pool.c
+  src/journal/journal.c
+  src/mover/mover.c
+  src/scanner/scanner.c
+  src/utils/fs_utils.c
+  src/utils/hashmap.c
+  src/watcher/watcher.c
 )
 
-add_executable(${PROJECT_NAME} ${C_SOURCES})
+add_executable(${PROJECT_NAME} ${FC_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/include"

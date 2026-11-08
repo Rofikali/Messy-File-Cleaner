@@ -300,6 +300,8 @@ int fcj3_operation_prepare_transition(const Fcj3OperationContext *context,
 int fcj3_operation_commit_transition(Fcj3OperationContext *context,
                                      const Fcj3PreparedRecord *prepared)
 {
+    Fcj3PreparedRecord expected;
+
     if (!context || !prepared || !context->initialized || !prepared->valid)
     {
         errno = EINVAL;
@@ -317,8 +319,17 @@ int fcj3_operation_commit_transition(Fcj3OperationContext *context,
         !fcj3_transition_is_valid(context->state, prepared->state) ||
         !fcj3_error_code_is_valid(prepared->state, prepared->error_code) ||
         prepared->length == 0 ||
-        prepared->length > FCJ3_MAX_LINE_BYTES ||
-        prepared->line[prepared->length - 1U] != '\n')
+        prepared->length > FCJ3_MAX_LINE_BYTES)
+    {
+        errno = ESTALE;
+        return -1;
+    }
+
+    memset(&expected, 0, sizeof(expected));
+    if (encode_record(context, prepared->state, prepared->error_code,
+                      prepared->sequence, prepared->timestamp_ns, &expected) != 0 ||
+        expected.length != prepared->length ||
+        memcmp(expected.line, prepared->line, prepared->length) != 0)
     {
         errno = ESTALE;
         return -1;

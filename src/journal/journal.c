@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdatomic.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -14,6 +15,68 @@
 
 #define JOURNAL_LINE_MAX (4U * PATH_MAX + 256U)
 #define JOURNAL_MAX_RECOVERY_RECORDS 4096
+
+#ifdef FC_TESTING
+#define FC_TEST_JOURNAL_WRITE_NONE 0
+#define FC_TEST_JOURNAL_WRITE_FAIL_BEFORE 1
+#define FC_TEST_JOURNAL_WRITE_FAIL_PARTIAL 2
+static atomic_int test_write_mode;
+static atomic_int test_write_error;
+static atomic_size_t test_partial_bytes;
+static atomic_int test_fsync_error;
+
+void fc_test_journal_set_write_failure(int mode, int error_code, size_t partial_bytes)
+{
+    atomic_store_explicit(&test_write_error, error_code, memory_order_relaxed);
+    atomic_store_explicit(&test_partial_bytes, partial_bytes, memory_order_relaxed);
+    atomic_store_explicit(&test_write_mode, mode, memory_order_release);
+}
+
+void fc_test_journal_set_fsync_error(int error_code)
+{
+    atomic_store_explicit(&test_fsync_error, error_code, memory_order_release);
+}
+
+static ssize_t journal_write_once(int fd, const void *buffer, size_t length)
+{
+    int mode = atomic_exchange_explicit(&test_write_mode,
+                                        FC_TEST_JOURNAL_WRITE_NONE,
+                                        memory_order_acq_rel);
+    if (mode == FC_TEST_JOURNAL_WRITE_FAIL_BEFORE) {
+        errno = atomic_load_explicit(&test_write_error, memory_order_relaxed);
+        return -1;
+    }
+    if (mode == FC_TEST_JOURNAL_WRITE_FAIL_PARTIAL) {
+        size_t partial = atomic_load_explicit(&test_partial_bytes, memory_order_relaxed);
+        if (partial == 0 || partial > length)
+            partial = length > 1 ? length / 2 : 1;
+        ssize_t written = write(fd, buffer, partial);
+        if (written < 0)
+            return written;
+        errno = atomic_load_explicit(&test_write_error, memory_order_relaxed);
+        return -1;
+    }
+    return write(fd, buffer, length);
+}
+#else
+static ssize_t journal_write_once(int fd, const void *buffer, size_t length)
+{
+    return write(fd, buffer, length);
+}
+#endif
+
+static int journal_sync(int fd)
+{
+#ifdef FC_TESTING
+    int injected = atomic_exchange_explicit(&test_fsync_error, 0, memory_order_acq_rel);
+    if (injected != 0) {
+        errno = injected;
+        return -1;
+    }
+#endif
+    return fsync(fd);
+}
+
 
 typedef struct
 {
@@ -249,8 +312,7 @@ static int append_record(FILE *fp, const char *state,
 
     char *src_hex = malloc(PATH_MAX * 2U + 1U);
     char *dest_hex = malloc(PATH_MAX * 2U + 1U);
-    if (!src_hex || !dest_hex)
-    {
+    if (!src_hex || !dest_hex) {
         free(src_hex);
         free(dest_hex);
         return -1;
@@ -258,33 +320,54 @@ static int append_record(FILE *fp, const char *state,
 
     int src_len = hex_encode(src, src_hex, PATH_MAX * 2U + 1U);
     int dest_len = hex_encode(dest, dest_hex, PATH_MAX * 2U + 1U);
-    if (src_len < 0 || dest_len < 0)
-    {
+    if (src_len < 0 || dest_len < 0) {
         free(src_hex);
         free(dest_hex);
         return -1;
     }
 
     long long timestamp = now_ns();
-    if (timestamp < 0)
-    {
+    if (timestamp < 0) {
         free(src_hex);
         free(dest_hex);
         return -1;
     }
 
-    int rc = fprintf(fp, "FCJ2|%lld|%s|%d|%d|%d|%s|%s\n",
-                     timestamp, state, error_code, src_len, dest_len,
-                     src_hex, dest_hex);
+    char line[JOURNAL_LINE_MAX + 1U];
+    int length = snprintf(line, sizeof(line), "FCJ2|%lld|%s|%d|%d|%d|%s|%s\\n",
+                          timestamp, state, error_code, src_len, dest_len,
+                          src_hex, dest_hex);
     free(src_hex);
     free(dest_hex);
-    if (rc < 0 || fflush(fp) != 0)
+    if (length < 0 || (size_t)length >= sizeof(line)) {
+        errno = EOVERFLOW;
+        return -1;
+    }
+
+    /* Keep stdio and descriptor I/O coherent before appending the record. */
+    if (fflush(fp) != 0)
         return -1;
 
+    int fd = fileno(fp);
+    size_t offset = 0;
+    while (offset < (size_t)length) {
+        ssize_t written = journal_write_once(fd, line + offset,
+                                             (size_t)length - offset);
+        if (written < 0) {
+            if (errno == EINTR)
+                continue;
+            return -1;
+        }
+        if (written == 0) {
+            errno = EIO;
+            return -1;
+        }
+        offset += (size_t)written;
+    }
+
     int sync_rc;
-    do
-    {
-        sync_rc = fsync(fileno(fp));
+    do {
+        sync_rc = journal_sync(fd);
     } while (sync_rc != 0 && errno == EINTR);
     return sync_rc;
 }

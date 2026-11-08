@@ -33,6 +33,20 @@ static void create_file(const char *path, const char *value)
     assert(close(fd) == 0);
 }
 
+static int file_equals(const char *path, const char *expected)
+{
+    FILE *fp = fopen(path, "rb");
+    if (!fp)
+        return 0;
+    size_t expected_length = strlen(expected);
+    char buffer[PATH_MAX];
+    size_t actual_length = fread(buffer, 1, sizeof(buffer), fp);
+    int extra = fgetc(fp);
+    int close_status = fclose(fp);
+    return close_status == 0 && actual_length == expected_length &&
+           extra == EOF && memcmp(buffer, expected, expected_length) == 0;
+}
+
 static size_t count_lines(const char *path)
 {
     FILE *fp = fopen(path, "r");
@@ -151,6 +165,65 @@ int main(void)
     errno = 0;
     assert(journal_open(&journal, journal_link) == -1);
     assert(errno == ELOOP);
+
+    /* Journal append failures never authorize a move or overwrite. */
+    char fail_before_path[PATH_MAX], partial_path[PATH_MAX], sync_fail_path[PATH_MAX];
+    make_path(fail_before_path, root, "fail-before.log");
+    make_path(partial_path, root, "partial-tail.log");
+    make_path(sync_fail_path, root, "sync-fail.log");
+
+    char protected_source[PATH_MAX], protected_destination[PATH_MAX];
+    make_path(protected_source, root, "protected-source.txt");
+    make_path(protected_destination, root, "protected-destination.txt");
+    create_file(protected_source, "source must survive");
+    create_file(protected_destination, "destination must not be overwritten");
+
+    assert(journal_open(&journal, fail_before_path) == 0);
+    fc_test_journal_set_write_failure(FC_TEST_JOURNAL_WRITE_FAIL_BEFORE, EIO, 0);
+    errno = 0;
+    assert(journal_record_started(&journal, protected_source, protected_destination) == -1);
+    assert(errno == EIO);
+    assert(journal_close(&journal) == 0);
+    assert(journal_recover(fail_before_path) == 0);
+    assert(access(protected_source, F_OK) == 0);
+    assert(access(protected_destination, F_OK) == 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
+
+    assert(journal_open(&journal, partial_path) == 0);
+    fc_test_journal_set_write_failure(FC_TEST_JOURNAL_WRITE_FAIL_PARTIAL, ENOSPC, 12);
+    errno = 0;
+    assert(journal_record_started(&journal, protected_source, protected_destination) == -1);
+    assert(errno == ENOSPC);
+    assert(journal_close(&journal) == 0);
+    errno = 0;
+    assert(journal_recover(partial_path) == -1);
+    assert(errno == EBADMSG || errno == EOVERFLOW);
+    assert(access(protected_source, F_OK) == 0);
+    assert(access(protected_destination, F_OK) == 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
+
+    assert(journal_open(&journal, sync_fail_path) == 0);
+    fc_test_journal_set_fsync_error(EIO);
+    errno = 0;
+    assert(journal_record_started(&journal, protected_source, protected_destination) == -1);
+    assert(errno == EIO);
+    assert(journal_close(&journal) == 0);
+    /* The complete record may be visible despite uncertain durability.
+       Recovery is conservative and leaves both user paths untouched. */
+    assert(journal_recover(sync_fail_path) == 0);
+    assert(access(protected_source, F_OK) == 0);
+    assert(access(protected_destination, F_OK) == 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
+
+
+    unlink(protected_source);
+    unlink(protected_destination);
+    unlink(fail_before_path);
+    unlink(partial_path);
+    unlink(sync_fail_path);
 
     unlink(journal_link);
     unlink(link_parent);

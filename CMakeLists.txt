@@ -125,6 +125,7 @@ if(BUILD_TESTING)
   )
   target_include_directories(test_journal PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_link_libraries(test_journal PRIVATE Threads::Threads)
+  target_compile_definitions(test_journal PRIVATE FC_TESTING)
   target_compile_options(test_journal PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME journal_recovery_security COMMAND test_journal)
 

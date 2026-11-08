@@ -13,10 +13,16 @@
 
 #ifdef FC_TESTING
 static atomic_int test_random_error;
+static _Atomic size_t test_random_chunk_limit;
 
 void fcj3_test_set_random_error(int error_code)
 {
     atomic_store_explicit(&test_random_error, error_code, memory_order_release);
+}
+
+void fcj3_test_set_random_chunk_limit(size_t limit)
+{
+    atomic_store_explicit(&test_random_chunk_limit, limit, memory_order_release);
 }
 #endif
 
@@ -30,6 +36,12 @@ static ssize_t fcj3_getrandom(void *buffer, size_t length)
         errno = injected;
         return -1;
     }
+#endif
+#ifdef FC_TESTING
+    size_t chunk_limit = atomic_load_explicit(&test_random_chunk_limit,
+                                              memory_order_acquire);
+    if (chunk_limit != 0 && length > chunk_limit)
+        length = chunk_limit;
 #endif
     return getrandom(buffer, length, 0);
 }

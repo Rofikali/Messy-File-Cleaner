@@ -6,6 +6,9 @@
 #include <limits.h>
 #include <stdint.h>
 #include <stdatomic.h>
+#ifdef FC_TESTING
+#include <signal.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,6 +40,18 @@ static atomic_uint test_fsync_fail_call;
 static atomic_int test_fsync_error;
 static atomic_int test_publish_error;
 static atomic_int test_retire_error;
+static atomic_int test_crash_stage;
+
+void fc_test_mover_stop_at_crash_stage(int stage)
+{
+    atomic_store_explicit(&test_crash_stage, stage, memory_order_release);
+}
+
+static void test_crash_checkpoint(int stage)
+{
+    if (atomic_load_explicit(&test_crash_stage, memory_order_acquire) == stage)
+        (void)raise(SIGSTOP);
+}
 
 void fc_test_mover_set_write_fault(int fault, long bytes_before_failure)
 {
@@ -98,6 +113,10 @@ static ssize_t mover_write(int fd, const void *buffer, size_t count)
         return written;
     }
     return write(fd, buffer, count);
+}
+static void test_crash_checkpoint(int stage)
+{
+    (void)stage;
 }
 #else
 #define mover_write write
@@ -557,6 +576,8 @@ static int move_file_internal(const char *src, const char *dest_dir,
         if (journal_record_started(journal, src, destination_path) != 0)
             goto fail_with_temp_closed;
 
+        test_crash_checkpoint(FC_TEST_CRASH_AFTER_STARTED);
+
         if (publish_temp_file(destination_dirfd, temp_name, destination_name) == 0)
         {
             published = 1;
@@ -590,8 +611,12 @@ static int move_file_internal(const char *src, const char *dest_dir,
     if (journal_record_published(journal, src, destination_path) != 0)
         goto fail_after_publish;
 
+    test_crash_checkpoint(FC_TEST_CRASH_AFTER_PUBLISHED);
+
     if (retire_source(source_dirfd, source_name, &source_stat) != 0)
         goto fail_after_publish;
+
+    test_crash_checkpoint(FC_TEST_CRASH_AFTER_SOURCE_RETIRED);
 
     if (journal_record_completed(journal, src, destination_path) != 0)
         goto fail_after_publish;

@@ -4,6 +4,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <pthread.h>
+#include <stddef.h>
 
 #ifndef PATH_MAX
 #define PATH_MAX 4096
@@ -30,4 +31,12 @@ int journal_record_failed(MoveJournal *journal, const char *src, const char *des
 int journal_record_recovered(MoveJournal *journal, const char *src, const char *dest,
                              int error_code);
 
+#endif
+
+#ifdef FC_TESTING
+#define FC_TEST_JOURNAL_WRITE_NONE 0
+#define FC_TEST_JOURNAL_WRITE_FAIL_BEFORE 1
+#define FC_TEST_JOURNAL_WRITE_FAIL_PARTIAL 2
+void fc_test_journal_set_write_failure(int mode, int error_code, size_t partial_bytes);
+void fc_test_journal_set_fsync_error(int error_code);
 #endif

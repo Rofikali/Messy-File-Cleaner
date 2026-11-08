@@ -234,8 +234,8 @@ static int encode_record(const Fcj3OperationContext *context,
         return -1;
 
     int length = snprintf(prepared->line, sizeof(prepared->line),
-        "FCJ3|%" PRIu64 "|%s|%" PRIu64 "|%s|%d|%zu|%zu|%" PRIuMAX
-        "|%" PRIuMAX "|%" PRIuMAX "|%" PRIuMAX "|%zu|%s|%s|%s\n",
+        "FCJ3|%" PRIu64 "|%s|%" PRIu64 "|%s|%d|%zu|%zu|%" PRIu64
+        "|%" PRIu64 "|%" PRIu64 "|%" PRIu64 "|%zu|%s|%s|%s\n",
         timestamp_ns, context->operation_id, sequence, state_name(state),
         error_code, source_length, destination_length,
         destination_dir_dev, destination_dir_ino, staging_dev, staging_ino,

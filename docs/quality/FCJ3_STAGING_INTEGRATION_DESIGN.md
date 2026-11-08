@@ -2,7 +2,7 @@
 
 ## Status
 
-Design for owner review. This document is a prerequisite for implementation; it does not change production mover, journal, or recovery behavior. No FCJ3 records are written by the application in this phase.
+Accepted implementation contract (PR #45, merged 2026-11-08). This document authorizes only the isolated test implementation described below; it does not authorize production mover, journal, or recovery changes. No FCJ3 records are written by the application in this phase.
 
 ## Objective
 

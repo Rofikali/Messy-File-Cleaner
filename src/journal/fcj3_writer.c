@@ -325,7 +325,7 @@ int fcj3_operation_commit_transition(Fcj3OperationContext *context,
 {
     Fcj3PreparedRecord expected;
 
-    if (!context || !prepared || !context->initialized || !prepared->valid)
+    if (!context || !prepared || !context->initialized)
     {
         errno = EINVAL;
         return -1;
@@ -335,7 +335,8 @@ int fcj3_operation_commit_transition(Fcj3OperationContext *context,
         errno = EIO;
         return -1;
     }
-    if (strcmp(context->operation_id, prepared->operation_id) != 0 ||
+    if (!prepared->valid ||
+        strcmp(context->operation_id, prepared->operation_id) != 0 ||
         context->sequence != prepared->previous_sequence ||
         context->state != prepared->previous_state ||
         prepared->sequence != context->sequence + 1U ||
@@ -344,6 +345,7 @@ int fcj3_operation_commit_transition(Fcj3OperationContext *context,
         prepared->length == 0 ||
         prepared->length > FCJ3_MAX_LINE_BYTES)
     {
+        context->poisoned = 1;
         errno = ESTALE;
         return -1;
     }
@@ -354,6 +356,7 @@ int fcj3_operation_commit_transition(Fcj3OperationContext *context,
         expected.length != prepared->length ||
         memcmp(expected.line, prepared->line, prepared->length) != 0)
     {
+        context->poisoned = 1;
         errno = ESTALE;
         return -1;
     }

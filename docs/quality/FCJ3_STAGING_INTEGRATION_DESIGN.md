@@ -8,6 +8,8 @@ Design for owner review. This document is a prerequisite for implementation; it 
 
 Integrate the already-tested FCJ3 operation context with Linux anonymous staging and a durable journal adapter while preserving the project's non-root, least-privilege policy and all existing FCJ2/legacy behavior.
 
+**This milestone is test-only.** The staging adapter and FCJ3 append adapter must be linked only into dedicated integration tests. They must not be added to the production executable, invoked by the production mover, or create a production `move.fcj3` file. This is deliberate: current startup recovery does not understand FCJ3. Writing production FCJ3 records before the recovery dispatcher exists would leave durable operations ignored after restart. Production enablement is deferred until the recovery milestone passes.
+
 The milestone has two separable boundaries:
 
 1. A destination-specific O_TMPFILE lifecycle that creates, links, publishes, and syncs one exact staging inode.
@@ -95,7 +97,7 @@ The staging inode becomes the published destination inode through no-replace ren
 
 Do not append FCJ3 records to the existing `journal/move.log`. The current `journal_recover()` parser understands FCJ2 and legacy records, not FCJ3. Mixing formats before a unified recovery dispatcher exists could make a valid journal unreadable or cause the old parser to reject the file.
 
-Use a distinct file, initially `journal/move.fcj3`, under the protected journal directory. Existing `move.log` remains FCJ2/legacy only. The future recovery milestone will parse the two logs independently and coordinate operation recovery; it will not reinterpret FCJ2 records as FCJ3.
+Use a disposable FCJ3 journal file inside each integration-test fixture. Do not create or append a production FCJ3 journal yet. When recovery support is implemented, it will introduce a distinct `journal/move.fcj3` file under the protected journal directory; existing `journal/move.log` remains FCJ2/legacy only. The recovery milestone will parse the two logs independently and coordinate operation recovery; it will not reinterpret FCJ2 records as FCJ3.
 
 ### Adapter contract
 
@@ -154,7 +156,7 @@ All tests use disposable temporary directories and unique payloads, including a 
 - No second record is appended after uncertain outcome.
 - Two threads cannot interleave records; second process cannot acquire the journal lock.
 - Journal file is regular, no-follow, owner/mode validated; creation syncs parent directory.
-- FCJ2 journal bytes remain unchanged; FCJ3 bytes go only to `move.fcj3`.
+- FCJ2 journal bytes remain unchanged; FCJ3 bytes exist only in disposable test fixtures during this milestone.
 
 ### Staging and publication
 - Anonymous inode is regular, same-device, service-owned, link count zero before STAGED.
@@ -175,6 +177,7 @@ All tests use disposable temporary directories and unique payloads, including a 
 
 ## Explicit non-goals
 
+- No production FCJ3 journal file or production mover integration.
 - No FCJ3 recovery parser integration into `journal_recover()`.
 - No quarantine or unlink of real staging entries.
 - No prefix sweep or cleanup of abandoned names.

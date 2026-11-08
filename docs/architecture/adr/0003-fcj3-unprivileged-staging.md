@@ -1,6 +1,6 @@
 # ADR 0003: Unprivileged FCJ3 staging and isolated durable journal
 
-- Status: Proposed for owner review before implementation
+- Status: Accepted (2026-11-08; owner-approved by merging PR #45)
 - Date: 2026-11-08
 - Related: [FCJ3 schema](../../quality/FCJ3_JOURNAL_SCHEMA.md), [FCJ3 writer context](../../quality/FCJ3_WRITER_CONTEXT_DESIGN.md), [staging integration design](../../quality/FCJ3_STAGING_INTEGRATION_DESIGN.md), [threat model](../../security/THREAT_MODEL.md)
 

@@ -28,6 +28,17 @@ typedef struct
     struct stat staging_stat;
 } Fixture;
 
+static void make_child_path(char output[PATH_MAX],
+                             const char *root, const char *leaf)
+{
+    size_t root_length = strlen(root);
+    size_t leaf_length = strlen(leaf);
+    assert(root_length + 1U + leaf_length < PATH_MAX);
+    memcpy(output, root, root_length);
+    output[root_length] = '/';
+    memcpy(output + root_length + 1U, leaf, leaf_length + 1U);
+}
+
 static void fixture_init(Fixture *fixture)
 {
     char template_path[] = "/tmp/fcj3-writer-XXXXXX";
@@ -82,16 +93,15 @@ static void test_secure_context_and_serialized_lifecycle(void)
     char destination[PATH_MAX];
 
     fixture_init(&fixture);
-    (void)snprintf(source, sizeof(source), "%s/source.dat", fixture.root);
-    (void)snprintf(destination, sizeof(destination), "%s/destination.dat",
-                   fixture.root);
+    make_child_path(source, fixture.root, "source.dat");
+    make_child_path(destination, fixture.root, "destination.dat");
 
     memset(&context, 0, sizeof(context));
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,
         &fixture.directory_stat, ".fc-tmp-test", &fixture.staging_stat), 0);
     assert(context.initialized == 1);
     assert(context.sequence == 0);
-    assert(context.state == 0);
+    assert(context.state == FCJ3_STATE_NONE);
     assert(context.poisoned == 0);
     assert_lower_hex_id(context.operation_id);
 
@@ -152,8 +162,8 @@ static void test_failed_recovered_and_error_semantics(void)
     char destination[PATH_MAX];
 
     fixture_init(&fixture);
-    (void)snprintf(source, sizeof(source), "%s/source", fixture.root);
-    (void)snprintf(destination, sizeof(destination), "%s/dest", fixture.root);
+    make_child_path(source, fixture.root, "source");
+    make_child_path(destination, fixture.root, "dest");
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,
         &fixture.directory_stat, ".fc-tmp-test", &fixture.staging_stat), 0);
 

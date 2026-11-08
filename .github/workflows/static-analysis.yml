@@ -2,7 +2,7 @@ name: Static analysis baseline
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: ["main", "quality/explicit-source-list"]
     paths:
       - "CMakeLists.txt"
       - "src/**"

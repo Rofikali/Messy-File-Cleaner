@@ -129,6 +129,23 @@ if(BUILD_TESTING)
   target_compile_options(test_journal PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME journal_recovery_security COMMAND test_journal)
 
+  add_executable(test_process_crash_recovery
+    tests/integration/test_process_crash_recovery.c
+    src/mover/mover.c
+    src/utils/fs_utils.c
+    src/journal/journal.c
+  )
+  target_include_directories(test_process_crash_recovery PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_link_libraries(test_process_crash_recovery PRIVATE Threads::Threads)
+  target_compile_definitions(test_process_crash_recovery PRIVATE FC_TESTING)
+  target_compile_options(test_process_crash_recovery PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG
+  )
+  add_test(NAME process_crash_recovery COMMAND test_process_crash_recovery)
+  set_tests_properties(process_crash_recovery PROPERTIES TIMEOUT 40)
+
   add_executable(test_worker_lifecycle
     tests/integration/test_worker_lifecycle.c
     src/core/thread_pool.c

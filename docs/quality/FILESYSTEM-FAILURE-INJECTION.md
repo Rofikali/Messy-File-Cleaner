@@ -17,11 +17,14 @@ is not. The test-only seam can deterministically inject:
 
 - A one-shot `EINTR` from the destination write operation. The copy loop must
   retry and complete normally.
-- `ENOSPC` after a configured number of bytes have been written. The move must
+- `ENOSPC` or `EIO` after a configured number of bytes have been written. The move must
   fail, preserve the complete source, avoid publishing a partial destination,
   and remove its private temporary file.
 
-The seam is limited to the mover's destination-write path. It does not alter
+A separate test-only hook injects `EACCES` at temporary-file creation. This
+makes permission-path tests deterministic even when CI runs as root.
+
+The seam is compiled only into the mover test target. It does not alter
 production behavior or expose a runtime CLI/API.
 
 ## Next failure cases

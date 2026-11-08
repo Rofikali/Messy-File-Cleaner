@@ -290,6 +290,14 @@ static void test_random_failure_and_invalid_inputs(void)
     assert(context.initialized == 1);
     fcj3_operation_reset(&context);
 
+    /* Short reads are accumulated until all 128 random bits are obtained. */
+    fcj3_test_set_random_chunk_limit(3U);
+    CHECK_RESULT(fcj3_operation_init(&context, source, destination,
+        &directory_stat, ".fc-tmp-test", &regular_stat), 0);
+    assert_lower_hex_id(context.operation_id);
+    fcj3_operation_reset(&context);
+    fcj3_test_set_random_chunk_limit(0U);
+
     errno = 0;
     CHECK_RESULT(fcj3_operation_init(&context, "", destination,
         &directory_stat, ".fc-tmp-test", &regular_stat), -1);

@@ -46,7 +46,7 @@ The API uses a two-step protocol:
 2. The future journal adapter writes the complete line and fsyncs the journal.
 3. Only after successful durable append does the caller invoke `commit_transition`, which advances the in-memory state/sequence.
 
-A prepared transition records the prior state and sequence. A stale or duplicate prepared object cannot advance the context after another transition has committed. If a future append has a partial-write or fsync uncertainty, the caller must poison the context and stop appending; it must not guess whether the record became durable.
+A prepared transition records the prior state and sequence. A stale or duplicate prepared object cannot advance the context after another transition has committed. If commit detects a stale or tampered prepared record after append, it poisons the context automatically. If a future append has a partial-write or fsync uncertainty, the caller must also poison the context and stop appending; it must not guess whether the record became durable.
 
 This phase does not implement the journal adapter or the durable append step. The prepare/commit API exists to make that ordering explicit and testable.
 
@@ -73,6 +73,6 @@ This phase does not implement the journal adapter or the durable append step. Th
 - Context captures immutable metadata and validates file types and component policy.
 - All six states serialize only when their transition is legal and error semantics are correct.
 - Prepare does not mutate state; commit advances only the exact prepared transition.
-- A stale or tampered prepared transition, terminal transition, or poisoned context is rejected.
+- A stale or tampered prepared transition poisons the context; terminal transitions and poisoned contexts are rejected.
 - Parser round-trips every prepared record and validates the resulting replay.
 - C11/C17/C23 Debug and Release, sanitizer, Docker, Makefile, and Ubuntu validation pass.

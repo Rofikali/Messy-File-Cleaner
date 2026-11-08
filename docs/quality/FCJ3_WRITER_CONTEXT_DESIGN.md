@@ -37,7 +37,7 @@ The context owns:
 - current committed state and sequence;
 - an uncertainty/poison flag.
 
-The immutable fields cannot be changed by transition preparation. A context becomes unusable for further transitions after an uncertain append/fsync result is reported by a future journal adapter.
+The immutable fields cannot be changed by transition preparation. The context is single-owner and not internally thread-safe. A context becomes unusable for further transitions after an uncertain append/fsync result is reported by a future journal adapter.
 
 ## Transition API
 
@@ -54,7 +54,7 @@ This phase does not implement the journal adapter or the durable append step. Th
 
 - Exact 16-field FCJ3 grammar from FCJ3_JOURNAL_SCHEMA.md.
 - Canonical unsigned decimal fields, lowercase hex, byte lengths, and final LF.
-- Device/inode values serialized through uintmax_t decimal representation.
+- Device/inode values are round-trip checked into uint64_t and serialized as canonical unsigned decimal.
 - Bounded output using FCJ3_MAX_LINE_BYTES.
 - No locale-sensitive formatting and no path interpretation after the caller has validated the input strings.
 
@@ -73,6 +73,6 @@ This phase does not implement the journal adapter or the durable append step. Th
 - Context captures immutable metadata and validates file types and component policy.
 - All six states serialize only when their transition is legal and error semantics are correct.
 - Prepare does not mutate state; commit advances only the exact prepared transition.
-- A stale prepared transition, terminal transition, or poisoned context is rejected.
+- A stale or tampered prepared transition, terminal transition, or poisoned context is rejected.
 - Parser round-trips every prepared record and validates the resulting replay.
 - C11/C17/C23 Debug and Release, sanitizer, Docker, Makefile, and Ubuntu validation pass.

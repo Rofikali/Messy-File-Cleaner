@@ -266,6 +266,13 @@ static void test_random_failure_and_invalid_inputs(void)
     assert(context.initialized == 0);
     assert(context.operation_id[0] == '\0');
 
+    /* EINTR is retried; it must not trigger a weak fallback or abort. */
+    fcj3_test_set_random_error(EINTR);
+    CHECK_RESULT(fcj3_operation_init(&context, source, destination,
+        &directory_stat, ".fc-tmp-test", &regular_stat), 0);
+    assert(context.initialized == 1);
+    fcj3_operation_reset(&context);
+
     errno = 0;
     CHECK_RESULT(fcj3_operation_init(&context, "", destination,
         &directory_stat, ".fc-tmp-test", &regular_stat), -1);

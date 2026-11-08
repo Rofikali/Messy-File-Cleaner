@@ -1,0 +1,108 @@
+name: Static analysis baseline
+
+on:
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "CMakeLists.txt"
+      - "src/**"
+      - "include/**"
+      - "tests/**"
+      - ".github/workflows/static-analysis.yml"
+      - "docs/quality/**"
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: static-analysis-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  static-analysis:
+    name: Clang diagnostics, clang-tidy and cppcheck
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install analysis tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends clang clang-tidy cppcheck cmake ninja-build build-essential python3
+
+      - name: Record toolchain versions
+        run: |
+          mkdir -p reports
+          clang --version | head -n 1 | tee reports/tool-versions.txt
+          clang-tidy --version | head -n 1 | tee -a reports/tool-versions.txt
+          cppcheck --version | tee -a reports/tool-versions.txt
+          cmake --version | head -n 1 | tee -a reports/tool-versions.txt
+
+      - name: Configure Clang compilation database
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_C_COMPILER=clang \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTING=ON \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DFC_C_STANDARD=17
+
+      - name: Build with Clang diagnostics
+        run: |
+          set -o pipefail
+          cmake --build build --parallel 2 2>&1 | tee reports/clang-build.txt
+
+      - name: Run clang-tidy (report-only baseline)
+        shell: bash
+        run: |
+          set +e
+          clang-tidy -p build \
+            src/main.c \
+            src/classifier/classifier.c \
+            src/config/config.c \
+            src/core/lf_queue.c \
+            src/core/queue.c \
+            src/core/thread_pool.c \
+            src/journal/journal.c \
+            src/mover/mover.c \
+            src/scanner/scanner.c \
+            src/utils/fs_utils.c \
+            src/utils/hashmap.c \
+            src/watcher/watcher.c \
+            > reports/clang-tidy.txt 2>&1
+          result=$?
+          echo "clang-tidy exit code: $result"
+          echo "Initial baseline is report-only; findings require manual triage."
+          exit 0
+
+      - name: Run cppcheck (report-only baseline)
+        shell: bash
+        run: |
+          set +e
+          cppcheck \
+            --project=build/compile_commands.json \
+            --enable=warning,performance,portability \
+            --inline-suppr \
+            --suppress=missingIncludeSystem \
+            --template=gcc \
+            --jobs=2 \
+            --error-exitcode=0 \
+            > reports/cppcheck.txt 2>&1
+          result=$?
+          echo "cppcheck exit code: $result"
+          echo "Initial baseline is report-only; findings require manual triage."
+          exit 0
+
+      - name: Upload static analysis reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: static-analysis-reports
+          path: reports/
+          if-no-files-found: error
+          retention-days: 14

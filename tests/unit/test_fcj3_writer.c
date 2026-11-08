@@ -210,6 +210,13 @@ static void test_stale_prepared_record_and_uncertainty(void)
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STAGED,
                                                    0, 1U, &first), 0);
     stale = first;
+    stale.line[5] = '9'; /* tampering with serialized timestamp must be detected */
+    errno = 0;
+    CHECK_RESULT(fcj3_operation_commit_transition(&context, &stale), -1);
+    assert(errno == ESTALE);
+    assert(context.sequence == 0);
+
+    stale = first;
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &first), 0);
     errno = 0;
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &stale), -1);

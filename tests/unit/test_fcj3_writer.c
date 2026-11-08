@@ -48,6 +48,8 @@ static void fixture_init(Fixture *fixture)
         O_RDWR | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
     assert(fixture->staging_fd >= 0);
     assert(fstat(fixture->staging_fd, &fixture->staging_stat) == 0);
+    /* Model the anonymous O_TMPFILE snapshot before it is linked by name. */
+    fixture->staging_stat.st_nlink = 0;
 }
 
 static void fixture_destroy(Fixture *fixture)
@@ -241,7 +243,15 @@ static void test_random_failure_and_invalid_inputs(void)
 
     CHECK_RESULT(fstat(fixture.staging_fd, &regular_stat), 0);
     CHECK_RESULT(fstat(fixture.directory_fd, &directory_stat), 0);
+    assert(regular_stat.st_nlink > 0);
 
+    /* A named file cannot masquerade as the pre-link O_TMPFILE inode. */
+    errno = 0;
+    CHECK_RESULT(fcj3_operation_init(&context, source, destination,
+        &directory_stat, ".fc-tmp-test", &regular_stat), -1);
+    assert(errno == EINVAL);
+
+    regular_stat.st_nlink = 0;
     fcj3_test_set_random_error(EIO);
     errno = 0;
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,

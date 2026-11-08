@@ -173,9 +173,12 @@ int main(void)
 
     /* Journal append failures never authorize a move or overwrite. */
     char fail_before_path[PATH_MAX], partial_path[PATH_MAX], sync_fail_path[PATH_MAX];
+    char close_sync_fail_path[PATH_MAX], close_report_fail_path[PATH_MAX];
     make_path(fail_before_path, root, "fail-before.log");
     make_path(partial_path, root, "partial-tail.log");
     make_path(sync_fail_path, root, "sync-fail.log");
+    make_path(close_sync_fail_path, root, "close-sync-fail.log");
+    make_path(close_report_fail_path, root, "close-report-fail.log");
 
     char protected_source[PATH_MAX], protected_destination[PATH_MAX];
     make_path(protected_source, root, "protected-source.txt");
@@ -225,6 +228,37 @@ int main(void)
 
 
 
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
+
+    /* journal_close must use the same injectable fsync path as record append.
+       Even when final synchronization fails, it must close the stream and
+       report the durability error; recovery then reads the actual journal. */
+    CHECK_RESULT(journal_open(&journal, close_sync_fail_path), 0);
+    CHECK_RESULT(journal_record_started(&journal, protected_source,
+                                        protected_destination), 0);
+    fc_test_journal_set_fsync_error(EIO);
+    errno = 0;
+    CHECK_RESULT(journal_close(&journal), -1);
+    assert(errno == EIO);
+    CHECK_RESULT(journal_recover(close_sync_fail_path), 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
+
+    /* Simulate fclose reporting an error after the underlying stream was
+       actually closed. Successful recovery proves the journal lock/descriptor
+       was released despite the reported close error. */
+    CHECK_RESULT(journal_open(&journal, close_report_fail_path), 0);
+    CHECK_RESULT(journal_record_started(&journal, protected_source,
+                                        protected_destination), 0);
+    fc_test_journal_set_close_error(EIO);
+    errno = 0;
+    CHECK_RESULT(journal_close(&journal), -1);
+    assert(errno == EIO);
+    CHECK_RESULT(journal_recover(close_report_fail_path), 0);
+    assert(file_equals(protected_source, "source must survive"));
+    assert(file_equals(protected_destination, "destination must not be overwritten"));
+
+    
     /* State-specific failures: the last durable state governs recovery. */
     char published_fail_log[PATH_MAX], failed_fail_log[PATH_MAX];
     char completed_fail_log[PATH_MAX], recovered_fail_log[PATH_MAX];
@@ -298,6 +332,8 @@ int main(void)
     unlink(fail_before_path);
     unlink(partial_path);
     unlink(sync_fail_path);
+    unlink(close_sync_fail_path);
+    unlink(close_report_fail_path);
     unlink(published_fail_log);
     unlink(failed_fail_log);
     unlink(completed_fail_log);

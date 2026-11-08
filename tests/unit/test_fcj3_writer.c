@@ -347,6 +347,13 @@ static void test_random_failure_and_invalid_inputs(void)
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,
         &directory_stat, ".fc-tmp-test", &different_device), -1);
     assert(errno == EINVAL);
+
+    struct stat foreign_owner = regular_stat;
+    foreign_owner.st_uid = (uid_t)(geteuid() + 1U);
+    errno = 0;
+    CHECK_RESULT(fcj3_operation_init(&context, source, destination,
+        &directory_stat, ".fc-tmp-test", &foreign_owner), -1);
+    assert(errno == EINVAL);
     fcj3_test_set_random_error(EIO);
     errno = 0;
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,

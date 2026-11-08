@@ -147,16 +147,19 @@ static void test_secure_context_and_serialized_lifecycle(void)
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STARTED,
                                                    0, 101U, &prepared), 0);
     CHECK_RESULT(fcj3_replay_add_line(&replay, prepared.line, prepared.length), 0);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
 
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_PUBLISHED,
                                                    0, 102U, &prepared), 0);
     CHECK_RESULT(fcj3_replay_add_line(&replay, prepared.line, prepared.length), 0);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
 
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_COMPLETED,
                                                    0, 103U, &prepared), 0);
     CHECK_RESULT(fcj3_replay_add_line(&replay, prepared.line, prepared.length), 0);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
 
     assert(context.sequence == 4);
@@ -223,6 +226,7 @@ static void test_failed_recovered_and_error_semantics(void)
         &fixture.directory_stat, ".fc-tmp-test", &fixture.staging_stat), 0);
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STAGED,
                                                    0, 1U, &prepared), 0);
+    durably_append_test_record(fixture.journal_fd, &prepared);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &prepared), 0);
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_RECOVERED,
                                                    EIO, 2U, &prepared), 0);

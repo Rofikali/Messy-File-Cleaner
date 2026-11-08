@@ -64,10 +64,12 @@ These fields must be byte-for-byte/value-for-value identical in every record for
 - staging inode device and inode
 
 The staging component is one filename component, not a path. It must:
-- be nonempty and shorter than `NAME_MAX`;
+- start with the exact reserved prefix `.fc-tmp-` and have a nonempty suffix;
+- be shorter than `NAME_MAX`;
 - not equal `.` or `..`;
-- contain no slash, NUL, control byte, or path separator;
-- satisfy the documented private staging-name policy.
+- contain no slash, NUL, control byte, or path separator.
+
+The `.fc-tmp-` prefix is a namespace check, not ownership proof. Recovery must still verify the recorded parent directory and exact staging inode identity, and must use the private quarantine boundary before any unlink.
 
 The component name alone never proves ownership. Cleanup requires the operation ID's durable record plus exact parent-directory and staging inode identity checks. No prefix sweep is permitted.
 

@@ -13,6 +13,15 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - Keep compiler, C standard, and build type explicit in validation commands. Record OS/image, compiler version, CMake version, flags, and container limits with benchmark results.
 - Do not assume that Arch Linux, Debian, or host-installed tools are equivalent to the canonical development image.
 
+## Makefile developer workflow and command safety
+- Treat the repository `Makefile` as the primary documented local developer interface. Inspect `make help` and use its targets before inventing ad-hoc build/test commands; use direct CMake commands only when a needed target is not provided or when diagnosing the build system itself.
+- Use `make` for the default Debug + ASan/UBSan build, `make test` for the Debug CTest suite, and `make validate` for isolated C11/C17/C23 Debug build-and-test runs.
+- Keep build parallelism bounded. The Makefile defaults to `JOBS=2`; raise it only after checking available CPU and memory.
+- `make run` must remain a dry-run. Never invoke `make run-execute` unless the owner explicitly requests real file operations and the input root/configuration have been reviewed; the target requires `CONFIRM_MOVE=YES` as an additional guard.
+- Treat `make benchmark-moves` as a destructive test of its isolated temporary fixtures. Inspect the harness before changing its fixture/output behavior; never direct it at user data.
+- `make clean` is limited to build/profiling artifacts. Do not broaden its deletion scope without explicit review and isolated tests.
+- The Makefile is an interface, not a security boundary. Continue validating paths and options in the C application itself; quoting in shell recipes does not replace input validation.
+
 ## Architecture
 - Keep the first product as a modular C application. Do not introduce microservices, brokers, databases, or a web server without a demonstrated requirement.
 - Keep CLI, configuration, scanning, classification, queueing, moving, journaling, and platform filesystem operations behind clear module boundaries.

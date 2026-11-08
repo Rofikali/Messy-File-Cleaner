@@ -250,12 +250,13 @@ int fcj3_journal_append_transition(Fcj3Journal *journal,
                                    const Fcj3PreparedRecord *prepared)
 {
     if (journal == NULL || context == NULL || !journal->initialized ||
-        journal->fd < 0 || validate_prepared_record(prepared) != 0)
+        journal->fd < 0)
     {
-        if (errno == 0)
-            errno = EINVAL;
+        errno = EINVAL;
         return -1;
     }
+    if (validate_prepared_record(prepared) != 0)
+        return -1;
 
 #ifdef FC_TESTING
     atomic_store_explicit(&test_write_accepted, 0U, memory_order_release);
@@ -312,21 +313,20 @@ int fcj3_journal_close(Fcj3Journal *journal)
         return -1;
     }
 
-    int fd = journal->fd;
-    journal->fd = -1;
-    journal->initialized = 0;
-
     int mutex_error = pthread_mutex_destroy(&journal->mutex);
-    int close_result = close(fd);
-    int close_errno = errno;
-
-    memset(&journal->mutex, 0, sizeof(journal->mutex));
-
     if (mutex_error != 0)
     {
         errno = mutex_error;
         return -1;
     }
+
+    int fd = journal->fd;
+    journal->fd = -1;
+    journal->initialized = 0;
+    int close_result = close(fd);
+    int close_errno = errno;
+    memset(&journal->mutex, 0, sizeof(journal->mutex));
+
     if (close_result != 0)
     {
         errno = close_errno;

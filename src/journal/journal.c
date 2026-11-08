@@ -24,6 +24,10 @@ static atomic_int test_write_mode;
 static atomic_int test_write_error;
 static atomic_size_t test_partial_bytes;
 static atomic_int test_fsync_error;
+static char test_failure_state[16];
+static int test_failure_mode;
+static int test_failure_error;
+static size_t test_failure_partial;
 
 void fc_test_journal_set_write_failure(int mode, int error_code, size_t partial_bytes)
 {
@@ -35,6 +39,17 @@ void fc_test_journal_set_write_failure(int mode, int error_code, size_t partial_
 void fc_test_journal_set_fsync_error(int error_code)
 {
     atomic_store_explicit(&test_fsync_error, error_code, memory_order_release);
+}
+
+void fc_test_journal_set_state_write_failure(const char *state, int mode,
+                                             int error_code, size_t partial_bytes)
+{
+    if (!state || strlen(state) >= sizeof(test_failure_state))
+        return;
+    (void)snprintf(test_failure_state, sizeof(test_failure_state), "%s", state);
+    test_failure_mode = mode;
+    test_failure_error = error_code;
+    test_failure_partial = partial_bytes;
 }
 
 static ssize_t journal_write_once(int fd, const void *buffer, size_t length)
@@ -343,6 +358,16 @@ static int append_record(FILE *fp, const char *state,
         errno = EOVERFLOW;
         return -1;
     }
+
+    /* State-targeted injection lets tests exercise each transition boundary. */
+#ifdef FC_TESTING
+    if (test_failure_state[0] != '\0' &&
+        strcmp(test_failure_state, state) == 0) {
+        test_failure_state[0] = '\0';
+        fc_test_journal_set_write_failure(test_failure_mode, test_failure_error,
+                                          test_failure_partial);
+    }
+#endif
 
     /* Keep stdio and descriptor I/O coherent before appending the record. */
     if (fflush(fp) != 0)

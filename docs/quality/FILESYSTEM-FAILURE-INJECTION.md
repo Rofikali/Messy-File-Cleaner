@@ -97,3 +97,8 @@ Journal shutdown now uses the same retry-on-`EINTR` synchronization wrapper as r
 The close-error hook exists only under `FC_TESTING`. It intentionally performs the real `fclose()` before injecting the reported error so the test cannot leak the descriptor or retain the journal lock.
 
 The journal uses descriptor-based `write()` calls for records and synchronizes them before returning. The stream flush checks remain defensive handle-coordination checks; the tests do not claim to simulate a buffered stdio flush failure when the journal has no pending stdio output.
+
+
+## Journal lifecycle contract
+
+The journal mutex serializes concurrent record appends. It does not make `journal_close()` safe to race with a record call: the close path disables the journal and destroys its mutex after closing the stream. The application must stop and join all worker threads that can append journal records before closing the journal. The current application shutdown sequence joins workers before calling `journal_close()`. This ownership/lifecycle rule is part of the journal API contract.

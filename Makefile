@@ -21,6 +21,14 @@ MOVE_BENCH_WORKERS ?= 2
 MOVE_BENCH_BYTES  ?= 1024
 MOVE_BENCH_OUTPUT ?= benchmark-results/cli-moves
 
+# Restrict build parallelism to a predictable, reviewable range.
+ifneq ($(filter-out 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16,$(JOBS)),)
+$(error JOBS must be an integer from 1 through 16)
+endif
+
+# Quote caller-overridable path/argument values for POSIX shells.
+shquote = '$(subst ','"'"',$(1))'
+
 .PHONY: all debug release profile test validate run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help
 
 all: debug
@@ -57,12 +65,12 @@ validate:
 	done
 
 run: debug
-	@./"$(TARGET_DEBUG)" "$(GENERATED_FILES)" --dry-run
+	@./"$(TARGET_DEBUG)" $(call shquote,$(GENERATED_FILES)) --dry-run
 
 # This target can move files. It is disabled unless the caller opts in explicitly.
 ifeq ($(CONFIRM_MOVE),YES)
 run-execute: debug
-	@./"$(TARGET_DEBUG)" "$(GENERATED_FILES)"
+	@./"$(TARGET_DEBUG)" $(call shquote,$(GENERATED_FILES))
 else
 run-execute:
 	@echo "Refusing real file operations. Re-run with CONFIRM_MOVE=YES after reviewing the input folder."; exit 2
@@ -70,24 +78,24 @@ endif
 
 perf: profile
 	@echo "Profiling dry-run path; this does not move files."
-	@sudo perf stat -e cycles,instructions,cache-misses,branch-misses ./ "$(TARGET_PROFILE)" "$(GENERATED_FILES)" --dry-run
+	@sudo perf stat -e cycles,instructions,cache-misses,branch-misses ./ "$(TARGET_PROFILE)" $(call shquote,$(GENERATED_FILES)) --dry-run
 
 perf-record: profile
 	@echo "Recording dry-run profile."
-	@sudo perf record -g ./ "$(TARGET_PROFILE)" "$(GENERATED_FILES)" --dry-run
+	@sudo perf record -g ./ "$(TARGET_PROFILE)" $(call shquote,$(GENERATED_FILES)) --dry-run
 	@sudo perf report
 
 gprof: profile
-	@./"$(TARGET_PROFILE)" "$(GENERATED_FILES)" --dry-run
+	@./"$(TARGET_PROFILE)" $(call shquote,$(GENERATED_FILES)) --dry-run
 	@gprof "$(TARGET_PROFILE)" gmon.out | less
 
 benchmark: release
-	@python3 tests/performance/benchmark_cli.py --binary "$(TARGET_RELEASE)" --config configs/default.conf --files "$(BENCH_FILES)" --runs "$(BENCH_RUNS)" --workers "$(BENCH_WORKERS)" --output "$(BENCH_OUTPUT)"
+	@python3 tests/performance/benchmark_cli.py --binary "$(TARGET_RELEASE)" --config configs/default.conf --files "$(BENCH_FILES)" --runs "$(BENCH_RUNS)" --workers "$(BENCH_WORKERS)" --output $(call shquote,$(BENCH_OUTPUT))
 
 # The benchmark harness creates isolated temporary fixtures; inspect its report.
 # It performs actual file moves inside those fixtures, never on GENERATED_FILES.
 benchmark-moves: release
-	@python3 tests/performance/benchmark_moves.py --binary "$(TARGET_RELEASE)" --config configs/default.conf --files "$(MOVE_BENCH_FILES)" --bytes-per-file "$(MOVE_BENCH_BYTES)" --runs "$(MOVE_BENCH_RUNS)" --workers "$(MOVE_BENCH_WORKERS)" --output "$(MOVE_BENCH_OUTPUT)"
+	@python3 tests/performance/benchmark_moves.py --binary "$(TARGET_RELEASE)" --config configs/default.conf --files "$(MOVE_BENCH_FILES)" --bytes-per-file "$(MOVE_BENCH_BYTES)" --runs "$(MOVE_BENCH_RUNS)" --workers "$(MOVE_BENCH_WORKERS)" --output $(call shquote,$(MOVE_BENCH_OUTPUT))
 
 asm:
 	@mkdir -p build/asm

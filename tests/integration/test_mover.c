@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,6 +50,85 @@ static void make_path(char output[PATH_MAX], const char *root, const char *name)
     assert(n > 0 && n < PATH_MAX);
 }
 
+static void assert_no_private_destination_files(const char *directory)
+{
+    DIR *dir = opendir(directory);
+    assert(dir != NULL);
+    if (dir == NULL)
+        return;
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        assert(strncmp(entry->d_name, ".fc-tmp-", 8) != 0);
+        assert(strncmp(entry->d_name, ".fc-retire-", 11) != 0);
+    }
+    int close_rc = closedir(dir);
+    assert(close_rc == 0);
+    (void)close_rc;
+}
+
+static void assert_path_missing(const char *path)
+{
+    int rc = access(path, F_OK);
+    int saved_errno = errno;
+    assert(rc != 0 && saved_errno == ENOENT);
+    (void)rc;
+}
+
+static void test_copy_failure_preserves_source(const char *source_dir,
+                                               const char *destination_dir)
+{
+    char source[PATH_MAX], destination[PATH_MAX];
+    make_path(source, source_dir, "partial-failure.bin");
+    make_path(destination, destination_dir, "partial-failure.bin");
+    write_text(source, "0123456789abcdef");
+
+    MoveResult result;
+    int move_rc;
+    fc_test_mover_set_write_fault(FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL, 4);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == -1);
+    (void)move_rc;
+    assert(errno == ENOSPC);
+    assert(result.error_code == ENOSPC);
+    assert_text(source, "0123456789abcdef");
+    assert_path_missing(destination);
+    assert_no_private_destination_files(destination_dir);
+
+    /* A partial write followed by EIO has the same source-preservation rule. */
+    fc_test_mover_set_write_fault(FC_TEST_WRITE_EIO_AFTER_PARTIAL, 5);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == -1);
+    (void)move_rc;
+    assert(errno == EIO);
+    assert(result.error_code == EIO);
+    assert_text(source, "0123456789abcdef");
+    assert_path_missing(destination);
+    assert_no_private_destination_files(destination_dir);
+
+    /* Permission failure at temp creation is deterministic, even as root. */
+    fc_test_mover_set_temp_create_error(EACCES);
+    errno = 0;
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == -1);
+    (void)move_rc;
+    assert(errno == EACCES);
+    assert(result.error_code == EACCES);
+    assert_text(source, "0123456789abcdef");
+    assert_path_missing(destination);
+    assert_no_private_destination_files(destination_dir);
+
+    fc_test_mover_set_write_fault(FC_TEST_WRITE_EINTR_ONCE, 0);
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    assert(move_rc == 0);
+    (void)move_rc;
+    assert_text(destination, "0123456789abcdef");
+    assert_path_missing(source);
+    assert_no_private_destination_files(destination_dir);
+    unlink(destination);
+}
+
 int main(void)
 {
     char root_template[] = "/tmp/fc-mover-XXXXXX";
@@ -77,6 +157,9 @@ int main(void)
     assert_text(existing, "do not overwrite");
     assert_text(expected_destination, "source contents");
     assert(strcmp(result.destination, expected_destination) == 0);
+
+    /* Injected partial-write ENOSPC and one-shot EINTR are deterministic. */
+    test_copy_failure_preserves_source(source_dir, destination_dir);
 
     /* A symlink source is rejected; its target and link remain untouched. */
     char target[PATH_MAX], symlink_source[PATH_MAX];

@@ -115,6 +115,7 @@ if(BUILD_TESTING)
   )
   target_include_directories(test_mover PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_link_libraries(test_mover PRIVATE Threads::Threads)
+  target_compile_definitions(test_mover PRIVATE FC_TESTING)
   target_compile_options(test_mover PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME mover_security COMMAND test_mover)
 

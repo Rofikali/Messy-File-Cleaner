@@ -28,6 +28,54 @@
 /* Static-duration atomic objects are zero-initialized in C11 and later. */
 static atomic_ulong temp_sequence;
 
+#ifdef FC_TESTING
+static atomic_int test_write_fault;
+static atomic_long test_write_budget;
+static atomic_int test_temp_create_error;
+
+void fc_test_mover_set_write_fault(int fault, long bytes_before_failure)
+{
+    atomic_store_explicit(&test_write_budget, bytes_before_failure, memory_order_relaxed);
+    atomic_store_explicit(&test_write_fault, fault, memory_order_release);
+}
+
+void fc_test_mover_set_temp_create_error(int error_code)
+{
+    atomic_store_explicit(&test_temp_create_error, error_code, memory_order_release);
+}
+
+static ssize_t mover_write(int fd, const void *buffer, size_t count)
+{
+    int fault = atomic_load_explicit(&test_write_fault, memory_order_acquire);
+    if (fault == FC_TEST_WRITE_EINTR_ONCE) {
+        int expected = FC_TEST_WRITE_EINTR_ONCE;
+        if (atomic_compare_exchange_strong_explicit(&test_write_fault, &expected,
+                                                    FC_TEST_WRITE_NONE,
+                                                    memory_order_acq_rel,
+                                                    memory_order_relaxed)) {
+            errno = EINTR;
+            return -1;
+        }
+    } else if (fault == FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL ||
+               fault == FC_TEST_WRITE_EIO_AFTER_PARTIAL) {
+        long budget = atomic_load_explicit(&test_write_budget, memory_order_relaxed);
+        if (budget <= 0) {
+            errno = fault == FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL ? ENOSPC : EIO;
+            return -1;
+        }
+        if ((size_t)budget < count)
+            count = (size_t)budget;
+        ssize_t written = write(fd, buffer, count);
+        if (written > 0)
+            atomic_fetch_sub_explicit(&test_write_budget, written, memory_order_relaxed);
+        return written;
+    }
+    return write(fd, buffer, count);
+}
+#else
+#define mover_write write
+#endif
+
 static int rename_noreplace(int old_dirfd, const char *old_name,
                             int new_dirfd, const char *new_name)
 {
@@ -196,6 +244,14 @@ static int build_candidate(const char *original, unsigned int index,
 
 static int create_temp_file(int directory_fd, char name[NAME_MAX + 1])
 {
+#ifdef FC_TESTING
+    int injected_error = atomic_exchange_explicit(&test_temp_create_error, 0,
+                                                   memory_order_acq_rel);
+    if (injected_error != 0) {
+        errno = injected_error;
+        return -1;
+    }
+#endif
     for (unsigned int attempt = 0; attempt < 1000; attempt++)
     {
         unsigned long sequence = atomic_fetch_add_explicit(&temp_sequence, 1, memory_order_relaxed) + 1UL;
@@ -239,7 +295,7 @@ static int copy_fd(int source_fd, int destination_fd, const struct stat *initial
         ssize_t offset = 0;
         while (offset < count)
         {
-            ssize_t written = write(destination_fd, buffer + offset,
+            ssize_t written = mover_write(destination_fd, buffer + offset,
                                     (size_t)(count - offset));
             if (written < 0)
             {

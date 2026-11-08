@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/random.h>
+#include <unistd.h>
 
 #ifdef FC_TESTING
 static atomic_int test_random_error;
@@ -180,6 +181,7 @@ int fcj3_operation_init(Fcj3OperationContext *context,
         destination_length == 0 || destination_length >= PATH_MAX ||
         !S_ISDIR(destination_directory->st_mode) ||
         !S_ISREG(staging_inode->st_mode) ||
+        staging_inode->st_uid != geteuid() ||
         staging_inode->st_nlink != 0 ||
         staging_inode->st_dev != destination_directory->st_dev ||
         !valid_staging_component(staging_component, staging_length))

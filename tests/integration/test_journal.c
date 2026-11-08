@@ -272,6 +272,9 @@ int main(void)
     assert(journal_recover(completed_fail_log) == 0);
     assert(file_equals(transition_dest, "existing published destination"));
 
+    /* Recreate the source for a separate STARTED-only recovery case. */
+    create_file(transition_source, "transition source");
+
     /* Failure to append RECOVERED is retryable and never mutates user paths. */
     assert(journal_open(&journal, recovered_fail_log) == 0);
     assert(journal_record_started(&journal, transition_source, transition_dest) == 0);

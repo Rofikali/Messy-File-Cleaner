@@ -96,42 +96,6 @@ static const char *state_name(Fcj3State state)
     }
 }
 
-static int legal_next_state(Fcj3State previous, Fcj3State next)
-{
-    switch (previous)
-    {
-        case 0:
-            return next == FCJ3_STATE_STAGED;
-        case FCJ3_STATE_STAGED:
-            return next == FCJ3_STATE_STARTED ||
-                   next == FCJ3_STATE_FAILED ||
-                   next == FCJ3_STATE_RECOVERED;
-        case FCJ3_STATE_STARTED:
-            return next == FCJ3_STATE_PUBLISHED ||
-                   next == FCJ3_STATE_FAILED ||
-                   next == FCJ3_STATE_RECOVERED;
-        case FCJ3_STATE_PUBLISHED:
-            return next == FCJ3_STATE_COMPLETED ||
-                   next == FCJ3_STATE_RECOVERED;
-        case FCJ3_STATE_COMPLETED:
-        case FCJ3_STATE_FAILED:
-        case FCJ3_STATE_RECOVERED:
-        default:
-            return 0;
-    }
-}
-
-static int valid_error_code(Fcj3State state, int error_code)
-{
-    if (error_code < 0)
-        return 0;
-    if (state == FCJ3_STATE_FAILED)
-        return error_code != 0;
-    if (state == FCJ3_STATE_RECOVERED)
-        return 1;
-    return error_code == 0;
-}
-
 static int hex_encode(const char *input, size_t length,
                       char *output, size_t capacity)
 {
@@ -183,6 +147,8 @@ int fcj3_operation_init(Fcj3OperationContext *context,
         destination_length == 0 || destination_length >= PATH_MAX ||
         !S_ISDIR(destination_directory->st_mode) ||
         !S_ISREG(staging_inode->st_mode) ||
+        staging_inode->st_nlink != 0 ||
+        staging_inode->st_dev != destination_directory->st_dev ||
         !valid_staging_component(staging_component, staging_length))
     {
         errno = EINVAL;
@@ -275,8 +241,8 @@ int fcj3_operation_prepare_transition(const Fcj3OperationContext *context,
     }
 
     name = state_name(next_state);
-    if (!name || !legal_next_state(context->state, next_state) ||
-        !valid_error_code(next_state, error_code) ||
+    if (!name || !fcj3_transition_is_valid(context->state, next_state) ||
+        !fcj3_error_code_is_valid(next_state, error_code) ||
         context->sequence >= 4U)
     {
         errno = EBADMSG;
@@ -318,8 +284,8 @@ int fcj3_operation_commit_transition(Fcj3OperationContext *context,
         context->sequence != prepared->previous_sequence ||
         context->state != prepared->previous_state ||
         prepared->sequence != context->sequence + 1U ||
-        !legal_next_state(context->state, prepared->state) ||
-        !valid_error_code(prepared->state, prepared->error_code) ||
+        !fcj3_transition_is_valid(context->state, prepared->state) ||
+        !fcj3_error_code_is_valid(prepared->state, prepared->error_code) ||
         prepared->length == 0 ||
         prepared->length > FCJ3_MAX_LINE_BYTES ||
         prepared->line[prepared->length - 1U] != '\n')

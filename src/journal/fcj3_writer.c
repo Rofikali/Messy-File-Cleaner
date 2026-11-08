@@ -184,6 +184,7 @@ int fcj3_operation_init(Fcj3OperationContext *context,
         errno = EOVERFLOW;
         return -1;
     }
+    (void)identity_check;
 
     if (secure_random_id(context->operation_id) != 0)
     {

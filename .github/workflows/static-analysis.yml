@@ -90,7 +90,7 @@ jobs:
             --inline-suppr \
             --suppress=missingIncludeSystem \
             --template=gcc \
-            --jobs=2 \
+            -j 2 \
             --error-exitcode=0 \
             > reports/cppcheck.txt 2>&1
           result=$?

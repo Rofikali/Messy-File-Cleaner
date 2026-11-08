@@ -15,7 +15,7 @@ Enabling a writer before the staging lifecycle is ready could create FCJ3 record
 Implement an isolated operation-context and record-encoding module:
 - obtain 128-bit identity only from Linux getrandom(), with EINTR/short-read handling and no weak fallback;
 - capture and own immutable metadata from caller-provided stat snapshots;
-- validate destination-directory and staging-file types, require the pre-link O_TMPFILE inode to have st_nlink == 0 and the same st_dev as its destination directory, and validate the reserved .fc-tmp- component namespace;
+- validate destination-directory and staging-file types, require the pre-link O_TMPFILE inode to be owned by the effective service UID, have st_nlink == 0, and have the same st_dev as its destination directory, and validate the reserved .fc-tmp- component namespace;
 - separate transition preparation from commit so state advances only after a future journal adapter reports a successful durable append;
 - poison the context after an uncertain append/fsync result;
 - compile the module only into dedicated tests until O_TMPFILE staging and journal integration are separately reviewed.

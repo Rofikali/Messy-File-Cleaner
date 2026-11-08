@@ -86,7 +86,7 @@ static void test_copy_failure_preserves_source(const char *source_dir,
     int move_rc;
     fc_test_mover_set_write_fault(FC_TEST_WRITE_ENOSPC_AFTER_PARTIAL, 4);
     errno = 0;
-    int move_rc = move_file_journaled(source, destination_dir, NULL, &result);
+    move_rc = move_file_journaled(source, destination_dir, NULL, &result);
     assert(move_rc == -1);
     (void)move_rc;
     assert(errno == ENOSPC);

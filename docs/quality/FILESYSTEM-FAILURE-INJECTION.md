@@ -27,17 +27,24 @@ makes permission-path tests deterministic even when CI runs as root.
 The seam is compiled only into the mover test target. It does not alter
 production behavior or expose a runtime CLI/API.
 
-## Next failure cases
+## Second slice: post-copy mover failures
 
-Add deterministic injection and assertions for:
+The follow-up mover tests add deterministic, test-only injection for:
 
-1. `EACCES` while opening/creating destination components.
-2. `EIO` during copy and `ENOSPC` during metadata synchronization.
-3. Interrupted read, write, and synchronization calls.
-4. Failure while publishing the destination.
-5. Failure while retiring the source and while syncing source/destination
-   directory entries.
-6. Journal append/flush failures and recovery after each durable state.
+- Temporary-file `fsync()` failure before publication: source remains and the incomplete private destination is removed.
+- Destination publication failure: source remains and no destination is published.
+- Destination-directory `fsync()` failure after publication: retain both complete source and destination copies; never attempt a destructive rollback.
+- Source-retirement failure before quarantine rename: retain both complete copies.
+- Source-directory `fsync()` failure after the quarantine entry is unlinked: return the durability error but retain the already-published destination. The source pathname has been retired at this point; this is a distinct state from failures before retirement and must not be described as source-preserving.
+
+The fsync hook uses explicit call order (temporary file, destination directory, source directory) and is compiled only into the test target.
+
+## Remaining failure cases
+
+1. Journal append, flush, and fsync failures; recovery after each durable state.
+2. Interrupted read and synchronization calls, including retry behavior.
+3. Directory creation and permission failures at each path component.
+4. Recovery and reconciliation for quarantined source entries left by interruption.
 
 Each test must assert source bytes, destination bytes, private temporary files,
 journal state, and return/errno behavior. Tests must not depend on host

@@ -159,7 +159,7 @@ static void test_canonical_encoding_rejection(void)
     {
         char *separator = strchr(changed + 5, '|');
         assert(separator != NULL);
-        memmove(changed + 6, separator, strlen(separator) + 1U);
+        memmove(changed + 7, separator, strlen(separator) + 1U);
         changed[5] = '0';
         changed[6] = '1';
         expect_bad(changed, length + 1U, EBADMSG);
@@ -169,8 +169,9 @@ static void test_canonical_encoding_rejection(void)
     changed[5] = '+';
     expect_bad(changed, length, EBADMSG);
 
-    memcpy(changed, line, length + 1U);
+    memcpy(changed, line, 5U);
     memcpy(changed + 5, "18446744073709551616", 20U);
+    memcpy(changed + 25, line + 6, length - 6U + 1U);
     expect_bad(changed, length + 19U, EBADMSG);
 
     memcpy(changed, line, length + 1U);

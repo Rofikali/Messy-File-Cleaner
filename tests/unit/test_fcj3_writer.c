@@ -259,25 +259,44 @@ static void test_stale_prepared_record_and_uncertainty(void)
     fixture_init(&fixture);
     make_child_path(source, fixture.root, "source");
     make_child_path(destination, fixture.root, "dest");
+
+    /* If a durable append is followed by a tampered commit, poison the context. */
     CHECK_RESULT(fcj3_operation_init(&context, source, destination,
         &fixture.directory_stat, ".fc-tmp-test", &fixture.staging_stat), 0);
-
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STAGED,
                                                    0, 1U, &first), 0);
     stale = first;
-    stale.line[5] = '9'; /* tampering with serialized timestamp must be detected */
+    stale.line[5] = '9';
+    durably_append_test_record(fixture.journal_fd, &first);
     errno = 0;
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &stale), -1);
     assert(errno == ESTALE);
-    assert(context.sequence == 0);
+    assert(context.sequence == 0 && context.poisoned == 1);
+    errno = 0;
+    CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STARTED,
+                                                   0, 2U, &first), -1);
+    assert(errno == EIO);
+    fcj3_operation_reset(&context);
 
+    /* A duplicate/stale commit after a successful transition also poisons. */
+    CHECK_RESULT(fcj3_operation_init(&context, source, destination,
+        &fixture.directory_stat, ".fc-tmp-test", &fixture.staging_stat), 0);
+    CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STAGED,
+                                                   0, 1U, &first), 0);
     stale = first;
     durably_append_test_record(fixture.journal_fd, &first);
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &first), 0);
     errno = 0;
     CHECK_RESULT(fcj3_operation_commit_transition(&context, &stale), -1);
     assert(errno == ESTALE);
+    assert(context.poisoned == 1);
+    fcj3_operation_reset(&context);
 
+    /* Explicitly poison after a simulated partial-write/fsync uncertainty. */
+    CHECK_RESULT(fcj3_operation_init(&context, source, destination,
+        &fixture.directory_stat, ".fc-tmp-test", &fixture.staging_stat), 0);
+    CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STAGED,
+                                                   0, 1U, &first), 0);
     fcj3_operation_mark_uncertain(&context);
     errno = 0;
     CHECK_RESULT(fcj3_operation_prepare_transition(&context, FCJ3_STATE_STARTED,

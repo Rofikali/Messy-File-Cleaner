@@ -532,11 +532,64 @@ int fcj4_replay_operation(const Fcj4Replay *replay, size_t index,
                           Fcj4OperationView *out)
 {
     const Fcj4Operation *ops;
+    const Fcj4Operation *op;
     if (!replay || !out || index>=replay->count || !replay->operations)
         return -1;
     ops=(const Fcj4Operation *)replay->operations;
-    memcpy(out->operation_id,ops[index].id,sizeof(out->operation_id));
-    out->action_count=ops[index].action_count;
-    out->move_state=ops[index].move_state;
+    op=&ops[index];
+    memset(out,0,sizeof(*out));
+    memcpy(out->operation_id,op->id,sizeof(out->operation_id));
+    out->source_path=op->source_path;
+    out->destination_path=op->destination_path;
+    out->destination_basename=op->destination_basename;
+    out->stage_component=op->has_sealed ? op->stage_component : NULL;
+    out->stage_sha256=op->has_sealed ? op->stage_digest : NULL;
+    out->source_parent_dev=op->source_parent_dev;
+    out->source_parent_ino=op->source_parent_ino;
+    out->source_dev=op->source_dev; out->source_ino=op->source_ino;
+    out->source_uid=op->source_uid; out->source_gid=op->source_gid;
+    out->source_mode=op->source_mode; out->source_size=op->source_size;
+    out->source_mtime_sec=op->source_mtime_sec;
+    out->source_mtime_nsec=op->source_mtime_nsec;
+    out->source_ctime_sec=op->source_ctime_sec;
+    out->source_ctime_nsec=op->source_ctime_nsec;
+    out->destination_parent_dev=op->destination_parent_dev;
+    out->destination_parent_ino=op->destination_parent_ino;
+    out->quarantine_parent_dev=op->quarantine_parent_dev;
+    out->quarantine_parent_ino=op->quarantine_parent_ino;
+    out->stage_dev=op->stage_dev; out->stage_ino=op->stage_ino;
+    out->stage_uid=op->stage_uid; out->stage_mode=op->stage_mode;
+    out->stage_size=op->stage_size;
+    out->action_count=op->action_count;
+    out->move_state=op->move_state;
+    return 0;
+}
+
+int fcj4_replay_action(const Fcj4Replay *replay, size_t operation_index,
+                       size_t action_index, Fcj4ActionView *out)
+{
+    const Fcj4Operation *ops;
+    const Fcj4Action *action;
+    if (!replay || !out || !replay->operations ||
+        operation_index>=replay->count) return -1;
+    ops=(const Fcj4Operation *)replay->operations;
+    if (action_index>=ops[operation_index].action_count) return -1;
+    action=&ops[operation_index].actions[action_index];
+    memset(out,0,sizeof(*out));
+    memcpy(out->action_id,action->id,sizeof(out->action_id));
+    out->kind=(Fcj4ActionKind)action->kind;
+    out->target_role=(Fcj4TargetRole)action->role;
+    out->source_component=action->source_component;
+    out->target_component=action->role==FCJ4_TARGET_QUARANTINE
+        ? action->target_component : NULL;
+    out->expected_parent_dev=action->parent_dev;
+    out->expected_parent_ino=action->parent_ino;
+    out->expected_entry_dev=action->entry_dev;
+    out->expected_entry_ino=action->entry_ino;
+    out->expected_uid=action->uid; out->expected_mode=action->mode;
+    out->expected_size=action->size;
+    out->expected_sha256=action->digest;
+    out->state=action->state;
+    out->sequence=action->sequence;
     return 0;
 }

@@ -142,11 +142,22 @@ static void child_transaction(const char *root, CrashPoint requested)
     if (fcj3_stage_sync(&stage, &stage_metadata) != 0)
         _exit(16);
 
+    char source_path[PATH_MAX];
+    char destination_path[PATH_MAX];
+    int source_length = snprintf(source_path, sizeof(source_path), "%s/%s",
+                                 root, SOURCE_NAME);
+    int destination_length = snprintf(destination_path, sizeof(destination_path),
+                                      "%s/%s", root, DEST_NAME);
+    if (source_length <= 0 || (size_t)source_length >= sizeof(source_path) ||
+        destination_length <= 0 ||
+        (size_t)destination_length >= sizeof(destination_path))
+        _exit(17);
+
     Fcj3OperationContext context;
-    if (fcj3_operation_init(&context, SOURCE_NAME, DEST_NAME,
+    if (fcj3_operation_init(&context, source_path, destination_path,
                             &directory_metadata, STAGE_NAME,
                             &stage_metadata) != 0)
-        _exit(17);
+        _exit(18);
 
     Fcj3Journal journal;
     if (fcj3_journal_open_at(&journal, rootfd, JOURNAL_NAME, geteuid()) != 0)

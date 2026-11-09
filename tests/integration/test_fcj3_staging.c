@@ -561,6 +561,51 @@ static void test_retained_stage_descriptor_mutation_is_rejected(void)
     fixture_destroy(&fixture);
 }
 
+
+static void test_mutation_after_link_blocks_publication(void)
+{
+    static const char payload[] = "mutation after link must block publish";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+    int borrowed_stage_fd = fcj3_stage_fd(&stage);
+    assert(borrowed_stage_fd >= 0);
+
+    struct stat source_snapshot;
+    struct stat staging_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    CHECK(fcj3_stage_sync(&stage, &staging_snapshot));
+    CHECK(fcj3_stage_link(&stage));
+
+    fcj3_stage_test_mutate_stage_before_publish(borrowed_stage_fd);
+    errno = 0;
+    assert(fcj3_stage_publish(&stage, "destination.bin") == -1);
+    assert(errno == ESTALE);
+    struct stat visible;
+    CHECK(fstatat(fixture.directory_fd, component, &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+    assert(fstatat(fixture.directory_fd, "destination.bin", &visible, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    CHECK(fstatat(fixture.directory_fd, component, &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+    assert(unlinkat(fixture.directory_fd, component, 0) == 0);
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
 int main(void)
 {
     test_publish_preserves_source_and_exact_inode();
@@ -571,6 +616,7 @@ int main(void)
     test_link_directory_fsync_failure_preserves_stage_name();
     test_publish_directory_fsync_failure_preserves_destination();
     test_retained_stage_descriptor_mutation_is_rejected();
+    test_mutation_after_link_blocks_publication();
     puts("FCJ3 isolated staging lifecycle tests passed");
     return 0;
 }

@@ -41,7 +41,25 @@ static void test_valid_complete_replay(void)
     Fcj4Replay replay;
     Fcj4OperationView view;
     fcj4_replay_init(&replay);
-    assert(fcj4_replay_parse(bytes,length,&replay)==0);
+    if (fcj4_replay_parse(bytes,length,&replay)!=0) {
+        size_t offset=0U, line_number=0U;
+        while (offset<length) {
+            const char *newline=memchr(bytes+offset,'\\n',length-offset);
+            Fcj4Replay prefix;
+            assert(newline!=NULL);
+            offset=(size_t)(newline-bytes)+1U;
+            line_number++;
+            fcj4_replay_init(&prefix);
+            if (fcj4_replay_parse(bytes,offset,&prefix)!=0) {
+                fprintf(stderr,"FCJ4 rejected prefix ending at record %zu (errno=%d)\\n",
+                        line_number,errno);
+                fcj4_replay_destroy(&prefix);
+                break;
+            }
+            fcj4_replay_destroy(&prefix);
+        }
+        assert(!"valid FCJ4 fixture was rejected");
+    }
     assert(replay.count==1U);
     assert(replay.record_count==12U);
     assert(fcj4_replay_operation(&replay,0U,&view)==0);

@@ -159,16 +159,22 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
     }
 
     struct stat staging_metadata;
-    if (fstat(staging_fd, &staging_metadata) != 0 ||
-        !S_ISREG(staging_metadata.st_mode) ||
+    if (fstat(staging_fd, &staging_metadata) != 0)
+    {
+        int saved_errno = errno;
+        (void)close(staging_fd);
+        (void)close(procfs_fd);
+        errno = saved_errno;
+        return -1;
+    }
+    if (!S_ISREG(staging_metadata.st_mode) ||
         staging_metadata.st_uid != expected_owner ||
         staging_metadata.st_nlink != 0 ||
         staging_metadata.st_dev != directory_metadata.st_dev)
     {
-        int saved_errno = errno != 0 ? errno : EPERM;
         (void)close(staging_fd);
         (void)close(procfs_fd);
-        errno = saved_errno;
+        errno = EPERM;
         return -1;
     }
 
@@ -188,7 +194,8 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
 
 int fcj3_stage_fd(const Fcj3Stage *stage)
 {
-    if (stage == NULL || !stage->initialized || stage->staging_fd < 0)
+    if (stage == NULL || !stage->initialized || stage->staging_fd < 0 ||
+        stage->synced)
     {
         errno = EINVAL;
         return -1;
@@ -278,8 +285,7 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
         !stage->linked || stage->published ||
         !valid_component(final_component, ""))
     {
-        if (errno == 0)
-            errno = EINVAL;
+        errno = EINVAL;
         return -1;
     }
 

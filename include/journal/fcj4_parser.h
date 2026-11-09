@@ -48,6 +48,7 @@ typedef struct {
 typedef struct {
     void *operations;
     size_t count;
+    size_t capacity;
     size_t record_count;
 } Fcj4Replay;
 

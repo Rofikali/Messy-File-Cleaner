@@ -220,6 +220,28 @@ int fcj3_stage_fd(const Fcj3Stage *stage)
 }
 
 
+
+static int same_timespec(const struct timespec *left,
+                         const struct timespec *right)
+{
+    return left->tv_sec == right->tv_sec && left->tv_nsec == right->tv_nsec;
+}
+
+static int stage_matches_copy_snapshot(const Fcj3Stage *stage,
+                                       const struct stat *metadata,
+                                       nlink_t expected_links)
+{
+    return S_ISREG(metadata->st_mode) &&
+           metadata->st_uid == stage->expected_owner &&
+           (metadata->st_mode & 0777) == 0600 &&
+           metadata->st_dev == stage->staging_device &&
+           metadata->st_ino == stage->staging_inode &&
+           metadata->st_nlink == expected_links &&
+           metadata->st_size == stage->copied_size &&
+           same_timespec(&metadata->st_mtim, &stage->copied_mtime) &&
+           same_timespec(&metadata->st_ctim, &stage->copied_ctime);
+}
+
 static int same_source_snapshot(const struct stat *before,
                                 const struct stat *after)
 {
@@ -240,6 +262,7 @@ static size_t test_fail_after_bytes = SIZE_MAX;
 static size_t test_accepted_bytes;
 static int test_write_error = EIO;
 static int test_mutate_source_fd = -1;
+static int test_mutate_stage_fd = -1;
 static int test_fsync_error = 0;
 
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code)
@@ -252,6 +275,11 @@ void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code)
 void fcj3_stage_test_grow_source_after_copy(int writable_source_fd)
 {
     test_mutate_source_fd = writable_source_fd;
+}
+
+void fcj3_stage_test_mutate_stage_after_copy(int stage_fd)
+{
+    test_mutate_stage_fd = stage_fd;
 }
 
 void fcj3_stage_test_fail_fsync(int error_code)
@@ -397,6 +425,19 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
     }
 
 #ifdef FC_TESTING
+    if (test_mutate_stage_fd >= 0)
+    {
+        int mutation_fd = test_mutate_stage_fd;
+        test_mutate_stage_fd = -1;
+        const unsigned char replacement = 'X';
+        if (pwrite(mutation_fd, &replacement, 1U, 0) != 1)
+        {
+            if (errno == 0)
+                errno = EIO;
+            stage->poisoned = 1;
+            return -1;
+        }
+    }
     if (test_mutate_source_fd >= 0)
     {
         int mutation_fd = test_mutate_source_fd;
@@ -442,6 +483,9 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
 
     *source_snapshot = source_before;
     *bytes_copied = copied;
+    stage->copied_size = stage_after.st_size;
+    stage->copied_mtime = stage_after.st_mtim;
+    stage->copied_ctime = stage_after.st_ctim;
     stage->copied = 1;
     return 0;
 }
@@ -477,11 +521,18 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
         (staging_metadata->st_mode & 0777) != 0600 ||
         staging_metadata->st_dev != stage->directory_device ||
         staging_metadata->st_ino != stage->staging_inode ||
-        staging_metadata->st_nlink != 0)
+        staging_metadata->st_nlink != 0 ||
+        (stage->copied &&
+         !stage_matches_copy_snapshot(stage, staging_metadata, 0)))
     {
         errno = ESTALE;
         stage->poisoned = 1;
         return -1;
+    }
+    if (stage->copied)
+    {
+        stage->copied_mtime = staging_metadata->st_mtim;
+        stage->copied_ctime = staging_metadata->st_ctim;
     }
     stage->synced = 1;
     return 0;
@@ -511,7 +562,8 @@ int fcj3_stage_link(Fcj3Stage *stage)
     if (!S_ISREG(current.st_mode) || current.st_uid != stage->expected_owner ||
         (current.st_mode & 0777) != 0600 || current.st_nlink != 0 ||
         current.st_dev != stage->staging_device ||
-        current.st_ino != stage->staging_inode)
+        current.st_ino != stage->staging_inode ||
+        (stage->copied && !stage_matches_copy_snapshot(stage, &current, 0)))
     {
         errno = ESTALE;
         stage->poisoned = 1;
@@ -541,6 +593,25 @@ int fcj3_stage_link(Fcj3Stage *stage)
     {
         stage->poisoned = 1;
         return -1;
+    }
+    if (stage->copied)
+    {
+        struct stat linked_metadata;
+        if (fstat(stage->staging_fd, &linked_metadata) != 0 ||
+            !S_ISREG(linked_metadata.st_mode) ||
+            linked_metadata.st_uid != stage->expected_owner ||
+            (linked_metadata.st_mode & 0777) != 0600 ||
+            linked_metadata.st_dev != stage->staging_device ||
+            linked_metadata.st_ino != stage->staging_inode ||
+            linked_metadata.st_nlink != 1 ||
+            linked_metadata.st_size != stage->copied_size ||
+            !same_timespec(&linked_metadata.st_mtim, &stage->copied_mtime))
+        {
+            errno = ESTALE;
+            stage->poisoned = 1;
+            return -1;
+        }
+        stage->copied_ctime = linked_metadata.st_ctim;
     }
     if (stage_fsync(stage->directory_fd) != 0)
     {
@@ -572,6 +643,17 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
         stage->poisoned = 1;
         return -1;
     }
+    if (stage->copied)
+    {
+        struct stat current;
+        if (fstat(stage->staging_fd, &current) != 0 ||
+            !stage_matches_copy_snapshot(stage, &current, 1))
+        {
+            errno = ESTALE;
+            stage->poisoned = 1;
+            return -1;
+        }
+    }
 
     if (syscall(SYS_renameat2, stage->directory_fd, stage->staging_component,
                 stage->directory_fd, final_component, RENAME_NOREPLACE) != 0)
@@ -590,6 +672,21 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
     {
         stage->poisoned = 1;
         return -1;
+    }
+    if (stage->copied)
+    {
+        struct stat published_metadata;
+        if (fstat(stage->staging_fd, &published_metadata) != 0 ||
+            !S_ISREG(published_metadata.st_mode) ||
+            published_metadata.st_dev != stage->staging_device ||
+            published_metadata.st_ino != stage->staging_inode ||
+            published_metadata.st_size != stage->copied_size ||
+            !same_timespec(&published_metadata.st_mtim, &stage->copied_mtime))
+        {
+            errno = ESTALE;
+            stage->poisoned = 1;
+            return -1;
+        }
     }
     if (stage_fsync(stage->directory_fd) != 0)
     {

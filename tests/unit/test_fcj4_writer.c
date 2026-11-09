@@ -285,6 +285,52 @@ static void test_all_action_definition_kinds_and_mismatches(void)
     }
 }
 
+static void test_all_action_kinds_parse_after_writer_acceptance(void)
+{
+    char journal[8192];
+    size_t used=0U;
+    Fcj4WriterState *state=NULL;
+    Fcj4Replay replay;
+    Fcj4Record r;
+    Fcj4ActionDefRecord def;
+
+    CHECK(fcj4_writer_state_create(&state)==0);
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_BEGIN;
+    r.value.begin=(Fcj4BeginRecord){
+        opid,"/tmp/source",1U,2U,1U,3U,1000U,1000U,384U,5U,
+        1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
+    };
+    append_record(journal,sizeof(journal),&used,state,&r);
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_SEALED;
+    r.value.sealed=(Fcj4SealedRecord){
+        opid,".fc-tmp-x",1U,6U,1000U,384U,5U,digest
+    };
+    append_record(journal,sizeof(journal),&used,state,&r);
+
+    def=make_action_def(FCJ4_ACTION_KIND_QUARANTINE_STAGE);
+    memset(&r,0,sizeof(r)); r.kind=FCJ4_RECORD_ACTION_DEF;
+    r.value.action_def=def; append_record(journal,sizeof(journal),&used,state,&r);
+    def=make_action_def(FCJ4_ACTION_KIND_QUARANTINE_SOURCE);
+    r.value.action_def=def; append_record(journal,sizeof(journal),&used,state,&r);
+    def=make_action_def(FCJ4_ACTION_KIND_RETIRE_QUARANTINED_SOURCE);
+    r.value.action_def=def; append_record(journal,sizeof(journal),&used,state,&r);
+    def=make_action_def(FCJ4_ACTION_KIND_REMOVE_QUARANTINED_STAGE);
+    r.value.action_def=def; append_record(journal,sizeof(journal),&used,state,&r);
+
+    fcj4_replay_init(&replay);
+    CHECK(fcj4_replay_parse(journal,used,&replay)==0);
+    CHECK(replay.count==1U && replay.record_count==6U);
+    {
+        Fcj4OperationView view;
+        CHECK(fcj4_replay_operation(&replay,0U,&view)==0);
+        CHECK(view.action_count==4U);
+    }
+    fcj4_replay_destroy(&replay);
+    fcj4_writer_state_destroy(state);
+}
+
 static void test_serializer_rejects_noncanonical_inputs(void)
 {
     Fcj4Record r;
@@ -424,6 +470,7 @@ int main(void)
     test_round_trip_and_transitions();
     test_cross_record_evidence_rejected();
     test_all_action_definition_kinds_and_mismatches();
+    test_all_action_kinds_parse_after_writer_acceptance();
     test_replay_import_failure_is_atomic();
     test_serializer_rejects_noncanonical_inputs();
     test_stale_and_duplicate_commit_rejected();

@@ -232,6 +232,7 @@ if(BUILD_TESTING)
   add_executable(test_fcj3_process_crash
     tests/integration/test_fcj3_process_crash.c
     src/journal/fcj3_stage.c
+    src/journal/fcj3_sha256.c
     src/journal/fcj3_journal.c
     src/journal/fcj3_writer.c
     src/journal/fcj3_parser.c

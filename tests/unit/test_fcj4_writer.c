@@ -134,6 +134,14 @@ static void test_stale_and_duplicate_commit_rejected(void)
         1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
     };
     CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==0);
+    {
+        char altered[FCJ4_MAX_LINE_BYTES];
+        memcpy(altered,output,written);
+        altered[0]='X';
+        errno=0;
+        CHECK(fcj4_writer_commit(state,&prepared,altered,written)==-1);
+        CHECK(errno==EINVAL);
+    }
     CHECK(fcj4_writer_commit(state,&prepared,output,written)==0);
     errno=0;
     CHECK(fcj4_writer_commit(state,&prepared,output,written)==-1);

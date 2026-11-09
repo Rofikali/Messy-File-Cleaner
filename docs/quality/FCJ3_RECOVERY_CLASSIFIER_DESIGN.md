@@ -95,7 +95,7 @@ The following evidence always overrides the table and returns MANUAL_REVIEW:
 - A destination present under STAGED state.
 - A stage present under PUBLISHED or COMPLETED state.
 - Any state/evidence combination not explicitly listed above.
-- Missing source in STAGED or STARTED unless the exact row above explicitly allows it (none currently does).
+- Missing source in STAGED always requires manual review. STARTED also requires manual review when the stage and destination are both absent or the stage remains visible; the explicit STARTED / ABSENT / MATCHING_REGULAR publication row permits SOURCE_ABSENT.
 - For FAILED, visible stage or destination entries are not assumed to be owned/cleanable; classify as manual review rather than silently accepting them.
 - For RECOVERED, conflicting/mismatching/symlink/special/unknown evidence still yields manual review; terminal means no replay action, not that evidence checks can be skipped.
 - The first pure-classifier implementation treats any visible stage or destination entry under RECOVERED as MANUAL_REVIEW, including a matching regular inode. The previous phrase “non-conflicting observation” was too broad to implement safely without a defined post-recovery filesystem contract.

@@ -134,6 +134,11 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
         errno = EINVAL;
         return -1;
     }
+    if (expected_owner != geteuid())
+    {
+        errno = EPERM;
+        return -1;
+    }
 
     memset(stage, 0, sizeof(*stage));
     stage->directory_fd = -1;
@@ -157,6 +162,14 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
         errno = saved_errno;
         return -1;
     }
+    if (fchmod(staging_fd, 0600) != 0)
+    {
+        int saved_errno = errno;
+        (void)close(staging_fd);
+        (void)close(procfs_fd);
+        errno = saved_errno;
+        return -1;
+    }
 
     struct stat staging_metadata;
     if (fstat(staging_fd, &staging_metadata) != 0)
@@ -169,6 +182,7 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
     }
     if (!S_ISREG(staging_metadata.st_mode) ||
         staging_metadata.st_uid != expected_owner ||
+        (staging_metadata.st_mode & 0777) != 0600 ||
         staging_metadata.st_nlink != 0 ||
         staging_metadata.st_dev != directory_metadata.st_dev)
     {
@@ -221,6 +235,7 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
 
     if (!S_ISREG(staging_metadata->st_mode) ||
         staging_metadata->st_uid != stage->expected_owner ||
+        (staging_metadata->st_mode & 0777) != 0600 ||
         staging_metadata->st_dev != stage->directory_device ||
         staging_metadata->st_ino != stage->staging_inode ||
         staging_metadata->st_nlink != 0)
@@ -248,7 +263,8 @@ int fcj3_stage_link(Fcj3Stage *stage)
     if (fstat(stage->staging_fd, &current) != 0)
         return -1;
     if (!S_ISREG(current.st_mode) || current.st_uid != stage->expected_owner ||
-        current.st_nlink != 0 || current.st_dev != stage->staging_device ||
+        (current.st_mode & 0777) != 0600 || current.st_nlink != 0 ||
+        current.st_dev != stage->staging_device ||
         current.st_ino != stage->staging_inode)
     {
         errno = ESTALE;

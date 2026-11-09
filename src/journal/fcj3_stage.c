@@ -263,6 +263,7 @@ static size_t test_accepted_bytes;
 static int test_write_error = EIO;
 static int test_mutate_source_fd = -1;
 static int test_mutate_stage_fd = -1;
+static int test_mutate_before_publish_fd = -1;
 static int test_fsync_error = 0;
 
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code)
@@ -280,6 +281,11 @@ void fcj3_stage_test_grow_source_after_copy(int writable_source_fd)
 void fcj3_stage_test_mutate_stage_after_copy(int stage_fd)
 {
     test_mutate_stage_fd = stage_fd;
+}
+
+void fcj3_stage_test_mutate_stage_before_publish(int stage_fd)
+{
+    test_mutate_before_publish_fd = stage_fd;
 }
 
 void fcj3_stage_test_fail_fsync(int error_code)
@@ -640,6 +646,21 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
         stage->poisoned = 1;
         return -1;
     }
+#ifdef FC_TESTING
+    if (test_mutate_before_publish_fd >= 0)
+    {
+        int mutation_fd = test_mutate_before_publish_fd;
+        test_mutate_before_publish_fd = -1;
+        const unsigned char replacement = 'Y';
+        if (pwrite(mutation_fd, &replacement, 1U, 0) != 1)
+        {
+            if (errno == 0)
+                errno = EIO;
+            stage->poisoned = 1;
+            return -1;
+        }
+    }
+#endif
     if (verify_named_inode(stage->directory_fd, stage->staging_component,
                            stage->staging_device, stage->staging_inode) != 0)
     {

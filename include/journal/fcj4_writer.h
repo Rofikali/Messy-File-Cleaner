@@ -107,7 +107,12 @@ void fcj4_writer_state_destroy(Fcj4WriterState *state);
  * Import a complete, successfully parsed replay into a fresh writer state.
  * Import is all-or-nothing and deep-copies all retained evidence; the replay
  * may be destroyed after success. The destination must be newly created and
- * have revision zero. No journal or filesystem I/O is performed.
+ * have revision zero. Invalid destination/replay descriptors return EINVAL;
+ * an accessor or evidence-copy failure returns EBADMSG. On every failure the
+ * destination remains empty and reusable. No journal or filesystem I/O is
+ * performed. The caller must pass only a replay successfully produced by
+ * fcj4_replay_parse; the replay object must remain alive for the duration of
+ * this call.
  */
 int fcj4_writer_state_import_replay(Fcj4WriterState *state,
                                     const Fcj4Replay *replay);

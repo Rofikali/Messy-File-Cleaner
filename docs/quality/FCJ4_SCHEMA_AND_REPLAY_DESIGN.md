@@ -2,9 +2,11 @@
 
 ## Status
 
-Proposed wire-contract design only. This document is a prerequisite to implementation of FCJ4 schema/parser/replay. It does not authorize filesystem mutation, FCJ3 production writes, source retirement, staging cleanup, quarantine, or production adoption.
+Wire contract approved by merged PRs #61 and #62. The isolated pure-C parser/replay implementation is proposed separately in PR #63 and is not yet merged or production-enabled. This document does not authorize filesystem mutation, FCJ3 production writes, source retirement, staging cleanup, quarantine, or production adoption.
 
 Parent architecture decision: `FCJ4_RECOVERY_EXECUTION_SAFETY_DESIGN.md` (merged PR #60).
+
+ACTION_DEF wire clarifications: `FCJ4_ACTION_DEF_WIRE_CLARIFICATIONS.md` (merged PR #62).
 
 ## 1. Decision summary
 

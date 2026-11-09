@@ -474,7 +474,9 @@ static int validate_action_evidence(const WriterOperation *op,
 {
     const char *expected_component=NULL;
     uint64_t parent_dev,parent_ino,entry_dev,entry_ino,uid,mode,size;
-    if(!op || !r || !op->has_begin || !op->has_sealed) return 0;
+    if(!op || !r || !op->has_begin || !op->has_sealed ||
+       !r->source_component || !is_lower_hex(r->expected_sha256,64U))
+        return 0;
     switch(r->kind) {
     case FCJ4_ACTION_KIND_QUARANTINE_STAGE:
         parent_dev=op->begin.destination_parent_dev;

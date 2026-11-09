@@ -1,6 +1,5 @@
 #include "journal/fcj3_recovery_classifier.h"
 
-#include <errno.h>
 #include <string.h>
 
 static int bounded_string_is_nonempty(const char *value, size_t capacity)
@@ -132,7 +131,7 @@ static int invalid_input(Fcj3RecoveryDecision *decision,
 {
     if (decision)
         set_decision(decision, FCJ3_CLASS_INVALID_INPUT, reason);
-    errno = EINVAL;
+    /* Invalid input is reported through the return value and decision. */
     return -1;
 }
 

@@ -2,7 +2,9 @@
 
 ## Status
 
-Implementation specification for the follow-up to merged PR #66. The implementation branch is being prepared against this design. The design remains the acceptance contract until code review and C11/C17/C23, sanitizer, Release, Makefile, Docker, and non-root validation are complete. It does not authorize journal I/O, file creation, append, fsync, production integration, or filesystem recovery.
+Implementation in progress on `feat/fcj4-writer-reconciliation`, following merged PR #67. The branch now contains additive parser MOVE-sequence exposure, owned BEGIN/SEALED/ACTION_DEF evidence in writer state, pre-prepare SEALED and ACTION_DEF cross-record checks, replay-seeded state import with deep copies, and record-limit seeding/enforcement. Focused regression tests have been added, but the implementation is not accepted until the latest branch passes C11/C17/C23 sanitizer validation, Release, Makefile, Docker, and non-root CI and receives review against the parser.
+
+This remains an isolated in-memory module. It does not authorize journal I/O, file creation, append, fsync, production integration, or filesystem recovery.
 
 ## 1. Objective
 
@@ -130,6 +132,15 @@ Add tests that specifically target parser/writer divergence:
 
 ## 9. Implementation status and exit criteria
 
-The parser operation view now exposes the exact last MOVE sequence as an additive field. The writer now enforces FCJ4_MAX_RECORDS against its committed-record revision before prepare; this is a bounded partial implementation, not completion of record accounting because replay-import seeding is not implemented. The remaining writer-state implementation, replay import, deep ownership, cross-record validation, and regression coverage are still required before this milestone can be considered complete.
+Implemented on the current feature branch:
+- The parser operation view exposes the exact last MOVE sequence as an additive field.
+- Writer state retains owned BEGIN and SEALED evidence, including paths, identities, metadata, stage component, and digest.
+- Writer state retains complete ACTION_DEF metadata and independent action state/sequence.
+- SEALED prepare checks stage device against destination-parent device and stage size against source size.
+- ACTION_DEF prepare checks kind-specific parent identity, entry identity/metadata, digest, source component, and prior quarantine-action target linkage. Follow-up definitions require their matching quarantine definition to appear first; this is intentionally stricter than the parser's final whole-history link check.
+- Replay import reconstructs operation/action state from an already parsed replay, deep-copies retained strings, imports exact MOVE/ACTION sequences, and seeds the record count from `replay.record_count`.
+- The writer rejects prepare when the next committed record would exceed `FCJ4_MAX_RECORDS`; prepare/abort do not consume the limit.
+
+Focused tests now cover a valid replay import whose source replay is destroyed before the imported state is used, parity of a subsequent serialized ACTION record, SEALED size mismatch, and ACTION_DEF parent-inode mismatch. This is not yet the complete required adversarial matrix listed above. In particular, every ACTION_DEF kind/field mismatch, failed-import all-or-nothing behavior, maximum-record boundary, and broader parser-vs-writer differential vectors still need dedicated tests.
 
 The implementation PR must pass all tests above and be reviewed against the existing parser source line-by-line. Record exact commands and observed outcomes; do not infer Codespaces or CI results. Only after this milestone is reviewed, merged by the repository owner, and verified on main may a separate append-adapter design be considered.

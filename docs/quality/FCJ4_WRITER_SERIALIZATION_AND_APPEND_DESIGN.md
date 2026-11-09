@@ -27,7 +27,7 @@ The writer is not a recovery planner or executor. It does not inspect, rename, u
 - A writer-generated record must be accepted by the current FCJ4 parser under the same schema version.
 - One logical journal writer at a time. No concurrent appenders and no multi-process interleaving.
 - A record is not considered committed in writer memory until its complete bytes have been appended and the required journal durability operation has succeeded.
-- Any partial write, append error after bytes may have reached the file, fsync failure, or close/sync uncertainty poisons the writer. No later record may be appended by that writer instance.
+- Any partial write, append error after bytes may have reached the file, or fsync failure poisons the writer. No later record may be appended by that writer instance. A close/unlock failure after a successful fsync does not undo the committed record; it makes descriptor/lock ownership unresolved and prevents reuse until safely resolved.
 - Never truncate a malformed or partial tail automatically. Never accept a valid prefix as the complete journal.
 - No fallback to weaker durability, no silent retry after uncertain append, and no “best effort” success.
 - Journal validity is not journal authenticity; SHA-256 is integrity evidence, not a MAC or signature.

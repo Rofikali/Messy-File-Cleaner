@@ -28,7 +28,7 @@ static int valid_transaction_identity(const Fcj3Transaction *transaction)
                                     sizeof(transaction->staging_component)))
         return 0;
 
-    operation_id_end = memchr(transaction->operation_id, '\\0',
+    operation_id_end = memchr(transaction->operation_id, '\0',
                               sizeof(transaction->operation_id));
     if (operation_id_end - transaction->operation_id !=
         (ptrdiff_t)FCJ3_OPERATION_ID_HEX_LENGTH)
@@ -40,7 +40,7 @@ static int valid_transaction_identity(const Fcj3Transaction *transaction)
             return 0;
     }
 
-    component_end = memchr(transaction->staging_component, '\\0',
+    component_end = memchr(transaction->staging_component, '\0',
                            sizeof(transaction->staging_component));
     if (component_end - transaction->staging_component <= 8 ||
         strncmp(transaction->staging_component, ".fc-tmp-", 8U) != 0)

@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#define CHECK_CLASSIFIER_CALL(expression, expected) do { \\
+    int actual_result_ = (expression); \\
+    assert(actual_result_ == (expected)); \\
+} while (0)
+
 static Fcj3Transaction make_transaction(Fcj3State state)
 {
     Fcj3Transaction transaction;
@@ -36,7 +41,7 @@ static Fcj3RecoveryDecision classify(Fcj3Transaction *transaction,
         .classification = FCJ3_CLASS_INVALID_INPUT,
         .reason = FCJ3_REASON_NONE
     };
-    assert(fcj3_recovery_classify(&evidence, &decision) == 0);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &decision), 0);
     return decision;
 }
 
@@ -198,12 +203,12 @@ static void test_invalid_inputs_and_determinism(void)
     };
     Fcj3RecoveryDecision first, second;
 
-    assert(fcj3_recovery_classify(NULL, &first) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(NULL, &first), -1);
     assert(first.classification == FCJ3_CLASS_INVALID_INPUT);
-    assert(fcj3_recovery_classify(&evidence, NULL) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, NULL), -1);
 
     evidence.directory = (Fcj3DirectoryEvidence)99;
-    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &first), -1);
     assert(first.reason == FCJ3_REASON_INVALID_EVIDENCE);
     evidence.directory = FCJ3_DIRECTORY_IDENTITY_MATCH;
     evidence.stage = (Fcj3EntryEvidence)-1;
@@ -229,8 +234,8 @@ static void test_invalid_inputs_and_determinism(void)
     assert(first.reason == FCJ3_REASON_INVALID_TRANSACTION);
     tx = make_transaction(FCJ3_STATE_FAILED);
 
-    assert(fcj3_recovery_classify(&evidence, &first) == 0);
-    assert(fcj3_recovery_classify(&evidence, &second) == 0);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &first), 0);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &second), 0);
     assert(first.classification == second.classification);
     assert(first.reason == second.reason);
 }

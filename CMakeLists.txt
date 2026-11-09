@@ -198,6 +198,26 @@ if(BUILD_TESTING)
   add_test(NAME fcj3_staging_integration COMMAND test_fcj3_staging)
   set_tests_properties(fcj3_staging_integration PROPERTIES TIMEOUT 20)
 
+  # FCJ3 process termination tests use disposable journals and never invoke
+  # production recovery or mutate the production mover/journal path.
+  add_executable(test_fcj3_process_crash
+    tests/integration/test_fcj3_process_crash.c
+    src/journal/fcj3_stage.c
+    src/journal/fcj3_journal.c
+    src/journal/fcj3_writer.c
+    src/journal/fcj3_parser.c
+  )
+  target_include_directories(test_fcj3_process_crash PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_link_libraries(test_fcj3_process_crash PRIVATE Threads::Threads)
+  target_compile_definitions(test_fcj3_process_crash PRIVATE FC_TESTING)
+  target_compile_options(test_fcj3_process_crash PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_process_crash COMMAND test_fcj3_process_crash)
+  set_tests_properties(fcj3_process_crash PROPERTIES TIMEOUT 50)
+
   add_executable(test_process_crash_recovery
     tests/integration/test_process_crash_recovery.c
     src/mover/mover.c

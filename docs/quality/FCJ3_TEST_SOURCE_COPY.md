@@ -38,6 +38,7 @@ the source.
 
 - No retry from a partially written stage.
 - No truncate-and-reuse repair.
+- A file or directory `fsync()` failure poisons the operation stage. It cannot be retried into publication.
 - No linking or publication after a poisoned copy.
 - The source descriptor and source pathname are never changed by the copy
   implementation.
@@ -46,9 +47,13 @@ the source.
 - A stage that has already become visible is never automatically unlinked on
   identity or durability uncertainty.
 
-The `FC_TESTING` hooks provide deterministic partial-`pwrite` failure and a
-source-size mutation immediately before the post-copy metadata check. They are
-test-only and are not part of a production interface.
+The `FC_TESTING` hooks provide deterministic partial-`pwrite` failure, a
+source-size mutation immediately before the post-copy metadata check, and
+file/directory `fsync()` failures. They are test-only and are not part of a
+production interface. The tests assert that an fsync failure before linking
+leaves no named entry, a directory-fsync failure after linking preserves the
+visible staging entry, and a publication-fsync failure preserves the visible
+destination without attempting cleanup.
 
 ## Important consistency limit
 

@@ -60,6 +60,7 @@ int fcj3_stage_close(Fcj3Stage *stage);
 #ifdef FC_TESTING
 /* Test-only deterministic partial-pwrite failure injection. */
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code);
+void fcj3_stage_test_grow_source_after_copy(int writable_source_fd);
 #endif
 
 #endif

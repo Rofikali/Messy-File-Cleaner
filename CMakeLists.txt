@@ -143,6 +143,19 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
 
+  # FCJ4 pure whole-buffer replay remains isolated from production recovery.
+  add_executable(test_fcj4_parser
+    tests/unit/test_fcj4_parser.c
+    src/journal/fcj4_parser.c
+  )
+  target_include_directories(test_fcj4_parser PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_compile_options(test_fcj4_parser PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj4_parser_unit COMMAND test_fcj4_parser)
+
   add_executable(test_fcj3_sha256
     tests/unit/test_fcj3_sha256.c
     src/journal/fcj3_sha256.c

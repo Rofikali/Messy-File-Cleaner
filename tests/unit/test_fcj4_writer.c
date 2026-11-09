@@ -29,7 +29,7 @@ static void append_record(char *journal,size_t capacity,size_t *used,
     CHECK(*used<=capacity && length<=capacity-*used);
     memcpy(journal+*used,line,length);
     *used+=length;
-    CHECK(fcj4_writer_commit(state,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared,line,length)==0);
 }
 
 static void test_round_trip_and_transitions(void)
@@ -134,9 +134,9 @@ static void test_stale_and_duplicate_commit_rejected(void)
         1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
     };
     CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==0);
-    CHECK(fcj4_writer_commit(state,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared,output,written)==0);
     errno=0;
-    CHECK(fcj4_writer_commit(state,&prepared)==-1);
+    CHECK(fcj4_writer_commit(state,&prepared,output,written)==-1);
     CHECK(errno==EINVAL);
     fcj4_writer_state_destroy(state);
 }

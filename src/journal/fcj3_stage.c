@@ -239,12 +239,18 @@ static int same_source_snapshot(const struct stat *before,
 static size_t test_fail_after_bytes = SIZE_MAX;
 static size_t test_accepted_bytes;
 static int test_write_error = EIO;
+static int test_mutate_source_fd = -1;
 
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code)
 {
     test_fail_after_bytes = after_bytes;
     test_accepted_bytes = 0U;
     test_write_error = error_code != 0 ? error_code : EIO;
+}
+
+void fcj3_stage_test_grow_source_after_copy(int writable_source_fd)
+{
+    test_mutate_source_fd = writable_source_fd;
 }
 #endif
 
@@ -364,6 +370,19 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
         offset += (off_t)read_count;
         copied += (uint64_t)read_count;
     }
+
+#ifdef FC_TESTING
+    if (test_mutate_source_fd >= 0)
+    {
+        int mutation_fd = test_mutate_source_fd;
+        test_mutate_source_fd = -1;
+        if (ftruncate(mutation_fd, source_before.st_size + 1) != 0)
+        {
+            stage->poisoned = 1;
+            return -1;
+        }
+    }
+#endif
 
     struct stat source_after;
     struct stat stage_after;

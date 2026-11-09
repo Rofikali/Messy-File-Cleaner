@@ -2,7 +2,9 @@
 
 ## Status
 
-Implementation specification for the follow-up to merged PR #66. The implementation branch is being prepared against this design. The design remains the acceptance contract until code review and C11/C17/C23, sanitizer, Release, Makefile, Docker, and non-root validation are complete. It does not authorize journal I/O, file creation, append, fsync, production integration, or filesystem recovery.
+Implementation in progress on `feat/fcj4-writer-reconciliation`, following merged PR #67. The branch now contains additive parser MOVE-sequence exposure, owned BEGIN/SEALED/ACTION_DEF evidence in writer state, pre-prepare SEALED and ACTION_DEF cross-record checks, replay-seeded state import with deep copies, and record-limit seeding/enforcement. Focused regression tests have been added, but the implementation is not accepted until the latest branch passes C11/C17/C23 sanitizer validation, Release, Makefile, Docker, and non-root CI and receives review against the parser.
+
+This remains an isolated in-memory module. It does not authorize journal I/O, file creation, append, fsync, production integration, or filesystem recovery.
 
 ## 1. Objective
 
@@ -20,7 +22,7 @@ Code review identified these gaps before append work:
 2. The serializer checks ACTION_DEF field shape and some kind/role relationships, but does not check parent identity, entry identity, metadata, digest, or component binding against BEGIN/SEALED.
 3. SEALED serialization does not check that stage device equals the destination-parent device or that stage size equals source size. The parser rejects either mismatch.
 4. The parser exposes action sequence in Fcj4ActionView but does not expose operation move sequence in Fcj4OperationView. A replay-seeded writer therefore cannot resume exact MOVE sequence validation from the public views.
-5. The writer does not track total record count, so its in-memory state can accept more records than the parser's FCJ4_MAX_RECORDS limit.
+5. The writer did not track total record count, so its in-memory state could accept more records than the parser's FCJ4_MAX_RECORDS limit. The current implementation branch now rejects prepare when the committed-record revision has reached FCJ4_MAX_RECORDS; because revision advances only on successful in-memory commit, prepare/abort do not consume the limit. Replay-import accounting remains outstanding.
 6. The current test proves one valid history round-trips. It does not prove rejection of records that are individually well-formed but inconsistent with the operation evidence or action relationships.
 
 These are not evidence of production data damage: the module is isolated and not linked into the production executable. They are blockers for a future append adapter.
@@ -130,6 +132,15 @@ Add tests that specifically target parser/writer divergence:
 
 ## 9. Implementation status and exit criteria
 
-The parser operation view now exposes the exact last MOVE sequence as an additive field. The remaining writer-state implementation, replay import, deep ownership, cross-record validation, record-count enforcement, and regression coverage are still required before this milestone can be considered complete.
+Implemented on the current feature branch:
+- The parser operation view exposes the exact last MOVE sequence as an additive field.
+- Writer state retains owned BEGIN and SEALED evidence, including paths, identities, metadata, stage component, and digest.
+- Writer state retains complete ACTION_DEF metadata and independent action state/sequence.
+- SEALED prepare checks stage device against destination-parent device and stage size against source size.
+- ACTION_DEF prepare checks kind-specific parent identity, entry identity/metadata, digest, source component, and prior quarantine-action target linkage. Follow-up definitions require their matching quarantine definition to appear first; this is intentionally stricter than the parser's final whole-history link check.
+- Replay import reconstructs operation/action state from an already parsed replay, deep-copies retained strings, imports exact MOVE/ACTION sequences, and seeds the record count from `replay.record_count`.
+- The writer rejects prepare when the next committed record would exceed `FCJ4_MAX_RECORDS`; prepare/abort do not consume the limit.
+
+Focused tests now cover a valid replay import whose source replay is destroyed before the imported state is used, parity of a subsequent serialized ACTION record, SEALED size mismatch, and ACTION_DEF parent-inode mismatch. An expanded table-driven test now exercises all four ACTION_DEF kinds, positive definitions, and mismatches in parent device/inode, entry device/inode, uid, mode, size, digest, source component, and target role. Failed-import coverage also checks that the destination writer remains usable and empty. A separate positive-path test now serializes all four ACTION_DEF kinds through the writer and confirms the complete resulting history is accepted by the parser. Codespaces verification was run by the repository owner at commit `81cab7ac7ad4c1b6b80defe9e537f5c08812e779` on 2026-11-09: `make test` passed 25/25; `make validate` passed 25/25 for each of C11, C17, and C23 with Debug ASan/UBSan; `make release` completed the portable C17 Release build. This confirms the current focused suite and compatibility matrix, but does not close the maximum-record boundary or broader parser-vs-writer differential coverage. Docker/non-root and GitHub Actions results for this exact head have not been established in this report.
 
 The implementation PR must pass all tests above and be reviewed against the existing parser source line-by-line. Record exact commands and observed outcomes; do not infer Codespaces or CI results. Only after this milestone is reviewed, merged by the repository owner, and verified on main may a separate append-adapter design be considered.

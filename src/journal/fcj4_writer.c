@@ -10,13 +10,28 @@
 #include <string.h>
 
 typedef struct {
+    Fcj4ActionDefRecord record;
+    char source_component[NAME_MAX];
+    char target_component[NAME_MAX];
+    char digest[65];
     char id[33];
+    Fcj4ActionState state;
+    uint64_t sequence;
+} WriterAction;
+
+typedef struct {
+    char id[33];
+    Fcj4BeginRecord begin;
+    char source_path[PATH_MAX];
+    char destination_path[PATH_MAX];
+    char destination_basename[NAME_MAX];
+    Fcj4SealedRecord sealed;
+    char stage_component[NAME_MAX];
+    char stage_digest[65];
     Fcj4MoveState move_state;
     uint64_t move_sequence;
     int has_begin, has_sealed;
-    char action_ids[FCJ4_MAX_ACTIONS_PER_OPERATION][33];
-    Fcj4ActionState action_states[FCJ4_MAX_ACTIONS_PER_OPERATION];
-    uint64_t action_sequences[FCJ4_MAX_ACTIONS_PER_OPERATION];
+    WriterAction actions[FCJ4_MAX_ACTIONS_PER_OPERATION];
     size_t action_count;
 } WriterOperation;
 
@@ -30,6 +45,7 @@ struct Fcj4WriterState {
     Fcj4RecordKind pending_kind;
     Fcj4MoveState pending_move;
     Fcj4ActionState pending_action;
+    WriterOperation pending_evidence;
     char pending_bytes[FCJ4_MAX_LINE_BYTES];
     size_t pending_length;
 };
@@ -385,8 +401,138 @@ static WriterOperation *find_op(Fcj4WriterState *s,const char *id)
 static size_t find_action(const WriterOperation *op,const char *id)
 {
     for(size_t i=0U;i<op->action_count;i++)
-        if(strcmp(op->action_ids[i],id)==0) return i;
+        if(strcmp(op->actions[i].id,id)==0) return i;
     return SIZE_MAX;
+}
+
+static int copy_text(char *dst,size_t capacity,const char *src)
+{
+    size_t n;
+    if(!dst || !src || capacity==0U) return -1;
+    n=strnlen(src,capacity);
+    if(n==0U || n>=capacity) return -1;
+    memcpy(dst,src,n+1U);
+    return 0;
+}
+
+static int copy_begin(WriterOperation *dst,const Fcj4BeginRecord *src)
+{
+    if(!dst || !src || copy_text(dst->source_path,PATH_MAX,src->source_path) ||
+       copy_text(dst->destination_path,PATH_MAX,src->destination_path) ||
+       copy_text(dst->destination_basename,NAME_MAX,src->destination_basename))
+        return -1;
+    dst->begin=*src;
+    dst->begin.source_path=dst->source_path;
+    dst->begin.destination_path=dst->destination_path;
+    dst->begin.destination_basename=dst->destination_basename;
+    memcpy(dst->id,src->operation_id,33U);
+    dst->begin.operation_id=dst->id;
+    dst->has_begin=1;
+    return 0;
+}
+
+static int copy_sealed(WriterOperation *dst,const Fcj4SealedRecord *src)
+{
+    if(!dst || !src ||
+       copy_text(dst->stage_component,NAME_MAX,src->stage_component) ||
+       copy_text(dst->stage_digest,sizeof(dst->stage_digest),src->sha256))
+        return -1;
+    dst->sealed=*src;
+    dst->sealed.operation_id=dst->id;
+    dst->sealed.stage_component=dst->stage_component;
+    dst->sealed.sha256=dst->stage_digest;
+    dst->has_sealed=1;
+    return 0;
+}
+
+static int copy_action_def(WriterOperation *dst,size_t index,
+                           const Fcj4ActionDefRecord *src)
+{
+    WriterAction *a;
+    if(!dst || !src || index>=FCJ4_MAX_ACTIONS_PER_OPERATION) return -1;
+    a=&dst->actions[index];
+    if(copy_text(a->source_component,NAME_MAX,src->source_component) ||
+       copy_text(a->digest,sizeof(a->digest),src->expected_sha256))
+        return -1;
+    if(src->target_role==FCJ4_TARGET_QUARANTINE &&
+       copy_text(a->target_component,NAME_MAX,src->target_component))
+        return -1;
+    a->record=*src;
+    a->record.operation_id=dst->id;
+    a->record.action_id=a->id;
+    a->record.source_component=a->source_component;
+    a->record.target_component=src->target_role==FCJ4_TARGET_QUARANTINE
+        ? a->target_component : NULL;
+    a->record.expected_sha256=a->digest;
+    memcpy(a->id,src->action_id,33U);
+    a->record.action_id=a->id;
+    return 0;
+}
+
+static int validate_action_evidence(const WriterOperation *op,
+                                    const Fcj4ActionDefRecord *r)
+{
+    const char *expected_component=NULL;
+    uint64_t parent_dev,parent_ino,entry_dev,entry_ino,uid,mode,size;
+    if(!op || !r || !op->has_begin || !op->has_sealed ||
+       !valid_component(r->source_component) ||
+       !is_lower_hex(r->expected_sha256,64U))
+        return 0;
+    switch(r->kind) {
+    case FCJ4_ACTION_KIND_QUARANTINE_STAGE:
+        parent_dev=op->begin.destination_parent_dev;
+        parent_ino=op->begin.destination_parent_ino;
+        entry_dev=op->sealed.stage_dev; entry_ino=op->sealed.stage_ino;
+        uid=op->sealed.stage_uid; mode=op->sealed.stage_mode;
+        size=op->sealed.stage_size; expected_component=op->stage_component;
+        break;
+    case FCJ4_ACTION_KIND_QUARANTINE_SOURCE:
+        parent_dev=op->begin.source_parent_dev;
+        parent_ino=op->begin.source_parent_ino;
+        entry_dev=op->begin.source_dev; entry_ino=op->begin.source_ino;
+        uid=op->begin.source_uid; mode=op->begin.source_mode;
+        size=op->begin.source_size;
+        expected_component=base_name(op->begin.source_path);
+        break;
+    case FCJ4_ACTION_KIND_RETIRE_QUARANTINED_SOURCE:
+    case FCJ4_ACTION_KIND_REMOVE_QUARANTINED_STAGE: {
+        Fcj4ActionKind required = r->kind==FCJ4_ACTION_KIND_RETIRE_QUARANTINED_SOURCE
+            ? FCJ4_ACTION_KIND_QUARANTINE_SOURCE
+            : FCJ4_ACTION_KIND_QUARANTINE_STAGE;
+        size_t i;
+        for(i=0U;i<op->action_count;i++)
+            if(op->actions[i].record.kind==required &&
+               op->actions[i].record.target_component &&
+               strcmp(op->actions[i].record.target_component,r->source_component)==0)
+                break;
+        if(i==op->action_count) return 0;
+        parent_dev=op->begin.quarantine_parent_dev;
+        parent_ino=op->begin.quarantine_parent_ino;
+        if(required==FCJ4_ACTION_KIND_QUARANTINE_SOURCE) {
+            entry_dev=op->begin.source_dev; entry_ino=op->begin.source_ino;
+            uid=op->begin.source_uid; mode=op->begin.source_mode;
+            size=op->begin.source_size;
+        } else {
+            entry_dev=op->sealed.stage_dev; entry_ino=op->sealed.stage_ino;
+            uid=op->sealed.stage_uid; mode=op->sealed.stage_mode;
+            size=op->sealed.stage_size;
+        }
+        break;
+    }
+    default: return 0;
+    }
+    if(r->expected_parent_dev!=parent_dev ||
+       r->expected_parent_ino!=parent_ino ||
+       r->expected_entry_dev!=entry_dev ||
+       r->expected_entry_ino!=entry_ino ||
+       r->expected_uid!=uid || r->expected_mode!=mode ||
+       r->expected_size!=size ||
+       strcmp(r->expected_sha256,op->stage_digest)!=0)
+        return 0;
+    if(expected_component &&
+       strcmp(r->source_component,expected_component)!=0)
+        return 0;
+    return 1;
 }
 
 static int validate_next(Fcj4WriterState *s,const Fcj4Record *r,
@@ -412,7 +558,10 @@ static int validate_next(Fcj4WriterState *s,const Fcj4Record *r,
         if(op || s->operation_count>=FCJ4_MAX_OPERATIONS) return fail(EINVAL);
     } else if(!op || !op->has_begin) return fail(EINVAL);
     if(r->kind==FCJ4_RECORD_SEALED) {
-        if(op->has_sealed) return fail(EINVAL);
+        if(op->has_sealed ||
+           r->value.sealed.stage_dev!=op->begin.destination_parent_dev ||
+           r->value.sealed.stage_size!=op->begin.source_size)
+            return fail(EINVAL);
     } else if(r->kind!=FCJ4_RECORD_BEGIN && !op->has_sealed) return fail(EINVAL);
     if(r->kind==FCJ4_RECORD_MOVE) {
         if(seq!=op->move_sequence+1U ||
@@ -423,13 +572,15 @@ static int validate_next(Fcj4WriterState *s,const Fcj4Record *r,
         if(!is_lower_hex(actionid,32U) ||
            op->action_count>=FCJ4_MAX_ACTIONS_PER_OPERATION ||
            find_action(op,actionid)!=SIZE_MAX) return fail(EINVAL);
+        if(!validate_action_evidence(op,&r->value.action_def))
+            return fail(EINVAL);
         memcpy(p->action_id,actionid,33U);
     }
     if(r->kind==FCJ4_RECORD_ACTION) {
         size_t ai;
         if(!is_lower_hex(actionid,32U) || (ai=find_action(op,actionid))==SIZE_MAX ||
-           seq!=op->action_sequences[ai]+1U ||
-           !valid_action_transition(op->action_states[ai],*action,
+           seq!=op->actions[ai].sequence+1U ||
+           !valid_action_transition(op->actions[ai].state,*action,
                                     r->value.action.error_code)) return fail(EINVAL);
         memcpy(p->action_id,actionid,33U);
     }
@@ -460,6 +611,90 @@ void fcj4_writer_state_destroy(Fcj4WriterState *s)
     free(s);
 }
 
+int fcj4_writer_state_import_replay(Fcj4WriterState *s,
+                                    const Fcj4Replay *replay)
+{
+    if(!s || !replay || s->pending || s->revision!=0U ||
+       s->operation_count!=0U || replay->count>FCJ4_MAX_OPERATIONS ||
+       replay->capacity>FCJ4_MAX_OPERATIONS ||
+       replay->count>replay->capacity ||
+       replay->record_count>FCJ4_MAX_RECORDS ||
+       replay->record_count<replay->count ||
+       (replay->count!=0U && !replay->operations))
+        return fail(EINVAL);
+    for(size_t i=0U;i<replay->count;i++) {
+        Fcj4OperationView v;
+        WriterOperation *op=&s->operations[i];
+        Fcj4BeginRecord begin;
+        if(fcj4_replay_operation(replay,i,&v)!=0) goto invalid;
+        memset(&begin,0,sizeof(begin));
+        begin.operation_id=v.operation_id;
+        begin.source_path=v.source_path;
+        begin.source_parent_dev=v.source_parent_dev;
+        begin.source_parent_ino=v.source_parent_ino;
+        begin.source_dev=v.source_dev; begin.source_ino=v.source_ino;
+        begin.source_uid=v.source_uid; begin.source_gid=v.source_gid;
+        begin.source_mode=v.source_mode; begin.source_size=v.source_size;
+        begin.source_mtime_sec=v.source_mtime_sec;
+        begin.source_mtime_nsec=v.source_mtime_nsec;
+        begin.source_ctime_sec=v.source_ctime_sec;
+        begin.source_ctime_nsec=v.source_ctime_nsec;
+        begin.destination_path=v.destination_path;
+        begin.destination_parent_dev=v.destination_parent_dev;
+        begin.destination_parent_ino=v.destination_parent_ino;
+        begin.destination_basename=v.destination_basename;
+        begin.quarantine_parent_dev=v.quarantine_parent_dev;
+        begin.quarantine_parent_ino=v.quarantine_parent_ino;
+        if(copy_begin(op,&begin)!=0) goto invalid;
+        op->move_state=v.move_state;
+        op->move_sequence=v.move_sequence;
+        if(v.stage_component) {
+            Fcj4SealedRecord sealed;
+            memset(&sealed,0,sizeof(sealed));
+            sealed.operation_id=v.operation_id;
+            sealed.stage_component=v.stage_component;
+            sealed.stage_dev=v.stage_dev; sealed.stage_ino=v.stage_ino;
+            sealed.stage_uid=v.stage_uid; sealed.stage_mode=v.stage_mode;
+            sealed.stage_size=v.stage_size; sealed.sha256=v.stage_sha256;
+            if(copy_sealed(op,&sealed)!=0) goto invalid;
+        }
+        for(size_t j=0U;j<v.action_count;j++) {
+            Fcj4ActionView av;
+            Fcj4ActionDefRecord def;
+            WriterAction *wa;
+            if(fcj4_replay_action(replay,i,j,&av)!=0) goto invalid;
+            memset(&def,0,sizeof(def));
+            def.operation_id=v.operation_id;
+            def.action_id=av.action_id;
+            def.kind=av.kind; def.target_role=av.target_role;
+            def.expected_parent_dev=av.expected_parent_dev;
+            def.expected_parent_ino=av.expected_parent_ino;
+            def.expected_entry_dev=av.expected_entry_dev;
+            def.expected_entry_ino=av.expected_entry_ino;
+            def.expected_uid=av.expected_uid; def.expected_mode=av.expected_mode;
+            def.expected_size=av.expected_size;
+            def.expected_sha256=av.expected_sha256;
+            def.source_component=av.source_component;
+            def.target_component=av.target_component;
+            if(copy_action_def(op,j,&def)!=0) goto invalid;
+            wa=&op->actions[j];
+            wa->state=av.state;
+            wa->sequence=av.sequence;
+            op->action_count++;
+        }
+        s->operation_count++;
+    }
+    s->revision=(uint64_t)replay->record_count;
+    s->next_token=1U;
+    return 0;
+invalid:
+    memset(s->operations,0,FCJ4_MAX_OPERATIONS*sizeof(*s->operations));
+    s->operation_count=0U;
+    s->revision=0U;
+    s->next_token=1U;
+    return fail(EBADMSG);
+}
+
 int fcj4_writer_prepare(Fcj4WriterState *s,const Fcj4Record *r,
                         char *output,size_t capacity,size_t *written,
                         Fcj4PreparedRecord *prepared)
@@ -471,6 +706,9 @@ int fcj4_writer_prepare(Fcj4WriterState *s,const Fcj4Record *r,
     if(written) *written=0U;
     if(!s || !r || !output || !written || !prepared) return fail(EINVAL);
     if(s->pending) return fail(EBUSY);
+    /* revision counts committed records; a prepared record is not counted
+       until commit, so abort leaves the limit accounting unchanged. */
+    if(s->revision>=FCJ4_MAX_RECORDS) return fail(E2BIG);
     memset(&p,0,sizeof(p));
     if(validate_next(s,r,&p,&move,&action)!=0) return -1;
     if(fcj4_serialize(r,output,capacity,&n)!=0) return -1;
@@ -481,6 +719,19 @@ int fcj4_writer_prepare(Fcj4WriterState *s,const Fcj4Record *r,
     s->pending_kind=r->kind;
     s->pending_move=move;
     s->pending_action=action;
+    memset(&s->pending_evidence,0,sizeof(s->pending_evidence));
+    if(r->kind==FCJ4_RECORD_BEGIN &&
+       copy_begin(&s->pending_evidence,&r->value.begin)!=0) {
+        s->pending=0; return fail(EINVAL);
+    }
+    if(r->kind==FCJ4_RECORD_SEALED &&
+       copy_sealed(&s->pending_evidence,&r->value.sealed)!=0) {
+        s->pending=0; return fail(EINVAL);
+    }
+    if(r->kind==FCJ4_RECORD_ACTION_DEF &&
+       copy_action_def(&s->pending_evidence,0U,&r->value.action_def)!=0) {
+        s->pending=0; return fail(EINVAL);
+    }
     memcpy(s->pending_bytes,output,n);
     s->pending_length=n;
     s->pending=1;
@@ -508,23 +759,42 @@ int fcj4_writer_commit(Fcj4WriterState *s,const Fcj4PreparedRecord *p,
     if(s->pending_kind==FCJ4_RECORD_BEGIN) {
         if(op || s->operation_count>=FCJ4_MAX_OPERATIONS) return fail(EINVAL);
         op=&s->operations[s->operation_count++];
-        memset(op,0,sizeof(*op));
-        memcpy(op->id,p->operation_id,33U);
-        op->has_begin=1;
+        *op=s->pending_evidence;
+        op->begin.operation_id=op->id;
+        op->begin.source_path=op->source_path;
+        op->begin.destination_path=op->destination_path;
+        op->begin.destination_basename=op->destination_basename;
     } else {
         if(!op) return fail(EINVAL);
-        if(s->pending_kind==FCJ4_RECORD_SEALED) op->has_sealed=1;
+        if(s->pending_kind==FCJ4_RECORD_SEALED) {
+            op->sealed=s->pending_evidence.sealed;
+            memcpy(op->stage_component,s->pending_evidence.stage_component,
+                   sizeof(op->stage_component));
+            memcpy(op->stage_digest,s->pending_evidence.stage_digest,
+                   sizeof(op->stage_digest));
+            op->sealed.operation_id=op->id;
+            op->sealed.stage_component=op->stage_component;
+            op->sealed.sha256=op->stage_digest;
+            op->has_sealed=1;
+        }
         else if(s->pending_kind==FCJ4_RECORD_MOVE) {
             op->move_state=s->pending_move;
             op->move_sequence=p->sequence;
         } else if(s->pending_kind==FCJ4_RECORD_ACTION_DEF) {
             size_t i=op->action_count++;
-            memcpy(op->action_ids[i],p->action_id,33U);
+            op->actions[i]=s->pending_evidence.actions[0];
+            op->actions[i].record.operation_id=op->id;
+            op->actions[i].record.action_id=op->actions[i].id;
+            op->actions[i].record.source_component=op->actions[i].source_component;
+            op->actions[i].record.target_component=
+                op->actions[i].record.target_role==FCJ4_TARGET_QUARANTINE
+                    ? op->actions[i].target_component : NULL;
+            op->actions[i].record.expected_sha256=op->actions[i].digest;
         } else if(s->pending_kind==FCJ4_RECORD_ACTION) {
             size_t i=find_action(op,p->action_id);
             if(i==SIZE_MAX) return fail(EINVAL);
-            op->action_states[i]=s->pending_action;
-            op->action_sequences[i]=p->sequence;
+            op->actions[i].state=s->pending_action;
+            op->actions[i].sequence=p->sequence;
         }
     }
     s->revision++;
@@ -550,6 +820,7 @@ int fcj4_writer_abort_prepare(Fcj4WriterState *s,const Fcj4PreparedRecord *p)
     s->pending=0;
     memset(&s->prepared,0,sizeof(s->prepared));
     memset(s->pending_bytes,0,sizeof(s->pending_bytes));
+    memset(&s->pending_evidence,0,sizeof(s->pending_evidence));
     s->pending_length=0U;
     return 0;
 }

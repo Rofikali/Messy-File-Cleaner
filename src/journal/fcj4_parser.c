@@ -202,6 +202,9 @@ static int parse_begin(char **f, size_t n, Fcj4Replay *r)
     int64_t source_mtime_sec, source_ctime_sec;
     Fcj4Operation *op;
 
+    fprintf(stderr,"BEGIN n=%zu\\n",n);
+    for (size_t debug_i=0U; debug_i<n; ++debug_i)
+        fprintf(stderr,"f[%zu]=<%s>\\n",debug_i,f[debug_i]);
     if (n != 27U || strcmp(f[0],"FCJ4") || strcmp(f[1],"BEGIN") ||
         strcmp(f[2],"1") || !is_hex(f[3],32U)) { fprintf(stderr,"BEGIN shape n=%zu\\n",n); return -1; }
     if (r->count >= FCJ4_MAX_OPERATIONS) return -2;

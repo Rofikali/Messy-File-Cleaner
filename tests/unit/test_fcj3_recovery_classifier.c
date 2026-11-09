@@ -220,6 +220,15 @@ static void test_invalid_inputs_and_determinism(void)
     assert(first.reason == FCJ3_REASON_INVALID_TRANSACTION);
     tx = make_transaction(FCJ3_STATE_FAILED);
 
+    tx.operation_id[0] = 'G';
+    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    assert(first.reason == FCJ3_REASON_INVALID_TRANSACTION);
+    tx = make_transaction(FCJ3_STATE_FAILED);
+    tx.staging_component[0] = '/';
+    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    assert(first.reason == FCJ3_REASON_INVALID_TRANSACTION);
+    tx = make_transaction(FCJ3_STATE_FAILED);
+
     assert(fcj3_recovery_classify(&evidence, &first) == 0);
     assert(fcj3_recovery_classify(&evidence, &second) == 0);
     assert(first.classification == second.classification);

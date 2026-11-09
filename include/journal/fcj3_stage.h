@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <time.h>
+#include "journal/fcj3_sha256.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -26,6 +27,7 @@ typedef struct
     off_t copied_size;
     struct timespec copied_mtime;
     struct timespec copied_ctime;
+    unsigned char copied_digest[32];
     uid_t expected_owner;
     char staging_component[256];
     int initialized;

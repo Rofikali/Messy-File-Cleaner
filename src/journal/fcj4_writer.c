@@ -30,6 +30,8 @@ struct Fcj4WriterState {
     Fcj4RecordKind pending_kind;
     Fcj4MoveState pending_move;
     Fcj4ActionState pending_action;
+    char pending_bytes[FCJ4_MAX_LINE_BYTES];
+    size_t pending_length;
 };
 
 typedef struct {
@@ -479,16 +481,22 @@ int fcj4_writer_prepare(Fcj4WriterState *s,const Fcj4Record *r,
     s->pending_kind=r->kind;
     s->pending_move=move;
     s->pending_action=action;
+    memcpy(s->pending_bytes,output,n);
+    s->pending_length=n;
     s->pending=1;
     *prepared=p;
     *written=n;
     return 0;
 }
 
-int fcj4_writer_commit(Fcj4WriterState *s,const Fcj4PreparedRecord *p)
+int fcj4_writer_commit(Fcj4WriterState *s,const Fcj4PreparedRecord *p,
+                        const char *committed_bytes,size_t committed_length)
 {
     WriterOperation *op;
-    if(!s || !p || !s->pending || p->token!=s->prepared.token ||
+    if(!s || !p || !committed_bytes || !s->pending ||
+       committed_length!=s->pending_length ||
+       memcmp(committed_bytes,s->pending_bytes,s->pending_length)!=0 ||
+       p->token!=s->prepared.token ||
        p->revision!=s->prepared.revision || p->kind!=s->prepared.kind ||
        memcmp(p->operation_id,s->prepared.operation_id,
               sizeof(s->prepared.operation_id))!=0 ||
@@ -522,6 +530,8 @@ int fcj4_writer_commit(Fcj4WriterState *s,const Fcj4PreparedRecord *p)
     s->revision++;
     s->pending=0;
     memset(&s->prepared,0,sizeof(s->prepared));
+    memset(s->pending_bytes,0,sizeof(s->pending_bytes));
+    s->pending_length=0U;
     return 0;
 }
 
@@ -539,6 +549,8 @@ int fcj4_writer_abort_prepare(Fcj4WriterState *s,const Fcj4PreparedRecord *p)
         return fail(EINVAL);
     s->pending=0;
     memset(&s->prepared,0,sizeof(s->prepared));
+    memset(s->pending_bytes,0,sizeof(s->pending_bytes));
+    s->pending_length=0U;
     return 0;
 }
 

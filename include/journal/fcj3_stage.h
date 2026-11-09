@@ -23,6 +23,7 @@ typedef struct
     uid_t expected_owner;
     char staging_component[256];
     int initialized;
+    int synced;
     int linked;
     int published;
 } Fcj3Stage;

@@ -280,7 +280,7 @@ static int parse_sealed(char **f, size_t n, Fcj4Replay *r)
         !valid_component(op->stage_component) ||
         strncmp(op->stage_component,".fc-tmp-",8U)!=0 ||
         strlen(op->stage_component)<=8U || v[1]==0U || v[2]==0U ||
-        v[5]!=op->source_size) return -1;
+        v[1]!=op->destination_parent_dev || v[5]!=op->source_size) return -1;
     op->stage_dev=v[1]; op->stage_ino=v[2]; op->stage_uid=v[3];
     op->stage_mode=v[4]; op->stage_size=v[5];
     memcpy(op->stage_digest,f[11],65U);
@@ -370,11 +370,9 @@ static int parse_action_def(char **f, size_t n, Fcj4Replay *r)
         parent_ino!=op->source_parent_ino ||
         strcmp(a->source_component,basename_of(op->source_path))!=0)) return -1;
     if (kind==3U && (parent_dev!=op->quarantine_parent_dev ||
-        parent_ino!=op->quarantine_parent_ino ||
-        strcmp(a->source_component,basename_of(op->source_path))!=0)) return -1;
+        parent_ino!=op->quarantine_parent_ino)) return -1;
     if (kind==4U && (parent_dev!=op->quarantine_parent_dev ||
-        parent_ino!=op->quarantine_parent_ino ||
-        strcmp(a->source_component,op->stage_component)!=0)) return -1;
+        parent_ino!=op->quarantine_parent_ino)) return -1;
 
     /* Bind every action subject to the immutable BEGIN/SEALED evidence. */
     if (kind==1U || kind==4U) {
@@ -436,6 +434,34 @@ static int parse_action(char **f, size_t n, Fcj4Replay *r)
     return 0;
 }
 
+
+static int validate_quarantine_action_links(const Fcj4Replay *replay)
+{
+    const Fcj4Operation *ops=(const Fcj4Operation *)replay->operations;
+    for (size_t i=0U;i<replay->count;i++) {
+        const Fcj4Operation *op=&ops[i];
+        for (size_t j=0U;j<op->action_count;j++) {
+            const Fcj4Action *action=&op->actions[j];
+            unsigned int required_kind;
+            int matched=0;
+            if (action->kind==3U) required_kind=2U;
+            else if (action->kind==4U) required_kind=1U;
+            else continue;
+            for (size_t k=0U;k<op->action_count;k++) {
+                const Fcj4Action *quarantine=&op->actions[k];
+                if (quarantine->kind==required_kind &&
+                    strcmp(action->source_component,
+                           quarantine->target_component)==0) {
+                    matched=1;
+                    break;
+                }
+            }
+            if (!matched) return 0;
+        }
+    }
+    return 1;
+}
+
 void fcj4_replay_init(Fcj4Replay *replay)
 {
     if (replay) memset(replay,0,sizeof(*replay));
@@ -492,6 +518,8 @@ int fcj4_replay_parse(const void *data, size_t length, Fcj4Replay *out)
         temporary.record_count++;
         offset+=line_length;
     }
+    if (status==0 && !validate_quarantine_action_links(&temporary))
+        status=EBADMSG;
     if (status==0) {
         *out=temporary;
         return 0;

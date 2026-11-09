@@ -7,6 +7,9 @@
 
 static const char *opid = "11111111111111111111111111111111";
 static const char *actionid = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+static const char *actionid2 = "22222222222222222222222222222222";
+static const char *actionid3 = "33333333333333333333333333333333";
+static const char *actionid4 = "44444444444444444444444444444444";
 static const char *digest =
     "0000000000000000000000000000000000000000000000000000000000000000";
 
@@ -25,6 +28,9 @@ static size_t make_valid(char *out, size_t capacity)
     APPEND("FCJ4|MOVE|1|%s|3|PUBLISHED|0\n",opid);
     APPEND("FCJ4|MOVE|1|%s|4|COMPLETED|0\n",opid);
     APPEND("FCJ4|ACTION_DEF|1|%s|%s|QUARANTINE_STAGE|QUARANTINE|1|4|1|6|REGULAR|1000|384|5|%s|9|2e66632d746d702d78|7|712d7374616765\n",opid,actionid,digest);
+    APPEND("FCJ4|ACTION_DEF|1|%s|%s|QUARANTINE_SOURCE|QUARANTINE|1|2|1|3|REGULAR|1000|384|5|%s|6|736f75726365|8|712d736f75726365\n",opid,actionid2,digest);
+    APPEND("FCJ4|ACTION_DEF|1|%s|%s|RETIRE_QUARANTINED_SOURCE|NONE|1|5|1|3|REGULAR|1000|384|5|%s|6|736f75726365|0|-\n",opid,actionid3,digest);
+    APPEND("FCJ4|ACTION_DEF|1|%s|%s|REMOVE_QUARANTINED_STAGE|NONE|1|5|1|6|REGULAR|1000|384|5|%s|9|2e66632d746d702d78|0|-\n",opid,actionid4,digest);
     APPEND("FCJ4|ACTION|1|%s|%s|1|ACTION_PREPARED|0\n",opid,actionid);
     APPEND("FCJ4|ACTION|1|%s|%s|2|ACTION_STARTED|0\n",opid,actionid);
     APPEND("FCJ4|ACTION|1|%s|%s|3|ACTION_APPLIED|0\n",opid,actionid);
@@ -61,10 +67,10 @@ static void test_valid_complete_replay(void)
         assert(!"valid FCJ4 fixture was rejected");
     }
     assert(replay.count==1U);
-    assert(replay.record_count==12U);
+    assert(replay.record_count==15U);
     assert(fcj4_replay_operation(&replay,0U,&view)==0);
     assert(strcmp(view.operation_id,opid)==0);
-    assert(view.action_count==1U);
+    assert(view.action_count==4U);
     assert(view.move_state==FCJ4_MOVE_COMPLETED);
     assert(fcj4_replay_operation(&replay,1U,&view)==-1);
     fcj4_replay_destroy(&replay);
@@ -128,6 +134,77 @@ static void test_rejects_noncanonical_and_unknown(void)
     assert(errno==EBADMSG);
 }
 
+
+static void test_rejects_action_identity_mismatch(void)
+{
+    char bytes[8192];
+    size_t length=make_valid(bytes,sizeof(bytes));
+    char *record=strstr(bytes,"QUARANTINE_STAGE|QUARANTINE|1|4|1|6|REGULAR");
+    Fcj4Replay replay;
+    assert(record!=NULL);
+    record=strstr(record,"|1|6|REGULAR");
+    assert(record!=NULL);
+    memcpy(record,"|1|7|REGULAR",12U);
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+}
+
+static void test_rejects_action_parent_and_sentinel_mismatch(void)
+{
+    char bytes[8192];
+    size_t length=make_valid(bytes,sizeof(bytes));
+    char *record=strstr(bytes,"QUARANTINE_STAGE|QUARANTINE|1|4|");
+    Fcj4Replay replay;
+    assert(record!=NULL);
+    record=strstr(record,"|1|4|");
+    assert(record!=NULL);
+    memcpy(record,"|1|2|",5U);
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+
+    length=make_valid(bytes,sizeof(bytes));
+    record=strstr(bytes,"RETIRE_QUARANTINED_SOURCE|NONE");
+    assert(record!=NULL);
+    record=strstr(record,"|0|-\n");
+    assert(record!=NULL);
+    memcpy(record,"|0|0\n",5U);
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+}
+
+static void test_rejects_resource_and_framing_limits(void)
+{
+    char byte='x';
+    char oversized[FCJ4_MAX_LINE_BYTES+1U];
+    Fcj4Replay replay;
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(&byte,(size_t)FCJ4_MAX_JOURNAL_BYTES+1U,&replay)==-1);
+    assert(errno==E2BIG);
+
+    memset(oversized,'A',sizeof(oversized));
+    oversized[sizeof(oversized)-1U]='\n';
+    errno=0;
+    assert(fcj4_replay_parse(oversized,sizeof(oversized),&replay)==-1);
+    assert(errno==E2BIG);
+
+    {
+        const char crlf[]="FCJ4|UNKNOWN|1|x\r\n";
+        errno=0;
+        assert(fcj4_replay_parse(crlf,sizeof(crlf)-1U,&replay)==-1);
+        assert(errno==EBADMSG);
+    }
+}
+
 int main(void)
 {
     test_valid_complete_replay();
@@ -135,6 +212,9 @@ int main(void)
     test_rejects_truncation_and_empty();
     test_rejects_illegal_move_transition();
     test_rejects_noncanonical_and_unknown();
+    test_rejects_action_identity_mismatch();
+    test_rejects_action_parent_and_sentinel_mismatch();
+    test_rejects_resource_and_framing_limits();
     puts("FCJ4 parser/replay unit tests passed");
     return 0;
 }

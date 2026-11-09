@@ -85,7 +85,7 @@ The table assumes the destination directory identity has already matched. Any di
 | PUBLISHED | ABSENT | ABSENT | any | MANUAL_REVIEW (durable publication record but destination missing) |
 | COMPLETED | ABSENT | MATCHING_REGULAR | any known source state | NO_ACTION_TERMINAL |
 | FAILED | ABSENT | ABSENT | any known source state | NO_ACTION_TERMINAL |
-| RECOVERED | any non-conflicting observation | any non-conflicting observation | any known source state | NO_ACTION_TERMINAL |
+| RECOVERED | ABSENT | ABSENT | any known source state | NO_ACTION_TERMINAL |
 
 The following evidence always overrides the table and returns MANUAL_REVIEW:
 
@@ -98,6 +98,7 @@ The following evidence always overrides the table and returns MANUAL_REVIEW:
 - Missing source in STAGED or STARTED unless the exact row above explicitly allows it (none currently does).
 - For FAILED, visible stage or destination entries are not assumed to be owned/cleanable; classify as manual review rather than silently accepting them.
 - For RECOVERED, conflicting/mismatching/symlink/special/unknown evidence still yields manual review; terminal means no replay action, not that evidence checks can be skipped.
+- The first pure-classifier implementation treats any visible stage or destination entry under RECOVERED as MANUAL_REVIEW, including a matching regular inode. The previous phrase “non-conflicting observation” was too broad to implement safely without a defined post-recovery filesystem contract.
 
 SOURCE_UNKNOWN_ERROR always yields MANUAL_REVIEW. The source observation does not authorize deletion even when present.
 

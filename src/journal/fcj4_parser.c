@@ -145,8 +145,8 @@ static int valid_absolute_path(const char *s)
             if (c < 0x20U || c == 0x7fU) return 0;
             ++p;
         }
-        if (p == start || (size_t)(p - start) == 1U && start[0] == '.' ||
-            (size_t)(p - start) == 2U && start[0] == '.' && start[1] == '.')
+        if (p == start || ((size_t)(p - start) == 1U && start[0] == '.') ||
+            ((size_t)(p - start) == 2U && start[0] == '.' && start[1] == '.'))
             return 0;
         if (*p == '/') {
             ++p;
@@ -230,10 +230,17 @@ static int parse_begin(char **f, size_t n, Fcj4Replay *r)
         source_mtime_nsec>999999999U || source_ctime_nsec>999999999U ||
         strcmp(f[10],"REGULAR")!=0) return -1;
 
-    if (r->count==0U) {
-        op=(Fcj4Operation *)calloc(FCJ4_MAX_OPERATIONS,sizeof(Fcj4Operation));
-        if (!op) return -3;
-        r->operations=op;
+    if (r->count == r->capacity) {
+        size_t next = r->capacity ? r->capacity * 2U : 8U;
+        Fcj4Operation *grown;
+        if (next > FCJ4_MAX_OPERATIONS) next = FCJ4_MAX_OPERATIONS;
+        if (next <= r->capacity || next > SIZE_MAX / sizeof(Fcj4Operation))
+            return -2;
+        grown=(Fcj4Operation *)realloc(r->operations,next*sizeof(Fcj4Operation));
+        if (!grown) return -3;
+        memset(grown+r->capacity,0,(next-r->capacity)*sizeof(Fcj4Operation));
+        r->operations=grown;
+        r->capacity=next;
     }
     op=&((Fcj4Operation *)r->operations)[r->count];
     memset(op,0,sizeof(*op));

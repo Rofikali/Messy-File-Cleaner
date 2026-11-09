@@ -74,6 +74,7 @@ int fcj3_stage_close(Fcj3Stage *stage);
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code);
 void fcj3_stage_test_grow_source_after_copy(int writable_source_fd);
 void fcj3_stage_test_mutate_stage_after_copy(int stage_fd);
+void fcj3_stage_test_mutate_stage_before_publish(int stage_fd);
 void fcj3_stage_test_fail_fsync(int error_code);
 #endif
 

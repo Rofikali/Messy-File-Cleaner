@@ -161,6 +161,16 @@ ext.html=Html/
 
 Use a separate test configuration and disposable input/output directories when experimenting with new rules.
 
+## FCJ4 journal development status
+
+FCJ4 is a separate, future journal protocol under staged development. The current repository contains a pure in-memory parser/replay implementation and an isolated canonical serializer/writer-state module used by tests. These modules are not the production journal, are not exposed through the CLI, and do not read or write `journal/move.log` or a `journal/move.fcj4` file.
+
+The current writer-state reconciliation milestone is intended to preserve immutable BEGIN/SEALED evidence, validate ACTION_DEF relationships against that evidence, restore state from a complete parsed replay, and enforce the parser's record limits. It does **not** provide durable append, locking, `fsync`, recovery planning, or filesystem mutation. A successful in-memory commit is not proof that bytes were durably written.
+
+A valid FCJ4 replay proves only that the supplied byte sequence satisfies the parser's structural and transition rules. It does not prove journal authenticity, current filesystem state, or permission to execute recovery. Do not manually create, edit, or use FCJ4 records to recover files.
+
+FCJ2/legacy production journal behavior remains separate. FCJ3 remains diagnostic/test-only and must not be mixed into the production FCJ2/legacy journal.
+
 ## Data safety and recovery
 
 File movement is more complicated than copying bytes. It involves temporary files, publication, directory metadata, synchronization, source retirement, and journal updates. A process can fail between any two of these steps.

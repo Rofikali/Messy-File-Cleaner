@@ -1,9 +1,17 @@
 #include "journal/fcj4_writer.h"
 
-#include <assert.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+
+#define CHECK(expr) do { \
+    if (!(expr)) { \
+        fprintf(stderr,"CHECK failed at %s:%d: %s (errno=%d)\\n", \
+                __FILE__,__LINE__,#expr,errno); \
+        exit(EXIT_FAILURE); \
+    } \
+} while (0)
 
 static const char opid[]="11111111111111111111111111111111";
 static const char actionid[]="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
@@ -16,12 +24,12 @@ static void append_record(char *journal,size_t capacity,size_t *used,
     char line[FCJ4_MAX_LINE_BYTES];
     size_t length=0U;
     Fcj4PreparedRecord prepared;
-    assert(fcj4_writer_prepare(state,record,line,sizeof(line),&length,&prepared)==0);
-    assert(length>0U && line[length-1U]=='\n');
-    assert(*used<=capacity && length<=capacity-*used);
+    CHECK(fcj4_writer_prepare(state,record,line,sizeof(line),&length,&prepared)==0);
+    CHECK(length>0U && line[length-1U]=='\n');
+    CHECK(*used<=capacity && length<=capacity-*used);
     memcpy(journal+*used,line,length);
     *used+=length;
-    assert(fcj4_writer_commit(state,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared)==0);
 }
 
 static void test_round_trip_and_transitions(void)
@@ -35,7 +43,7 @@ static void test_round_trip_and_transitions(void)
     char line[FCJ4_MAX_LINE_BYTES];
     size_t length=0U;
 
-    assert(fcj4_writer_state_create(&state)==0);
+    CHECK(fcj4_writer_state_create(&state)==0);
     memset(&r,0,sizeof(r));
     r.kind=FCJ4_RECORD_BEGIN;
     r.value.begin=(Fcj4BeginRecord){
@@ -43,13 +51,13 @@ static void test_round_trip_and_transitions(void)
         1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
     };
 
-    assert(fcj4_writer_prepare(state,&r,line,sizeof(line),&length,&prepared)==0);
-    assert(fcj4_writer_revision(state)==0U);
+    CHECK(fcj4_writer_prepare(state,&r,line,sizeof(line),&length,&prepared)==0);
+    CHECK(fcj4_writer_revision(state)==0U);
     errno=0;
-    assert(fcj4_writer_prepare(state,&r,line,sizeof(line),&length,&prepared)==-1);
-    assert(errno==EBUSY);
+    CHECK(fcj4_writer_prepare(state,&r,line,sizeof(line),&length,&prepared)==-1);
+    CHECK(errno==EBUSY);
     /* Abort proves prepare alone does not advance the in-memory state. */
-    assert(fcj4_writer_abort_prepare(state,&prepared)==0);
+    CHECK(fcj4_writer_abort_prepare(state,&prepared)==0);
     append_record(journal,sizeof(journal),&used,state,&r);
 
     memset(&r,0,sizeof(r));
@@ -86,10 +94,10 @@ static void test_round_trip_and_transitions(void)
     append_record(journal,sizeof(journal),&used,state,&r);
 
     fcj4_replay_init(&replay);
-    assert(fcj4_replay_parse(journal,used,&replay)==0);
-    assert(replay.count==1U && replay.record_count==8U);
+    CHECK(fcj4_replay_parse(journal,used,&replay)==0);
+    CHECK(replay.count==1U && replay.record_count==8U);
     fcj4_replay_destroy(&replay);
-    assert(fcj4_writer_revision(state)==8U);
+    CHECK(fcj4_writer_revision(state)==8U);
     fcj4_writer_state_destroy(state);
 }
 
@@ -102,13 +110,13 @@ static void test_serializer_rejects_noncanonical_inputs(void)
     r.kind=FCJ4_RECORD_MOVE;
     r.value.move=(Fcj4MoveRecord){opid,1U,FCJ4_MOVE_FAILED,0U};
     errno=0;
-    assert(fcj4_serialize(&r,output,sizeof(output),&written)==-1);
-    assert(errno==EINVAL && written==0U);
+    CHECK(fcj4_serialize(&r,output,sizeof(output),&written)==-1);
+    CHECK(errno==EINVAL && written==0U);
 
     r.value.move=(Fcj4MoveRecord){opid,1U,FCJ4_MOVE_STAGED,0U};
     errno=0;
-    assert(fcj4_serialize(&r,output,2U,&written)==-1);
-    assert(errno==ENOSPC && written==0U);
+    CHECK(fcj4_serialize(&r,output,2U,&written)==-1);
+    CHECK(errno==ENOSPC && written==0U);
 }
 
 static void test_stale_and_duplicate_commit_rejected(void)
@@ -118,18 +126,18 @@ static void test_stale_and_duplicate_commit_rejected(void)
     Fcj4PreparedRecord prepared;
     char output[FCJ4_MAX_LINE_BYTES];
     size_t written=0U;
-    assert(fcj4_writer_state_create(&state)==0);
+    CHECK(fcj4_writer_state_create(&state)==0);
     memset(&r,0,sizeof(r));
     r.kind=FCJ4_RECORD_BEGIN;
     r.value.begin=(Fcj4BeginRecord){
         opid,"/tmp/source",1U,2U,1U,3U,1000U,1000U,384U,5U,
         1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
     };
-    assert(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==0);
-    assert(fcj4_writer_commit(state,&prepared)==0);
+    CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared)==0);
     errno=0;
-    assert(fcj4_writer_commit(state,&prepared)==-1);
-    assert(errno==EINVAL);
+    CHECK(fcj4_writer_commit(state,&prepared)==-1);
+    CHECK(errno==EINVAL);
     fcj4_writer_state_destroy(state);
 }
 

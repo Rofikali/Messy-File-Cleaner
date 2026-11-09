@@ -88,7 +88,7 @@ static void test_rejects_illegal_move_transition(void)
     char *started=strstr(bytes,"|1|STAGED|0\n");
     Fcj4Replay replay;
     assert(started!=NULL);
-    memcpy(started,"|1|STARTED|0\n",13U);
+    memcpy(started,"|1|FAILED|1\n",12U);
     fcj4_replay_init(&replay);
     errno=0;
     assert(fcj4_replay_parse(bytes,length,&replay)==-1);

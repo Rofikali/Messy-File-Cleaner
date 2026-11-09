@@ -3,7 +3,6 @@
 
 #include "journal/fcj3_recovery_evidence.h"
 
-#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -15,7 +14,7 @@
 #define CHECK(expression) do { \
     if (!(expression)) { \
         int saved_errno = errno; \
-        fprintf(stderr, "CHECK failed at %s:%d: %s (errno=%d)\\n", \
+        fprintf(stderr, "CHECK failed at %s:%d: %s (errno=%d)\n", \
                 __FILE__, __LINE__, #expression, saved_errno); \
         exit(EXIT_FAILURE); \
     } \
@@ -107,6 +106,14 @@ static void test_mismatch_symlink_and_special(int root_fd, const char *root,
     evidence = collect(&transaction, root_fd, root_fd);
     CHECK(evidence.recovery.stage == FCJ3_EVIDENCE_SYMLINK);
     CHECK(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
+
+    CHECK(unlinkat(root_fd, "source.bin", 0) == 0);
+    CHECK(symlinkat("destination.bin", root_fd, "source.bin") == 0);
+    evidence = collect(&transaction, root_fd, root_fd);
+    CHECK(evidence.recovery.source == FCJ3_SOURCE_PRESENT);
+    CHECK(S_ISLNK(evidence.source_mode));
+    CHECK(unlinkat(root_fd, "source.bin", 0) == 0);
+    create_file_at(root_fd, "source.bin");
 }
 
 static void test_directory_identity_gate(int root_fd, const char *root,

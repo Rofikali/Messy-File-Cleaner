@@ -104,6 +104,15 @@ int fcj4_writer_state_create(Fcj4WriterState **out);
 void fcj4_writer_state_destroy(Fcj4WriterState *state);
 
 /*
+ * Import a complete, successfully parsed replay into a fresh writer state.
+ * Import is all-or-nothing and deep-copies all retained evidence; the replay
+ * may be destroyed after success. The destination must be newly created and
+ * have revision zero. No journal or filesystem I/O is performed.
+ */
+int fcj4_writer_state_import_replay(Fcj4WriterState *state,
+                                    const Fcj4Replay *replay);
+
+/*
  * Prepare validates ordering/transitions and serializes into caller storage.
  * Exactly one prepare may be outstanding. The state does not advance here.
  * Commit requires the exact prepared bytes and length, checked against the

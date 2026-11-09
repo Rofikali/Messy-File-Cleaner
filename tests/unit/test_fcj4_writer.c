@@ -345,6 +345,22 @@ static void test_replay_import_failure_is_atomic(void)
     CHECK(fcj4_writer_state_import_replay(state,&invalid_replay)==-1);
     CHECK(errno==EINVAL);
     CHECK(fcj4_writer_revision(state)==0U);
+    /* The failed import must leave the destination usable and empty. */
+    {
+        Fcj4Record begin;
+        char output[FCJ4_MAX_LINE_BYTES];
+        size_t written=0U;
+        Fcj4PreparedRecord prepared;
+        memset(&begin,0,sizeof(begin));
+        begin.kind=FCJ4_RECORD_BEGIN;
+        begin.value.begin=(Fcj4BeginRecord){
+            opid,"/tmp/source",1U,2U,1U,3U,1000U,1000U,384U,5U,
+            1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
+        };
+        CHECK(fcj4_writer_prepare(state,&begin,output,sizeof(output),
+                                  &written,&prepared)==0);
+        CHECK(fcj4_writer_abort_prepare(state,&prepared)==0);
+    }
     invalid_replay.count=0U;
     fcj4_writer_state_destroy(state);
 }

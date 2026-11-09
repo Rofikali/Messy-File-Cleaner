@@ -7,7 +7,7 @@
 
 #define CHECK(expr) do { \
     if (!(expr)) { \
-        fprintf(stderr,"CHECK failed at %s:%d: %s (errno=%d)\\n", \
+        fprintf(stderr,"CHECK failed at %s:%d: %s (errno=%d)\n", \
                 __FILE__,__LINE__,#expr,errno); \
         exit(EXIT_FAILURE); \
     } \

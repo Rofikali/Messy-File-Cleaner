@@ -41,6 +41,14 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
 /* Borrow the anonymous staging descriptor before sync; do not retain it or write after sync. */
 int fcj3_stage_fd(const Fcj3Stage *stage);
 
+/* Copy an already-open regular source descriptor into the anonymous stage.
+ * The caller must open it safely (normally O_RDONLY | O_NOFOLLOW). The helper
+ * checks source identity, size, owner, mode, mtime and ctime before/after.
+ * Any copy uncertainty poisons the stage.
+ */
+int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
+                         struct stat *source_snapshot, uint64_t *bytes_copied);
+
 /* fsync the anonymous file and return its validated stat snapshot. */
 int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata);
 

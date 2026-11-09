@@ -94,6 +94,22 @@ static int validate_directory(int directory_fd, uid_t expected_owner,
     return 0;
 }
 
+static int validate_stage_directory(const Fcj3Stage *stage)
+{
+    struct stat current;
+    if (fstat(stage->directory_fd, &current) != 0)
+        return -1;
+    if (!S_ISDIR(current.st_mode) || current.st_uid != stage->expected_owner ||
+        (current.st_mode & 0022) != 0 ||
+        current.st_dev != stage->directory_device ||
+        current.st_ino != stage->directory_inode)
+    {
+        errno = ESTALE;
+        return -1;
+    }
+    return 0;
+}
+
 static int verify_named_inode(int directory_fd, const char *component,
                               dev_t expected_device, ino_t expected_inode)
 {
@@ -188,16 +204,8 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
         return -1;
     }
 
-    struct stat directory_now;
-    if (fstat(stage->directory_fd, &directory_now) != 0)
+    if (validate_stage_directory(stage) != 0)
         return -1;
-    if (!S_ISDIR(directory_now.st_mode) ||
-        directory_now.st_dev != stage->directory_device ||
-        directory_now.st_ino != stage->directory_inode)
-    {
-        errno = ESTALE;
-        return -1;
-    }
 
     if (fsync(stage->staging_fd) != 0)
         return -1;
@@ -213,17 +221,21 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
         errno = ESTALE;
         return -1;
     }
+    stage->synced = 1;
     return 0;
 }
 
 int fcj3_stage_link(Fcj3Stage *stage)
 {
-    if (stage == NULL || !stage->initialized || stage->linked ||
-        stage->published)
+    if (stage == NULL || !stage->initialized || !stage->synced ||
+        stage->linked || stage->published)
     {
         errno = EINVAL;
         return -1;
     }
+
+    if (validate_stage_directory(stage) != 0)
+        return -1;
 
     struct stat current;
     if (fstat(stage->staging_fd, &current) != 0)
@@ -262,14 +274,20 @@ int fcj3_stage_link(Fcj3Stage *stage)
 
 int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
 {
-    if (stage == NULL || !stage->initialized || !stage->linked ||
-        stage->published ||
+    if (stage == NULL || !stage->initialized || !stage->synced ||
+        !stage->linked || stage->published ||
         !valid_component(final_component, ""))
     {
         if (errno == 0)
             errno = EINVAL;
         return -1;
     }
+
+    if (validate_stage_directory(stage) != 0)
+        return -1;
+    if (verify_named_inode(stage->directory_fd, stage->staging_component,
+                           stage->staging_device, stage->staging_inode) != 0)
+        return -1;
 
     if (syscall(SYS_renameat2, stage->directory_fd, stage->staging_component,
                 stage->directory_fd, final_component, RENAME_NOREPLACE) != 0)

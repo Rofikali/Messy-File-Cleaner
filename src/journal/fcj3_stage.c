@@ -678,11 +678,6 @@ int fcj3_stage_link(Fcj3Stage *stage)
 
     /* From this point, never remove the name on an identity uncertainty. */
     stage->linked = 1;
-    if (stage->copied && stage_content_matches_copy_digest(stage) != 0)
-    {
-        stage->poisoned = 1;
-        return -1;
-    }
     if (verify_named_inode(stage->directory_fd, stage->staging_component,
                            stage->staging_device, stage->staging_inode) != 0)
     {
@@ -703,11 +698,6 @@ int fcj3_stage_link(Fcj3Stage *stage)
             !same_timespec(&linked_metadata.st_mtim, &stage->copied_mtime))
         {
             errno = ESTALE;
-            stage->poisoned = 1;
-            return -1;
-        }
-        if (stage_content_matches_copy_digest(stage) != 0)
-        {
             stage->poisoned = 1;
             return -1;
         }

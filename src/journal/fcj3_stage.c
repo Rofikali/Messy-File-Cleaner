@@ -240,6 +240,7 @@ static size_t test_fail_after_bytes = SIZE_MAX;
 static size_t test_accepted_bytes;
 static int test_write_error = EIO;
 static int test_mutate_source_fd = -1;
+static int test_fsync_error = 0;
 
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code)
 {
@@ -252,7 +253,27 @@ void fcj3_stage_test_grow_source_after_copy(int writable_source_fd)
 {
     test_mutate_source_fd = writable_source_fd;
 }
+
+void fcj3_stage_test_fail_fsync(int error_code)
+{
+    test_fsync_error = error_code != 0 ? error_code : EIO;
+}
 #endif
+
+
+static int stage_fsync(int fd)
+{
+#ifdef FC_TESTING
+    if (test_fsync_error != 0)
+    {
+        int error_code = test_fsync_error;
+        test_fsync_error = 0;
+        errno = error_code;
+        return -1;
+    }
+#endif
+    return fsync(fd);
+}
 
 static ssize_t stage_pwrite(int fd, const void *buffer, size_t length,
                             off_t offset)
@@ -300,7 +321,11 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
     int source_flags = fcntl(source_fd, F_GETFL);
     if (source_flags < 0)
         return -1;
-    if ((source_flags & O_ACCMODE) == O_WRONLY)
+    if ((source_flags & O_ACCMODE) == O_WRONLY
+#ifdef O_PATH
+        || (source_flags & O_PATH) == O_PATH
+#endif
+       )
     {
         errno = EBADF;
         return -1;
@@ -431,12 +456,21 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
     }
 
     if (validate_stage_directory(stage) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
 
-    if (fsync(stage->staging_fd) != 0)
+    if (stage_fsync(stage->staging_fd) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
     if (fstat(stage->staging_fd, staging_metadata) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
 
     if (!S_ISREG(staging_metadata->st_mode) ||
         staging_metadata->st_uid != stage->expected_owner ||
@@ -446,6 +480,7 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
         staging_metadata->st_nlink != 0)
     {
         errno = ESTALE;
+        stage->poisoned = 1;
         return -1;
     }
     stage->synced = 1;
@@ -462,17 +497,24 @@ int fcj3_stage_link(Fcj3Stage *stage)
     }
 
     if (validate_stage_directory(stage) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
 
     struct stat current;
     if (fstat(stage->staging_fd, &current) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
     if (!S_ISREG(current.st_mode) || current.st_uid != stage->expected_owner ||
         (current.st_mode & 0777) != 0600 || current.st_nlink != 0 ||
         current.st_dev != stage->staging_device ||
         current.st_ino != stage->staging_inode)
     {
         errno = ESTALE;
+        stage->poisoned = 1;
         return -1;
     }
 
@@ -487,15 +529,24 @@ int fcj3_stage_link(Fcj3Stage *stage)
 
     if (linkat(AT_FDCWD, proc_path, stage->directory_fd,
                stage->staging_component, AT_SYMLINK_FOLLOW) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
 
     /* From this point, never remove the name on an identity uncertainty. */
     stage->linked = 1;
     if (verify_named_inode(stage->directory_fd, stage->staging_component,
                            stage->staging_device, stage->staging_inode) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
-    if (fsync(stage->directory_fd) != 0)
+    }
+    if (stage_fsync(stage->directory_fd) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
 
     return 0;
 }
@@ -511,24 +562,40 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
     }
 
     if (validate_stage_directory(stage) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
     if (verify_named_inode(stage->directory_fd, stage->staging_component,
                            stage->staging_device, stage->staging_inode) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
 
     if (syscall(SYS_renameat2, stage->directory_fd, stage->staging_component,
                 stage->directory_fd, final_component, RENAME_NOREPLACE) != 0)
+    {
+        stage->poisoned = 1;
         return -1;
+    }
 
-    /* The destination must still be the exact anonymous staging inode. */
-    if (verify_named_inode(stage->directory_fd, final_component,
-                           stage->staging_device, stage->staging_inode) != 0)
-        return -1;
-    if (fsync(stage->directory_fd) != 0)
-        return -1;
-
+    /* Rename succeeded: preserve the visible destination even if later
+     * verification or directory durability is uncertain. Never retry.
+     */
     stage->published = 1;
     stage->linked = 0;
+    if (verify_named_inode(stage->directory_fd, final_component,
+                           stage->staging_device, stage->staging_inode) != 0)
+    {
+        stage->poisoned = 1;
+        return -1;
+    }
+    if (stage_fsync(stage->directory_fd) != 0)
+    {
+        stage->poisoned = 1;
+        return -1;
+    }
     return 0;
 }
 

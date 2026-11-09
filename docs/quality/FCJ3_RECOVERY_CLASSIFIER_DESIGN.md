@@ -74,11 +74,11 @@ The table assumes the destination directory identity has already matched. Any di
 
 | Latest journal state | Stage entry | Destination entry | Source observation | Classification |
 | --- | --- | --- | --- | --- |
-| STAGED | ABSENT | ABSENT | any known source state | PRESERVE_INCOMPLETE |
-| STAGED | MATCHING_REGULAR | ABSENT | any known source state | PRESERVE_INCOMPLETE |
+| STAGED | ABSENT | ABSENT | SOURCE_PRESENT | PRESERVE_INCOMPLETE |
+| STAGED | MATCHING_REGULAR | ABSENT | SOURCE_PRESENT | PRESERVE_INCOMPLETE |
 | STAGED | ABSENT | MATCHING_REGULAR | any | MANUAL_REVIEW (publication without STARTED is unexpected) |
 | STARTED | MATCHING_REGULAR | ABSENT | SOURCE_PRESENT | PRESERVE_INCOMPLETE |
-| STARTED | ABSENT | MATCHING_REGULAR | any known source state | PRESERVE_PUBLISHED |
+| STARTED | ABSENT | MATCHING_REGULAR | SOURCE_PRESENT or SOURCE_ABSENT | PRESERVE_PUBLISHED |
 | STARTED | ABSENT | ABSENT | SOURCE_PRESENT | PRESERVE_INCOMPLETE (operation may not have linked/published) |
 | STARTED | ABSENT | ABSENT | SOURCE_ABSENT | MANUAL_REVIEW |
 | PUBLISHED | ABSENT | MATCHING_REGULAR | any known source state | PRESERVE_PUBLISHED |

@@ -171,6 +171,22 @@ if(BUILD_TESTING)
     COMMAND test_fcj3_recovery_classifier
   )
 
+  # Read-only FCJ3 filesystem evidence collection is isolated from production.
+  add_executable(test_fcj3_recovery_evidence
+    tests/integration/test_fcj3_recovery_evidence.c
+    src/journal/fcj3_recovery_evidence.c
+  )
+  target_include_directories(test_fcj3_recovery_evidence PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_compile_options(test_fcj3_recovery_evidence PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_recovery_evidence_integration
+    COMMAND test_fcj3_recovery_evidence
+  )
+  set_tests_properties(fcj3_recovery_evidence_integration PROPERTIES TIMEOUT 15)
+
   # FCJ3 parser, operation context, append adapter, and staging lifecycle
   # remain test-only. Production use waits for the recovery phase.
   add_executable(test_fcj3_writer

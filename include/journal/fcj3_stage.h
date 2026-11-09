@@ -1,6 +1,8 @@
 #ifndef FCJ3_STAGE_H
 #define FCJ3_STAGE_H
 
+#include <stddef.h>
+#include <stdint.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -23,6 +25,8 @@ typedef struct
     uid_t expected_owner;
     char staging_component[256];
     int initialized;
+    int copied;
+    int poisoned;
     int synced;
     int linked;
     int published;
@@ -52,5 +56,10 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component);
 
 /* Close owned descriptors. Never removes a visible staging/final entry. */
 int fcj3_stage_close(Fcj3Stage *stage);
+
+#ifdef FC_TESTING
+/* Fail the staging pwrite after exactly after_bytes have been accepted. */
+void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code);
+#endif
 
 #endif

@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -22,6 +23,9 @@ typedef struct
     ino_t directory_inode;
     dev_t staging_device;
     ino_t staging_inode;
+    off_t copied_size;
+    struct timespec copied_mtime;
+    struct timespec copied_ctime;
     uid_t expected_owner;
     char staging_component[256];
     int initialized;
@@ -38,7 +42,7 @@ typedef struct
 int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
                        const char *staging_component, uid_t expected_owner);
 
-/* Borrow the anonymous staging descriptor before sync; do not retain it or write after sync. */
+/* Borrow only for direct-write mode. Do not retain across copy/sync/link. */
 int fcj3_stage_fd(const Fcj3Stage *stage);
 
 /* Copy an already-open regular source descriptor into the anonymous stage.
@@ -69,6 +73,7 @@ int fcj3_stage_close(Fcj3Stage *stage);
 /* Test-only deterministic partial-pwrite failure injection. */
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code);
 void fcj3_stage_test_grow_source_after_copy(int writable_source_fd);
+void fcj3_stage_test_mutate_stage_after_copy(int stage_fd);
 void fcj3_stage_test_fail_fsync(int error_code);
 #endif
 

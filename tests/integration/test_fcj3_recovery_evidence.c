@@ -177,7 +177,6 @@ int main(void)
     test_unsafe_paths_are_rejected(root_fd, root, &directory_metadata,
                                    &stage_metadata);
 
-    CHECK(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
     CHECK(unlinkat(root_fd, "source.bin", 0) == 0);
     CHECK(close(root_fd) == 0);
     CHECK(rmdir(root) == 0);

@@ -57,25 +57,61 @@ static int valid_transaction_identity(const Fcj3Transaction *transaction)
 
 static int valid_state(Fcj3State state)
 {
-    return state >= FCJ3_STATE_STAGED && state <= FCJ3_STATE_RECOVERED;
+    switch (state)
+    {
+        case FCJ3_STATE_STAGED:
+        case FCJ3_STATE_STARTED:
+        case FCJ3_STATE_PUBLISHED:
+        case FCJ3_STATE_COMPLETED:
+        case FCJ3_STATE_FAILED:
+        case FCJ3_STATE_RECOVERED:
+            return 1;
+        case FCJ3_STATE_NONE:
+        default:
+            return 0;
+    }
 }
 
 static int valid_entry_evidence(Fcj3EntryEvidence evidence)
 {
-    return evidence >= FCJ3_EVIDENCE_ABSENT &&
-           evidence <= FCJ3_EVIDENCE_UNKNOWN_ERROR;
+    switch (evidence)
+    {
+        case FCJ3_EVIDENCE_ABSENT:
+        case FCJ3_EVIDENCE_MATCHING_REGULAR:
+        case FCJ3_EVIDENCE_MISMATCHING_REGULAR:
+        case FCJ3_EVIDENCE_SYMLINK:
+        case FCJ3_EVIDENCE_SPECIAL:
+        case FCJ3_EVIDENCE_UNKNOWN_ERROR:
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 static int valid_source_evidence(Fcj3SourceEvidence evidence)
 {
-    return evidence >= FCJ3_SOURCE_ABSENT &&
-           evidence <= FCJ3_SOURCE_UNKNOWN_ERROR;
+    switch (evidence)
+    {
+        case FCJ3_SOURCE_ABSENT:
+        case FCJ3_SOURCE_PRESENT:
+        case FCJ3_SOURCE_UNKNOWN_ERROR:
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 static int valid_directory_evidence(Fcj3DirectoryEvidence evidence)
 {
-    return evidence >= FCJ3_DIRECTORY_IDENTITY_MATCH &&
-           evidence <= FCJ3_DIRECTORY_UNKNOWN_ERROR;
+    switch (evidence)
+    {
+        case FCJ3_DIRECTORY_IDENTITY_MATCH:
+        case FCJ3_DIRECTORY_IDENTITY_MISMATCH:
+        case FCJ3_DIRECTORY_UNKNOWN_ERROR:
+            return 1;
+        default:
+            return 0;
+    }
 }
 
 static int entry_is_present(Fcj3EntryEvidence evidence)
@@ -154,9 +190,11 @@ int fcj3_recovery_classify(const Fcj3RecoveryEvidence *evidence,
         return manual_review(decision,
                              FCJ3_REASON_STAGE_AND_DESTINATION_BOTH_PRESENT);
 
-    if ((transaction->state == FCJ3_STATE_STAGED ||
-         transaction->state == FCJ3_STATE_STARTED) &&
-        evidence->source == FCJ3_SOURCE_ABSENT)
+    if (evidence->source == FCJ3_SOURCE_ABSENT &&
+        (transaction->state == FCJ3_STATE_STAGED ||
+         (transaction->state == FCJ3_STATE_STARTED &&
+          !(evidence->stage == FCJ3_EVIDENCE_ABSENT &&
+            evidence->destination == FCJ3_EVIDENCE_MATCHING_REGULAR))))
         return manual_review(decision, FCJ3_REASON_SOURCE_MISSING);
 
     switch (transaction->state)

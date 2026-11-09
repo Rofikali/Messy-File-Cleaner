@@ -44,7 +44,11 @@ typedef struct {
     Fcj4MoveState move_state;
 } Fcj4OperationView;
 
-/* Opaque, caller-owned replay result. Initialize before parse; destroy once. */
+/*
+ * Opaque, caller-owned replay result. Initialize before parse; destroy once.
+ * Geometric operation-array growth bounds parser-owned storage to less than
+ * 128 MiB at the 4096-operation limit (excluding the caller-owned input).
+ */
 typedef struct {
     void *operations;
     size_t count;

@@ -211,7 +211,7 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
 int fcj3_stage_fd(const Fcj3Stage *stage)
 {
     if (stage == NULL || !stage->initialized || stage->staging_fd < 0 ||
-        stage->synced || stage->poisoned)
+        stage->synced || stage->copied || stage->poisoned)
     {
         errno = EINVAL;
         return -1;
@@ -285,6 +285,21 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
         return -1;
     }
 
+    if (source_fd == stage->staging_fd)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    int source_flags = fcntl(source_fd, F_GETFL);
+    if (source_flags < 0)
+        return -1;
+    if ((source_flags & O_ACCMODE) == O_WRONLY)
+    {
+        errno = EBADF;
+        return -1;
+    }
+
     struct stat source_before;
     struct stat stage_before;
     if (fstat(source_fd, &source_before) != 0)
@@ -297,6 +312,8 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
     if (fstat(stage->staging_fd, &stage_before) != 0)
         return -1;
     if (!S_ISREG(stage_before.st_mode) || stage_before.st_size != 0 ||
+        (source_before.st_dev == stage_before.st_dev &&
+         source_before.st_ino == stage_before.st_ino) ||
         stage_before.st_nlink != 0 ||
         stage_before.st_dev != stage->staging_device ||
         stage_before.st_ino != stage->staging_inode)
@@ -350,10 +367,23 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
 
     struct stat source_after;
     struct stat stage_after;
-    if (fstat(source_fd, &source_after) != 0 ||
-        !same_source_snapshot(&source_before, &source_after) ||
-        fstat(stage->staging_fd, &stage_after) != 0 ||
-        !S_ISREG(stage_after.st_mode) ||
+    if (fstat(source_fd, &source_after) != 0)
+    {
+        stage->poisoned = 1;
+        return -1;
+    }
+    if (!same_source_snapshot(&source_before, &source_after))
+    {
+        errno = ESTALE;
+        stage->poisoned = 1;
+        return -1;
+    }
+    if (fstat(stage->staging_fd, &stage_after) != 0)
+    {
+        stage->poisoned = 1;
+        return -1;
+    }
+    if (!S_ISREG(stage_after.st_mode) ||
         stage_after.st_uid != stage->expected_owner ||
         (stage_after.st_mode & 0777) != 0600 ||
         stage_after.st_dev != stage->staging_device ||
@@ -361,8 +391,7 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
         stage_after.st_nlink != 0 ||
         stage_after.st_size != source_before.st_size)
     {
-        if (errno == 0)
-            errno = ESTALE;
+        errno = ESTALE;
         stage->poisoned = 1;
         return -1;
     }

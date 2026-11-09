@@ -44,14 +44,14 @@ static void test_valid_complete_replay(void)
     if (fcj4_replay_parse(bytes,length,&replay)!=0) {
         size_t offset=0U, line_number=0U;
         while (offset<length) {
-            const char *newline=memchr(bytes+offset,'\\n',length-offset);
+            const char *newline=memchr(bytes+offset,'\n',length-offset);
             Fcj4Replay prefix;
             assert(newline!=NULL);
             offset=(size_t)(newline-bytes)+1U;
             line_number++;
             fcj4_replay_init(&prefix);
             if (fcj4_replay_parse(bytes,offset,&prefix)!=0) {
-                fprintf(stderr,"FCJ4 rejected prefix ending at record %zu (errno=%d)\\n",
+                fprintf(stderr,"FCJ4 rejected prefix ending at record %zu (errno=%d)\n",
                         line_number,errno);
                 fcj4_replay_destroy(&prefix);
                 break;

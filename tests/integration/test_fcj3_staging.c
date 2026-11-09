@@ -519,6 +519,48 @@ static void test_publish_directory_fsync_failure_preserves_destination(void)
     fixture_destroy(&fixture);
 }
 
+
+static void test_retained_stage_descriptor_mutation_is_rejected(void)
+{
+    static const char payload[] = "stage bytes must not change after source copy";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+    int borrowed_stage_fd = fcj3_stage_fd(&stage);
+    assert(borrowed_stage_fd >= 0);
+
+    struct stat source_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    fcj3_stage_test_mutate_stage_after_copy(borrowed_stage_fd);
+    struct stat staging_snapshot;
+    errno = 0;
+    assert(fcj3_stage_sync(&stage, &staging_snapshot) == -1);
+    assert(errno == ESTALE);
+    assert(fcj3_stage_link(&stage) == -1);
+
+    struct stat named;
+    assert(fstatat(fixture.directory_fd, component, &named, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+    char actual[sizeof(payload)];
+    size_t actual_length = read_file_at(fixture.directory_fd, "source.bin",
+                                        actual, sizeof(actual));
+    assert(actual_length == sizeof(payload) - 1U);
+    assert(memcmp(actual, payload, actual_length) == 0);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
 int main(void)
 {
     test_publish_preserves_source_and_exact_inode();
@@ -528,6 +570,7 @@ int main(void)
     test_stage_fsync_failure_poisoned();
     test_link_directory_fsync_failure_preserves_stage_name();
     test_publish_directory_fsync_failure_preserves_destination();
+    test_retained_stage_descriptor_mutation_is_rejected();
     puts("FCJ3 isolated staging lifecycle tests passed");
     return 0;
 }

@@ -218,6 +218,14 @@ static void test_cross_record_evidence_rejected(void)
     CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==-1);
     CHECK(errno==EINVAL);
     CHECK(fcj4_writer_revision(state)==2U);
+
+    /* Missing evidence strings must fail closed instead of being dereferenced. */
+    r.value.action_def.expected_parent_ino=4U;
+    r.value.action_def.expected_sha256=NULL;
+    errno=0;
+    CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(fcj4_writer_revision(state)==2U);
     fcj4_writer_state_destroy(state);
 }
 

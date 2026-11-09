@@ -127,6 +127,164 @@ static void test_round_trip_and_transitions(void)
     fcj4_writer_state_destroy(state);
 }
 
+static void commit_without_journal(Fcj4WriterState *state,
+                                     const Fcj4Record *record)
+{
+    char output[FCJ4_MAX_LINE_BYTES];
+    size_t written=0U;
+    Fcj4PreparedRecord prepared;
+    CHECK(fcj4_writer_prepare(state,record,output,sizeof(output),
+                              &written,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared,output,written)==0);
+}
+
+static void setup_evidence_state(Fcj4WriterState **state)
+{
+    Fcj4Record r;
+    CHECK(fcj4_writer_state_create(state)==0);
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_BEGIN;
+    r.value.begin=(Fcj4BeginRecord){
+        opid,"/tmp/source",1U,2U,1U,3U,1000U,1000U,384U,5U,
+        1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
+    };
+    commit_without_journal(*state,&r);
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_SEALED;
+    r.value.sealed=(Fcj4SealedRecord){
+        opid,".fc-tmp-x",1U,6U,1000U,384U,5U,digest
+    };
+    commit_without_journal(*state,&r);
+}
+
+static Fcj4ActionDefRecord make_action_def(Fcj4ActionKind kind)
+{
+    Fcj4ActionDefRecord r;
+    memset(&r,0,sizeof(r));
+    r.operation_id=opid;
+    r.expected_uid=1000U;
+    r.expected_mode=384U;
+    r.expected_size=5U;
+    r.expected_sha256=digest;
+    switch(kind) {
+    case FCJ4_ACTION_KIND_QUARANTINE_STAGE:
+        r.action_id="bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+        r.kind=kind; r.target_role=FCJ4_TARGET_QUARANTINE;
+        r.expected_parent_dev=1U; r.expected_parent_ino=4U;
+        r.expected_entry_dev=1U; r.expected_entry_ino=6U;
+        r.source_component=".fc-tmp-x"; r.target_component="q-stage";
+        break;
+    case FCJ4_ACTION_KIND_QUARANTINE_SOURCE:
+        r.action_id="cccccccccccccccccccccccccccccccc";
+        r.kind=kind; r.target_role=FCJ4_TARGET_QUARANTINE;
+        r.expected_parent_dev=1U; r.expected_parent_ino=2U;
+        r.expected_entry_dev=1U; r.expected_entry_ino=3U;
+        r.source_component="source"; r.target_component="q-source";
+        break;
+    case FCJ4_ACTION_KIND_RETIRE_QUARANTINED_SOURCE:
+        r.action_id="dddddddddddddddddddddddddddddddd";
+        r.kind=kind; r.target_role=FCJ4_TARGET_NONE;
+        r.expected_parent_dev=1U; r.expected_parent_ino=5U;
+        r.expected_entry_dev=1U; r.expected_entry_ino=3U;
+        r.source_component="q-source"; r.target_component=NULL;
+        break;
+    default:
+        r.action_id="eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+        r.kind=FCJ4_ACTION_KIND_REMOVE_QUARANTINED_STAGE;
+        r.target_role=FCJ4_TARGET_NONE;
+        r.expected_parent_dev=1U; r.expected_parent_ino=5U;
+        r.expected_entry_dev=1U; r.expected_entry_ino=6U;
+        r.source_component="q-stage"; r.target_component=NULL;
+        break;
+    }
+    return r;
+}
+
+static void prepare_action_test_state(Fcj4WriterState **state,
+                                      Fcj4ActionKind kind)
+{
+    Fcj4Record r;
+    Fcj4ActionDefRecord prerequisite;
+    setup_evidence_state(state);
+    if(kind==FCJ4_ACTION_KIND_RETIRE_QUARANTINED_SOURCE) {
+        prerequisite=make_action_def(FCJ4_ACTION_KIND_QUARANTINE_SOURCE);
+        memset(&r,0,sizeof(r)); r.kind=FCJ4_RECORD_ACTION_DEF;
+        r.value.action_def=prerequisite;
+        commit_without_journal(*state,&r);
+    } else if(kind==FCJ4_ACTION_KIND_REMOVE_QUARANTINED_STAGE) {
+        prerequisite=make_action_def(FCJ4_ACTION_KIND_QUARANTINE_STAGE);
+        memset(&r,0,sizeof(r)); r.kind=FCJ4_RECORD_ACTION_DEF;
+        r.value.action_def=prerequisite;
+        commit_without_journal(*state,&r);
+    }
+}
+
+static void expect_action_def_rejected(Fcj4ActionDefRecord def)
+{
+    Fcj4WriterState *state=NULL;
+    Fcj4Record r;
+    Fcj4PreparedRecord prepared;
+    char output[FCJ4_MAX_LINE_BYTES];
+    size_t written=0U;
+    prepare_action_test_state(&state,def.kind);
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_ACTION_DEF;
+    r.value.action_def=def;
+    errno=0;
+    CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),
+                              &written,&prepared)==-1);
+    CHECK(errno==EINVAL);
+    fcj4_writer_state_destroy(state);
+}
+
+static void test_all_action_definition_kinds_and_mismatches(void)
+{
+    const Fcj4ActionKind kinds[]={
+        FCJ4_ACTION_KIND_QUARANTINE_STAGE,
+        FCJ4_ACTION_KIND_QUARANTINE_SOURCE,
+        FCJ4_ACTION_KIND_RETIRE_QUARANTINED_SOURCE,
+        FCJ4_ACTION_KIND_REMOVE_QUARANTINED_STAGE
+    };
+    for(size_t i=0U;i<sizeof(kinds)/sizeof(kinds[0]);i++) {
+        Fcj4WriterState *state=NULL;
+        Fcj4Record r;
+        Fcj4ActionDefRecord def=make_action_def(kinds[i]);
+        prepare_action_test_state(&state,kinds[i]);
+        memset(&r,0,sizeof(r));
+        r.kind=FCJ4_RECORD_ACTION_DEF;
+        r.value.action_def=def;
+        commit_without_journal(state,&r);
+        fcj4_writer_state_destroy(state);
+
+        def=make_action_def(kinds[i]); def.expected_parent_dev++;
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]); def.expected_parent_ino++;
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]); def.expected_entry_dev++;
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]); def.expected_entry_ino++;
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]); def.expected_uid++;
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]); def.expected_mode++;
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]); def.expected_size++;
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]);
+        def.expected_sha256="1111111111111111111111111111111111111111111111111111111111111111";
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]); def.source_component="wrong";
+        expect_action_def_rejected(def);
+        def=make_action_def(kinds[i]);
+        def.target_role=(kinds[i]==FCJ4_ACTION_KIND_QUARANTINE_STAGE ||
+                         kinds[i]==FCJ4_ACTION_KIND_QUARANTINE_SOURCE)
+            ? FCJ4_TARGET_NONE : FCJ4_TARGET_QUARANTINE;
+        def.target_component=(def.target_role==FCJ4_TARGET_QUARANTINE)
+            ? "unexpected" : NULL;
+        expect_action_def_rejected(def);
+    }
+}
+
 static void test_serializer_rejects_noncanonical_inputs(void)
 {
     Fcj4Record r;
@@ -249,6 +407,7 @@ int main(void)
 {
     test_round_trip_and_transitions();
     test_cross_record_evidence_rejected();
+    test_all_action_definition_kinds_and_mismatches();
     test_replay_import_failure_is_atomic();
     test_serializer_rejects_noncanonical_inputs();
     test_stale_and_duplicate_commit_rejected();

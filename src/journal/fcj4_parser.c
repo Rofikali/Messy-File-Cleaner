@@ -183,11 +183,6 @@ static int get_u64(char **f, size_t i, uint64_t *v)
     return parse_u64(f[i], v);
 }
 
-static int get_i64(char **f, size_t i, int64_t *v)
-{
-    return parse_i64(f[i], v);
-}
-
 static Fcj4Operation *find_operation(Fcj4Replay *r, const char *id)
 {
     Fcj4Operation *ops = (Fcj4Operation *)r->operations;

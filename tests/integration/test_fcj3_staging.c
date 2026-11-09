@@ -359,11 +359,52 @@ static void test_partial_copy_failure_poisoned_and_source_preserved(void)
     fixture_destroy(&fixture);
 }
 
+
+static void test_source_change_during_copy_is_rejected(void)
+{
+    static const char payload[] = "source snapshot must remain stable";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    int mutation_fd = openat(fixture.directory_fd, "source.bin",
+                             O_RDWR | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0 && mutation_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+
+    struct stat snapshot;
+    uint64_t bytes_copied = 0U;
+    fcj3_stage_test_grow_source_after_copy(mutation_fd);
+    errno = 0;
+    assert(fcj3_stage_copy_from(&stage, source_fd, &snapshot, &bytes_copied) == -1);
+    assert(errno == ESTALE);
+    assert(fcj3_stage_fd(&stage) == -1);
+
+    struct stat stage_stat;
+    errno = 0;
+    assert(fcj3_stage_sync(&stage, &stage_stat) == -1);
+    assert(errno == EINVAL);
+    struct stat named;
+    assert(fstatat(fixture.directory_fd, component, &named, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    assert(close(source_fd) == 0);
+    assert(close(mutation_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
 int main(void)
 {
     test_publish_preserves_source_and_exact_inode();
     test_collision_never_overwrites_and_fails_operation();
     test_partial_copy_failure_poisoned_and_source_preserved();
+    test_source_change_during_copy_is_rejected();
     puts("FCJ3 isolated staging lifecycle tests passed");
     return 0;
 }

@@ -242,6 +242,58 @@ static int stage_matches_copy_snapshot(const Fcj3Stage *stage,
            same_timespec(&metadata->st_ctim, &stage->copied_ctime);
 }
 
+/*
+ * Filesystem timestamps are useful race indicators, but their resolution is
+ * filesystem-dependent and may be too coarse to detect a same-size rewrite.
+ * Re-hash the anonymous inode at each trust boundary before linking/publishing.
+ */
+static int stage_content_matches_copy_digest(const Fcj3Stage *stage)
+{
+    Fcj3Sha256 context;
+    unsigned char digest[32];
+    unsigned char difference = 0U;
+    unsigned char buffer[65536];
+    off_t offset = 0;
+
+    if (!stage->copied || stage->copied_size < 0)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    fcj3_sha256_init(&context);
+    while (offset < stage->copied_size)
+    {
+        off_t remaining = stage->copied_size - offset;
+        size_t request = remaining > (off_t)sizeof(buffer)
+            ? sizeof(buffer) : (size_t)remaining;
+        ssize_t count;
+        do
+        {
+            count = pread(stage->staging_fd, buffer, request, offset);
+        } while (count < 0 && errno == EINTR);
+
+        if (count <= 0)
+        {
+            if (count == 0)
+                errno = ESTALE;
+            return -1;
+        }
+        fcj3_sha256_update(&context, buffer, (size_t)count);
+        offset += (off_t)count;
+    }
+
+    fcj3_sha256_final(&context, digest);
+    for (size_t i = 0; i < sizeof(digest); i++)
+        difference |= (unsigned char)(digest[i] ^ stage->copied_digest[i]);
+    if (difference != 0U)
+    {
+        errno = ESTALE;
+        return -1;
+    }
+    return 0;
+}
+
 static int same_source_snapshot(const struct stat *before,
                                 const struct stat *after)
 {
@@ -389,6 +441,8 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
     }
 
     unsigned char buffer[65536];
+    Fcj3Sha256 copy_digest;
+    fcj3_sha256_init(&copy_digest);
     off_t offset = 0;
     uint64_t copied = 0U;
     while (offset < source_before.st_size)
@@ -426,6 +480,7 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
             }
             written += (size_t)write_count;
         }
+        fcj3_sha256_update(&copy_digest, buffer, (size_t)read_count);
         offset += (off_t)read_count;
         copied += (uint64_t)read_count;
     }
@@ -479,6 +534,7 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
     stage->copied_size = stage_after.st_size;
     stage->copied_mtime = stage_after.st_mtim;
     stage->copied_ctime = stage_after.st_ctim;
+    fcj3_sha256_final(&copy_digest, stage->copied_digest);
     stage->copied = 1;
     return 0;
 }
@@ -511,6 +567,20 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
             stage->poisoned = 1;
             return -1;
         }
+
+        /*
+         * Test-only: refresh the metadata baseline after the rewrite so this
+         * test deterministically exercises the content-digest check rather
+         * than depending on the filesystem's timestamp granularity.
+         */
+        struct stat mutated_metadata;
+        if (fstat(mutation_fd, &mutated_metadata) != 0)
+        {
+            stage->poisoned = 1;
+            return -1;
+        }
+        stage->copied_mtime = mutated_metadata.st_mtim;
+        stage->copied_ctime = mutated_metadata.st_ctim;
     }
 #endif
 
@@ -540,6 +610,11 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
     }
     if (stage->copied)
     {
+        if (stage_content_matches_copy_digest(stage) != 0)
+        {
+            stage->poisoned = 1;
+            return -1;
+        }
         stage->copied_mtime = staging_metadata->st_mtim;
         stage->copied_ctime = staging_metadata->st_ctim;
     }
@@ -575,6 +650,12 @@ int fcj3_stage_link(Fcj3Stage *stage)
         (stage->copied && !stage_matches_copy_snapshot(stage, &current, 0)))
     {
         errno = ESTALE;
+        stage->poisoned = 1;
+        return -1;
+    }
+
+    if (stage->copied && stage_content_matches_copy_digest(stage) != 0)
+    {
         stage->poisoned = 1;
         return -1;
     }
@@ -661,6 +742,11 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
         }
     }
 #endif
+    if (stage->copied && stage_content_matches_copy_digest(stage) != 0)
+    {
+        stage->poisoned = 1;
+        return -1;
+    }
     if (verify_named_inode(stage->directory_fd, stage->staging_component,
                            stage->staging_device, stage->staging_inode) != 0)
     {
@@ -714,6 +800,11 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
             stage->poisoned = 1;
             return -1;
         }
+    }
+    if (stage->copied && stage_content_matches_copy_digest(stage) != 0)
+    {
+        stage->poisoned = 1;
+        return -1;
     }
     if (stage_fsync(stage->directory_fd) != 0)
     {

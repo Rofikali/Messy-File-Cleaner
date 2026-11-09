@@ -26,7 +26,9 @@ does not resolve a source pathname and never unlinks or modifies the source.
    identical across the copy, and the staging inode must contain exactly the
    original byte count with the expected owner, mode, device, inode, and zero
    link count.
-7. Return the captured source snapshot and byte count only after all checks
+7. Finalize a SHA-256 digest over the exact bytes successfully copied into
+   the anonymous inode. Retain that digest with the stage state.
+8. Return the captured source snapshot and byte count only after all checks
    succeed. The caller can then fsync the staging inode and continue through
    the existing test-only link/publication lifecycle.
 
@@ -47,10 +49,22 @@ the source.
 - A stage that has already become visible is never automatically unlinked on
   identity or durability uncertainty.
 
+During sync, before linking, and before/after publication, the stage re-reads the
+anonymous inode with bounded `pread()` calls and compares its SHA-256 digest
+with the digest captured during copy. Metadata checks remain in place as
+separate identity and consistency checks. This catches same-size content
+rewrites even on filesystems whose timestamp granularity does not expose the
+mutation. The link step does not perform redundant full-file scans: the
+pre-publication digest check covers mutations that occur after linking.
+
 The `FC_TESTING` hooks provide deterministic partial-`pwrite` failure, a
 source-size mutation before the post-copy metadata check, retained staging-descriptor mutation before sync and after link, and
 file/directory `fsync()` failures. They are test-only and are not part of a
-production interface. The tests assert that an fsync failure before linking
+production interface. SHA-256 here is a content-integrity comparison, not an
+authentication mechanism or a filesystem lock. A process that retains a
+writable descriptor can still race a write between verification checkpoints;
+the caller contract forbids such writes, and the production recovery/mover
+design must not treat these checks as atomic immutability. The tests assert that an fsync failure before linking
 leaves no named entry, a directory-fsync failure after linking preserves the
 visible staging entry, and a publication-fsync failure preserves the visible
 destination without attempting cleanup.

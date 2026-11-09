@@ -143,6 +143,18 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
 
+  add_executable(test_fcj3_sha256
+    tests/unit/test_fcj3_sha256.c
+    src/journal/fcj3_sha256.c
+  )
+  target_include_directories(test_fcj3_sha256 PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_compile_options(test_fcj3_sha256 PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_sha256_unit COMMAND test_fcj3_sha256)
+
   # Pure FCJ3 recovery classification is read-only and isolated from all
   # filesystem, journal-writer, staging, and production mover modules.
   add_executable(test_fcj3_recovery_classifier
@@ -199,6 +211,7 @@ if(BUILD_TESTING)
   add_executable(test_fcj3_staging
     tests/integration/test_fcj3_staging.c
     src/journal/fcj3_stage.c
+    src/journal/fcj3_sha256.c
     src/journal/fcj3_journal.c
     src/journal/fcj3_writer.c
     src/journal/fcj3_parser.c
@@ -219,6 +232,7 @@ if(BUILD_TESTING)
   add_executable(test_fcj3_process_crash
     tests/integration/test_fcj3_process_crash.c
     src/journal/fcj3_stage.c
+    src/journal/fcj3_sha256.c
     src/journal/fcj3_journal.c
     src/journal/fcj3_writer.c
     src/journal/fcj3_parser.c

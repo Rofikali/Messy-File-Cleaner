@@ -465,8 +465,167 @@ static void test_cross_record_evidence_rejected(void)
     fcj4_writer_state_destroy(state);
 }
 
+
+static void append_serialized_limit_record(char *journal,size_t capacity,
+                                           size_t *used,
+                                           const Fcj4Record *record)
+{
+    char line[FCJ4_MAX_LINE_BYTES];
+    size_t length=0U;
+    CHECK(fcj4_serialize(record,line,sizeof(line),&length)==0);
+    CHECK(length>0U && line[length-1U]=='\n');
+    CHECK(*used<=capacity && length<=capacity-*used);
+    memcpy(journal+*used,line,length);
+    *used+=length;
+}
+
+static void append_limit_operation(char *journal,size_t capacity,size_t *used,
+                                   size_t operation_index,size_t action_events)
+{
+    char operation_id[FCJ4_OPERATION_ID_HEX_LENGTH+1U];
+    char source_path[64],destination_path[64],destination_name[32];
+    Fcj4Record record;
+    static const Fcj4MoveState moves[]={
+        FCJ4_MOVE_STAGED,FCJ4_MOVE_STARTED,
+        FCJ4_MOVE_PUBLISHED,FCJ4_MOVE_COMPLETED
+    };
+    static const Fcj4ActionState actions[]={
+        FCJ4_ACTION_PREPARED,FCJ4_ACTION_STARTED,FCJ4_ACTION_APPLIED,
+        FCJ4_ACTION_SYNCED,FCJ4_ACTION_COMPLETED
+    };
+
+    CHECK(snprintf(operation_id,sizeof(operation_id),"%032zx",
+                   operation_index+1U)>0);
+    CHECK(snprintf(source_path,sizeof(source_path),"/tmp/source-%04zu",
+                   operation_index)>0);
+    CHECK(snprintf(destination_path,sizeof(destination_path),"/tmp/dest-%04zu",
+                   operation_index)>0);
+    CHECK(snprintf(destination_name,sizeof(destination_name),"dest-%04zu",
+                   operation_index)>0);
+
+    memset(&record,0,sizeof(record));
+    record.kind=FCJ4_RECORD_BEGIN;
+    record.value.begin=(Fcj4BeginRecord){
+        operation_id,source_path,1U,2U,1U,3U,1000U,1000U,384U,5U,
+        1,2U,3,4U,destination_path,1U,4U,destination_name,1U,5U
+    };
+    append_serialized_limit_record(journal,capacity,used,&record);
+
+    memset(&record,0,sizeof(record));
+    record.kind=FCJ4_RECORD_SEALED;
+    record.value.sealed=(Fcj4SealedRecord){
+        operation_id,".fc-tmp-x",1U,6U,1000U,384U,5U,digest
+    };
+    append_serialized_limit_record(journal,capacity,used,&record);
+
+    for(size_t i=0U;i<sizeof(moves)/sizeof(moves[0]);i++) {
+        memset(&record,0,sizeof(record));
+        record.kind=FCJ4_RECORD_MOVE;
+        record.value.move=(Fcj4MoveRecord){
+            operation_id,(uint64_t)i+1U,moves[i],0U
+        };
+        append_serialized_limit_record(journal,capacity,used,&record);
+    }
+
+    for(size_t i=0U;i<FCJ4_MAX_ACTIONS_PER_OPERATION;i++) {
+        char id[FCJ4_ACTION_ID_HEX_LENGTH+1U];
+        char target[NAME_MAX];
+        CHECK(snprintf(id,sizeof(id),"%032zx",i+1U)>0);
+        CHECK(snprintf(target,sizeof(target),"q-%02zu",i)>0);
+        memset(&record,0,sizeof(record));
+        record.kind=FCJ4_RECORD_ACTION_DEF;
+        record.value.action_def=(Fcj4ActionDefRecord){
+            operation_id,id,FCJ4_ACTION_KIND_QUARANTINE_STAGE,
+            FCJ4_TARGET_QUARANTINE,1U,4U,1U,6U,1000U,384U,5U,
+            digest,".fc-tmp-x",target
+        };
+        append_serialized_limit_record(journal,capacity,used,&record);
+    }
+
+    for(size_t i=0U;i<action_events;i++) {
+        size_t action_index=i/5U;
+        size_t state_index=i%5U;
+        char id[FCJ4_ACTION_ID_HEX_LENGTH+1U];
+        CHECK(action_index<FCJ4_MAX_ACTIONS_PER_OPERATION);
+        CHECK(snprintf(id,sizeof(id),"%032zx",action_index+1U)>0);
+        memset(&record,0,sizeof(record));
+        record.kind=FCJ4_RECORD_ACTION;
+        record.value.action=(Fcj4ActionRecord){
+            operation_id,id,(uint64_t)state_index+1U,actions[state_index],0U
+        };
+        append_serialized_limit_record(journal,capacity,used,&record);
+    }
+}
+
+static void test_max_record_boundary_and_abort_accounting(void)
+{
+    const size_t complete_operations=980U;
+    char *journal=(char *)malloc(FCJ4_MAX_JOURNAL_BYTES);
+    size_t used=0U;
+    Fcj4Replay replay;
+    Fcj4WriterState *state=NULL;
+    Fcj4Record record;
+    Fcj4PreparedRecord prepared;
+    char output[FCJ4_MAX_LINE_BYTES];
+    size_t written=0U;
+    char final_operation_id[FCJ4_OPERATION_ID_HEX_LENGTH+1U];
+    char final_action_id[FCJ4_ACTION_ID_HEX_LENGTH+1U];
+
+    CHECK(journal!=NULL);
+    for(size_t i=0U;i<complete_operations;i++)
+        append_limit_operation(journal,FCJ4_MAX_JOURNAL_BYTES,&used,i,80U);
+    /* 980 complete operations contribute 99,960 records. This final
+       operation contributes 39 records, producing a valid 99,999-record
+       parser result without modifying any replay descriptor fields. */
+    append_limit_operation(journal,FCJ4_MAX_JOURNAL_BYTES,&used,
+                           complete_operations,17U);
+
+    fcj4_replay_init(&replay);
+    CHECK(fcj4_replay_parse(journal,used,&replay)==0);
+    CHECK(replay.record_count==FCJ4_MAX_RECORDS-1U);
+    CHECK(replay.count==complete_operations+1U);
+    CHECK(fcj4_writer_state_create(&state)==0);
+    CHECK(fcj4_writer_state_import_replay(state,&replay)==0);
+    CHECK(fcj4_writer_revision(state)==FCJ4_MAX_RECORDS-1U);
+
+    CHECK(snprintf(final_operation_id,sizeof(final_operation_id),"%032zx",
+                   complete_operations+1U)>0);
+    CHECK(snprintf(final_action_id,sizeof(final_action_id),"%032x",4U)>0);
+    memset(&record,0,sizeof(record));
+    record.kind=FCJ4_RECORD_ACTION;
+    record.value.action=(Fcj4ActionRecord){
+        final_operation_id,final_action_id,3U,FCJ4_ACTION_APPLIED,0U
+    };
+
+    CHECK(fcj4_writer_prepare(state,&record,output,sizeof(output),
+                              &written,&prepared)==0);
+    CHECK(fcj4_writer_revision(state)==FCJ4_MAX_RECORDS-1U);
+    CHECK(fcj4_writer_abort_prepare(state,&prepared)==0);
+    CHECK(fcj4_writer_revision(state)==FCJ4_MAX_RECORDS-1U);
+
+    /* Abort must not consume the final record slot: the same record can be
+       prepared again and committed exactly once. */
+    CHECK(fcj4_writer_prepare(state,&record,output,sizeof(output),
+                              &written,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared,output,written)==0);
+    CHECK(fcj4_writer_revision(state)==FCJ4_MAX_RECORDS);
+
+    record.value.action.sequence=4U;
+    record.value.action.state=FCJ4_ACTION_SYNCED;
+    errno=0;
+    CHECK(fcj4_writer_prepare(state,&record,output,sizeof(output),
+                              &written,&prepared)==-1);
+    CHECK(errno==E2BIG);
+    CHECK(fcj4_writer_revision(state)==FCJ4_MAX_RECORDS);
+
+    fcj4_writer_state_destroy(state);
+    fcj4_replay_destroy(&replay);
+    free(journal);
+}
+
 int main(void)
 {
+    test_max_record_boundary_and_abort_accounting();
     test_round_trip_and_transitions();
     test_cross_record_evidence_rejected();
     test_all_action_definition_kinds_and_mismatches();

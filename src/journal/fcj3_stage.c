@@ -425,19 +425,6 @@ int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
     }
 
 #ifdef FC_TESTING
-    if (test_mutate_stage_fd >= 0)
-    {
-        int mutation_fd = test_mutate_stage_fd;
-        test_mutate_stage_fd = -1;
-        const unsigned char replacement = 'X';
-        if (pwrite(mutation_fd, &replacement, 1U, 0) != 1)
-        {
-            if (errno == 0)
-                errno = EIO;
-            stage->poisoned = 1;
-            return -1;
-        }
-    }
     if (test_mutate_source_fd >= 0)
     {
         int mutation_fd = test_mutate_source_fd;
@@ -504,6 +491,22 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
         stage->poisoned = 1;
         return -1;
     }
+
+#ifdef FC_TESTING
+    if (test_mutate_stage_fd >= 0)
+    {
+        int mutation_fd = test_mutate_stage_fd;
+        test_mutate_stage_fd = -1;
+        const unsigned char replacement = 'X';
+        if (pwrite(mutation_fd, &replacement, 1U, 0) != 1)
+        {
+            if (errno == 0)
+                errno = EIO;
+            stage->poisoned = 1;
+            return -1;
+        }
+    }
+#endif
 
     if (stage_fsync(stage->staging_fd) != 0)
     {

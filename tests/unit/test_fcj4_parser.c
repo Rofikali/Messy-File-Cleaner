@@ -169,6 +169,29 @@ static void test_rejects_noncanonical_and_unknown(void)
     }
 }
 
+
+static void test_begin_only_and_path_traversal(void)
+{
+    const char begin_only[]=
+        "FCJ4|BEGIN|1|11111111111111111111111111111111|11|2f746d702f736f75726365|1|2|1|3|REGULAR|1000|1000|384|5|1|2|3|4|9|2f746d702f64657374|1|4|4|64657374|1|5\n";
+    const char traversal[]=
+        "FCJ4|BEGIN|1|11111111111111111111111111111111|12|2f742f2e2e2f736f75726365|1|2|1|3|REGULAR|1000|1000|384|5|1|2|3|4|9|2f746d702f64657374|1|4|4|64657374|1|5\n";
+    Fcj4Replay replay;
+    Fcj4OperationView view;
+    fcj4_replay_init(&replay);
+    assert(fcj4_replay_parse(begin_only,sizeof(begin_only)-1U,&replay)==0);
+    assert(replay.count==1U && replay.record_count==1U);
+    assert(fcj4_replay_operation(&replay,0U,&view)==0);
+    assert(view.stage_component==NULL && view.stage_sha256==NULL);
+    fcj4_replay_destroy(&replay);
+
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(traversal,sizeof(traversal)-1U,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+}
+
 static void test_rejects_action_identity_mismatch(void)
 {
     char bytes[8192];
@@ -264,6 +287,7 @@ int main(void)
     test_rejects_truncation_and_empty();
     test_rejects_illegal_move_transition();
     test_rejects_noncanonical_and_unknown();
+    test_begin_only_and_path_traversal();
     test_rejects_action_identity_mismatch();
     test_rejects_action_parent_and_sentinel_mismatch();
     test_rejects_resource_and_framing_limits();

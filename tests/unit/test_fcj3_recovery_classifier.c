@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#define CHECK_CLASSIFIER_CALL(expression, expected) do { \\
-    int actual_result_ = (expression); \\
-    assert(actual_result_ == (expected)); \\
+#define CHECK_CLASSIFIER_CALL(expression, expected) do { \
+    int actual_result_ = (expression); \
+    assert(actual_result_ == (expected)); \
 } while (0)
 
 static Fcj3Transaction make_transaction(Fcj3State state)

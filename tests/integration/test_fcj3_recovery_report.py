@@ -90,6 +90,7 @@ def main() -> int:
         assert transaction["source_evidence"] == "PRESENT_ADVISORY_ONLY"
         assert transaction["classification"] == "PRESERVE_INCOMPLETE"
         assert transaction["reason"] == "NONE"
+        assert source.read_bytes() == before_source, "valid report changed source fixture"
 
         # A malformed suffix must reject the whole journal and emit no JSON.
         journal.write_bytes(journal_bytes + b"not-a-valid-record\n")
@@ -103,6 +104,7 @@ def main() -> int:
         symlink_journal = run(binary, journal)
         assert symlink_journal.returncode != 0
         assert symlink_journal.stdout == b""
+        assert source.read_bytes() == before_source, "journal symlink check changed source fixture"
 
         # An intermediate symlink must not be traversed either.
         link_dir = root / "linked-directory"
@@ -112,10 +114,11 @@ def main() -> int:
         intermediate = run(binary, linked_path)
         assert intermediate.returncode != 0
         assert intermediate.stdout == b""
+        assert source.read_bytes() == before_source, "intermediate symlink check changed source fixture"
 
         # Reporting must not change fixture contents or directory entries.
-        assert source.read_bytes() == before_source
-        assert stage.read_bytes() == before_stage
+        assert source.read_bytes() == before_source, f"source changed: {source.read_bytes()!r} != {before_source!r}"
+        assert stage.read_bytes() == before_stage, "stage fixture changed"
         assert sorted(p.name for p in root.iterdir()) == sorted(
             before_entries + ["linked-directory", "move.fcj3"]
         )

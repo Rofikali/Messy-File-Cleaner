@@ -202,7 +202,15 @@ static void test_publish_preserves_source_and_exact_inode(void)
     CHECK(random_component(component));
     CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
 
-    CHECK(write_all(fcj3_stage_fd(&stage), payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    struct stat source_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    assert(bytes_copied == sizeof(payload) - 1U);
+    assert(source_snapshot.st_size == (off_t)(sizeof(payload) - 1U));
+    assert(close(source_fd) == 0);
     CHECK(fcj3_stage_sync(&stage, &staging_metadata));
     int source_length = snprintf(source_path, sizeof(source_path), "%s/source.bin",
                                  fixture.root);
@@ -261,7 +269,14 @@ static void test_collision_never_overwrites_and_fails_operation(void)
     CHECK(create_source(&fixture, "destination.bin", original, sizeof(original) - 1U));
     CHECK(random_component(component));
     CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
-    CHECK(write_all(fcj3_stage_fd(&stage), staged, sizeof(staged) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    struct stat source_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    assert(bytes_copied == sizeof(staged) - 1U);
+    assert(close(source_fd) == 0);
     CHECK(fcj3_stage_sync(&stage, &staging_metadata));
 
     int source_length = snprintf(source_path, sizeof(source_path), "%s/source.bin",
@@ -302,10 +317,53 @@ static void test_collision_never_overwrites_and_fails_operation(void)
     fixture_destroy(&fixture);
 }
 
+
+static void test_partial_copy_failure_poisoned_and_source_preserved(void)
+{
+    static const char payload[] = "source data must remain unchanged after partial copy";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+
+    struct stat snapshot;
+    uint64_t bytes_copied = 0U;
+    fcj3_stage_test_fail_write_after(7U, EIO);
+    errno = 0;
+    assert(fcj3_stage_copy_from(&stage, source_fd, &snapshot, &bytes_copied) == -1);
+    assert(errno == EIO);
+    assert(fcj3_stage_fd(&stage) == -1);
+    struct stat staging_stat;
+    errno = 0;
+    assert(fcj3_stage_sync(&stage, &staging_stat) == -1);
+    assert(errno == EINVAL);
+
+    char actual[sizeof(payload)];
+    size_t actual_length = read_file_at(fixture.directory_fd, "source.bin",
+                                        actual, sizeof(actual));
+    assert(actual_length == sizeof(payload) - 1U);
+    assert(memcmp(actual, payload, actual_length) == 0);
+    struct stat named;
+    assert(fstatat(fixture.directory_fd, component, &named, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
 int main(void)
 {
     test_publish_preserves_source_and_exact_inode();
     test_collision_never_overwrites_and_fails_operation();
+    test_partial_copy_failure_poisoned_and_source_preserved();
     puts("FCJ3 isolated staging lifecycle tests passed");
     return 0;
 }

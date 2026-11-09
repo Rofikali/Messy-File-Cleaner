@@ -142,18 +142,32 @@ static void test_rejects_illegal_move_transition(void)
 
 static void test_rejects_noncanonical_and_unknown(void)
 {
-    const char noncanonical[]="FCJ4|BEGIN|1|11111111111111111111111111111111|01\n";
-    const char unknown[]="FCJ4|NOPE|1|x\n";
+    char bytes[8192];
+    size_t length=make_valid(bytes,sizeof(bytes));
+    char *field=strstr(bytes,"|11|2f746d702f736f75726365");
     Fcj4Replay replay;
+    assert(field!=NULL);
+    field[1]='0'; /* 11 -> 01: non-canonical decimal with unchanged framing. */
     fcj4_replay_init(&replay);
     errno=0;
-    assert(fcj4_replay_parse(noncanonical,sizeof(noncanonical)-1U,&replay)==-1);
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
     assert(errno==EBADMSG);
-    errno=0;
-    assert(fcj4_replay_parse(unknown,sizeof(unknown)-1U,&replay)==-1);
-    assert(errno==EBADMSG);
-}
 
+    length=make_valid(bytes,sizeof(bytes));
+    field=strstr(bytes,"|11|2f746d702f736f75726365");
+    assert(field!=NULL);
+    field[5]='F'; /* Uppercase hex is not canonical. */
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+
+    {
+        const char unknown[]="FCJ4|NOPE|1|x\n";
+        errno=0;
+        assert(fcj4_replay_parse(unknown,sizeof(unknown)-1U,&replay)==-1);
+        assert(errno==EBADMSG);
+    }
+}
 
 static void test_rejects_action_identity_mismatch(void)
 {

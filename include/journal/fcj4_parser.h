@@ -66,6 +66,7 @@ typedef struct {
     uint64_t stage_dev, stage_ino, stage_uid, stage_mode, stage_size;
     size_t action_count;
     Fcj4MoveState move_state;
+    uint64_t move_sequence; /* Exact last MOVE sequence; zero before the first MOVE. */
 } Fcj4OperationView;
 
 typedef struct {

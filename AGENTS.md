@@ -58,6 +58,17 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - Force must not bypass path validation or filesystem invariants.
 - Destructive tests must use isolated temporary directories and assert source preservation on failures.
 
+## FCJ4 journal and recovery safety gates
+
+- FCJ4 is a separate future protocol; never append FCJ4 records to the FCJ2/legacy `journal/move.log` and never mix FCJ3 with FCJ2/legacy.
+- The FCJ4 parser/replay must remain pure, whole-buffer, all-or-nothing, and read-only. Replay validity is not authenticity, filesystem truth, or authorization to recover.
+- Keep FCJ4 parser, serializer, and in-memory writer-state modules isolated from the production executable and CLI until a separately reviewed integration milestone is approved.
+- Writer prepare/commit is in-memory state management only. Never describe it as a durable journal commit.
+- Before any future append adapter, require replay-seeded writer-state reconstruction, deep ownership of imported evidence, parser-equivalent cross-record validation, strict record/byte limits, and fault-injection/crash tests.
+- No FCJ4 file descriptor, lock, journal creation, append/write, fsync/close adapter, planner, executor, quarantine, publication, source retirement, deletion, or recovery mutation is authorized by parser/serializer/writer-state milestones.
+- Recovery action lifecycle is independent from move lifecycle. Move completion must never imply action completion.
+- Never unlink or retire a source until a separately approved protocol and execution design proves durable recovery evidence and exact filesystem identity checks.
+
 ## Concurrency
 - Document producer/consumer counts, ownership transfer, synchronization, and shutdown.
 - Check pthread, eventfd, read, write, close, and allocation failures.

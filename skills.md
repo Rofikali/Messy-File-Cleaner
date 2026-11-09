@@ -56,6 +56,17 @@ This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans
 - FCJ2 and legacy records must retain their documented compatibility behavior. Old formats must never authorize cleanup of temporary entries that they cannot identify.
 - Do not add a silent fallback that weakens atomicity, durability, or security.
 
+## FCJ4 journal-state skills
+
+- Treat FCJ4 as a separate protocol, not an extension of FCJ2/legacy or FCJ3.
+- Keep replay parsing pure and all-or-nothing. Never perform filesystem or journal I/O in the parser.
+- Reconstruct writer state only from a successfully parsed complete replay, and deep-copy all evidence needed beyond replay lifetime.
+- Validate every proposed SEALED/ACTION_DEF record against immutable BEGIN/SEALED evidence before prepare. Writer acceptance must not create a history the parser rejects.
+- Preserve exact move and action sequences, independent lifecycle states, unique IDs, quarantine-action dependencies, and protocol resource limits.
+- Keep prepare/commit/abort semantics explicit: in-memory commit is not durable append or fsync.
+- Keep FCJ4 modules test-only/isolated until a separately reviewed production-integration gate.
+- Do not implement append adapters, locks, file descriptors, journal paths, recovery planners/executors, or filesystem mutations as part of parser/writer-state work.
+
 ## 6. Concurrency skills
 
 - State the number and roles of producers/consumers for every queue.

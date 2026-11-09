@@ -202,7 +202,15 @@ static void test_publish_preserves_source_and_exact_inode(void)
     CHECK(random_component(component));
     CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
 
-    CHECK(write_all(fcj3_stage_fd(&stage), payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    struct stat source_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    assert(bytes_copied == sizeof(payload) - 1U);
+    assert(source_snapshot.st_size == (off_t)(sizeof(payload) - 1U));
+    assert(close(source_fd) == 0);
     CHECK(fcj3_stage_sync(&stage, &staging_metadata));
     int source_length = snprintf(source_path, sizeof(source_path), "%s/source.bin",
                                  fixture.root);
@@ -261,7 +269,14 @@ static void test_collision_never_overwrites_and_fails_operation(void)
     CHECK(create_source(&fixture, "destination.bin", original, sizeof(original) - 1U));
     CHECK(random_component(component));
     CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
-    CHECK(write_all(fcj3_stage_fd(&stage), staged, sizeof(staged) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    struct stat source_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    assert(bytes_copied == sizeof(staged) - 1U);
+    assert(close(source_fd) == 0);
     CHECK(fcj3_stage_sync(&stage, &staging_metadata));
 
     int source_length = snprintf(source_path, sizeof(source_path), "%s/source.bin",
@@ -302,10 +317,306 @@ static void test_collision_never_overwrites_and_fails_operation(void)
     fixture_destroy(&fixture);
 }
 
+
+static void test_partial_copy_failure_poisoned_and_source_preserved(void)
+{
+    static const char payload[] = "source data must remain unchanged after partial copy";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+
+    struct stat snapshot;
+    uint64_t bytes_copied = 0U;
+    fcj3_stage_test_fail_write_after(7U, EIO);
+    errno = 0;
+    assert(fcj3_stage_copy_from(&stage, source_fd, &snapshot, &bytes_copied) == -1);
+    assert(errno == EIO);
+    assert(fcj3_stage_fd(&stage) == -1);
+    struct stat staging_stat;
+    errno = 0;
+    assert(fcj3_stage_sync(&stage, &staging_stat) == -1);
+    assert(errno == EINVAL);
+
+    char actual[sizeof(payload)];
+    size_t actual_length = read_file_at(fixture.directory_fd, "source.bin",
+                                        actual, sizeof(actual));
+    assert(actual_length == sizeof(payload) - 1U);
+    assert(memcmp(actual, payload, actual_length) == 0);
+    struct stat named;
+    assert(fstatat(fixture.directory_fd, component, &named, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
+
+static void test_source_change_during_copy_is_rejected(void)
+{
+    static const char payload[] = "source snapshot must remain stable";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    int mutation_fd = openat(fixture.directory_fd, "source.bin",
+                             O_RDWR | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0 && mutation_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+
+    struct stat snapshot;
+    uint64_t bytes_copied = 0U;
+    fcj3_stage_test_grow_source_after_copy(mutation_fd);
+    errno = 0;
+    assert(fcj3_stage_copy_from(&stage, source_fd, &snapshot, &bytes_copied) == -1);
+    assert(errno == ESTALE);
+    assert(fcj3_stage_fd(&stage) == -1);
+
+    struct stat stage_stat;
+    errno = 0;
+    assert(fcj3_stage_sync(&stage, &stage_stat) == -1);
+    assert(errno == EINVAL);
+    struct stat named;
+    assert(fstatat(fixture.directory_fd, component, &named, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    assert(close(source_fd) == 0);
+    assert(close(mutation_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
+
+static void test_stage_fsync_failure_poisoned(void)
+{
+    static const char payload[] = "file fsync failure must block publication";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+    struct stat source_snapshot;
+    struct stat staging_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+
+    fcj3_stage_test_fail_fsync(EIO);
+    errno = 0;
+    assert(fcj3_stage_sync(&stage, &staging_snapshot) == -1);
+    assert(errno == EIO);
+    assert(fcj3_stage_fd(&stage) == -1);
+    assert(fcj3_stage_link(&stage) == -1);
+    struct stat named;
+    assert(fstatat(fixture.directory_fd, component, &named, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    char actual[sizeof(payload)];
+    size_t actual_length = read_file_at(fixture.directory_fd, "source.bin",
+                                        actual, sizeof(actual));
+    assert(actual_length == sizeof(payload) - 1U);
+    assert(memcmp(actual, payload, actual_length) == 0);
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
+static void test_link_directory_fsync_failure_preserves_stage_name(void)
+{
+    static const char payload[] = "linked staging entry remains for recovery";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+    struct stat source_snapshot;
+    struct stat staging_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    CHECK(fcj3_stage_sync(&stage, &staging_snapshot));
+
+    fcj3_stage_test_fail_fsync(EIO);
+    errno = 0;
+    assert(fcj3_stage_link(&stage) == -1);
+    assert(errno == EIO);
+    assert(fcj3_stage_publish(&stage, "destination.bin") == -1);
+    struct stat visible;
+    CHECK(fstatat(fixture.directory_fd, component, &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    CHECK(fstatat(fixture.directory_fd, component, &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+    assert(unlinkat(fixture.directory_fd, component, 0) == 0);
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
+static void test_publish_directory_fsync_failure_preserves_destination(void)
+{
+    static const char payload[] = "published destination survives fsync uncertainty";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+    struct stat source_snapshot;
+    struct stat staging_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    CHECK(fcj3_stage_sync(&stage, &staging_snapshot));
+    CHECK(fcj3_stage_link(&stage));
+
+    fcj3_stage_test_fail_fsync(EIO);
+    errno = 0;
+    assert(fcj3_stage_publish(&stage, "destination.bin") == -1);
+    assert(errno == EIO);
+    struct stat visible;
+    CHECK(fstatat(fixture.directory_fd, "destination.bin", &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+    assert(fstatat(fixture.directory_fd, component, &visible, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    CHECK(fstatat(fixture.directory_fd, "destination.bin", &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+    assert(unlinkat(fixture.directory_fd, "destination.bin", 0) == 0);
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
+
+static void test_retained_stage_descriptor_mutation_is_rejected(void)
+{
+    static const char payload[] = "stage bytes must not change after source copy";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+    int borrowed_stage_fd = fcj3_stage_fd(&stage);
+    assert(borrowed_stage_fd >= 0);
+
+    struct stat source_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    fcj3_stage_test_mutate_stage_after_copy(borrowed_stage_fd);
+    struct stat staging_snapshot;
+    errno = 0;
+    assert(fcj3_stage_sync(&stage, &staging_snapshot) == -1);
+    assert(errno == ESTALE);
+    assert(fcj3_stage_link(&stage) == -1);
+
+    struct stat named;
+    assert(fstatat(fixture.directory_fd, component, &named, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+    char actual[sizeof(payload)];
+    size_t actual_length = read_file_at(fixture.directory_fd, "source.bin",
+                                        actual, sizeof(actual));
+    assert(actual_length == sizeof(payload) - 1U);
+    assert(memcmp(actual, payload, actual_length) == 0);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
+
+static void test_mutation_after_link_blocks_publication(void)
+{
+    static const char payload[] = "mutation after link must block publish";
+    Fixture fixture;
+    Fcj3Stage stage;
+    char component[NAME_MAX];
+    fixture_init(&fixture);
+    CHECK(create_source(&fixture, "source.bin", payload, sizeof(payload) - 1U));
+    int source_fd = openat(fixture.directory_fd, "source.bin",
+                           O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+    assert(source_fd >= 0);
+    CHECK(random_component(component));
+    CHECK(fcj3_stage_open_at(&stage, fixture.directory_fd, component, geteuid()));
+    int borrowed_stage_fd = fcj3_stage_fd(&stage);
+    assert(borrowed_stage_fd >= 0);
+
+    struct stat source_snapshot;
+    struct stat staging_snapshot;
+    uint64_t bytes_copied = 0U;
+    CHECK(fcj3_stage_copy_from(&stage, source_fd, &source_snapshot, &bytes_copied));
+    CHECK(fcj3_stage_sync(&stage, &staging_snapshot));
+    CHECK(fcj3_stage_link(&stage));
+
+    fcj3_stage_test_mutate_stage_before_publish(borrowed_stage_fd);
+    errno = 0;
+    assert(fcj3_stage_publish(&stage, "destination.bin") == -1);
+    assert(errno == ESTALE);
+    struct stat visible;
+    CHECK(fstatat(fixture.directory_fd, component, &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+    assert(fstatat(fixture.directory_fd, "destination.bin", &visible, AT_SYMLINK_NOFOLLOW) == -1);
+    assert(errno == ENOENT);
+
+    assert(close(source_fd) == 0);
+    CHECK(fcj3_stage_close(&stage));
+    CHECK(fstatat(fixture.directory_fd, component, &visible, AT_SYMLINK_NOFOLLOW));
+    assert(visible.st_dev == staging_snapshot.st_dev);
+    assert(visible.st_ino == staging_snapshot.st_ino);
+    assert(unlinkat(fixture.directory_fd, component, 0) == 0);
+    assert(unlinkat(fixture.directory_fd, "source.bin", 0) == 0);
+    fixture_destroy(&fixture);
+}
+
 int main(void)
 {
     test_publish_preserves_source_and_exact_inode();
     test_collision_never_overwrites_and_fails_operation();
+    test_partial_copy_failure_poisoned_and_source_preserved();
+    test_source_change_during_copy_is_rejected();
+    test_stage_fsync_failure_poisoned();
+    test_link_directory_fsync_failure_preserves_stage_name();
+    test_publish_directory_fsync_failure_preserves_destination();
+    test_retained_stage_descriptor_mutation_is_rejected();
+    test_mutation_after_link_blocks_publication();
     puts("FCJ3 isolated staging lifecycle tests passed");
     return 0;
 }

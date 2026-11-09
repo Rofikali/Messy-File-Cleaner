@@ -1,6 +1,9 @@
 #ifndef FCJ3_STAGE_H
 #define FCJ3_STAGE_H
 
+#include <stddef.h>
+#include <stdint.h>
+#include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -20,9 +23,14 @@ typedef struct
     ino_t directory_inode;
     dev_t staging_device;
     ino_t staging_inode;
+    off_t copied_size;
+    struct timespec copied_mtime;
+    struct timespec copied_ctime;
     uid_t expected_owner;
     char staging_component[256];
     int initialized;
+    int copied;
+    int poisoned;
     int synced;
     int linked;
     int published;
@@ -34,8 +42,16 @@ typedef struct
 int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
                        const char *staging_component, uid_t expected_owner);
 
-/* Borrow the anonymous staging descriptor before sync; do not retain it or write after sync. */
+/* Borrow only for direct-write mode. Do not retain across copy/sync/link. */
 int fcj3_stage_fd(const Fcj3Stage *stage);
+
+/* Copy an already-open regular source descriptor into the anonymous stage.
+ * The caller must open it safely (normally O_RDONLY | O_NOFOLLOW). The helper
+ * checks source identity, size, owner, mode, mtime and ctime before/after.
+ * Any copy uncertainty poisons the stage.
+ */
+int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
+                         struct stat *source_snapshot, uint64_t *bytes_copied);
 
 /* fsync the anonymous file and return its validated stat snapshot. */
 int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata);
@@ -52,5 +68,14 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component);
 
 /* Close owned descriptors. Never removes a visible staging/final entry. */
 int fcj3_stage_close(Fcj3Stage *stage);
+
+#ifdef FC_TESTING
+/* Test-only deterministic partial-pwrite failure injection. */
+void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code);
+void fcj3_stage_test_grow_source_after_copy(int writable_source_fd);
+void fcj3_stage_test_mutate_stage_after_copy(int stage_fd);
+void fcj3_stage_test_mutate_stage_before_publish(int stage_fd);
+void fcj3_stage_test_fail_fsync(int error_code);
+#endif
 
 #endif

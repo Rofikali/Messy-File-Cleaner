@@ -153,7 +153,6 @@ static size_t read_file_at(int directory_fd, const char *name,
 static void assert_replay_state(Fixture *fixture, Fcj3State expected_state,
                                 uint64_t expected_sequence)
 {
-    CHECK(fcj3_journal_close(&fixture->journal));
     int fd = openat(fixture->directory_fd, "test.fcj3", O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
     assert(fd >= 0);
     Fcj3Replay replay;

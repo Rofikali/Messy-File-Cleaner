@@ -76,7 +76,7 @@ static void test_regular_identity_and_missing_entries(int root_fd,
     CHECK(evidence.recovery.stage == FCJ3_EVIDENCE_MATCHING_REGULAR);
     CHECK(evidence.recovery.destination == FCJ3_EVIDENCE_ABSENT);
     CHECK(evidence.source_errno == 0);
-    CHECK(evidence.stage_errno == ENOENT);
+    CHECK(evidence.stage_errno == 0);
     CHECK(evidence.destination_errno == ENOENT);
 }
 

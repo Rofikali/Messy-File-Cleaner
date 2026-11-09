@@ -567,6 +567,20 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
             stage->poisoned = 1;
             return -1;
         }
+
+        /*
+         * Test-only: refresh the metadata baseline after the rewrite so this
+         * test deterministically exercises the content-digest check rather
+         * than depending on the filesystem's timestamp granularity.
+         */
+        struct stat mutated_metadata;
+        if (fstat(mutation_fd, &mutated_metadata) != 0)
+        {
+            stage->poisoned = 1;
+            return -1;
+        }
+        stage->copied_mtime = mutated_metadata.st_mtim;
+        stage->copied_ctime = mutated_metadata.st_ctim;
     }
 #endif
 

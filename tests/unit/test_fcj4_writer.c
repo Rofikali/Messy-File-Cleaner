@@ -175,6 +175,22 @@ static void test_stale_and_duplicate_commit_rejected(void)
     fcj4_writer_state_destroy(state);
 }
 
+static void test_replay_import_failure_is_atomic(void)
+{
+    Fcj4WriterState *state=NULL;
+    Fcj4Replay invalid_replay;
+    CHECK(fcj4_writer_state_create(&state)==0);
+    fcj4_replay_init(&invalid_replay);
+    /* A forged/inconsistent public replay descriptor must be rejected. */
+    invalid_replay.count=1U;
+    errno=0;
+    CHECK(fcj4_writer_state_import_replay(state,&invalid_replay)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(fcj4_writer_revision(state)==0U);
+    invalid_replay.count=0U;
+    fcj4_writer_state_destroy(state);
+}
+
 static void test_cross_record_evidence_rejected(void)
 {
     Fcj4WriterState *state=NULL;
@@ -233,6 +249,7 @@ int main(void)
 {
     test_round_trip_and_transitions();
     test_cross_record_evidence_rejected();
+    test_replay_import_failure_is_atomic();
     test_serializer_rejects_noncanonical_inputs();
     test_stale_and_duplicate_commit_rejected();
     puts("FCJ4 serializer/state unit tests passed");

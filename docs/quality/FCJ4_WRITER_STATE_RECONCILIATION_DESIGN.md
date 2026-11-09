@@ -20,7 +20,7 @@ Code review identified these gaps before append work:
 2. The serializer checks ACTION_DEF field shape and some kind/role relationships, but does not check parent identity, entry identity, metadata, digest, or component binding against BEGIN/SEALED.
 3. SEALED serialization does not check that stage device equals the destination-parent device or that stage size equals source size. The parser rejects either mismatch.
 4. The parser exposes action sequence in Fcj4ActionView but does not expose operation move sequence in Fcj4OperationView. A replay-seeded writer therefore cannot resume exact MOVE sequence validation from the public views.
-5. The writer does not track total record count, so its in-memory state can accept more records than the parser's FCJ4_MAX_RECORDS limit.
+5. The writer did not track total record count, so its in-memory state could accept more records than the parser's FCJ4_MAX_RECORDS limit. The current implementation branch now rejects prepare when the committed-record revision has reached FCJ4_MAX_RECORDS; because revision advances only on successful in-memory commit, prepare/abort do not consume the limit. Replay-import accounting remains outstanding.
 6. The current test proves one valid history round-trips. It does not prove rejection of records that are individually well-formed but inconsistent with the operation evidence or action relationships.
 
 These are not evidence of production data damage: the module is isolated and not linked into the production executable. They are blockers for a future append adapter.
@@ -130,6 +130,6 @@ Add tests that specifically target parser/writer divergence:
 
 ## 9. Implementation status and exit criteria
 
-The parser operation view now exposes the exact last MOVE sequence as an additive field. The remaining writer-state implementation, replay import, deep ownership, cross-record validation, record-count enforcement, and regression coverage are still required before this milestone can be considered complete.
+The parser operation view now exposes the exact last MOVE sequence as an additive field. The writer now enforces FCJ4_MAX_RECORDS against its committed-record revision before prepare; this is a bounded partial implementation, not completion of record accounting because replay-import seeding is not implemented. The remaining writer-state implementation, replay import, deep ownership, cross-record validation, and regression coverage are still required before this milestone can be considered complete.
 
 The implementation PR must pass all tests above and be reviewed against the existing parser source line-by-line. Record exact commands and observed outcomes; do not infer Codespaces or CI results. Only after this milestone is reviewed, merged by the repository owner, and verified on main may a separate append-adapter design be considered.

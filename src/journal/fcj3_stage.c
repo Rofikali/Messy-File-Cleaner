@@ -37,6 +37,7 @@ static int valid_component(const char *component, const char *prefix)
     size_t length = strnlen(component, 256U);
     size_t prefix_length = strlen(prefix);
     if (length <= prefix_length || length >= 256U ||
+        strcmp(component, ".") == 0 || strcmp(component, "..") == 0 ||
         strncmp(component, prefix, prefix_length) != 0)
     {
         errno = EINVAL;
@@ -93,12 +94,6 @@ static int validate_directory(int directory_fd, uid_t expected_owner,
     return 0;
 }
 
-static int same_inode(const struct stat *left, const struct stat *right)
-{
-    return S_ISREG(left->st_mode) && S_ISREG(right->st_mode) &&
-           left->st_dev == right->st_dev && left->st_ino == right->st_ino;
-}
-
 static int verify_named_inode(int directory_fd, const char *component,
                               dev_t expected_device, ino_t expected_inode)
 {
@@ -120,8 +115,7 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
     if (stage == NULL || directory_fd < 0 ||
         !valid_component(staging_component, ".fc-tmp-"))
     {
-        if (errno == 0)
-            errno = EINVAL;
+        errno = EINVAL;
         return -1;
     }
 
@@ -256,13 +250,13 @@ int fcj3_stage_link(Fcj3Stage *stage)
         return -1;
 
     /* From this point, never remove the name on an identity uncertainty. */
+    stage->linked = 1;
     if (verify_named_inode(stage->directory_fd, stage->staging_component,
                            stage->staging_device, stage->staging_inode) != 0)
         return -1;
     if (fsync(stage->directory_fd) != 0)
         return -1;
 
-    stage->linked = 1;
     return 0;
 }
 

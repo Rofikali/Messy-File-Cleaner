@@ -246,6 +246,10 @@ static void run_case(const char *root, const CrashCase *test_case)
     load_replay(journal_path, &first);
     CHECK(first.count == 1U);
     CHECK(first.transactions[0].state == test_case->expected_state);
+    struct stat replay_directory;
+    CHECK(fstat(rootfd, &replay_directory) == 0);
+    CHECK(replay_directory.st_dev == first.transactions[0].destination_dir_dev);
+    CHECK(replay_directory.st_ino == first.transactions[0].destination_dir_ino);
     CHECK(first.transactions[0].sequence ==
           (test_case->expected_state == FCJ3_STATE_STAGED ? 1U :
            test_case->expected_state == FCJ3_STATE_STARTED ? 2U :
@@ -274,11 +278,21 @@ static void run_case(const char *root, const CrashCase *test_case)
     CHECK(stat(journal_path, &journal_after) == 0);
     CHECK(journal_before.st_size == journal_after.st_size);
 
-    /* Test-fixture teardown removes only exact names created by this case. */
-    if (stage_exists)
+    /* Revalidate each visible inode immediately before fixture teardown. */
+    if (stage_exists) {
+        struct stat current;
+        CHECK(fstatat(rootfd, STAGE_NAME, &current, AT_SYMLINK_NOFOLLOW) == 0);
+        CHECK(current.st_dev == first.transactions[0].staging_dev);
+        CHECK(current.st_ino == first.transactions[0].staging_ino);
         CHECK(unlinkat(rootfd, STAGE_NAME, 0) == 0);
-    if (destination_exists)
+    }
+    if (destination_exists) {
+        struct stat current;
+        CHECK(fstatat(rootfd, DEST_NAME, &current, AT_SYMLINK_NOFOLLOW) == 0);
+        CHECK(current.st_dev == first.transactions[0].staging_dev);
+        CHECK(current.st_ino == first.transactions[0].staging_ino);
         CHECK(unlinkat(rootfd, DEST_NAME, 0) == 0);
+    }
     CHECK(unlinkat(rootfd, SOURCE_NAME, 0) == 0);
     CHECK(unlinkat(rootfd, JOURNAL_NAME, 0) == 0);
     CHECK(close(rootfd) == 0);

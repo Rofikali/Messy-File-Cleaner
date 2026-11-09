@@ -120,7 +120,9 @@ def main() -> int:
             before_entries + ["linked-directory", "move.fcj3"]
         )
         # Journal was intentionally replaced for malformed/symlink tests.
-        assert journal.is_symlink()\n        assert (root / "move.fcj3").read_bytes() == journal_bytes\n        assert before_journal == journal_bytes
+        assert journal.is_symlink()
+        assert (root / "move.fcj3").read_bytes() == journal_bytes
+        assert before_journal == journal_bytes
 
     print("FCJ3 read-only recovery report integration tests passed")
     return 0

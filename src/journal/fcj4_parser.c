@@ -198,49 +198,65 @@ static Fcj4Operation *find_operation(Fcj4Replay *r, const char *id)
 
 static int parse_begin(char **f, size_t n, Fcj4Replay *r)
 {
-    uint64_t v[18];
-    int64_t t[2];
+    uint64_t source_path_len, source_parent_dev, source_parent_ino;
+    uint64_t source_dev, source_ino, source_uid, source_gid, source_mode, source_size;
+    uint64_t source_mtime_nsec, source_ctime_nsec;
+    uint64_t destination_path_len, destination_parent_dev, destination_parent_ino;
+    uint64_t destination_basename_len, quarantine_parent_dev, quarantine_parent_ino;
+    int64_t source_mtime_sec, source_ctime_sec;
     Fcj4Operation *op;
-    static const size_t uidx[] = {
-        4,6,7,8,9,11,12,13,14,16,17,19,21,22,23,25,26
-    };
+
     if (n != 27U || strcmp(f[0],"FCJ4") || strcmp(f[1],"BEGIN") ||
         strcmp(f[2],"1") || !is_hex(f[3],32U)) return -1;
     if (r->count >= FCJ4_MAX_OPERATIONS) return -2;
     if (find_operation(r, f[3])) return -1;
-    for (size_t i=0;i<sizeof(uidx)/sizeof(uidx[0]);++i)
-        if (parse_u64(f[uidx[i]], &v[i]) != 0) return -1;
-    if (v[0] == 0U || v[0] >= PATH_MAX || v[1] == 0U ||
-        v[1] >= PATH_MAX || v[9] == 0U || v[9] >= NAME_MAX ||
-        v[14] == 0U || v[14] >= NAME_MAX) return -1;
-    if (get_i64(f,15,&t[0]) || get_u64(f,16,&v[9]) ||
-        get_i64(f,17,&t[1]) || get_u64(f,18,&v[10])) return -1;
-    if (v[9] > 999999999U || v[10] > 999999999U) return -1;
+#define U(field, name) do { if (parse_u64(f[field], &(name)) != 0) return -1; } while (0)
+    U(4,source_path_len); U(6,source_parent_dev); U(7,source_parent_ino);
+    U(8,source_dev); U(9,source_ino); U(11,source_uid); U(12,source_gid);
+    U(13,source_mode); U(14,source_size);
+    if (parse_i64(f[15],&source_mtime_sec)!=0) return -1;
+    U(16,source_mtime_nsec);
+    if (parse_i64(f[17],&source_ctime_sec)!=0) return -1;
+    U(18,source_ctime_nsec);
+    U(19,destination_path_len); U(21,destination_parent_dev);
+    U(22,destination_parent_ino); U(23,destination_basename_len);
+    U(25,quarantine_parent_dev); U(26,quarantine_parent_ino);
+#undef U
+    if (source_path_len==0U || source_path_len>=PATH_MAX ||
+        destination_path_len==0U || destination_path_len>=PATH_MAX ||
+        destination_basename_len==0U || destination_basename_len>=NAME_MAX ||
+        source_ino==0U || source_parent_ino==0U ||
+        destination_parent_ino==0U || quarantine_parent_ino==0U ||
+        source_mtime_nsec>999999999U || source_ctime_nsec>999999999U ||
+        strcmp(f[10],"REGULAR")!=0) return -1;
 
-    if (r->count == 0U) {
-        op = (Fcj4Operation *)calloc(FCJ4_MAX_OPERATIONS, sizeof(Fcj4Operation));
+    if (r->count==0U) {
+        op=(Fcj4Operation *)calloc(FCJ4_MAX_OPERATIONS,sizeof(Fcj4Operation));
         if (!op) return -3;
-        r->operations = op;
+        r->operations=op;
     }
-    op = &((Fcj4Operation *)r->operations)[r->count];
-    memset(op, 0, sizeof(*op));
-    if (decode_hex(f[5], v[0], op->source_path, sizeof(op->source_path)) ||
-        decode_hex(f[20], v[11], op->destination_path, sizeof(op->destination_path)) ||
-        decode_hex(f[24], v[14], op->destination_basename, sizeof(op->destination_basename)) ||
+    op=&((Fcj4Operation *)r->operations)[r->count];
+    memset(op,0,sizeof(*op));
+    if (decode_hex(f[5],source_path_len,op->source_path,sizeof(op->source_path)) ||
+        decode_hex(f[20],destination_path_len,op->destination_path,sizeof(op->destination_path)) ||
+        decode_hex(f[24],destination_basename_len,op->destination_basename,sizeof(op->destination_basename)) ||
         !valid_absolute_path(op->source_path) ||
         !valid_absolute_path(op->destination_path) ||
         !valid_component(op->destination_basename) ||
-        strcmp(op->destination_basename, basename_of(op->destination_path)) != 0 ||
-        strcmp(f[10],"REGULAR") != 0) return -1;
+        strcmp(op->destination_basename,basename_of(op->destination_path))!=0 ||
+        !valid_component(basename_of(op->source_path))) return -1;
 
     memcpy(op->id,f[3],33U);
-    op->source_parent_dev=v[2]; op->source_parent_ino=v[3];
-    op->source_dev=v[4]; op->source_ino=v[5];
-    op->source_uid=v[6]; op->source_gid=v[7]; op->source_mode=v[8];
-    op->source_size=v[9]; op->source_mtime_sec=t[0]; op->source_mtime_nsec=v[9+1U];
-    op->source_ctime_sec=t[1]; op->source_ctime_nsec=v[10];
-    op->destination_parent_dev=v[12]; op->destination_parent_ino=v[13];
-    op->quarantine_parent_dev=v[15]; op->quarantine_parent_ino=v[16];
+    op->source_parent_dev=source_parent_dev; op->source_parent_ino=source_parent_ino;
+    op->source_dev=source_dev; op->source_ino=source_ino;
+    op->source_uid=source_uid; op->source_gid=source_gid;
+    op->source_mode=source_mode; op->source_size=source_size;
+    op->source_mtime_sec=source_mtime_sec; op->source_mtime_nsec=source_mtime_nsec;
+    op->source_ctime_sec=source_ctime_sec; op->source_ctime_nsec=source_ctime_nsec;
+    op->destination_parent_dev=destination_parent_dev;
+    op->destination_parent_ino=destination_parent_ino;
+    op->quarantine_parent_dev=quarantine_parent_dev;
+    op->quarantine_parent_ino=quarantine_parent_ino;
     op->has_begin=1;
     r->count++;
     return 0;
@@ -301,10 +317,12 @@ static int parse_move(char **f, size_t n, Fcj4Replay *r)
 
 static int parse_action_def(char **f, size_t n, Fcj4Replay *r)
 {
-    uint64_t v[10];
+    uint64_t parent_dev,parent_ino,entry_dev,entry_ino,uid,mode,size;
+    uint64_t source_len,target_len;
     Fcj4Operation *op;
     Fcj4Action *a;
     unsigned int kind, role;
+
     if (n!=20U || strcmp(f[0],"FCJ4") || strcmp(f[1],"ACTION_DEF") ||
         strcmp(f[2],"1") || !is_hex(f[3],32U) || !is_hex(f[4],32U) ||
         !is_hex(f[15],64U)) return -1;
@@ -321,50 +339,46 @@ static int parse_action_def(char **f, size_t n, Fcj4Replay *r)
     if (!strcmp(f[6],"QUARANTINE")) role=1U;
     else if (!strcmp(f[6],"NONE")) role=2U;
     else return -1;
-    if (get_u64(f,7,&v[0]) || get_u64(f,8,&v[1]) ||
-        get_u64(f,9,&v[2]) || get_u64(f,10,&v[3]) ||
-        get_u64(f,12,&v[4]) || get_u64(f,13,&v[5]) ||
-        get_u64(f,14,&v[6]) || get_u64(f,16,&v[7]) ||
-        get_u64(f,18,&v[8])) return -1;
-    if (strcmp(f[11],"REGULAR")!=0 || v[3]==0U) return -1;
-    if (decode_hex(f[17],v[7],(char[NAME_MAX]){0},NAME_MAX)!=0) return -1;
-    if (v[7]==0U || v[7]>=NAME_MAX) return -1;
+#define U(field, name) do { if (parse_u64(f[field], &(name)) != 0) return -1; } while (0)
+    U(7,parent_dev); U(8,parent_ino); U(9,entry_dev); U(10,entry_ino);
+    U(12,uid); U(13,mode); U(14,size); U(16,source_len); U(18,target_len);
+#undef U
+    if (strcmp(f[11],"REGULAR")!=0 || parent_ino==0U || entry_ino==0U ||
+        source_len==0U || source_len>=NAME_MAX) return -1;
+    if ((kind==1U || kind==2U) != (role==1U)) return -1;
+    if (role==1U) {
+        if (target_len==0U || target_len>=NAME_MAX) return -1;
+    } else if (target_len!=0U || strcmp(f[18],"0")!=0 || strcmp(f[19],"-")!=0) {
+        return -1;
+    }
+
     a=&op->actions[op->action_count];
     memset(a,0,sizeof(*a));
-    if (decode_hex(f[17],v[7],a->source_component,sizeof(a->source_component)) ||
+    if (decode_hex(f[17],source_len,a->source_component,sizeof(a->source_component)) ||
         !valid_component(a->source_component)) return -1;
-    if (role==1U) {
-        if (v[8]==0U || v[8]>=NAME_MAX ||
-            decode_hex(f[19],v[8],a->target_component,sizeof(a->target_component)) ||
-            !valid_component(a->target_component) ||
-            (kind!=1U && kind!=2U)) return -1;
-    } else {
-        if (kind!=3U && kind!=4U) return -1;
-        if (strcmp(f[18],"0")!=0 || strcmp(f[19],"-")!=0 || v[8]!=0U)
-            return -1;
-    }
-    if (role==1U && (kind==1U || kind==2U)) {
-        if (v[0]!=op->quarantine_parent_dev || v[1]!=op->quarantine_parent_ino)
-            return -1;
-    } else if (kind==3U || kind==4U) {
-        if (v[0]!=op->quarantine_parent_dev || v[1]!=op->quarantine_parent_ino)
-            return -1;
-    }
-    if (kind==1U && (v[0]!=op->destination_parent_dev ||
-        v[1]!=op->destination_parent_ino ||
+    if (role==1U &&
+        (decode_hex(f[19],target_len,a->target_component,sizeof(a->target_component)) ||
+         !valid_component(a->target_component))) return -1;
+
+    /* The current subject's parent is fixed by the action kind. */
+    if (kind==1U && (parent_dev!=op->destination_parent_dev ||
+        parent_ino!=op->destination_parent_ino ||
         strcmp(a->source_component,op->stage_component)!=0)) return -1;
-    if (kind==2U && (v[0]!=op->source_parent_dev ||
-        v[1]!=op->source_parent_ino ||
+    if (kind==2U && (parent_dev!=op->source_parent_dev ||
+        parent_ino!=op->source_parent_ino ||
         strcmp(a->source_component,basename_of(op->source_path))!=0)) return -1;
-    if (kind==3U && strcmp(a->source_component,basename_of(op->source_path))!=0)
-        return -1;
-    if (kind==4U && strcmp(a->source_component,op->stage_component)!=0)
-        return -1;
+    if (kind==3U && (parent_dev!=op->quarantine_parent_dev ||
+        parent_ino!=op->quarantine_parent_ino ||
+        strcmp(a->source_component,basename_of(op->source_path))!=0)) return -1;
+    if (kind==4U && (parent_dev!=op->quarantine_parent_dev ||
+        parent_ino!=op->quarantine_parent_ino ||
+        strcmp(a->source_component,op->stage_component)!=0)) return -1;
+
     memcpy(a->id,f[4],33U);
     a->kind=kind; a->role=role;
-    a->parent_dev=v[0]; a->parent_ino=v[1];
-    a->entry_dev=v[2]; a->entry_ino=v[3];
-    a->uid=v[4]; a->mode=v[5]; a->size=v[6];
+    a->parent_dev=parent_dev; a->parent_ino=parent_ino;
+    a->entry_dev=entry_dev; a->entry_ino=entry_ino;
+    a->uid=uid; a->mode=mode; a->size=size;
     memcpy(a->digest,f[15],65U);
     op->action_count++;
     return 0;
@@ -428,13 +442,13 @@ int fcj4_replay_parse(const void *data, size_t length, Fcj4Replay *out)
     if (!out || (length && !data)) return fail(EINVAL);
     if (out->operations || out->count || out->record_count) return fail(EINVAL);
     if (length>FCJ4_MAX_JOURNAL_BYTES) return fail(E2BIG);
+    if (length==0U) return fail(EBADMSG);
     fcj4_replay_init(&temporary);
     while (offset<length) {
         const unsigned char *newline;
         size_t line_length, content_length, field_count=0U;
         char line[FCJ4_MAX_LINE_BYTES+1U];
         char *fields[24];
-        Fcj4Operation *before;
         if (temporary.record_count>=FCJ4_MAX_RECORDS) { status=E2BIG; break; }
         newline=(const unsigned char *)memchr(bytes+offset,'\n',length-offset);
         if (!newline) { status=EBADMSG; break; }
@@ -448,7 +462,6 @@ int fcj4_replay_parse(const void *data, size_t length, Fcj4Replay *out)
         if (split_fields(line,fields,24U,&field_count)!=0 ||
             field_count<3U || strcmp(fields[0],"FCJ4")!=0 ||
             strcmp(fields[2],"1")!=0) { status=EBADMSG; break; }
-        before=(Fcj4Operation *)temporary.operations;
         if (!strcmp(fields[1],"BEGIN"))
             status=parse_begin(fields,field_count,&temporary);
         else if (!strcmp(fields[1],"SEALED"))
@@ -460,7 +473,6 @@ int fcj4_replay_parse(const void *data, size_t length, Fcj4Replay *out)
         else if (!strcmp(fields[1],"ACTION"))
             status=parse_action(fields,field_count,&temporary);
         else status=-1;
-        (void)before;
         if (status!=0) { status=status==-2 ? E2BIG : status==-3 ? ENOMEM : EBADMSG; break; }
         temporary.record_count++;
         offset+=line_length;

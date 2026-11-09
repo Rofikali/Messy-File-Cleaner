@@ -143,8 +143,8 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
 
-  # FCJ3 parser, operation context, and durable append adapter remain test-only.
-  # Production use waits for the staging lifecycle and FCJ3 recovery phases.
+  # FCJ3 parser, operation context, append adapter, and staging lifecycle
+  # remain test-only. Production use waits for the recovery phase.
   add_executable(test_fcj3_writer
     tests/unit/test_fcj3_writer.c
     src/journal/fcj3_writer.c
@@ -178,6 +178,25 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_journal_integration COMMAND test_fcj3_journal)
   set_tests_properties(fcj3_journal_integration PROPERTIES TIMEOUT 20)
+
+  # Full FCJ3 staging lifecycle remains isolated from production sources.
+  add_executable(test_fcj3_staging
+    tests/integration/test_fcj3_staging.c
+    src/journal/fcj3_stage.c
+    src/journal/fcj3_journal.c
+    src/journal/fcj3_writer.c
+    src/journal/fcj3_parser.c
+  )
+  target_include_directories(test_fcj3_staging PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_link_libraries(test_fcj3_staging PRIVATE Threads::Threads)
+  target_compile_definitions(test_fcj3_staging PRIVATE FC_TESTING)
+  target_compile_options(test_fcj3_staging PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_staging_integration COMMAND test_fcj3_staging)
+  set_tests_properties(fcj3_staging_integration PROPERTIES TIMEOUT 20)
 
   add_executable(test_process_crash_recovery
     tests/integration/test_process_crash_recovery.c

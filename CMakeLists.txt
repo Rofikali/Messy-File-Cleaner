@@ -143,6 +143,22 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
 
+  # Pure FCJ3 recovery classification is read-only and isolated from all
+  # filesystem, journal-writer, staging, and production mover modules.
+  add_executable(test_fcj3_recovery_classifier
+    tests/unit/test_fcj3_recovery_classifier.c
+    src/journal/fcj3_recovery_classifier.c
+  )
+  target_include_directories(test_fcj3_recovery_classifier PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_compile_options(test_fcj3_recovery_classifier PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj3_recovery_classifier_unit
+    COMMAND test_fcj3_recovery_classifier
+  )
+
   # FCJ3 parser, operation context, append adapter, and staging lifecycle
   # remain test-only. Production use waits for the recovery phase.
   add_executable(test_fcj3_writer

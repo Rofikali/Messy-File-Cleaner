@@ -471,6 +471,9 @@ int fcj4_writer_prepare(Fcj4WriterState *s,const Fcj4Record *r,
     if(written) *written=0U;
     if(!s || !r || !output || !written || !prepared) return fail(EINVAL);
     if(s->pending) return fail(EBUSY);
+    /* revision counts committed records; a prepared record is not counted
+       until commit, so abort leaves the limit accounting unchanged. */
+    if(s->revision>=FCJ4_MAX_RECORDS) return fail(E2BIG);
     memset(&p,0,sizeof(p));
     if(validate_next(s,r,&p,&move,&action)!=0) return -1;
     if(fcj4_serialize(r,output,capacity,&n)!=0) return -1;

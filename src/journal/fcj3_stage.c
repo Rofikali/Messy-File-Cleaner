@@ -702,6 +702,9 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
         struct stat published_metadata;
         if (fstat(stage->staging_fd, &published_metadata) != 0 ||
             !S_ISREG(published_metadata.st_mode) ||
+            published_metadata.st_uid != stage->expected_owner ||
+            (published_metadata.st_mode & 0777) != 0600 ||
+            published_metadata.st_nlink != 1 ||
             published_metadata.st_dev != stage->staging_device ||
             published_metadata.st_ino != stage->staging_inode ||
             published_metadata.st_size != stage->copied_size ||

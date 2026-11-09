@@ -5,6 +5,8 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <stdint.h>
 #include <linux/fs.h>
 #include <linux/magic.h>
 #include <stdio.h>
@@ -209,7 +211,7 @@ int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
 int fcj3_stage_fd(const Fcj3Stage *stage)
 {
     if (stage == NULL || !stage->initialized || stage->staging_fd < 0 ||
-        stage->synced)
+        stage->synced || stage->poisoned)
     {
         errno = EINVAL;
         return -1;
@@ -217,9 +219,164 @@ int fcj3_stage_fd(const Fcj3Stage *stage)
     return stage->staging_fd;
 }
 
+
+static int same_source_snapshot(const struct stat *before,
+                                const struct stat *after)
+{
+    return before->st_dev == after->st_dev &&
+           before->st_ino == after->st_ino &&
+           before->st_mode == after->st_mode &&
+           before->st_uid == after->st_uid &&
+           before->st_gid == after->st_gid &&
+           before->st_size == after->st_size &&
+           before->st_mtim.tv_sec == after->st_mtim.tv_sec &&
+           before->st_mtim.tv_nsec == after->st_mtim.tv_nsec &&
+           before->st_ctim.tv_sec == after->st_ctim.tv_sec &&
+           before->st_ctim.tv_nsec == after->st_ctim.tv_nsec;
+}
+
+#ifdef FC_TESTING
+static size_t test_fail_after_bytes = SIZE_MAX;
+static size_t test_accepted_bytes;
+static int test_write_error = EIO;
+
+void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code)
+{
+    test_fail_after_bytes = after_bytes;
+    test_accepted_bytes = 0U;
+    test_write_error = error_code != 0 ? error_code : EIO;
+}
+#endif
+
+static ssize_t stage_pwrite(int fd, const void *buffer, size_t length,
+                            off_t offset)
+{
+#ifdef FC_TESTING
+    if (test_fail_after_bytes != SIZE_MAX)
+    {
+        if (test_accepted_bytes >= test_fail_after_bytes)
+        {
+            test_fail_after_bytes = SIZE_MAX;
+            errno = test_write_error;
+            return -1;
+        }
+        size_t remaining = test_fail_after_bytes - test_accepted_bytes;
+        if (length > remaining)
+            length = remaining;
+    }
+#endif
+    ssize_t count = pwrite(fd, buffer, length, offset);
+#ifdef FC_TESTING
+    if (count > 0 && test_fail_after_bytes != SIZE_MAX)
+        test_accepted_bytes += (size_t)count;
+#endif
+    return count;
+}
+
+int fcj3_stage_copy_from(Fcj3Stage *stage, int source_fd,
+                         struct stat *source_snapshot, uint64_t *bytes_copied)
+{
+    if (stage == NULL || !stage->initialized || source_fd < 0 ||
+        source_snapshot == NULL || bytes_copied == NULL ||
+        stage->synced || stage->linked || stage->published ||
+        stage->copied || stage->poisoned)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    struct stat source_before;
+    struct stat stage_before;
+    if (fstat(source_fd, &source_before) != 0)
+        return -1;
+    if (!S_ISREG(source_before.st_mode) || source_before.st_size < 0)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+    if (fstat(stage->staging_fd, &stage_before) != 0)
+        return -1;
+    if (!S_ISREG(stage_before.st_mode) || stage_before.st_size != 0 ||
+        stage_before.st_nlink != 0 ||
+        stage_before.st_dev != stage->staging_device ||
+        stage_before.st_ino != stage->staging_inode)
+    {
+        errno = ESTALE;
+        stage->poisoned = 1;
+        return -1;
+    }
+
+    unsigned char buffer[65536];
+    off_t offset = 0;
+    uint64_t copied = 0U;
+    while (offset < source_before.st_size)
+    {
+        off_t remaining = source_before.st_size - offset;
+        size_t request = remaining > (off_t)sizeof(buffer)
+            ? sizeof(buffer) : (size_t)remaining;
+        ssize_t read_count;
+        do
+        {
+            read_count = pread(source_fd, buffer, request, offset);
+        } while (read_count < 0 && errno == EINTR);
+        if (read_count <= 0)
+        {
+            if (read_count == 0)
+                errno = ESTALE;
+            stage->poisoned = 1;
+            return -1;
+        }
+
+        size_t written = 0U;
+        while (written < (size_t)read_count)
+        {
+            ssize_t write_count = stage_pwrite(stage->staging_fd,
+                buffer + written, (size_t)read_count - written,
+                offset + (off_t)written);
+            if (write_count < 0 && errno == EINTR)
+                continue;
+            if (write_count <= 0)
+            {
+                if (write_count == 0)
+                    errno = EIO;
+                stage->poisoned = 1;
+                return -1;
+            }
+            written += (size_t)write_count;
+        }
+        offset += (off_t)read_count;
+        copied += (uint64_t)read_count;
+    }
+
+    struct stat source_after;
+    struct stat stage_after;
+    if (fstat(source_fd, &source_after) != 0 ||
+        !same_source_snapshot(&source_before, &source_after) ||
+        fstat(stage->staging_fd, &stage_after) != 0 ||
+        !S_ISREG(stage_after.st_mode) ||
+        stage_after.st_uid != stage->expected_owner ||
+        (stage_after.st_mode & 0777) != 0600 ||
+        stage_after.st_dev != stage->staging_device ||
+        stage_after.st_ino != stage->staging_inode ||
+        stage_after.st_nlink != 0 ||
+        stage_after.st_size != source_before.st_size)
+    {
+        if (errno == 0)
+            errno = ESTALE;
+        stage->poisoned = 1;
+        return -1;
+    }
+
+    *source_snapshot = source_before;
+    *bytes_copied = copied;
+    stage->copied = 1;
+    return 0;
+}
+
 int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
 {
-    if (stage == NULL || !stage->initialized || staging_metadata == NULL)
+    if (stage == NULL || !stage->initialized || staging_metadata == NULL ||
+        stage->poisoned)
     {
         errno = EINVAL;
         return -1;
@@ -250,7 +407,7 @@ int fcj3_stage_sync(Fcj3Stage *stage, struct stat *staging_metadata)
 int fcj3_stage_link(Fcj3Stage *stage)
 {
     if (stage == NULL || !stage->initialized || !stage->synced ||
-        stage->linked || stage->published)
+        stage->poisoned || stage->linked || stage->published)
     {
         errno = EINVAL;
         return -1;
@@ -298,7 +455,7 @@ int fcj3_stage_link(Fcj3Stage *stage)
 int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
 {
     if (stage == NULL || !stage->initialized || !stage->synced ||
-        !stage->linked || stage->published ||
+        stage->poisoned || !stage->linked || stage->published ||
         !valid_component(final_component, ""))
     {
         errno = EINVAL;

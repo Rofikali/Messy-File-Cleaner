@@ -76,7 +76,7 @@ static int valid_stage_component(const char *component)
     if (!component)
         return 0;
     length = strnlen(component, NAME_MAX + 1U);
-    if (length >= NAME_MAX || length <= 8U ||
+    if (length > NAME_MAX || length <= 8U ||
         memcmp(component, ".fc-tmp-", 8U) != 0)
         return 0;
     return valid_component(component, length);
@@ -85,7 +85,12 @@ static int valid_stage_component(const char *component)
 static int stat_directory(int directory_fd, struct stat *metadata,
                           int *error_number)
 {
-    if (fstat(directory_fd, metadata) != 0)
+    int result;
+    do
+    {
+        result = fstat(directory_fd, metadata);
+    } while (result != 0 && errno == EINTR);
+    if (result != 0)
     {
         *error_number = errno;
         return -1;

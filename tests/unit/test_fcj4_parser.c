@@ -43,7 +43,7 @@ static void test_valid_complete_replay(void)
     fcj4_replay_init(&replay);
     assert(fcj4_replay_parse(bytes,length,&replay)==0);
     assert(replay.count==1U);
-    assert(replay.record_count==11U);
+    assert(replay.record_count==12U);
     assert(fcj4_replay_operation(&replay,0U,&view)==0);
     assert(strcmp(view.operation_id,opid)==0);
     assert(view.action_count==1U);
@@ -85,10 +85,10 @@ static void test_rejects_illegal_move_transition(void)
 {
     char bytes[8192];
     size_t length=make_valid(bytes,sizeof(bytes));
-    char *started=strstr(bytes,"|2|STARTED|0\n");
+    char *started=strstr(bytes,"|1|STAGED|0\n");
     Fcj4Replay replay;
     assert(started!=NULL);
-    memcpy(started,"|2|COMPLETED|0\n",15U);
+    memcpy(started,"|1|STARTED|0\n",13U);
     fcj4_replay_init(&replay);
     errno=0;
     assert(fcj4_replay_parse(bytes,length,&replay)==-1);

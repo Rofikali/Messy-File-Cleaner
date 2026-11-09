@@ -46,6 +46,7 @@ static void test_valid_complete_replay(void)
     size_t length=make_valid(bytes,sizeof(bytes));
     Fcj4Replay replay;
     Fcj4OperationView view;
+    Fcj4ActionView action_view;
     fcj4_replay_init(&replay);
     if (fcj4_replay_parse(bytes,length,&replay)!=0) {
         size_t offset=0U, line_number=0U;
@@ -72,6 +73,25 @@ static void test_valid_complete_replay(void)
     assert(strcmp(view.operation_id,opid)==0);
     assert(view.action_count==4U);
     assert(view.move_state==FCJ4_MOVE_COMPLETED);
+    assert(strcmp(view.source_path,"/tmp/source")==0);
+    assert(strcmp(view.destination_path,"/tmp/dest")==0);
+    assert(strcmp(view.destination_basename,"dest")==0);
+    assert(strcmp(view.stage_component,".fc-tmp-x")==0);
+    assert(strcmp(view.stage_sha256,digest)==0);
+    assert(view.source_ino==3U && view.stage_ino==6U);
+    assert(fcj4_replay_action(&replay,0U,0U,&action_view)==0);
+    assert(strcmp(action_view.action_id,actionid)==0);
+    assert(action_view.kind==FCJ4_ACTION_KIND_QUARANTINE_STAGE);
+    assert(action_view.target_role==FCJ4_TARGET_QUARANTINE);
+    assert(strcmp(action_view.source_component,".fc-tmp-x")==0);
+    assert(strcmp(action_view.target_component,"q-stage")==0);
+    assert(action_view.state==FCJ4_ACTION_COMPLETED && action_view.sequence==5U);
+    assert(fcj4_replay_action(&replay,0U,3U,&action_view)==0);
+    assert(action_view.kind==FCJ4_ACTION_KIND_REMOVE_QUARANTINED_STAGE);
+    assert(action_view.target_role==FCJ4_TARGET_NONE);
+    assert(action_view.target_component==NULL);
+    assert(strcmp(action_view.source_component,"q-stage")==0);
+    assert(fcj4_replay_action(&replay,0U,4U,&action_view)==-1);
     assert(fcj4_replay_operation(&replay,1U,&view)==-1);
     fcj4_replay_destroy(&replay);
     assert(replay.operations==NULL && replay.count==0U);

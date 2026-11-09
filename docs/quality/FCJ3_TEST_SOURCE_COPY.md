@@ -49,11 +49,13 @@ the source.
 - A stage that has already become visible is never automatically unlinked on
   identity or durability uncertainty.
 
-Before sync, link, and publication, the stage re-reads the anonymous inode with bounded
-`pread()` calls and compares its SHA-256 digest with the digest captured during
-copy. Metadata checks remain in place as separate identity and consistency
-checks. This catches same-size content rewrites even on filesystems whose
-timestamp granularity does not expose the mutation.
+During sync, before linking, and before/after publication, the stage re-reads the
+anonymous inode with bounded `pread()` calls and compares its SHA-256 digest
+with the digest captured during copy. Metadata checks remain in place as
+separate identity and consistency checks. This catches same-size content
+rewrites even on filesystems whose timestamp granularity does not expose the
+mutation. The link step does not perform redundant full-file scans: the
+pre-publication digest check covers mutations that occur after linking.
 
 The `FC_TESTING` hooks provide deterministic partial-`pwrite` failure, a
 source-size mutation before the post-copy metadata check, retained staging-descriptor mutation before sync and after link, and

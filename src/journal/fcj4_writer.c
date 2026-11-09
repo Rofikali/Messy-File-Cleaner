@@ -490,9 +490,12 @@ int fcj4_writer_commit(Fcj4WriterState *s,const Fcj4PreparedRecord *p)
     WriterOperation *op;
     if(!s || !p || !s->pending || p->token!=s->prepared.token ||
        p->revision!=s->prepared.revision || p->kind!=s->prepared.kind ||
-       strcmp(p->operation_id,s->prepared.operation_id)!=0 ||
-       strcmp(p->action_id,s->prepared.action_id)!=0 ||
-       p->sequence!=s->prepared.sequence) return fail(EINVAL);
+       memcmp(p->operation_id,s->prepared.operation_id,
+              sizeof(s->prepared.operation_id))!=0 ||
+       memcmp(p->action_id,s->prepared.action_id,
+              sizeof(s->prepared.action_id))!=0 ||
+       p->sequence!=s->prepared.sequence ||
+       s->revision!=s->prepared.revision) return fail(EINVAL);
     op=find_op(s,p->operation_id);
     if(s->pending_kind==FCJ4_RECORD_BEGIN) {
         if(op || s->operation_count>=FCJ4_MAX_OPERATIONS) return fail(EINVAL);
@@ -526,7 +529,13 @@ int fcj4_writer_abort_prepare(Fcj4WriterState *s,const Fcj4PreparedRecord *p)
 {
     if(!s || !p || !s->pending || p->token!=s->prepared.token ||
        p->revision!=s->prepared.revision ||
-       strcmp(p->operation_id,s->prepared.operation_id)!=0)
+       memcmp(p->operation_id,s->prepared.operation_id,
+              sizeof(s->prepared.operation_id))!=0 ||
+       memcmp(p->action_id,s->prepared.action_id,
+              sizeof(s->prepared.action_id))!=0 ||
+       p->kind!=s->prepared.kind ||
+       p->sequence!=s->prepared.sequence ||
+       s->revision!=s->prepared.revision)
         return fail(EINVAL);
     s->pending=0;
     memset(&s->prepared,0,sizeof(s->prepared));

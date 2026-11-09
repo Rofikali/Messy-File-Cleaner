@@ -48,7 +48,7 @@ the source.
   identity or durability uncertainty.
 
 The `FC_TESTING` hooks provide deterministic partial-`pwrite` failure, a
-source-size mutation immediately before the post-copy metadata check, and
+source-size mutation before the post-copy metadata check, retained staging-descriptor mutation before sync, and
 file/directory `fsync()` failures. They are test-only and are not part of a
 production interface. The tests assert that an fsync failure before linking
 leaves no named entry, a directory-fsync failure after linking preserves the

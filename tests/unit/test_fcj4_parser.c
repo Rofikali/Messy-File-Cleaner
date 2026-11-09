@@ -181,6 +181,24 @@ static void test_rejects_action_parent_and_sentinel_mismatch(void)
     assert(replay.operations==NULL);
 }
 
+
+static void test_rejects_unbound_quarantine_followup(void)
+{
+    char bytes[8192];
+    size_t length=make_valid(bytes,sizeof(bytes));
+    char *record=strstr(bytes,"RETIRE_QUARANTINED_SOURCE|NONE");
+    Fcj4Replay replay;
+    assert(record!=NULL);
+    record=strstr(record,"|8|712d736f75726365|0|-");
+    assert(record!=NULL);
+    memcpy(record,"|8|712d6f7468657273|0|-",23U);
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+}
+
 static void test_rejects_resource_and_framing_limits(void)
 {
     char byte='x';
@@ -215,6 +233,7 @@ int main(void)
     test_rejects_action_identity_mismatch();
     test_rejects_action_parent_and_sentinel_mismatch();
     test_rejects_resource_and_framing_limits();
+    test_rejects_unbound_quarantine_followup();
     puts("FCJ4 parser/replay unit tests passed");
     return 0;
 }

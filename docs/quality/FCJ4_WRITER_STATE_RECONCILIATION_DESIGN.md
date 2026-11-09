@@ -2,7 +2,7 @@
 
 ## Status
 
-Design-only follow-up to merged PR #66. This document records the implementation gaps that must be closed before any append adapter is designed or implemented. It does not authorize journal I/O, file creation, append, fsync, production integration, or filesystem recovery.
+Implementation specification for the follow-up to merged PR #66. The implementation branch is being prepared against this design. The design remains the acceptance contract until code review and C11/C17/C23, sanitizer, Release, Makefile, Docker, and non-root validation are complete. It does not authorize journal I/O, file creation, append, fsync, production integration, or filesystem recovery.
 
 ## 1. Objective
 
@@ -128,6 +128,8 @@ Add tests that specifically target parser/writer divergence:
 - No filesystem evidence capture, planner, executor, quarantine, publication, source retirement, deletion, or recovery mutation.
 - No automatic tail repair, truncation, or prefix acceptance.
 
-## 9. Exit criteria
+## 9. Implementation status and exit criteria
 
-This design must be reviewed and merged before implementing replay-seeded state or cross-record validation. The follow-up implementation must pass all tests above and be reviewed against the existing parser source line-by-line. Only after that milestone reaches main may a separate append-adapter design be considered.
+The parser operation view now exposes the exact last MOVE sequence as an additive field. The remaining writer-state implementation, replay import, deep ownership, cross-record validation, record-count enforcement, and regression coverage are still required before this milestone can be considered complete.
+
+The implementation PR must pass all tests above and be reviewed against the existing parser source line-by-line. Record exact commands and observed outcomes; do not infer Codespaces or CI results. Only after this milestone is reviewed, merged by the repository owner, and verified on main may a separate append-adapter design be considered.

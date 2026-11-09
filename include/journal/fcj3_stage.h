@@ -58,7 +58,7 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component);
 int fcj3_stage_close(Fcj3Stage *stage);
 
 #ifdef FC_TESTING
-/* Fail the staging pwrite after exactly after_bytes have been accepted. */
+/* Test-only deterministic partial-pwrite failure injection. */
 void fcj3_stage_test_fail_write_after(size_t after_bytes, int error_code);
 #endif
 

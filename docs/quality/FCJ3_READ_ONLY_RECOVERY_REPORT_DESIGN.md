@@ -1,7 +1,13 @@
 # FCJ3 Read-Only Recovery Reporting Design
 
 ## Status
-Proposed design. Review and approval are required before implementation. This is a diagnostic-only milestone; FCJ3 remains isolated from production FCJ2/legacy recovery and the production mover.
+Approved by merged PR #57. Implementation is delivered separately in PR #59. This remains a diagnostic-only milestone; FCJ3 stays isolated from production FCJ2/legacy recovery and the production mover.
+
+## Implementation notes
+- The report executable is named `fcj3-recovery-report` and is a separate CMake target available with `BUILD_TESTING=ON`.
+- Journal input is capped at 64 MiB; line and transaction limits reuse the FCJ3 parser constants.
+- The report checks device, inode, size, mtime, and ctime before/after replay and verifies bytes read against final size. This is explicitly not an atomic snapshot.
+- The black-box integration test exercises valid replay/classification, JSON escaping, malformed suffix rejection without partial output, final and intermediate symlink rejection, and fixture non-mutation.
 
 ## Objective
 Provide an operator-invoked report for a complete FCJ3 journal. For each transaction, the report should show the last validated journal state, read-only filesystem observations, conservative classifier outcome, reason code, and relevant errno diagnostics.

@@ -106,15 +106,17 @@ void fcj4_writer_state_destroy(Fcj4WriterState *state);
 /*
  * Prepare validates ordering/transitions and serializes into caller storage.
  * Exactly one prepare may be outstanding. The state does not advance here.
- * Commit means only that the caller has independently confirmed the exact
- * prepared bytes crossed its chosen commit boundary. This milestone provides
- * no append adapter and does not claim durable journal commitment.
+ * Commit requires the exact prepared bytes and length, checked against the
+ * writer's one-record pending copy. It advances only in-memory state after
+ * caller confirmation. This milestone provides no append adapter and does
+ * not claim durable journal commitment.
  */
 int fcj4_writer_prepare(Fcj4WriterState *state, const Fcj4Record *record,
                         char *output, size_t capacity, size_t *written,
                         Fcj4PreparedRecord *prepared);
 int fcj4_writer_commit(Fcj4WriterState *state,
-                       const Fcj4PreparedRecord *prepared);
+                       const Fcj4PreparedRecord *prepared,
+                       const char *committed_bytes, size_t committed_length);
 int fcj4_writer_abort_prepare(Fcj4WriterState *state,
                               const Fcj4PreparedRecord *prepared);
 uint64_t fcj4_writer_revision(const Fcj4WriterState *state);

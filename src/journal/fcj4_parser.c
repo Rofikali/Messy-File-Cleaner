@@ -6,7 +6,6 @@
 #include <inttypes.h>
 #include <limits.h>
 #include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -202,11 +201,8 @@ static int parse_begin(char **f, size_t n, Fcj4Replay *r)
     int64_t source_mtime_sec, source_ctime_sec;
     Fcj4Operation *op;
 
-    fprintf(stderr,"BEGIN n=%zu\\n",n);
-    for (size_t debug_i=0U; debug_i<n; ++debug_i)
-        fprintf(stderr,"f[%zu]=<%s>\\n",debug_i,f[debug_i]);
     if (n != 27U || strcmp(f[0],"FCJ4") || strcmp(f[1],"BEGIN") ||
-        strcmp(f[2],"1") || !is_hex(f[3],32U)) { fprintf(stderr,"BEGIN shape n=%zu\\n",n); return -1; }
+        strcmp(f[2],"1") || !is_hex(f[3],32U)) return -1;
     if (r->count >= FCJ4_MAX_OPERATIONS) return -2;
     if (find_operation(r, f[3])) return -1;
 #define U(field, name) do { if (parse_u64(f[field], &(name)) != 0) return -1; } while (0)
@@ -227,7 +223,7 @@ static int parse_begin(char **f, size_t n, Fcj4Replay *r)
         source_ino==0U || source_parent_ino==0U ||
         destination_parent_ino==0U || quarantine_parent_ino==0U ||
         source_mtime_nsec>999999999U || source_ctime_nsec>999999999U ||
-        strcmp(f[10],"REGULAR")!=0) { fprintf(stderr,"BEGIN numeric semantic failure sp=%" PRIu64 " dp=%" PRIu64 " bn=%" PRIu64 " ino=%" PRIu64 " pi=%" PRIu64 " dpi=%" PRIu64 " qpi=%" PRIu64 " mt=%" PRIu64 " ct=%" PRIu64 " type=%s\\n",source_path_len,destination_path_len,destination_basename_len,source_ino,source_parent_ino,destination_parent_ino,quarantine_parent_ino,source_mtime_nsec,source_ctime_nsec,f[10]); return -1; }
+        strcmp(f[10],"REGULAR")!=0) return -1;
 
     if (r->count == r->capacity) {
         size_t next = r->capacity ? r->capacity * 2U : 8U;
@@ -250,7 +246,7 @@ static int parse_begin(char **f, size_t n, Fcj4Replay *r)
         !valid_absolute_path(op->destination_path) ||
         !valid_component(op->destination_basename) ||
         strcmp(op->destination_basename,basename_of(op->destination_path))!=0 ||
-        !valid_component(basename_of(op->source_path))) { fprintf(stderr,"BEGIN path decode/validation failure src=%s dst=%s base=%s\\n",op->source_path,op->destination_path,op->destination_basename); return -1; }
+        !valid_component(basename_of(op->source_path))) return -1;
 
     memcpy(op->id,f[3],33U);
     op->source_parent_dev=source_parent_dev; op->source_parent_ino=source_parent_ino;
@@ -467,7 +463,7 @@ int fcj4_replay_parse(const void *data, size_t length, Fcj4Replay *out)
         const unsigned char *newline;
         size_t line_length, content_length, field_count=0U;
         char line[FCJ4_MAX_LINE_BYTES+1U];
-        char *fields[24];
+        char *fields[32];
         if (temporary.record_count>=FCJ4_MAX_RECORDS) { status=E2BIG; break; }
         newline=(const unsigned char *)memchr(bytes+offset,'\n',length-offset);
         if (!newline) { status=EBADMSG; break; }
@@ -478,7 +474,7 @@ int fcj4_replay_parse(const void *data, size_t length, Fcj4Replay *out)
             memchr(bytes+offset,'\r',content_length)) { status=EBADMSG; break; }
         memcpy(line,bytes+offset,content_length);
         line[content_length]='\0';
-        if (split_fields(line,fields,24U,&field_count)!=0 ||
+        if (split_fields(line,fields,32U,&field_count)!=0 ||
             field_count<3U || strcmp(fields[0],"FCJ4")!=0 ||
             strcmp(fields[2],"1")!=0) { status=EBADMSG; break; }
         if (!strcmp(fields[1],"BEGIN"))

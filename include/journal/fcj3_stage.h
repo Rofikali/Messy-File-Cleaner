@@ -4,9 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <time.h>
-#include "journal/fcj3_sha256.h"
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#include "journal/fcj3_sha256.h"
 
 /*
  * Test-only anonymous FCJ3 staging lifecycle.
@@ -44,7 +45,9 @@ typedef struct
 int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
                        const char *staging_component, uid_t expected_owner);
 
-/* Borrow only for direct-write mode. Do not retain across copy/sync/link. */
+/* Borrow only for direct-write mode. Never write through a retained descriptor
+ * after copy_from; copied bytes are revalidated at sync/link/publish gates.
+ */
 int fcj3_stage_fd(const Fcj3Stage *stage);
 
 /* Copy an already-open regular source descriptor into the anonymous stage.

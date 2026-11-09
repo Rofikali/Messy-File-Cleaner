@@ -171,6 +171,31 @@ if(BUILD_TESTING)
     COMMAND test_fcj3_recovery_classifier
   )
 
+  # Operator-invoked FCJ3 diagnostic report. This executable is deliberately
+  # separate from file-cleaner and is never installed or used by production
+  # FCJ2/legacy recovery.
+  add_executable(fcj3_recovery_report
+    src/tools/fcj3_recovery_report.c
+    src/journal/fcj3_parser.c
+    src/journal/fcj3_recovery_classifier.c
+    src/journal/fcj3_recovery_evidence.c
+  )
+  set_target_properties(fcj3_recovery_report PROPERTIES OUTPUT_NAME fcj3-recovery-report)
+  target_include_directories(fcj3_recovery_report PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_compile_options(fcj3_recovery_report PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes
+  )
+
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME fcj3_recovery_report_integration
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration/test_fcj3_recovery_report.py
+            $<TARGET_FILE:fcj3_recovery_report>
+  )
+  set_tests_properties(fcj3_recovery_report_integration PROPERTIES TIMEOUT 15)
+
   # Read-only FCJ3 filesystem evidence collection is isolated from production.
   add_executable(test_fcj3_recovery_evidence
     tests/integration/test_fcj3_recovery_evidence.c

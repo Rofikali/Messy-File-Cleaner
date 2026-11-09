@@ -256,6 +256,49 @@ static void test_rejects_unbound_quarantine_followup(void)
     assert(replay.operations==NULL);
 }
 
+
+static void test_rejects_stage_device_mismatch(void)
+{
+    char bytes[8192];
+    size_t length=make_valid(bytes,sizeof(bytes));
+    char *record=strstr(bytes,"|9|2e66632d746d702d78|1|6|1000");
+    Fcj4Replay replay;
+    assert(record!=NULL);
+    record=strstr(record,"|1|6|1000");
+    assert(record!=NULL);
+    memcpy(record,"|2|6|1000",9U);
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+}
+
+static void test_rejects_action_sequence_and_transition(void)
+{
+    char bytes[8192];
+    size_t length=make_valid(bytes,sizeof(bytes));
+    char *record=strstr(bytes,"|2|ACTION_STARTED|0\n");
+    Fcj4Replay replay;
+    assert(record!=NULL);
+    memcpy(record,"|2|ACTION_APPLIED|0\n",20U);
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+
+    length=make_valid(bytes,sizeof(bytes));
+    record=strstr(bytes,"|1|ACTION_PREPARED|0\n");
+    assert(record!=NULL);
+    memcpy(record,"|2|ACTION_PREPARED|0\n",21U);
+    fcj4_replay_init(&replay);
+    errno=0;
+    assert(fcj4_replay_parse(bytes,length,&replay)==-1);
+    assert(errno==EBADMSG);
+    assert(replay.operations==NULL);
+}
+
 static void test_rejects_resource_and_framing_limits(void)
 {
     char byte='x';
@@ -291,6 +334,8 @@ int main(void)
     test_rejects_action_identity_mismatch();
     test_rejects_action_parent_and_sentinel_mismatch();
     test_rejects_resource_and_framing_limits();
+    test_rejects_stage_device_mismatch();
+    test_rejects_action_sequence_and_transition();
     test_rejects_unbound_quarantine_followup();
     puts("FCJ4 parser/replay unit tests passed");
     return 0;

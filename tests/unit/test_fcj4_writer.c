@@ -37,6 +37,7 @@ static void test_round_trip_and_transitions(void)
     char journal[8192];
     size_t used=0U;
     Fcj4WriterState *state=NULL;
+    Fcj4WriterState *imported=NULL;
     Fcj4Replay replay;
     Fcj4Record r;
     Fcj4PreparedRecord prepared;
@@ -96,8 +97,33 @@ static void test_round_trip_and_transitions(void)
     fcj4_replay_init(&replay);
     CHECK(fcj4_replay_parse(journal,used,&replay)==0);
     CHECK(replay.count==1U && replay.record_count==8U);
+    CHECK(fcj4_writer_state_create(&imported)==0);
+    CHECK(fcj4_writer_state_import_replay(imported,&replay)==0);
+    CHECK(fcj4_writer_revision(imported)==8U);
     fcj4_replay_destroy(&replay);
+
+    /* Imported state must own all strings after the replay is destroyed. */
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_ACTION;
+    r.value.action=(Fcj4ActionRecord){
+        opid,actionid,2U,FCJ4_ACTION_STARTED,0U
+    };
+    {
+        char original_line[FCJ4_MAX_LINE_BYTES];
+        char imported_line[FCJ4_MAX_LINE_BYTES];
+        size_t original_n=0U, imported_n=0U;
+        Fcj4PreparedRecord original_p, imported_p;
+        CHECK(fcj4_writer_prepare(state,&r,original_line,sizeof(original_line),
+                                  &original_n,&original_p)==0);
+        CHECK(fcj4_writer_prepare(imported,&r,imported_line,sizeof(imported_line),
+                                  &imported_n,&imported_p)==0);
+        CHECK(original_n==imported_n &&
+              memcmp(original_line,imported_line,original_n)==0);
+        CHECK(fcj4_writer_abort_prepare(state,&original_p)==0);
+        CHECK(fcj4_writer_abort_prepare(imported,&imported_p)==0);
+    }
     CHECK(fcj4_writer_revision(state)==8U);
+    fcj4_writer_state_destroy(imported);
     fcj4_writer_state_destroy(state);
 }
 
@@ -149,9 +175,56 @@ static void test_stale_and_duplicate_commit_rejected(void)
     fcj4_writer_state_destroy(state);
 }
 
+static void test_cross_record_evidence_rejected(void)
+{
+    Fcj4WriterState *state=NULL;
+    Fcj4Record r;
+    Fcj4PreparedRecord prepared;
+    char output[FCJ4_MAX_LINE_BYTES];
+    size_t written=0U;
+
+    CHECK(fcj4_writer_state_create(&state)==0);
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_BEGIN;
+    r.value.begin=(Fcj4BeginRecord){
+        opid,"/tmp/source",1U,2U,1U,3U,1000U,1000U,384U,5U,
+        1,2U,3,4U,"/tmp/dest",1U,4U,"dest",1U,5U
+    };
+    CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared,output,written)==0);
+
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_SEALED;
+    r.value.sealed=(Fcj4SealedRecord){
+        opid,".fc-tmp-x",1U,6U,1000U,384U,6U,digest
+    };
+    errno=0;
+    CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(fcj4_writer_revision(state)==1U);
+
+    r.value.sealed.stage_size=5U;
+    CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==0);
+    CHECK(fcj4_writer_commit(state,&prepared,output,written)==0);
+
+    memset(&r,0,sizeof(r));
+    r.kind=FCJ4_RECORD_ACTION_DEF;
+    r.value.action_def=(Fcj4ActionDefRecord){
+        opid,actionid,FCJ4_ACTION_KIND_QUARANTINE_STAGE,
+        FCJ4_TARGET_QUARANTINE,1U,99U,1U,6U,1000U,384U,5U,
+        digest,".fc-tmp-x","q-stage"
+    };
+    errno=0;
+    CHECK(fcj4_writer_prepare(state,&r,output,sizeof(output),&written,&prepared)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(fcj4_writer_revision(state)==2U);
+    fcj4_writer_state_destroy(state);
+}
+
 int main(void)
 {
     test_round_trip_and_transitions();
+    test_cross_record_evidence_rejected();
     test_serializer_rejects_noncanonical_inputs();
     test_stale_and_duplicate_commit_rejected();
     puts("FCJ4 serializer/state unit tests passed");

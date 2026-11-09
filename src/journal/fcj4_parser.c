@@ -381,6 +381,19 @@ static int parse_action_def(char **f, size_t n, Fcj4Replay *r)
         parent_ino!=op->quarantine_parent_ino ||
         strcmp(a->source_component,op->stage_component)!=0)) return -1;
 
+    /* Bind every action subject to the immutable BEGIN/SEALED evidence. */
+    if (kind==1U || kind==4U) {
+        if (entry_dev!=op->stage_dev || entry_ino!=op->stage_ino ||
+            uid!=op->stage_uid || mode!=op->stage_mode ||
+            size!=op->stage_size || strcmp(f[15],op->stage_digest)!=0)
+            return -1;
+    } else {
+        if (entry_dev!=op->source_dev || entry_ino!=op->source_ino ||
+            uid!=op->source_uid || mode!=op->source_mode ||
+            size!=op->source_size || strcmp(f[15],op->stage_digest)!=0)
+            return -1;
+    }
+
     memcpy(a->id,f[4],33U);
     a->kind=kind; a->role=role;
     a->parent_dev=parent_dev; a->parent_ino=parent_ino;

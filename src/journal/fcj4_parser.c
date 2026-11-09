@@ -562,6 +562,7 @@ int fcj4_replay_operation(const Fcj4Replay *replay, size_t index,
     out->stage_size=op->stage_size;
     out->action_count=op->action_count;
     out->move_state=op->move_state;
+    out->move_sequence=op->move_sequence;
     return 0;
 }
 

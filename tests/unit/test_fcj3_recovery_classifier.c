@@ -170,24 +170,24 @@ static void test_directory_and_missing_source_gates(void)
     };
     Fcj3RecoveryDecision decision;
 
-    assert(fcj3_recovery_classify(&evidence, &decision) == 0);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &decision), 0);
     assert(decision.classification == FCJ3_CLASS_MANUAL_REVIEW);
     assert(decision.reason == FCJ3_REASON_DIRECTORY_IDENTITY_MISMATCH);
 
     evidence.directory = FCJ3_DIRECTORY_UNKNOWN_ERROR;
-    assert(fcj3_recovery_classify(&evidence, &decision) == 0);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &decision), 0);
     assert(decision.reason == FCJ3_REASON_DIRECTORY_UNKNOWN);
 
     evidence.directory = FCJ3_DIRECTORY_IDENTITY_MATCH;
     evidence.source = FCJ3_SOURCE_ABSENT;
     evidence.stage = FCJ3_EVIDENCE_ABSENT;
     evidence.destination = FCJ3_EVIDENCE_ABSENT;
-    assert(fcj3_recovery_classify(&evidence, &decision) == 0);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &decision), 0);
     assert(decision.classification == FCJ3_CLASS_MANUAL_REVIEW);
     assert(decision.reason == FCJ3_REASON_SOURCE_MISSING);
 
     tx.state = FCJ3_STATE_STAGED;
-    assert(fcj3_recovery_classify(&evidence, &decision) == 0);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &decision), 0);
     assert(decision.reason == FCJ3_REASON_SOURCE_MISSING);
 }
 
@@ -212,25 +212,25 @@ static void test_invalid_inputs_and_determinism(void)
     assert(first.reason == FCJ3_REASON_INVALID_EVIDENCE);
     evidence.directory = FCJ3_DIRECTORY_IDENTITY_MATCH;
     evidence.stage = (Fcj3EntryEvidence)-1;
-    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &first), -1);
     assert(first.reason == FCJ3_REASON_INVALID_EVIDENCE);
     evidence.stage = FCJ3_EVIDENCE_ABSENT;
     evidence.source = (Fcj3SourceEvidence)99;
-    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &first), -1);
     assert(first.reason == FCJ3_REASON_INVALID_EVIDENCE);
 
     evidence.source = FCJ3_SOURCE_PRESENT;
     tx.state = (Fcj3State)99;
-    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &first), -1);
     assert(first.reason == FCJ3_REASON_INVALID_TRANSACTION);
     tx = make_transaction(FCJ3_STATE_FAILED);
 
     tx.operation_id[0] = 'G';
-    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &first), -1);
     assert(first.reason == FCJ3_REASON_INVALID_TRANSACTION);
     tx = make_transaction(FCJ3_STATE_FAILED);
     tx.staging_component[0] = '/';
-    assert(fcj3_recovery_classify(&evidence, &first) == -1);
+    CHECK_CLASSIFIER_CALL(fcj3_recovery_classify(&evidence, &first), -1);
     assert(first.reason == FCJ3_REASON_INVALID_TRANSACTION);
     tx = make_transaction(FCJ3_STATE_FAILED);
 

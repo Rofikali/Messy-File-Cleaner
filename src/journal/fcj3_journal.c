@@ -258,14 +258,29 @@ int fcj3_journal_append_transition(Fcj3Journal *journal,
     if (validate_prepared_record(prepared) != 0)
         return -1;
 
-#ifdef FC_TESTING
-    atomic_store_explicit(&test_write_accepted, 0U, memory_order_release);
-#endif
-
     int lock_error = pthread_mutex_lock(&journal->mutex);
     if (lock_error != 0)
     {
         errno = lock_error;
+        return -1;
+    }
+
+#ifdef FC_TESTING
+    atomic_store_explicit(&test_write_accepted, 0U, memory_order_release);
+#endif
+
+    /*
+     * Validate the prepared transition against a private context copy before
+     * writing any bytes. This prevents a stale or foreign record from being
+     * durably appended and only discovered by the post-fsync commit.
+     */
+    Fcj3OperationContext candidate = *context;
+    if (fcj3_operation_commit_transition(&candidate, prepared) != 0)
+    {
+        int saved_errno = errno;
+        fcj3_operation_mark_uncertain(context);
+        (void)pthread_mutex_unlock(&journal->mutex);
+        errno = saved_errno;
         return -1;
     }
 

@@ -170,6 +170,69 @@ static void test_rejects_noncanonical_and_unknown(void)
 }
 
 
+
+static void replace_all(char *text, const char *from, const char *to)
+{
+    char *at=text;
+    while ((at=strstr(at,from))!=NULL) {
+        memcpy(at,to,strlen(from));
+        at+=strlen(from);
+    }
+}
+
+static size_t split_lines(char *text, char **lines, size_t capacity)
+{
+    size_t count=0U;
+    char *start=text;
+    for (char *p=text; *p; ++p) {
+        if (*p=='\n') {
+            *p='\0';
+            assert(count<capacity);
+            lines[count++]=start;
+            start=p+1;
+        }
+    }
+    assert(start[0]=='\0');
+    return count;
+}
+
+static void append_line(char *out, size_t capacity, size_t *used,
+                        const char *line)
+{
+    int n=snprintf(out+*used,capacity-*used,"%s\n",line);
+    assert(n>0 && (size_t)n<capacity-*used);
+    *used+=(size_t)n;
+}
+
+static void test_interleaved_operations(void)
+{
+    char first[8192], second[8192], combined[16384];
+    char *first_lines[16], *second_lines[16];
+    size_t first_length=make_valid(first,sizeof(first));
+    size_t second_length=make_valid(second,sizeof(second));
+    size_t first_count,second_count,used=0U;
+    Fcj4Replay replay;
+    Fcj4OperationView view;
+    (void)first_length; (void)second_length;
+    replace_all(second,opid,"22222222222222222222222222222222");
+    first_count=split_lines(first,first_lines,16U);
+    second_count=split_lines(second,second_lines,16U);
+    assert(first_count==15U && second_count==15U);
+    for (size_t i=0U;i<first_count;i++) {
+        append_line(combined,sizeof(combined),&used,first_lines[i]);
+        append_line(combined,sizeof(combined),&used,second_lines[i]);
+    }
+    fcj4_replay_init(&replay);
+    assert(fcj4_replay_parse(combined,used,&replay)==0);
+    assert(replay.count==2U && replay.record_count==30U);
+    assert(fcj4_replay_operation(&replay,0U,&view)==0);
+    assert(strcmp(view.operation_id,opid)==0 && view.action_count==4U);
+    assert(fcj4_replay_operation(&replay,1U,&view)==0);
+    assert(strcmp(view.operation_id,"22222222222222222222222222222222")==0);
+    assert(view.action_count==4U && view.move_state==FCJ4_MOVE_COMPLETED);
+    fcj4_replay_destroy(&replay);
+}
+
 static void test_begin_only_and_path_traversal(void)
 {
     const char begin_only[]=
@@ -330,6 +393,7 @@ int main(void)
     test_rejects_truncation_and_empty();
     test_rejects_illegal_move_transition();
     test_rejects_noncanonical_and_unknown();
+    test_interleaved_operations();
     test_begin_only_and_path_traversal();
     test_rejects_action_identity_mismatch();
     test_rejects_action_parent_and_sentinel_mismatch();

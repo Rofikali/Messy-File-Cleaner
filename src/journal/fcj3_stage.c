@@ -738,6 +738,11 @@ int fcj3_stage_publish(Fcj3Stage *stage, const char *final_component)
         }
     }
 #endif
+    if (stage->copied && stage_content_matches_copy_digest(stage) != 0)
+    {
+        stage->poisoned = 1;
+        return -1;
+    }
     if (verify_named_inode(stage->directory_fd, stage->staging_component,
                            stage->staging_device, stage->staging_inode) != 0)
     {

@@ -34,7 +34,7 @@ typedef struct
 int fcj3_stage_open_at(Fcj3Stage *stage, int directory_fd,
                        const char *staging_component, uid_t expected_owner);
 
-/* Borrow the anonymous staging descriptor for writing the payload. */
+/* Borrow the anonymous staging descriptor before sync; do not retain it or write after sync. */
 int fcj3_stage_fd(const Fcj3Stage *stage);
 
 /* fsync the anonymous file and return its validated stat snapshot. */

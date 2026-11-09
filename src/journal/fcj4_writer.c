@@ -615,7 +615,10 @@ int fcj4_writer_state_import_replay(Fcj4WriterState *s,
 {
     if(!s || !replay || s->pending || s->revision!=0U ||
        s->operation_count!=0U || replay->count>FCJ4_MAX_OPERATIONS ||
+       replay->capacity>FCJ4_MAX_OPERATIONS ||
+       replay->count>replay->capacity ||
        replay->record_count>FCJ4_MAX_RECORDS ||
+       replay->record_count<replay->count ||
        (replay->count!=0U && !replay->operations))
         return fail(EINVAL);
     for(size_t i=0U;i<replay->count;i++) {

@@ -754,6 +754,10 @@ int fcj4_writer_commit(Fcj4WriterState *s,const Fcj4PreparedRecord *p,
         if(op || s->operation_count>=FCJ4_MAX_OPERATIONS) return fail(EINVAL);
         op=&s->operations[s->operation_count++];
         *op=s->pending_evidence;
+        op->begin.operation_id=op->id;
+        op->begin.source_path=op->source_path;
+        op->begin.destination_path=op->destination_path;
+        op->begin.destination_basename=op->destination_basename;
     } else {
         if(!op) return fail(EINVAL);
         if(s->pending_kind==FCJ4_RECORD_SEALED) {
@@ -810,6 +814,7 @@ int fcj4_writer_abort_prepare(Fcj4WriterState *s,const Fcj4PreparedRecord *p)
     s->pending=0;
     memset(&s->prepared,0,sizeof(s->prepared));
     memset(s->pending_bytes,0,sizeof(s->pending_bytes));
+    memset(&s->pending_evidence,0,sizeof(s->pending_evidence));
     s->pending_length=0U;
     return 0;
 }

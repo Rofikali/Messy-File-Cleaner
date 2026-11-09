@@ -143,8 +143,8 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj3_parser_unit COMMAND test_fcj3_parser)
 
-  # FCJ3 parser, operation context, and durable append adapter remain test-only.
-  # Production use waits for the staging lifecycle and FCJ3 recovery phases.
+  # FCJ3 parser, operation context, append adapter, and staging lifecycle
+  # remain test-only. Production use waits for the recovery phase.
   add_executable(test_fcj3_writer
     tests/unit/test_fcj3_writer.c
     src/journal/fcj3_writer.c

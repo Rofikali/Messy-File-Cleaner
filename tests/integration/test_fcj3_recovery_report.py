@@ -107,8 +107,10 @@ def main() -> int:
         assert source.read_bytes() == before_source, "journal symlink check changed source fixture"
 
         # An intermediate symlink must not be traversed either.
+        outside = root / "outside"
+        outside.mkdir()
         link_dir = root / "linked-directory"
-        link_dir.symlink_to(root, target_is_directory=True)
+        link_dir.symlink_to(outside, target_is_directory=True)
         linked_path = link_dir / "move.fcj3"
         linked_path.write_bytes(journal_bytes)
         intermediate = run(binary, linked_path)
@@ -120,11 +122,11 @@ def main() -> int:
         assert source.read_bytes() == before_source, f"source changed: {source.read_bytes()!r} != {before_source!r}"
         assert stage.read_bytes() == before_stage, "stage fixture changed"
         assert sorted(p.name for p in root.iterdir()) == sorted(
-            before_entries + ["linked-directory", "move.fcj3"]
+            before_entries + ["linked-directory", "outside"]
         )
         # Journal was intentionally replaced for malformed/symlink tests.
         assert journal.is_symlink()
-        assert (root / "move.fcj3").read_bytes() == journal_bytes
+        assert (outside / "move.fcj3").read_bytes() == journal_bytes
         assert before_journal == journal_bytes
 
     print("FCJ3 read-only recovery report integration tests passed")

@@ -45,7 +45,7 @@ static int fail(int error) { errno = error; return -1; }
 
 static int is_lower_hex(const char *s, size_t expected)
 {
-    if (!s || strlen(s) != expected) return 0;
+    if (!s || strnlen(s,expected+1U) != expected) return 0;
     for (size_t i=0U; i<expected; ++i) {
         if (!((s[i]>='0' && s[i]<='9') || (s[i]>='a' && s[i]<='f')))
             return 0;
@@ -57,8 +57,8 @@ static int valid_component(const char *s)
 {
     size_t n;
     if (!s || !s[0]) return 0;
-    n=strlen(s);
-    if (n>=NAME_MAX || (n==1U && s[0]=='.') ||
+    n=strnlen(s,NAME_MAX);
+    if (n==0U || n>=NAME_MAX || (n==1U && s[0]=='.') ||
         (n==2U && s[0]=='.' && s[1]=='.')) return 0;
     for (size_t i=0U;i<n;i++) {
         unsigned char c=(unsigned char)s[i];
@@ -72,7 +72,7 @@ static int valid_absolute_path(const char *s)
     const char *p;
     size_t n;
     if (!s || s[0]!='/' || !s[1]) return 0;
-    n=strlen(s);
+    n=strnlen(s,PATH_MAX);
     if (n>=PATH_MAX) return 0;
     p=s+1;
     while (*p) {

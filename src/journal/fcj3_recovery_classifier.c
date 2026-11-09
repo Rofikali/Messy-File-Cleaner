@@ -13,6 +13,48 @@ static int bounded_string_is_nonempty(const char *value, size_t capacity)
     return terminator != NULL && terminator != value;
 }
 
+static int valid_transaction_identity(const Fcj3Transaction *transaction)
+{
+    const char *operation_id_end;
+    const char *component_end;
+
+    if (!bounded_string_is_nonempty(transaction->operation_id,
+                                    sizeof(transaction->operation_id)) ||
+        !bounded_string_is_nonempty(transaction->source,
+                                    sizeof(transaction->source)) ||
+        !bounded_string_is_nonempty(transaction->destination,
+                                    sizeof(transaction->destination)) ||
+        !bounded_string_is_nonempty(transaction->staging_component,
+                                    sizeof(transaction->staging_component)))
+        return 0;
+
+    operation_id_end = memchr(transaction->operation_id, '\\0',
+                              sizeof(transaction->operation_id));
+    if (operation_id_end - transaction->operation_id !=
+        (ptrdiff_t)FCJ3_OPERATION_ID_HEX_LENGTH)
+        return 0;
+    for (size_t i = 0; i < FCJ3_OPERATION_ID_HEX_LENGTH; i++)
+    {
+        unsigned char c = (unsigned char)transaction->operation_id[i];
+        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')))
+            return 0;
+    }
+
+    component_end = memchr(transaction->staging_component, '\\0',
+                           sizeof(transaction->staging_component));
+    if (component_end - transaction->staging_component <= 8 ||
+        strncmp(transaction->staging_component, ".fc-tmp-", 8U) != 0)
+        return 0;
+    for (const char *cursor = transaction->staging_component;
+         cursor < component_end; cursor++)
+    {
+        unsigned char c = (unsigned char)*cursor;
+        if (c == '/' || c < 0x20U || c == 0x7fU)
+            return 0;
+    }
+    return 1;
+}
+
 static int valid_state(Fcj3State state)
 {
     return state >= FCJ3_STATE_STAGED && state <= FCJ3_STATE_RECOVERED;
@@ -74,15 +116,7 @@ int fcj3_recovery_classify(const Fcj3RecoveryEvidence *evidence,
         return invalid_input(decision, FCJ3_REASON_INVALID_ARGUMENT);
 
     transaction = evidence->transaction;
-    if (!transaction ||
-        !bounded_string_is_nonempty(transaction->operation_id,
-                                    sizeof(transaction->operation_id)) ||
-        !bounded_string_is_nonempty(transaction->source,
-                                    sizeof(transaction->source)) ||
-        !bounded_string_is_nonempty(transaction->destination,
-                                    sizeof(transaction->destination)) ||
-        !bounded_string_is_nonempty(transaction->staging_component,
-                                    sizeof(transaction->staging_component)) ||
+    if (!transaction || !valid_transaction_identity(transaction) ||
         !valid_state(transaction->state))
         return invalid_input(decision, FCJ3_REASON_INVALID_TRANSACTION);
 

@@ -85,8 +85,8 @@ Field counts include the three-field prefix `FCJ4|KIND|1` and every subsequent f
 |---|---:|---:|
 | BEGIN | 27 | Derived from validated PATH_MAX/NAME_MAX inputs and fixed scalar widths; hard-capped at 32 KiB |
 | SEALED | 12 | Derived from component bound and fixed scalar widths; hard-capped at 32 KiB |
-| MOVE | 8 | Fixed small bound |
-| ACTION_DEF | 19 | Derived from component bounds and fixed scalar widths; hard-capped at 32 KiB |
+| MOVE | 7 | Fixed small bound |
+| ACTION_DEF | 20 | Derived from component bounds and fixed scalar widths; hard-capped at 32 KiB |
 | ACTION | 8 | Fixed small bound |
 
 The serializer must use the exact order in the schema document. It must not calculate field count from a loosely populated generic key/value map.

@@ -3,7 +3,7 @@
 
 #include "journal/fcj3_recovery_evidence.h"
 
-#include <assert.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -12,14 +12,23 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#define CHECK(expression) do { \
+    if (!(expression)) { \
+        int saved_errno = errno; \
+        fprintf(stderr, "CHECK failed at %s:%d: %s (errno=%d)\\n", \
+                __FILE__, __LINE__, #expression, saved_errno); \
+        exit(EXIT_FAILURE); \
+    } \
+} while (0)
+
 static void create_file_at(int directory_fd, const char *name)
 {
     int fd = openat(directory_fd, name,
                     O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC | O_NOFOLLOW,
                     0600);
-    assert(fd >= 0);
-    assert(write(fd, "x", 1U) == 1);
-    assert(close(fd) == 0);
+    CHECK(fd >= 0);
+    CHECK(write(fd, "x", 1U) == 1);
+    CHECK(close(fd) == 0);
 }
 
 static Fcj3Transaction make_transaction(const char *root,
@@ -49,7 +58,7 @@ static Fcj3FilesystemEvidence collect(const Fcj3Transaction *transaction,
                                       int source_fd, int destination_fd)
 {
     Fcj3FilesystemEvidence evidence;
-    assert(fcj3_recovery_collect_at(transaction, source_fd, destination_fd,
+    CHECK(fcj3_recovery_collect_at(transaction, source_fd, destination_fd,
                                     &evidence) == 0);
     return evidence;
 }
@@ -63,13 +72,13 @@ static void test_regular_identity_and_missing_entries(int root_fd,
     Fcj3FilesystemEvidence evidence =
         collect(&transaction, root_fd, root_fd);
 
-    assert(evidence.recovery.directory == FCJ3_DIRECTORY_IDENTITY_MATCH);
-    assert(evidence.recovery.source == FCJ3_SOURCE_PRESENT);
-    assert(evidence.recovery.stage == FCJ3_EVIDENCE_MATCHING_REGULAR);
-    assert(evidence.recovery.destination == FCJ3_EVIDENCE_ABSENT);
-    assert(evidence.source_errno == 0);
-    assert(evidence.stage_errno == ENOENT);
-    assert(evidence.destination_errno == ENOENT);
+    CHECK(evidence.recovery.directory == FCJ3_DIRECTORY_IDENTITY_MATCH);
+    CHECK(evidence.recovery.source == FCJ3_SOURCE_PRESENT);
+    CHECK(evidence.recovery.stage == FCJ3_EVIDENCE_MATCHING_REGULAR);
+    CHECK(evidence.recovery.destination == FCJ3_EVIDENCE_ABSENT);
+    CHECK(evidence.source_errno == 0);
+    CHECK(evidence.stage_errno == ENOENT);
+    CHECK(evidence.destination_errno == ENOENT);
 }
 
 static void test_mismatch_symlink_and_special(int root_fd, const char *root,
@@ -80,24 +89,24 @@ static void test_mismatch_symlink_and_special(int root_fd, const char *root,
     create_file_at(root_fd, "destination.bin");
     Fcj3FilesystemEvidence evidence =
         collect(&transaction, root_fd, root_fd);
-    assert(evidence.recovery.destination == FCJ3_EVIDENCE_MISMATCHING_REGULAR);
-    assert(unlinkat(root_fd, "destination.bin", 0) == 0);
+    CHECK(evidence.recovery.destination == FCJ3_EVIDENCE_MISMATCHING_REGULAR);
+    CHECK(unlinkat(root_fd, "destination.bin", 0) == 0);
 
-    assert(symlinkat("source.bin", root_fd, "destination.bin") == 0);
+    CHECK(symlinkat("source.bin", root_fd, "destination.bin") == 0);
     evidence = collect(&transaction, root_fd, root_fd);
-    assert(evidence.recovery.destination == FCJ3_EVIDENCE_SYMLINK);
-    assert(unlinkat(root_fd, "destination.bin", 0) == 0);
+    CHECK(evidence.recovery.destination == FCJ3_EVIDENCE_SYMLINK);
+    CHECK(unlinkat(root_fd, "destination.bin", 0) == 0);
 
-    assert(mkfifoat(root_fd, "destination.bin", 0600) == 0);
+    CHECK(mkfifoat(root_fd, "destination.bin", 0600) == 0);
     evidence = collect(&transaction, root_fd, root_fd);
-    assert(evidence.recovery.destination == FCJ3_EVIDENCE_SPECIAL);
-    assert(unlinkat(root_fd, "destination.bin", 0) == 0);
+    CHECK(evidence.recovery.destination == FCJ3_EVIDENCE_SPECIAL);
+    CHECK(unlinkat(root_fd, "destination.bin", 0) == 0);
 
-    assert(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
-    assert(symlinkat("source.bin", root_fd, ".fc-tmp-evidence") == 0);
+    CHECK(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
+    CHECK(symlinkat("source.bin", root_fd, ".fc-tmp-evidence") == 0);
     evidence = collect(&transaction, root_fd, root_fd);
-    assert(evidence.recovery.stage == FCJ3_EVIDENCE_SYMLINK);
-    assert(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
+    CHECK(evidence.recovery.stage == FCJ3_EVIDENCE_SYMLINK);
+    CHECK(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
 }
 
 static void test_directory_identity_gate(int root_fd, const char *root,
@@ -106,18 +115,18 @@ static void test_directory_identity_gate(int root_fd, const char *root,
 {
     char other_template[] = "/tmp/fcj3-evidence-other-XXXXXX";
     char *other = mkdtemp(other_template);
-    assert(other != NULL);
+    CHECK(other != NULL);
     int other_fd = open(other, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-    assert(other_fd >= 0);
+    CHECK(other_fd >= 0);
 
     Fcj3Transaction transaction = make_transaction(root, dir, stage);
     Fcj3FilesystemEvidence evidence =
         collect(&transaction, root_fd, other_fd);
-    assert(evidence.recovery.directory == FCJ3_DIRECTORY_IDENTITY_MISMATCH);
-    assert(evidence.recovery.stage == FCJ3_EVIDENCE_UNKNOWN_ERROR);
-    assert(evidence.recovery.destination == FCJ3_EVIDENCE_UNKNOWN_ERROR);
-    assert(close(other_fd) == 0);
-    assert(rmdir(other) == 0);
+    CHECK(evidence.recovery.directory == FCJ3_DIRECTORY_IDENTITY_MISMATCH);
+    CHECK(evidence.recovery.stage == FCJ3_EVIDENCE_UNKNOWN_ERROR);
+    CHECK(evidence.recovery.destination == FCJ3_EVIDENCE_UNKNOWN_ERROR);
+    CHECK(close(other_fd) == 0);
+    CHECK(rmdir(other) == 0);
 }
 
 static void test_unsafe_paths_are_rejected(int root_fd, const char *root,
@@ -129,26 +138,26 @@ static void test_unsafe_paths_are_rejected(int root_fd, const char *root,
     (void)snprintf(transaction.destination, sizeof(transaction.destination),
                    "%s/../outside", root);
     errno = 0;
-    assert(fcj3_recovery_collect_at(&transaction, root_fd, root_fd,
+    CHECK(fcj3_recovery_collect_at(&transaction, root_fd, root_fd,
                                     &evidence) == -1);
-    assert(errno == EINVAL);
+    CHECK(errno == EINVAL);
 }
 
 int main(void)
 {
     char root_template[] = "/tmp/fcj3-evidence-XXXXXX";
     char *root = mkdtemp(root_template);
-    assert(root != NULL);
+    CHECK(root != NULL);
     int root_fd = open(root, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
-    assert(root_fd >= 0);
+    CHECK(root_fd >= 0);
 
     create_file_at(root_fd, "source.bin");
     create_file_at(root_fd, ".fc-tmp-evidence");
 
     struct stat directory_metadata;
     struct stat stage_metadata;
-    assert(fstat(root_fd, &directory_metadata) == 0);
-    assert(fstatat(root_fd, ".fc-tmp-evidence", &stage_metadata,
+    CHECK(fstat(root_fd, &directory_metadata) == 0);
+    CHECK(fstatat(root_fd, ".fc-tmp-evidence", &stage_metadata,
                    AT_SYMLINK_NOFOLLOW) == 0);
 
     test_regular_identity_and_missing_entries(root_fd, root,
@@ -161,10 +170,10 @@ int main(void)
     test_unsafe_paths_are_rejected(root_fd, root, &directory_metadata,
                                    &stage_metadata);
 
-    assert(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
-    assert(unlinkat(root_fd, "source.bin", 0) == 0);
-    assert(close(root_fd) == 0);
-    assert(rmdir(root) == 0);
+    CHECK(unlinkat(root_fd, ".fc-tmp-evidence", 0) == 0);
+    CHECK(unlinkat(root_fd, "source.bin", 0) == 0);
+    CHECK(close(root_fd) == 0);
+    CHECK(rmdir(root) == 0);
     puts("FCJ3 read-only evidence collector tests passed");
     return EXIT_SUCCESS;
 }

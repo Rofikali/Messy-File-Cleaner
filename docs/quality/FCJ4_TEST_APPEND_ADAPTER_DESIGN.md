@@ -8,7 +8,7 @@ This document authorizes no implementation by itself. A separately reviewed impl
 
 ## 1. Objective
 
-Exercise the durability boundary between the existing in-memory FCJ4 writer and an operating-system file using a narrow, injectable Linux/POSIX adapter. Prove that short writes, EINTR, partial failures, fsync uncertainty, and cleanup failures cannot silently advance writer state or permit unsafe subsequent appends.
+Exercise the durability boundary between the existing in-memory FCJ4 writer and an operating-system file using a narrow, injectable Linux-specific adapter. Prove that short writes, EINTR, partial failures, fsync uncertainty, and cleanup failures cannot silently advance writer state or permit unsafe subsequent appends.
 
 The adapter exists to test protocol semantics, not to deliver production journal adoption.
 
@@ -60,7 +60,7 @@ The interface must support:
   - durable record with close/unlock cleanup failure.
 - Destroy the context without silently retrying, truncating, repairing, or mutating journal bytes.
 
-The adapter must never own or modify the in-memory writer's private state. The caller may call `fcj4_writer_commit()` only after the adapter reports complete write plus successful fsync. On uncertain write/fsync, the prepared writer state must not be committed and the adapter must reject future appends until a new context is initialized from a complete replay.
+The adapter must never own or modify the in-memory writer's private state. The caller may call `fcj4_writer_commit()` only after the adapter reports complete write plus successful fsync. The interface must include an explicit post-durability acknowledgement: after reporting a durable append, the adapter enters `DURABLE_PENDING_WRITER_COMMIT` and rejects another append until the caller confirms that the exact prepared writer transition was successfully committed. If writer commit fails, the caller must mark the adapter poisoned (or destroy it without further append) and reconstruct state from a complete parser replay. This prevents the adapter's file offset from advancing while the in-memory writer remains behind. On uncertain write/fsync, the prepared writer state must not be committed and the adapter must reject future appends until a new context is initialized from a complete replay.
 
 The operations table is private to tests/adapter implementation. It must be immutable for a context lifetime, explicitly passed, and contain no process-global mutable fault controls.
 
@@ -94,10 +94,11 @@ For each prepared record:
    - treat zero-byte write as failure;
    - treat any non-retryable error as uncertain once append has begun. Even if a first-call error normally means no bytes were transferred, conservatively poison the context rather than infer the whole transaction's outcome.
 5. If all bytes are written, call `fsync()`.
-6. Only a successful `fsync()` returns the durable result and advances the adapter's known length.
-7. On any write failure after the first write attempt, or any fsync failure, poison the context. Do not retry the whole record, truncate a partial tail, append a compensating record, or accept a valid prefix.
-8. If fsync succeeded but explicit unlock or close later fails during teardown, preserve the durable result and report cleanup/ownership failure distinctly. Do not report the durable record as absent. Attempt close exactly once even if unlock fails; do not retry close after an error.
-9. Preserve the primary append/fsync error across cleanup; report cleanup errors separately.
+6. Only a successful `fsync()` returns a durable result, advances the adapter's known length, and enters `DURABLE_PENDING_WRITER_COMMIT`.
+7. The caller then commits the exact prepared record to the in-memory writer and explicitly acknowledges that commit to the adapter. Until this acknowledgement, another append is rejected. If writer commit or acknowledgement fails, poison/destroy the adapter and reconcile from complete replay; never continue with writer and file histories at different revisions.
+8. On any write failure after the first write attempt, or any fsync failure, poison the context. Do not retry the whole record, truncate a partial tail, append a compensating record, or accept a valid prefix.
+9. If fsync succeeded but explicit unlock or close later fails during teardown, preserve the durable result and report cleanup/ownership failure distinctly. Do not report the durable record as absent. Attempt close exactly once even if unlock fails; do not retry close after an error.
+10. Preserve the primary append/fsync error across cleanup; report cleanup errors separately.
 
 The adapter must not call `fdatasync()` as a fallback. No success is reported merely because write returned a complete byte count.
 
@@ -112,7 +113,8 @@ The adapter must not call `fdatasync()` as a fallback. No success is reported me
 | Short positive write | Continue from exact unwritten suffix | Appending |
 | Zero write or non-retryable write error | Uncertain; do not commit writer state | Poisoned |
 | fsync error after full write | Uncertain; do not commit writer state | Poisoned |
-| fsync success | Durable; caller may commit writer state | Ready for next record |
+| fsync success | Durable; caller must commit writer state and acknowledge it | Durable pending writer commit; next append rejected |
+| writer commit/acknowledgement failure after fsync | Record remains durable; reconcile from full replay | Poisoned |
 | unlock failure after fsync success | Durable record plus cleanup error; close still attempted once | Unusable |
 | close failure after fsync success | Durable record plus close error; never retry close | Unusable; descriptor must not be reused |
 
@@ -156,6 +158,8 @@ Assertions for every injected case:
 
 - No second record is appended after an uncertain outcome.
 - The writer's in-memory revision advances only after successful fsync and explicit caller commit.
+- No next append is accepted between fsync success and successful writer-commit acknowledgement.
+- Writer-commit failure after fsync forces reconciliation from full replay.
 - The exact prepared bytes are used; no regenerated or duplicated whole record is written.
 - No automatic truncate, tail repair, valid-prefix acceptance, or compensating record occurs.
 - The primary errno/result is retained across cleanup.
@@ -198,6 +202,7 @@ Do not mark the implementation PR complete unless:
 
 - Every fault-injection row has an explicit test and asserted state/result.
 - Writer state never advances before fsync success.
+- Adapter cannot accept another append until the caller acknowledges the corresponding writer commit; commit failure poisons the session.
 - Uncertain outcomes poison the adapter and block further appends.
 - Restart uses full parser replay and never repairs/truncates a tail.
 - Unlock/close failures after fsync are reported without undoing the durable result, and `close()` is never retried after an error.

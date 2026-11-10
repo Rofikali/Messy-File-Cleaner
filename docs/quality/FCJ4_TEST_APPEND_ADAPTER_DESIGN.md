@@ -17,7 +17,7 @@ The adapter exists to test protocol semantics, not to deliver production journal
 ### Included in the future implementation proposal
 
 - A private/test-only append adapter operating only on an explicitly supplied descriptor for a disposable temporary file.
-- A narrow injected I/O operations table for write, fsync, close, lock, unlock, fstat, and lseek/offset inspection; production code must not gain global fault-injection switches.
+- A narrow injected I/O operations table for pwrite, fsync, close, flock, fstat, and descriptor-flag inspection; production code must not gain global fault-injection switches.
 - A deterministic append state machine connecting prepared bytes to the existing in-memory writer state.
 - Test fixtures using temporary directories/files created by the test harness, with strict cleanup and no user data.
 - Fault-injection, restart/replay, and process-crash simulation tests.
@@ -50,8 +50,8 @@ The implementation proposal should define an opaque test adapter context and a p
 
 The interface must support:
 
-- Initialize from a caller-supplied already-open disposable journal descriptor and an explicit expected file identity.
-- Append one already-prepared record with an explicit byte pointer and length.
+- Initialize from a caller-supplied already-open disposable journal descriptor and an explicit expected file identity. On successful initialization, descriptor ownership transfers to the adapter; on initialization failure, ownership remains with the caller.
+- Append one already-prepared record with an explicit byte pointer, length, and the adapter's exact expected file offset.
 - Return a structured result distinguishing:
   - rejected before any write;
   - complete write plus successful fsync (durable);
@@ -71,11 +71,13 @@ For this test-only milestone:
 - The test harness creates a fresh temporary directory and journal file with exclusive creation.
 - The adapter receives the descriptor; it does not resolve a pathname or create a file.
 - The descriptor must refer to a regular file. Capture device/inode identity at initialization and verify it before append.
-- Verify expected file size/offset before each append; unexpected identity, size, or offset fails closed before writing.
+- Reject descriptors carrying `O_APPEND`; use `pwrite()` at the exact expected offset so the adapter does not depend on a shared open-file-description offset. Do not use `lseek()` followed by `write()` as an append primitive.
+- Verify expected file size and descriptor identity before each append; unexpected identity, size, or offset fails closed before writing. These checks are defense in depth, not protection against a non-cooperating process racing the adapter.
+- Acquire a non-blocking exclusive `flock(LOCK_EX | LOCK_NB)` during initialization and retain it for the context lifetime. Locking is advisory: the test harness must ensure no non-cooperating writer has access to the private fixture. A lock conflict fails initialization without writing.
 - Do not follow symlinks in test setup; use descriptor-based operations after setup.
-- Use close-on-exec where available.
-- Keep the test file private to the test process; test locking semantics explicitly if a lock is part of the adapter contract.
-- The test harness owns cleanup of its temporary directory after all descriptors are closed. Adapter failure must never trigger automatic truncation or repair.
+- Require close-on-exec and private test-owned file permissions.
+- The adapter owns the descriptor after successful initialization. During destroy, attempt unlock once, then close once. Never retry `close()` after an error; treat descriptor state as unusable/indeterminate and report cleanup failure. On Linux, close releases the flock even if explicit unlock fails.
+- The test harness owns cleanup of its temporary directory after adapter destruction. Adapter failure must never trigger automatic truncation or repair.
 
 This precondition is intentionally weaker than a future production journal-directory policy because the test adapter is not a production security boundary. The implementation PR must not generalize it into production use.
 
@@ -84,18 +86,18 @@ This precondition is intentionally weaker than a future production journal-direc
 For each prepared record:
 
 1. Reject if context is poisoned, input is null/empty/oversized, or the prepared line is not exactly one canonical LF-terminated record within protocol limits.
-2. Verify the descriptor still identifies the expected regular file and that current size/offset equals the context's known committed length.
+2. Verify the descriptor still identifies the expected regular file and that current file size equals the context's known committed length. Verify the descriptor flags still satisfy the no-`O_APPEND` precondition.
 3. Enter the appending state; reject reentrant or concurrent calls.
-4. Write the exact bytes in a loop:
-   - retry EINTR without changing byte order;
-   - correctly handle short positive writes;
+4. Use `pwrite()` at the exact expected offset in a loop:
+   - retry EINTR without changing byte order or offset;
+   - correctly handle short positive writes by advancing the buffer pointer and offset by exactly the returned byte count;
    - treat zero-byte write as failure;
-   - treat any non-retryable error as uncertain once append has begun.
+   - treat any non-retryable error as uncertain once append has begun. Even if a first-call error normally means no bytes were transferred, conservatively poison the context rather than infer the whole transaction's outcome.
 5. If all bytes are written, call `fsync()`.
 6. Only a successful `fsync()` returns the durable result and advances the adapter's known length.
 7. On any write failure after the first write attempt, or any fsync failure, poison the context. Do not retry the whole record, truncate a partial tail, append a compensating record, or accept a valid prefix.
-8. If fsync succeeded but close/unlock later fails during teardown, preserve the durable result and report cleanup/ownership failure distinctly. Do not report the durable record as absent.
-9. Preserve the primary system error across cleanup.
+8. If fsync succeeded but explicit unlock or close later fails during teardown, preserve the durable result and report cleanup/ownership failure distinctly. Do not report the durable record as absent. Attempt close exactly once even if unlock fails; do not retry close after an error.
+9. Preserve the primary append/fsync error across cleanup; report cleanup errors separately.
 
 The adapter must not call `fdatasync()` as a fallback. No success is reported merely because write returned a complete byte count.
 
@@ -109,7 +111,8 @@ The adapter must not call `fdatasync()` as a fallback. No success is reported me
 | Zero write or non-retryable write error | Uncertain; do not commit writer state | Poisoned |
 | fsync error after full write | Uncertain; do not commit writer state | Poisoned |
 | fsync success | Durable; caller may commit writer state | Ready for next record |
-| close/unlock failure after fsync success | Durable record plus cleanup error | Unusable until ownership safely resolved |
+| unlock failure after fsync success | Durable record plus cleanup error; close still attempted once | Unusable |
+| close failure after fsync success | Durable record plus close error; never retry close | Unusable; descriptor must not be reused |
 
 The implementation must use explicit result codes and retain the primary errno. Errno alone must not encode the adapter state.
 
@@ -142,7 +145,7 @@ Required cases:
 - Failure after every possible byte offset for representative records, including immediately before LF.
 - fsync failure after a complete line was written.
 - close failure after successful fsync.
-- lock acquisition/contention and unlock failure if locking is included.
+- `O_APPEND` descriptor rejection, exclusive `flock` contention, and unlock failure.
 - fstat identity mismatch, non-regular descriptor, changed size, and unexpected current offset.
 - Allocation failure before the first write.
 - Reentrant/concurrent append attempt.
@@ -171,7 +174,7 @@ Use disposable temporary files only. Simulate termination:
 
 For each case, reopen and parse the complete file. Assert that malformed/truncated tails are not modified, accepted, or silently discarded. Repeat replay to prove deterministic outcomes.
 
-Process-kill tests do not simulate power loss. The report must state this limitation and must not claim hardware power-loss guarantees.
+Process-kill tests do not simulate power loss. The report must state this limitation and must not claim hardware power-loss guarantees. Because this test adapter uses Linux `flock` and Linux close semantics for deterministic descriptor cleanup, its adapter target is Linux-specific; do not describe the adapter itself as portable POSIX code.
 
 ## 11. Test organization and build isolation
 
@@ -195,7 +198,8 @@ Do not mark the implementation PR complete unless:
 - Writer state never advances before fsync success.
 - Uncertain outcomes poison the adapter and block further appends.
 - Restart uses full parser replay and never repairs/truncates a tail.
-- Close/unlock failures after fsync are reported without undoing the durable result.
+- Unlock/close failures after fsync are reported without undoing the durable result, and `close()` is never retried after an error.
+- The adapter uses explicit-offset `pwrite()` and rejects `O_APPEND`; it does not rely on `lseek()` plus `write()`.
 - Temporary-file scope and test-only build isolation are proven.
 - Existing language, sanitizer, release, Docker, and non-root checks pass.
 - Documentation and threat model still clearly state that FCJ4 is not enabled in production and does not authorize filesystem recovery.

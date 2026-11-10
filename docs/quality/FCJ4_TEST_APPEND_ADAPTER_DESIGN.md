@@ -101,6 +101,8 @@ For each prepared record:
 
 The adapter must not call `fdatasync()` as a fallback. No success is reported merely because write returned a complete byte count.
 
+`fsync()` in this milestone covers the already-open journal file's data and required file metadata. The adapter does not create or rename the journal file, so this milestone does **not** test persistence of the containing directory entry. A future production journal-creation design must separately specify and test parent-directory synchronization and directory/lock lifecycle. A successful `fsync()` is the adapter's protocol durability boundary for this test contract, not a universal guarantee against faulty hardware, volatile device caches, filesystem bugs, or power loss.
+
 ## 7. Failure-state contract
 
 | Failure point | Record result | Context |

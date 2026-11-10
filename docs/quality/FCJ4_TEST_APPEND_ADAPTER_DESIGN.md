@@ -50,7 +50,7 @@ The implementation proposal should define an opaque test adapter context and a p
 
 The interface must support:
 
-- Initialize from a caller-supplied already-open disposable journal descriptor and an explicit expected file identity. On successful initialization, descriptor ownership transfers to the adapter; on initialization failure, ownership remains with the caller.
+- Initialize from a caller-supplied already-open disposable journal descriptor and an explicit expected file identity. On successful initialization, descriptor ownership transfers to the adapter; on initialization failure, ownership remains with the caller. If initialization acquired the advisory lock before a later check failed, it must release that lock exactly once while leaving the caller's descriptor open; preserve the original initialization error if unlock also fails.
 - Append one already-prepared record with an explicit byte pointer, length, and the adapter's exact expected file offset.
 - Return a structured result distinguishing:
   - rejected before any write;
@@ -150,7 +150,7 @@ Required cases:
 - fsync failure after a complete line was written.
 - close failure after successful fsync.
 - `O_APPEND` descriptor rejection, exclusive `flock` contention, and unlock failure.
-- fstat identity mismatch, non-regular descriptor, changed size, and unexpected current offset.
+- fstat identity mismatch, non-regular descriptor, unexpected file size, and descriptor flag mismatch. The open-file-description offset is intentionally irrelevant because appends use `pwrite()`.
 - Allocation failure before the first write.
 - Reentrant/concurrent append attempt.
 

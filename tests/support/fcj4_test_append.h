@@ -27,6 +27,7 @@ typedef struct {
 typedef enum {
     FCJ4_TEST_APPEND_REJECTED = 0,
     FCJ4_TEST_APPEND_DURABLE,
+    FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED,
     FCJ4_TEST_APPEND_UNCERTAIN_WRITE,
     FCJ4_TEST_APPEND_UNCERTAIN_FSYNC,
     FCJ4_TEST_APPEND_CLEANUP_ERROR
@@ -57,8 +58,10 @@ int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
                           const Fcj4TestAppendOps *ops);
 
 /*
- * Append one exact canonical FCJ4 line at expected_offset. A successful
- * fsync() returns DURABLE and blocks the next append until ack_commit().
+ * Append one exact serializer-prepared FCJ4 line at expected_offset. The
+ * adapter checks framing/ASCII only; the serializer is the canonicality
+ * authority. A successful fsync() returns DURABLE and blocks the next append
+ * until ack_commit().
  * Uncertain write/fsync outcomes poison the context. No retry of a complete
  * record, truncation, repair, or valid-prefix acceptance is performed.
  */

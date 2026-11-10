@@ -64,8 +64,9 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - The FCJ4 parser/replay must remain pure, whole-buffer, all-or-nothing, and read-only. Replay validity is not authenticity, filesystem truth, or authorization to recover.
 - Keep FCJ4 parser, serializer, and in-memory writer-state modules isolated from the production executable and CLI until a separately reviewed integration milestone is approved.
 - Writer prepare/commit is in-memory state management only. Never describe it as a durable journal commit.
-- Before any future append adapter, require replay-seeded writer-state reconstruction, deep ownership of imported evidence, parser-equivalent cross-record validation, strict record/byte limits, and fault-injection/crash tests.
-- No FCJ4 file descriptor, lock, journal creation, append/write, fsync/close adapter, planner, executor, quarantine, publication, source retirement, deletion, or recovery mutation is authorized by parser/serializer/writer-state milestones.
+- The approved Linux-only FCJ4 test adapter may use a caller-supplied descriptor only for a disposable private temporary file. It must remain in the test-support tree and a Linux-only test target, use explicit-offset `pwrite()`, reject `O_APPEND`, validate identity/size/ownership/mode/link count, acquire a non-blocking advisory lock, and require the fsync → writer-commit acknowledgement handshake.
+- The test adapter must never open/create `journal/move.fcj4`, enter the production source list/executable, or be exposed through the CLI. Advisory locking does not stop non-cooperating writers; process-exit tests do not prove power-loss durability.
+- No production FCJ4 descriptor, lock, journal creation, append/write, fsync/close adapter, planner, executor, quarantine, publication, source retirement, deletion, or recovery mutation is authorized by the test-adapter design or implementation.
 - Recovery action lifecycle is independent from move lifecycle. Move completion must never imply action completion.
 - Never unlink or retire a source until a separately approved protocol and execution design proves durable recovery evidence and exact filesystem identity checks.
 

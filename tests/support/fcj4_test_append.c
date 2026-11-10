@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,7 +27,7 @@ struct Fcj4TestAppend {
     ino_t inode;
     uint64_t known_length;
     AppendState state;
-    atomic_flag busy;
+    atomic_bool busy;
     Fcj4TestAppendOps ops;
     char pending[FCJ4_MAX_LINE_BYTES];
     size_t pending_length;
@@ -119,6 +120,10 @@ static int validate_line(const char *bytes, size_t length)
         memchr(bytes,'\r',length)!=NULL ||
         memchr(bytes,'\n',length-1U)!=NULL)
         return 0;
+    for (size_t i=0U;i<length-1U;i++) {
+        unsigned char ch=(unsigned char)bytes[i];
+        if (ch<0x20U || ch>0x7eU) return 0;
+    }
     return 1;
 }
 
@@ -171,7 +176,7 @@ int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
     ctx->state=APPEND_READY;
     ctx->ops=ops;
     ctx->last_code=FCJ4_TEST_APPEND_REJECTED;
-    atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+    atomic_init(&ctx->busy,false);
 
     if (ctx->ops.flock_fn(ctx->ops.user,fd,LOCK_EX|LOCK_NB)!=0) {
         saved=errno;
@@ -221,25 +226,25 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
                ctx ? ctx->known_length : 0U);
     if (!ctx || !result || !validate_line(bytes,length))
         return fail_with(EINVAL);
-    if (atomic_flag_test_and_set_explicit(&ctx->busy,memory_order_acquire))
+    if (atomic_exchange_explicit(&ctx->busy,true,memory_order_acquire))
         return fail_with(EBUSY);
 
     if (ctx->state!=APPEND_READY) {
-        atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+        atomic_store_explicit(&ctx->busy,false,memory_order_release);
         return fail_with(ctx->state==APPEND_POISONED ? EIO : EBUSY);
     }
     if (expected_offset!=ctx->known_length ||
         (uint64_t)length>UINT64_MAX-ctx->known_length ||
         expected_offset>(uint64_t)INT64_MAX-(uint64_t)length) {
-        atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+        atomic_store_explicit(&ctx->busy,false,memory_order_release);
         return fail_with(EINVAL);
     }
     if (verify_descriptor(ctx,1)!=0) {
         error=errno;
-        if (error==ESTALE || error==EBADF || error==EIO)
-            ctx->state=APPEND_POISONED;
+        ctx->state=APPEND_POISONED;
         ctx->primary_errno=error;
-        atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+        ctx->last_code=FCJ4_TEST_APPEND_REJECTED;
+        atomic_store_explicit(&ctx->busy,false,memory_order_release);
         set_result(result,FCJ4_TEST_APPEND_REJECTED,error,0,
                    ctx->known_length);
         return fail_with(error);
@@ -255,7 +260,7 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
             ctx->state=APPEND_POISONED;
             ctx->primary_errno=error;
             ctx->last_code=FCJ4_TEST_APPEND_UNCERTAIN_WRITE;
-            atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+            atomic_store_explicit(&ctx->busy,false,memory_order_release);
             set_result(result,ctx->last_code,error,0,ctx->known_length);
             return fail_with(error);
         }
@@ -264,7 +269,7 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
             ctx->state=APPEND_POISONED;
             ctx->primary_errno=error;
             ctx->last_code=FCJ4_TEST_APPEND_UNCERTAIN_WRITE;
-            atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+            atomic_store_explicit(&ctx->busy,false,memory_order_release);
             set_result(result,ctx->last_code,error,0,ctx->known_length);
             return fail_with(error);
         }
@@ -273,7 +278,7 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
             ctx->state=APPEND_POISONED;
             ctx->primary_errno=error;
             ctx->last_code=FCJ4_TEST_APPEND_UNCERTAIN_WRITE;
-            atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+            atomic_store_explicit(&ctx->busy,false,memory_order_release);
             set_result(result,ctx->last_code,error,0,ctx->known_length);
             return fail_with(error);
         }
@@ -285,7 +290,7 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
         ctx->state=APPEND_POISONED;
         ctx->primary_errno=error;
         ctx->last_code=FCJ4_TEST_APPEND_UNCERTAIN_FSYNC;
-        atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+        atomic_store_explicit(&ctx->busy,false,memory_order_release);
         set_result(result,ctx->last_code,error,0,ctx->known_length);
         return fail_with(error);
     }
@@ -295,7 +300,7 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
     ctx->known_length+=(uint64_t)length;
     ctx->state=APPEND_DURABLE_PENDING;
     ctx->last_code=FCJ4_TEST_APPEND_DURABLE;
-    atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+    atomic_store_explicit(&ctx->busy,false,memory_order_release);
     set_result(result,FCJ4_TEST_APPEND_DURABLE,0,0,ctx->known_length);
     return 0;
 }
@@ -304,7 +309,7 @@ int fcj4_test_append_ack_commit(Fcj4TestAppend *ctx, const char *bytes,
                                 size_t length)
 {
     if (!ctx || !bytes) return fail_with(EINVAL);
-    if (atomic_flag_test_and_set_explicit(&ctx->busy,memory_order_acquire))
+    if (atomic_exchange_explicit(&ctx->busy,true,memory_order_acquire))
         return fail_with(EBUSY);
     if (ctx->state!=APPEND_DURABLE_PENDING ||
         length!=ctx->pending_length ||
@@ -312,24 +317,24 @@ int fcj4_test_append_ack_commit(Fcj4TestAppend *ctx, const char *bytes,
         ctx->state=APPEND_POISONED;
         ctx->primary_errno=EINVAL;
         ctx->last_code=FCJ4_TEST_APPEND_REJECTED;
-        atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+        atomic_store_explicit(&ctx->busy,false,memory_order_release);
         return fail_with(EINVAL);
     }
     memset(ctx->pending,0,ctx->pending_length);
     ctx->pending_length=0U;
     ctx->state=APPEND_READY;
-    atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+    atomic_store_explicit(&ctx->busy,false,memory_order_release);
     return 0;
 }
 
 void fcj4_test_append_poison(Fcj4TestAppend *ctx)
 {
     if (!ctx) return;
-    if (atomic_flag_test_and_set_explicit(&ctx->busy,memory_order_acquire))
+    if (atomic_exchange_explicit(&ctx->busy,true,memory_order_acquire))
         return;
     ctx->state=APPEND_POISONED;
     if (ctx->primary_errno==0) ctx->primary_errno=EIO;
-    atomic_flag_clear_explicit(&ctx->busy,memory_order_release);
+    atomic_store_explicit(&ctx->busy,false,memory_order_release);
 }
 
 int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
@@ -338,7 +343,7 @@ int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
     int cleanup_error=0, primary_error, unlock_result, close_result;
     Fcj4TestAppendResultCode code;
     uint64_t durable_length;
-    if (!ctx || !result) return fail_with(EINVAL);
+    if (!ctx) return fail_with(EINVAL);
 
     primary_error=ctx->primary_errno;
     code=ctx->last_code;

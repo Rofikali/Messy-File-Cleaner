@@ -1,0 +1,83 @@
+#ifndef FCJ4_TEST_APPEND_H
+#define FCJ4_TEST_APPEND_H
+
+/*
+ * Private Linux-only FCJ4 append adapter for disposable test fixtures.
+ * This header is under tests/support and must never enter a production target.
+ */
+#include <stddef.h>
+#include <stdint.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+typedef struct Fcj4TestAppend Fcj4TestAppend;
+
+typedef struct {
+    ssize_t (*pwrite_fn)(void *user, int fd, const void *buffer,
+                         size_t length, off_t offset);
+    int (*fsync_fn)(void *user, int fd);
+    int (*close_fn)(void *user, int fd);
+    int (*flock_fn)(void *user, int fd, int operation);
+    int (*fstat_fn)(void *user, int fd, struct stat *out);
+    int (*getfl_fn)(void *user, int fd);
+    int (*getfd_fn)(void *user, int fd);
+    void *user;
+} Fcj4TestAppendOps;
+
+typedef enum {
+    FCJ4_TEST_APPEND_REJECTED = 0,
+    FCJ4_TEST_APPEND_DURABLE,
+    FCJ4_TEST_APPEND_UNCERTAIN_WRITE,
+    FCJ4_TEST_APPEND_UNCERTAIN_FSYNC,
+    FCJ4_TEST_APPEND_CLEANUP_ERROR
+} Fcj4TestAppendResultCode;
+
+typedef struct {
+    Fcj4TestAppendResultCode code;
+    int primary_errno;
+    int cleanup_errno;
+    uint64_t durable_length;
+} Fcj4TestAppendResult;
+
+/*
+ * On success, ownership of fd transfers to the context. On failure, fd
+ * remains caller-owned and open. If initialization acquired flock before a
+ * later validation failure, it attempts exactly one unlock and preserves the
+ * original initialization errno. The descriptor must be a private regular
+ * file, O_CLOEXEC, not O_APPEND, with the supplied device/inode/size.
+ *
+ * ops == NULL selects real Linux syscalls. A supplied table must be complete,
+ * immutable for the context lifetime, and must not be shared as mutable global
+ * fault state. The context is single-owner; concurrent/reentrant append calls
+ * are rejected using an atomic try-guard.
+ */
+int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
+                          dev_t expected_dev, ino_t expected_ino,
+                          uint64_t expected_length,
+                          const Fcj4TestAppendOps *ops);
+
+/*
+ * Append one exact canonical FCJ4 line at expected_offset. A successful
+ * fsync() returns DURABLE and blocks the next append until ack_commit().
+ * Uncertain write/fsync outcomes poison the context. No retry of a complete
+ * record, truncation, repair, or valid-prefix acceptance is performed.
+ */
+int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
+                            size_t length, uint64_t expected_offset,
+                            Fcj4TestAppendResult *result);
+
+/* Acknowledge only after the caller commits these exact bytes to writer state. */
+int fcj4_test_append_ack_commit(Fcj4TestAppend *ctx, const char *bytes,
+                                size_t length);
+
+/* Poison a durable-pending context if the caller's writer commit fails. */
+void fcj4_test_append_poison(Fcj4TestAppend *ctx);
+
+/*
+ * Unlock once and close once. Never retry close after an error. A durable
+ * fsync result is not undone by later cleanup errors. Context is freed.
+ */
+int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
+                             Fcj4TestAppendResult *result);
+
+#endif

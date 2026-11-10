@@ -91,7 +91,7 @@ static void remove_temp_file(const char *path)
     slash=strrchr(directory,'/');
     CHECK(slash!=NULL);
     *slash='\\0';
-    remove_temp_file(path);
+    CHECK(unlink(path)==0);
     CHECK(rmdir(directory)==0);
 }
 

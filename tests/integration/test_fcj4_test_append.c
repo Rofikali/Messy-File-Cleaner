@@ -38,6 +38,7 @@ typedef struct {
     int close_calls;
     bool fail_unlock;
     bool fail_close;
+    bool bad_identity;
 } MockIo;
 
 static const char operation_id[] =
@@ -189,8 +190,10 @@ static int mock_flock(void *user,int fd,int operation)
 
 static int mock_fstat(void *user,int fd,struct stat *out)
 {
-    (void)user;
-    return fstat(fd,out);
+    MockIo *mock=(MockIo *)user;
+    int rc=fstat(fd,out);
+    if(rc==0 && mock->bad_identity) out->st_dev=(dev_t)(out->st_dev+1);
+    return rc;
 }
 
 static int mock_getfl(void *user,int fd)
@@ -397,6 +400,8 @@ static void test_writer_commit_failure_forces_replay(void)
     errno=0;
     CHECK(fcj4_test_append_ack_commit(ctx,line,length)==-1);
     CHECK(fcj4_test_append_destroy(ctx,&result)==0);
+    CHECK(result.code==FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED);
+    CHECK(result.primary_errno==EIO);
     CHECK(result.durable_length==length);
     CHECK(fcj4_writer_revision(writer)==0U);
 
@@ -438,6 +443,64 @@ static void test_zero_write_poisoned(void)
     CHECK(fcj4_test_append_destroy(ctx,&result)==0);
     CHECK(read_journal(path,line,sizeof(line))==0U);
     fcj4_writer_state_destroy(writer);
+    CHECK(unlink(path)==0);
+}
+
+
+static void test_invalid_framing_rejected_before_write(void)
+{
+    char path[64],line[FCJ4_MAX_LINE_BYTES],bad[FCJ4_MAX_LINE_BYTES];
+    int fd=make_temp_file(path);
+    MockIo mock;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx;
+    Fcj4TestAppendResult result;
+    Fcj4WriterState *writer=NULL;
+    Fcj4PreparedRecord prepared;
+    Fcj4Record record=make_begin();
+    size_t length=0U;
+
+    memset(&mock,0,sizeof(mock));
+    ops=make_mock_ops(&mock);
+    CHECK(fcj4_writer_state_create(&writer)==0);
+    ctx=init_adapter(fd,&ops,0U);
+    prepare_record(writer,&record,line,&length,&prepared);
+    memcpy(bad,line,length);
+    bad[5]='\n';
+    errno=0;
+    CHECK(fcj4_test_append_record(ctx,bad,length,0U,&result)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(mock.pwrite_calls==0);
+    CHECK(fcj4_test_append_record(ctx,line,length,0U,&result)==0);
+    CHECK(fcj4_writer_commit(writer,&prepared,line,length)==0);
+    CHECK(fcj4_test_append_ack_commit(ctx,line,length)==0);
+    CHECK(fcj4_test_append_destroy(ctx,&result)==0);
+    check_replay(path,1U);
+    fcj4_writer_state_destroy(writer);
+    CHECK(unlink(path)==0);
+}
+
+static void test_init_rollback_preserves_original_error_and_fd(void)
+{
+    char path[64];
+    int fd=make_temp_file(path);
+    struct stat st;
+    MockIo mock;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx=NULL;
+
+    memset(&mock,0,sizeof(mock));
+    mock.bad_identity=true;
+    mock.fail_unlock=true;
+    ops=make_mock_ops(&mock);
+    CHECK(fstat(fd,&st)==0);
+    errno=0;
+    CHECK(fcj4_test_append_init(&ctx,fd,st.st_dev,st.st_ino,0U,&ops)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(ctx==NULL);
+    CHECK(mock.unlock_calls==1);
+    CHECK(fcntl(fd,F_GETFD)>=0);
+    CHECK(close(fd)==0);
     CHECK(unlink(path)==0);
 }
 
@@ -609,6 +672,8 @@ int main(void)
     test_fsync_failure_requires_replay();
     test_writer_commit_failure_forces_replay();
     test_zero_write_poisoned();
+    test_invalid_framing_rejected_before_write();
+    test_init_rollback_preserves_original_error_and_fd();
     test_init_rejects_append_flag_without_ownership_transfer();
     test_lock_contention_preserves_caller_descriptor();
     test_external_size_change_poisoned();

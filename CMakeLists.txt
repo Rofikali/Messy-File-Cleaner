@@ -171,6 +171,26 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj4_writer_unit COMMAND test_fcj4_writer)
 
+  # Linux-only FCJ4 append adapter for disposable test journals. This target
+  # must never be linked into the production executable or expose a CLI.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(test_fcj4_test_append
+      tests/integration/test_fcj4_test_append.c
+      tests/support/fcj4_test_append.c
+      src/journal/fcj4_writer.c
+      src/journal/fcj4_parser.c
+    )
+    target_include_directories(test_fcj4_test_append PRIVATE
+      "${CMAKE_CURRENT_SOURCE_DIR}/include"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/support"
+    )
+    target_compile_options(test_fcj4_test_append PRIVATE
+      -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+    )
+    add_test(NAME fcj4_test_append_integration COMMAND test_fcj4_test_append)
+    set_tests_properties(fcj4_test_append_integration PROPERTIES TIMEOUT 30)
+  endif()
+
   add_executable(test_fcj3_sha256
     tests/unit/test_fcj3_sha256.c
     src/journal/fcj3_sha256.c

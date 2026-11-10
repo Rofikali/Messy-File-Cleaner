@@ -2,9 +2,9 @@
 
 ## Status
 
-Proposed design only. This is a focused implementation gate following the merged FCJ4 schema/replay, parser, serializer, in-memory writer, and writer-state reconciliation milestones.
+Approved design (PR #72). The test-only implementation is being delivered in a separate reviewable PR following the merged FCJ4 schema/replay, parser, serializer, in-memory writer, and writer-state reconciliation milestones.
 
-This document authorizes no implementation by itself. A separately reviewed implementation PR is required. The only proposed adapter is a **test-only adapter for disposable temporary journal files**. It must not open, create, or append to `journal/move.fcj4`, link into the production executable, or enable FCJ4 in the mover or CLI.
+The only authorized adapter is a **test-only adapter for disposable private temporary journal files**. It must operate on a caller-supplied descriptor, must not open, create, or append to `journal/move.fcj4`, must not link into the production executable, and must not enable FCJ4 in the mover or CLI.
 
 ## 1. Objective
 

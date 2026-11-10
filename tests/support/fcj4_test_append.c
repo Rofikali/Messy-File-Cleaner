@@ -134,13 +134,15 @@ static int verify_descriptor(Fcj4TestAppend *ctx, int check_size)
     if (ctx->ops.fstat_fn(ctx->ops.user,ctx->fd,&st)!=0)
         return -1;
     if (!S_ISREG(st.st_mode) || st.st_dev!=ctx->device ||
-        st.st_ino!=ctx->inode || st.st_size<0)
+        st.st_ino!=ctx->inode || st.st_size<0 ||
+        st.st_uid!=geteuid() || (st.st_mode&077U)!=0U || st.st_nlink!=1)
         return fail_with(ESTALE);
     if (check_size && (uint64_t)st.st_size!=ctx->known_length)
         return fail_with(ESTALE);
     flags=ctx->ops.getfl_fn(ctx->ops.user,ctx->fd);
     if (flags<0) return -1;
-    if ((flags&O_APPEND)!=0) return fail_with(EINVAL);
+    if ((flags&O_APPEND)!=0 || (flags&O_ACCMODE)!=O_RDWR)
+        return fail_with(EINVAL);
     fdflags=ctx->ops.getfd_fn(ctx->ops.user,ctx->fd);
     if (fdflags<0) return -1;
     if ((fdflags&FD_CLOEXEC)==0) return fail_with(EINVAL);
@@ -188,12 +190,14 @@ int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
     if (ctx->ops.fstat_fn(ctx->ops.user,fd,&st)!=0) saved=errno;
     else if (!S_ISREG(st.st_mode) || st.st_dev!=expected_dev ||
              st.st_ino!=expected_ino || st.st_size<0 ||
-             (uint64_t)st.st_size!=expected_length) saved=EINVAL;
+             (uint64_t)st.st_size!=expected_length ||
+             st.st_uid!=geteuid() || (st.st_mode&077U)!=0U ||
+             st.st_nlink!=1) saved=EINVAL;
 
     if (saved==0) {
         flags=ctx->ops.getfl_fn(ctx->ops.user,fd);
         if (flags<0) saved=errno;
-        else if ((flags&O_APPEND)!=0) saved=EINVAL;
+        else if ((flags&O_APPEND)!=0 || (flags&O_ACCMODE)!=O_RDWR) saved=EINVAL;
     }
     if (saved==0) {
         fdflags=ctx->ops.getfd_fn(ctx->ops.user,fd);
@@ -316,7 +320,7 @@ int fcj4_test_append_ack_commit(Fcj4TestAppend *ctx, const char *bytes,
         memcmp(bytes,ctx->pending,length)!=0) {
         ctx->state=APPEND_POISONED;
         ctx->primary_errno=EINVAL;
-        ctx->last_code=FCJ4_TEST_APPEND_REJECTED;
+        ctx->last_code=FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED;
         atomic_store_explicit(&ctx->busy,false,memory_order_release);
         return fail_with(EINVAL);
     }
@@ -334,6 +338,7 @@ void fcj4_test_append_poison(Fcj4TestAppend *ctx)
         return;
     ctx->state=APPEND_POISONED;
     if (ctx->primary_errno==0) ctx->primary_errno=EIO;
+    ctx->last_code=FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED;
     atomic_store_explicit(&ctx->busy,false,memory_order_release);
 }
 

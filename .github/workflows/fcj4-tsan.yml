@@ -33,7 +33,7 @@ jobs:
             -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
 
       - name: Build only FCJ4 append integration target
-        run: cmake --build build/fcj4-tsan --target test_fcj4_test_append --parallel 2
+        run: cmake --build build/fcj4-tsan --target test_fcj4_test_append_concurrency --parallel 2
 
       - name: Run focused FCJ4 append integration suite under TSan
         env:
@@ -41,4 +41,5 @@ jobs:
         run: |
           ctest --test-dir build/fcj4-tsan \
             --output-on-failure \
-            -R '^fcj4_test_append_integration$'
+            -R '^fcj4_test_append_concurrency
+

@@ -28,7 +28,8 @@ typedef enum {
     MOCK_SHORT_EINTR,
     MOCK_PARTIAL_EIO,
     MOCK_ZERO_WRITE,
-    MOCK_FSYNC_EIO
+    MOCK_FSYNC_EIO,
+    MOCK_FAIL_AT_OFFSET
 } MockMode;
 
 typedef struct {
@@ -46,6 +47,9 @@ typedef struct {
     const char *reentrant_bytes;
     size_t reentrant_length;
     int reentrant_errno;
+    size_t fail_after_bytes;
+    size_t bytes_written;
+    int injected_errno;
 } MockIo;
 
 static const char operation_id[] =
@@ -168,6 +172,19 @@ static ssize_t mock_pwrite(void *user,int fd,const void *buffer,
         return -1;
     }
     if(mock->mode==MOCK_ZERO_WRITE) return 0;
+    if(mock->mode==MOCK_FAIL_AT_OFFSET) {
+        size_t remaining;
+        ssize_t written;
+        if(mock->bytes_written>=mock->fail_after_bytes) {
+            errno=mock->injected_errno;
+            return -1;
+        }
+        remaining=mock->fail_after_bytes-mock->bytes_written;
+        if(length>remaining) length=remaining;
+        written=pwrite(fd,buffer,length,offset);
+        if(written>0) mock->bytes_written+=(size_t)written;
+        return written;
+    }
     if(mock->mode==MOCK_PARTIAL_EIO) {
         if(mock->pwrite_calls==1) {
             size_t amount=length<3U ? length : 3U;
@@ -294,6 +311,87 @@ static void test_real_append_commit_handshake(void)
     check_replay(path,2U);
     fcj4_writer_state_destroy(writer);
     remove_temp_file(path);
+}
+
+/*
+ * Exercise every possible prefix length of a canonical record. For each
+ * boundary, inject representative storage/permission/descriptor errors.
+ * The adapter must poison the context, preserve the exact prefix, avoid
+ * fsync, and leave in-memory writer state unchanged. This is deterministic
+ * fault injection, not a claim that every kernel/filesystem reports these
+ * errors at every offset in production.
+ */
+static void test_errno_failure_at_every_byte_boundary(void)
+{
+    static const int errors[]={ENOSPC,EACCES,EBADF};
+    char line[FCJ4_MAX_LINE_BYTES];
+    Fcj4WriterState *probe_writer=NULL;
+    Fcj4PreparedRecord probe_prepared;
+    Fcj4Record record=make_begin();
+    size_t length=0U;
+
+    CHECK(fcj4_writer_state_create(&probe_writer)==0);
+    prepare_record(probe_writer,&record,line,&length,&probe_prepared);
+    CHECK(length>1U);
+    fcj4_writer_state_destroy(probe_writer);
+
+    for(size_t boundary=0U;boundary<length;boundary++) {
+        for(size_t error_index=0U;
+            error_index<sizeof(errors)/sizeof(errors[0]);error_index++) {
+            char path[128],prepared_line[FCJ4_MAX_LINE_BYTES];
+            char prefix[FCJ4_MAX_LINE_BYTES];
+            int fd=make_temp_file(path);
+            MockIo mock;
+            Fcj4TestAppendOps ops;
+            Fcj4TestAppend *ctx;
+            Fcj4TestAppendResult result;
+            Fcj4WriterState *writer=NULL;
+            Fcj4PreparedRecord prepared;
+            Fcj4Record current=make_begin();
+            Fcj4Replay replay;
+            size_t prepared_length=0U;
+            size_t actual_length;
+
+            memset(&mock,0,sizeof(mock));
+            mock.mode=MOCK_FAIL_AT_OFFSET;
+            mock.fail_after_bytes=boundary;
+            mock.injected_errno=errors[error_index];
+            ops=make_mock_ops(&mock);
+            CHECK(fcj4_writer_state_create(&writer)==0);
+            ctx=init_adapter(fd,&ops,0U);
+            prepare_record(writer,&current,prepared_line,
+                           &prepared_length,&prepared);
+            CHECK(prepared_length==length);
+            errno=0;
+            CHECK(fcj4_test_append_record(ctx,prepared_line,
+                                          prepared_length,0U,&result)==-1);
+            CHECK(errno==errors[error_index]);
+            CHECK(result.code==FCJ4_TEST_APPEND_UNCERTAIN_WRITE);
+            CHECK(result.primary_errno==errors[error_index]);
+            CHECK(result.durable_length==0U);
+            CHECK(mock.bytes_written==boundary);
+            CHECK(mock.fsync_calls==0);
+            CHECK(fcj4_writer_revision(writer)==0U);
+
+            actual_length=read_journal(path,prefix,sizeof(prefix));
+            CHECK(actual_length==boundary);
+            if(boundary>0U)
+                CHECK(memcmp(prefix,prepared_line,boundary)==0);
+            fcj4_replay_init(&replay);
+            errno=0;
+            CHECK(fcj4_replay_parse(prefix,actual_length,&replay)==-1);
+            fcj4_replay_destroy(&replay);
+
+            errno=0;
+            CHECK(fcj4_test_append_record(ctx,prepared_line,
+                                          prepared_length,0U,&result)==-1);
+            CHECK(errno==errors[error_index] || errno==EIO);
+            CHECK(fcj4_writer_revision(writer)==0U);
+            CHECK(fcj4_test_append_destroy(ctx,&result)==0);
+            fcj4_writer_state_destroy(writer);
+            remove_temp_file(path);
+        }
+    }
 }
 
 static void test_short_write_and_eintr(void)
@@ -815,6 +913,7 @@ static void test_process_exit_restart_replay(void)
 int main(void)
 {
     test_real_append_commit_handshake();
+    test_errno_failure_at_every_byte_boundary();
     test_short_write_and_eintr();
     test_reentrant_append_is_rejected();
     test_partial_write_failure_is_poisoned();

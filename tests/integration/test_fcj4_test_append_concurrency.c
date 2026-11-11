@@ -47,7 +47,6 @@ typedef struct {
 
 typedef struct {
     Fcj4TestAppend *context;
-    TestGate *gate;
     Fcj4TestAppendResult result;
     int rc;
     int error;
@@ -233,7 +232,6 @@ static void start_blocked_append(TestGate *gate, Fcj4TestAppend *context,
 {
     memset(thread, 0, sizeof(*thread));
     thread->context = context;
-    thread->gate = gate;
     CHECK_PTHREAD(pthread_create(worker, NULL, append_worker, thread));
     gate_wait_for_callback(gate);
 }
@@ -282,6 +280,11 @@ static void test_append_rejected_while_another_thread_appends(void)
     CHECK(worker_result.rc == 0 && worker_result.error == 0);
     CHECK(worker_result.result.code == FCJ4_TEST_APPEND_DURABLE);
     CHECK(gate_counter(&gate, 0) == 1);
+    {
+        struct stat st;
+        CHECK(stat(path, &st) == 0);
+        CHECK(st.st_size == (off_t)(sizeof(record_bytes) - 1U));
+    }
     CHECK(gate_counter(&gate, 1) == 1);
     acknowledge_and_destroy(context, path, &gate);
     gate_destroy(&gate);

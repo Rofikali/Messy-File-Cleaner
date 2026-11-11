@@ -330,6 +330,11 @@ int fcj4_test_append_ack_commit(Fcj4TestAppend *ctx, const char *bytes,
     if (!ctx || !bytes) return fail_with(EINVAL);
     if (atomic_exchange_explicit(&ctx->busy,true,memory_order_acquire))
         return fail_with(EBUSY);
+    if (ctx->state==APPEND_POISONED) {
+        int error=ctx->primary_errno ? ctx->primary_errno : EIO;
+        atomic_store_explicit(&ctx->busy,false,memory_order_release);
+        return fail_with(error);
+    }
     if (ctx->state!=APPEND_DURABLE_PENDING ||
         length!=ctx->pending_length ||
         memcmp(bytes,ctx->pending,length)!=0) {

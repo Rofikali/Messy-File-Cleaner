@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved design (PR #72). The Linux-only test adapter implementation was merged in PR #73, and deterministic byte-boundary errno coverage was merged in PR #74. The adapter remains test-only and is not production-integrated. This document now specifies the next isolated allocation-failure test design; implementation is not yet authorized by this design change alone.
+Approved design (PR #72). The Linux-only test adapter implementation was merged in PR #73, and deterministic byte-boundary errno coverage was merged in PR #74. The adapter remains test-only and is not production-integrated. This document specifies the approved per-context allocation-failure contract. Its test-only implementation is being delivered in a separate implementation PR; the adapter remains outside production.
 
 The only authorized adapter is a **test-only adapter for disposable private temporary journal files**. It must operate on a caller-supplied descriptor, must not open, create, or append to `journal/move.fcj4`, must not link into the production executable, and must not enable FCJ4 in the mover or CLI.
 
@@ -75,7 +75,7 @@ Allocation-failure injection must be added without global allocator replacement 
 - Both allocator callbacks must be supplied together or both omitted. If omitted, the adapter selects the real `calloc()` and `free()` pair. A half-configured pair is rejected before any descriptor ownership or lock change.
 - Copy the complete operations table into the context. Callback functions and their user data must remain valid and immutable until context destruction. The allocator's user data must outlive the context.
 - The context allocation itself is the only adapter-owned dynamic allocation in the current implementation. Allocate it through the selected `calloc_fn`; do not add allocations to the append hot path or create an unnecessary allocator framework.
-- A null allocation result is reported as `ENOMEM`; if an injected allocator returns null without setting errno, normalize errno to `ENOMEM`.
+- Set `errno = 0` immediately before calling `calloc_fn`. If it returns null and errno remains zero, set errno to `ENOMEM`; if it returns null with a nonzero errno, preserve that callback-supplied error.
 - If allocation fails, initialization returns with `*out == NULL`, does not acquire `flock`, does not inspect or close the caller's descriptor, and leaves descriptor ownership with the caller.
 - If initialization fails after allocation but before ownership transfer, release the context exactly once through the matching `free_fn`. If a lock was acquired, attempt one unlock before freeing, preserve the original initialization error, and leave the descriptor caller-owned.
 - After successful initialization, destroy releases the context exactly once through the same copied `free_fn`, after the descriptor cleanup attempt. Never use a different allocator family or free callback.
@@ -237,7 +237,7 @@ The first implementation currently exercises:
 - O_APPEND rejection, non-blocking lock contention, and initialization rollback.
 - Unlock/close cleanup errors and process-exit replay.
 
-This is not yet the complete fault matrix below. The deterministic test now injects ENOSPC, EACCES, and EBADF at every byte boundary; this proves adapter state handling for those injected outcomes, not that a particular kernel/filesystem naturally emits each error at every offset. Allocation-failure injection is the next separately reviewed implementation milestone. Deliberately concurrent calls from separate threads, a broader malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
+This is not yet the complete fault matrix below. The deterministic test injects ENOSPC, EACCES, and EBADF at every byte boundary; this proves adapter state handling for those injected outcomes, not that a particular kernel/filesystem naturally emits each error at every offset. Per-context allocation-failure coverage now exercises null allocation, incomplete callback pairs, lock failure cleanup, post-lock validation rollback, allocator matching, independent per-context state, and free-after-unlock/close ordering. Deliberately concurrent calls from separate threads, a broader malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
 
 Do not mark the implementation PR complete unless:
 
@@ -254,10 +254,10 @@ Do not mark the implementation PR complete unless:
 
 ## 13. Next milestone and prohibited expansion
 
-The implementation proposal may add only the test-only append adapter and its fault/restart harness against disposable private temporary journals. A separate production integration design remains mandatory.
+The implementation PR may add only per-context allocator callbacks and their tests to the existing test-only append adapter and its fault/restart harness against disposable private temporary journals. A separate production integration design remains mandatory.
 
 It must not create/open `journal/move.fcj4`, integrate with production mover/CLI/startup, or implement recovery planning/execution. A production journal lifecycle, directory ownership policy, production lock ownership, and FCJ4 adoption require separate threat-model review and explicit approval.
 
 ## 14. Rollback
 
-This allocation-injection design update changes documentation only. Rollback is removal of the §4.1 allocator contract and its corresponding fault-matrix references; no executable code, journal bytes, production behavior, or user files change.
+Rollback removes the per-context allocator callbacks, their tests, and the corresponding §4.1/fault-matrix documentation changes. It does not alter journal bytes, production behavior, production source lists, or user files.

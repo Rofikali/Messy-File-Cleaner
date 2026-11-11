@@ -15,7 +15,7 @@
 
 #define CHECK(expr) do { \
     if (!(expr)) { \
-        fprintf(stderr, "CHECK failed at %s:%d: %s (errno=%d)\\n", \
+        fprintf(stderr, "CHECK failed at %s:%d: %s (errno=%d)\n", \
                 __FILE__, __LINE__, #expr, errno); \
         exit(EXIT_FAILURE); \
     } \
@@ -24,13 +24,13 @@
 #define CHECK_PTHREAD(call) do { \
     int pthread_error_ = (call); \
     if (pthread_error_ != 0) { \
-        fprintf(stderr, "pthread error at %s:%d: %s => %d\\n", \
+        fprintf(stderr, "pthread error at %s:%d: %s => %d\n", \
                 __FILE__, __LINE__, #call, pthread_error_); \
         exit(EXIT_FAILURE); \
     } \
 } while (0)
 
-static const char record_bytes[] = "FCJ4|BEGIN|concurrency-test\\n";
+static const char record_bytes[] = "FCJ4|BEGIN|concurrency-test\n";
 
 typedef struct {
     pthread_mutex_t mutex;
@@ -200,7 +200,7 @@ static void remove_fixture(const char *path)
     memcpy(directory, path, strlen(path) + 1U);
     slash = strrchr(directory, '/');
     CHECK(slash != NULL);
-    *slash = '\\0';
+    *slash = '\0';
     CHECK(unlink(path) == 0);
     CHECK(rmdir(directory) == 0);
 }
@@ -279,7 +279,7 @@ static void test_append_rejected_while_another_thread_appends(void)
 
     finish_blocked_append(&gate, worker);
     CHECK(competing_rc == -1 && competing_errno == EBUSY);
-    CHECK(worker_result.rc == 0);
+    CHECK(worker_result.rc == 0 && worker_result.error == 0);
     CHECK(worker_result.result.code == FCJ4_TEST_APPEND_DURABLE);
     CHECK(gate_counter(&gate, 0) == 1);
     CHECK(gate_counter(&gate, 1) == 1);
@@ -305,11 +305,10 @@ static void test_destroy_rejected_while_append_is_active(void)
     errno = 0;
     destroy_rc = fcj4_test_append_destroy(context, &destroy_result);
     destroy_errno = errno;
-    CHECK(gate_counter(&gate, 2) == 0);
-    CHECK(gate_counter(&gate, 3) == 0);
-
     finish_blocked_append(&gate, worker);
     CHECK(destroy_rc == -1 && destroy_errno == EBUSY);
+    CHECK(gate_counter(&gate, 2) == 0);
+    CHECK(gate_counter(&gate, 3) == 0);
     CHECK(worker_result.rc == 0);
     acknowledge_and_destroy(context, path, &gate);
     gate_destroy(&gate);

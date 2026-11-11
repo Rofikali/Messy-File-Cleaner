@@ -1,0 +1,10 @@
+[package]
+name = "fcj4-test-support"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+publish = false
+description = "Test-only byte-input support for future FCJ4 parser verification"
+
+[lib]
+path = "src/lib.rs"

@@ -90,7 +90,7 @@ static void remove_temp_file(const char *path)
     memcpy(directory,path,strlen(path)+1U);
     slash=strrchr(directory,'/');
     CHECK(slash!=NULL);
-    *slash='\\0';
+    *slash='\0';
     CHECK(unlink(path)==0);
     CHECK(rmdir(directory)==0);
 }

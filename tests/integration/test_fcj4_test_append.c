@@ -60,7 +60,7 @@ static Fcj4Record make_begin(void)
     record.kind=FCJ4_RECORD_BEGIN;
     record.value.begin=(Fcj4BeginRecord){
         operation_id,"/tmp/fcj4-source",1U,2U,1U,3U,1000U,1000U,
-        384U,5U,1,2U,3,4U,"/tmp/fcj4-destination",1U,4U,
+        384U,5U,1,2U,3,4U,"/tmp/destination",1U,4U,
         "destination",1U,5U
     };
     return record;

@@ -46,7 +46,7 @@ static void prepare_canonical_record(void)
     };
     CHECK(fcj4_serialize(&record, record_bytes, sizeof(record_bytes),
                          &record_length) == 0);
-    CHECK(record_length > 0U && record_bytes[record_length - 1U] == '\\n');
+    CHECK(record_length > 0U && record_bytes[record_length - 1U] == '\n');
 }
 
 typedef struct {

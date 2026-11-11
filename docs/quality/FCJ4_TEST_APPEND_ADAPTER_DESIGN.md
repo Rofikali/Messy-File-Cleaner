@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved design (PR #72). The Linux-only test adapter implementation was merged in PR #73; deterministic byte-boundary errno coverage in PR #74; allocation-failure design/implementation in PRs #75–76; and cross-thread exclusion design/implementation in PRs #77–78. The adapter remains test-only and is not production-integrated. Allocation and selected cross-thread overlap cases are implemented. The broader malformed/truncated restart matrix and explicit production-binary link-isolation inspection remain separate open acceptance work.
+Approved design (PR #72). The Linux-only test adapter implementation was merged in PR #73; deterministic byte-boundary errno coverage in PR #74; allocation-failure design/implementation in PRs #75–76; cross-thread exclusion design/implementation in PRs #77–78; and the malformed/truncated restart matrix design in PR #79. The adapter remains test-only and is not production-integrated. Allocation and selected cross-thread overlap cases are implemented. The restart-matrix implementation is being delivered in a separate test-only PR. Explicit production-binary link-isolation inspection remains separate open acceptance work.
 
 The only authorized adapter is a **test-only adapter for disposable private temporary journal files**. It must operate on a caller-supplied descriptor, must not open, create, or append to `journal/move.fcj4`, must not link into the production executable, and must not enable FCJ4 in the mover or CLI.
 
@@ -254,7 +254,7 @@ Do not mark the implementation PR complete unless:
 
 ## 13. Next milestone and prohibited expansion
 
-The per-context allocator callbacks and selected cross-thread exclusion tests are implemented in the test-only adapter and harness. The next authorized milestone is the separate malformed/truncated restart matrix design in [FCJ4 Malformed and Truncated Restart Matrix Design](FCJ4_MALFORMED_TRUNCATED_RESTART_MATRIX_DESIGN.md). That design must be reviewed and merged before its implementation begins. Explicit production-binary link-isolation inspection remains a separate follow-on acceptance task. A separate production integration design remains mandatory.
+The per-context allocator callbacks and selected cross-thread exclusion tests are implemented in the test-only adapter and harness. The malformed/truncated restart matrix design was approved and merged in PR #79; its implementation is isolated in `tests/integration/test_fcj4_restart_matrix.c` and the Linux-only `fcj4_restart_matrix` CTest target. This implementation must not alter parser/schema behavior or production source lists. Explicit production-binary link-isolation inspection remains a separate follow-on acceptance task. A separate production integration design remains mandatory.
 
 It must not create/open `journal/move.fcj4`, integrate with production mover/CLI/startup, or implement recovery planning/execution. A production journal lifecycle, directory ownership policy, production lock ownership, and FCJ4 adoption require separate threat-model review and explicit approval.
 

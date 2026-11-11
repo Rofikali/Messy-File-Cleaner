@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed — design review only. No Rust implementation, production language-policy change, runtime dependency, or C/Rust ABI is authorized by this document.
+Accepted — staged rollout authorized by owner merge of PR #81. This authorizes only the test-tooling stages described below; it does not authorize production Rust, production FFI, or a runtime dependency.
 
 ## Context
 
@@ -15,7 +15,7 @@ Messy-File-Cleaner is an established C systems project with data-preservation an
 - FCJ4 parser, serializer, writer state, and append adapter have strict isolation gates. The FCJ4 append adapter is currently test-only.
 - Existing C APIs, persistent journal formats, and filesystem behavior must not change as an incidental consequence of introducing another language.
 
-The current `skills.md` explicitly requires pure C unless the owner makes a new explicit decision and written review. This ADR is the written proposal for that decision; it does not silently amend the existing policy.
+The owner accepted this ADR by merging PR #81. That decision authorizes a narrowly scoped Rust test-tooling pilot; it does not change the C17 production baseline or authorize Rust in the product core.
 
 ## Decision proposal
 
@@ -35,7 +35,7 @@ This is an evaluation, not a commitment to rewrite the product in Rust.
 
 ## Proposed pilot boundaries
 
-Included only after this ADR is reviewed and accepted:
+Approved staged rollout scope:
 
 - A separate Cargo workspace or isolated Rust test package under a clearly named test-support directory.
 - A small C test shim exposing only the minimum parser entry points needed by the harness.
@@ -70,7 +70,7 @@ If a later, separately approved milestone requires Rust/C interoperability:
 9. Build and test with pinned toolchain/dependency versions and a reviewed supply-chain policy.
 10. ABI changes require compatibility tests and a separate design review; no ABI is introduced by the pilot.
 
-## Build and supply-chain policy proposal
+## Build and supply-chain policy
 
 - Pin the Rust toolchain using `rust-toolchain.toml`.
 - Commit `Cargo.lock` for the test package.
@@ -118,7 +118,7 @@ Costs and risks:
 - A duplicated parser implementation would create consistency risk; therefore it is excluded from the pilot.
 - Fuzzing does not prove absence of bugs and does not simulate real power loss or all filesystem behaviors.
 
-## Review questions
+## Pilot evaluation questions
 
 - Is a test-only Rust fuzz/property-test harness an acceptable first pilot?
 - Should the project use `cargo-fuzz`/libFuzzer integration, or begin with deterministic property tests and add coverage-guided fuzzing after CI/resource limits are understood?
@@ -127,4 +127,4 @@ Costs and risks:
 
 ## Current safety statement
 
-Until this ADR and each later stage are explicitly approved and merged, the repository remains governed by its existing pure-C policy. No production Rust code, FFI, or runtime dependency is introduced by this proposal.
+The accepted ADR authorizes isolated Rust test tooling only. Each later stage still requires its own reviewed and merged milestone. The production application remains C17; no production Rust code, C/Rust FFI, shared/static Rust library, or Rust runtime dependency is authorized.

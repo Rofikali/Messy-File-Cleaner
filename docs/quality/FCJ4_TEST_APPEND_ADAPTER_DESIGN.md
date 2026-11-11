@@ -207,7 +207,7 @@ The first implementation currently exercises:
 - O_APPEND rejection, non-blocking lock contention, and initialization rollback.
 - Unlock/close cleanup errors and process-exit replay.
 
-This is not yet the complete fault matrix below. In particular, ENOSPC/EACCES/EBADF permutations, failure injection at every byte boundary, allocation failure, deliberate concurrent/reentrant calls, malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
+This is not yet the complete fault matrix below. In particular, ENOSPC/EACCES/EBADF permutations, failure injection at every byte boundary, allocation failure, deliberately concurrent calls from separate threads, malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
 
 Do not mark the implementation PR complete unless:
 

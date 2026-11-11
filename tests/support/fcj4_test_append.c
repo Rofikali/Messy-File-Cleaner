@@ -35,6 +35,17 @@ struct Fcj4TestAppend {
     int primary_errno;
 };
 
+static void *real_calloc(void *user, size_t count, size_t size)
+{
+    (void)user;
+    return calloc(count,size);
+}
+static void real_free(void *user, void *pointer)
+{
+    (void)user;
+    free(pointer);
+}
+
 static ssize_t real_pwrite(void *user, int fd, const void *buf,
                            size_t len, off_t offset)
 {
@@ -83,6 +94,9 @@ static Fcj4TestAppendOps default_ops(void)
     ops.getfl_fn=real_getfl;
     ops.getfd_fn=real_getfd;
     ops.user=NULL;
+    ops.calloc_fn=real_calloc;
+    ops.free_fn=real_free;
+    ops.allocator_user=NULL;
     return ops;
 }
 
@@ -164,14 +178,26 @@ int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
         return fail_with(EINVAL);
     *out=NULL;
     if (provided_ops) {
-        if (!complete_ops(provided_ops)) return fail_with(EINVAL);
+        if (!complete_ops(provided_ops) ||
+            ((provided_ops->calloc_fn==NULL) !=
+             (provided_ops->free_fn==NULL)))
+            return fail_with(EINVAL);
         ops=*provided_ops;
+        if (!ops.calloc_fn) {
+            ops.calloc_fn=real_calloc;
+            ops.free_fn=real_free;
+            ops.allocator_user=NULL;
+        }
     } else {
         ops=default_ops();
     }
 
-    ctx=(Fcj4TestAppend *)calloc(1U,sizeof(*ctx));
-    if (!ctx) return -1;
+    errno=0;
+    ctx=(Fcj4TestAppend *)ops.calloc_fn(ops.allocator_user,1U,sizeof(*ctx));
+    if (!ctx) {
+        saved=errno ? errno : ENOMEM;
+        return fail_with(saved);
+    }
     ctx->fd=fd;
     ctx->device=expected_dev;
     ctx->inode=expected_ino;
@@ -182,8 +208,8 @@ int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
     atomic_init(&ctx->busy,false);
 
     if (ctx->ops.flock_fn(ctx->ops.user,fd,LOCK_EX|LOCK_NB)!=0) {
-        saved=errno;
-        free(ctx);
+        saved=errno ? errno : EIO;
+        ctx->ops.free_fn(ctx->ops.allocator_user,ctx);
         return fail_with(saved);
     }
     locked=1;
@@ -212,7 +238,7 @@ int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
             (void)ctx->ops.flock_fn(ctx->ops.user,fd,LOCK_UN);
             saved=original;
         }
-        free(ctx);
+        ctx->ops.free_fn(ctx->ops.allocator_user,ctx);
         return fail_with(saved);
     }
 
@@ -392,7 +418,7 @@ int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
     set_result(result,cleanup_error ? FCJ4_TEST_APPEND_CLEANUP_ERROR : code,
                primary_error,cleanup_error,durable_length);
     memset(ctx->pending,0,sizeof(ctx->pending));
-    free(ctx);
+    ctx->ops.free_fn(ctx->ops.allocator_user,ctx);
     if (cleanup_error) return fail_with(cleanup_error);
     if (code==FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED)
         return fail_with(primary_error ? primary_error : EIO);

@@ -22,6 +22,9 @@ typedef struct {
     int (*getfl_fn)(void *user, int fd);
     int (*getfd_fn)(void *user, int fd);
     void *user;
+    void *(*calloc_fn)(void *allocator_user, size_t count, size_t size);
+    void (*free_fn)(void *allocator_user, void *pointer);
+    void *allocator_user;
 } Fcj4TestAppendOps;
 
 typedef enum {

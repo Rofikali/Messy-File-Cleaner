@@ -40,6 +40,7 @@ typedef struct {
     bool fail_unlock;
     bool fail_close;
     bool bad_identity;
+    bool bad_post_size;
 } MockIo;
 
 static const char operation_id[] =
@@ -208,6 +209,8 @@ static int mock_fstat(void *user,int fd,struct stat *out)
     MockIo *mock=(MockIo *)user;
     int rc=fstat(fd,out);
     if(rc==0 && mock->bad_identity) out->st_dev=(dev_t)(out->st_dev+1);
+    if(rc==0 && mock->bad_post_size && mock->pwrite_calls>0)
+        out->st_size++;
     return rc;
 }
 
@@ -589,6 +592,86 @@ static void test_external_size_change_poisoned(void)
     remove_temp_file(path);
 }
 
+
+static void test_post_write_identity_size_mismatch_is_uncertain(void)
+{
+    char path[128],line[FCJ4_MAX_LINE_BYTES],bytes[FCJ4_MAX_LINE_BYTES];
+    int fd=make_temp_file(path);
+    MockIo mock;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx;
+    Fcj4TestAppendResult result;
+    Fcj4WriterState *writer=NULL,*recovered=NULL;
+    Fcj4PreparedRecord prepared;
+    Fcj4Record record=make_begin();
+    Fcj4Replay replay;
+    size_t length=0U,read_length;
+
+    memset(&mock,0,sizeof(mock));
+    mock.bad_post_size=true;
+    ops=make_mock_ops(&mock);
+    CHECK(fcj4_writer_state_create(&writer)==0);
+    ctx=init_adapter(fd,&ops,0U);
+    prepare_record(writer,&record,line,&length,&prepared);
+    errno=0;
+    CHECK(fcj4_test_append_record(ctx,line,length,0U,&result)==-1);
+    CHECK(errno==ESTALE);
+    CHECK(result.code==FCJ4_TEST_APPEND_UNCERTAIN_WRITE);
+    CHECK(mock.fsync_calls==0);
+    CHECK(fcj4_writer_revision(writer)==0U);
+    CHECK(fcj4_test_append_destroy(ctx,&result)==0);
+    CHECK(result.code==FCJ4_TEST_APPEND_UNCERTAIN_WRITE);
+
+    read_length=read_journal(path,bytes,sizeof(bytes));
+    CHECK(read_length==length);
+    fcj4_replay_init(&replay);
+    CHECK(fcj4_replay_parse(bytes,read_length,&replay)==0);
+    CHECK(fcj4_writer_state_create(&recovered)==0);
+    CHECK(fcj4_writer_state_import_replay(recovered,&replay)==0);
+    CHECK(fcj4_writer_revision(recovered)==1U);
+    fcj4_replay_destroy(&replay);
+    fcj4_writer_state_destroy(recovered);
+    fcj4_writer_state_destroy(writer);
+    remove_temp_file(path);
+}
+
+static void test_destroy_with_unacknowledged_durable_record_requires_replay(void)
+{
+    char path[128],line[FCJ4_MAX_LINE_BYTES],bytes[FCJ4_MAX_LINE_BYTES];
+    int fd=make_temp_file(path);
+    Fcj4TestAppend *ctx=init_adapter(fd,NULL,0U);
+    Fcj4TestAppendResult result;
+    Fcj4WriterState *writer=NULL,*recovered=NULL;
+    Fcj4PreparedRecord prepared;
+    Fcj4Record record=make_begin();
+    Fcj4Replay replay;
+    size_t length=0U,read_length;
+
+    CHECK(fcj4_writer_state_create(&writer)==0);
+    prepare_record(writer,&record,line,&length,&prepared);
+    CHECK(fcj4_test_append_record(ctx,line,length,0U,&result)==0);
+    errno=0;
+    CHECK(fcj4_test_append_destroy(ctx,&result)==-1);
+    CHECK(errno==EIO);
+    CHECK(result.code==FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED);
+    CHECK(result.primary_errno==EIO);
+    CHECK(result.cleanup_errno==0);
+    CHECK(result.durable_length==length);
+    CHECK(fcj4_writer_revision(writer)==0U);
+
+    read_length=read_journal(path,bytes,sizeof(bytes));
+    CHECK(read_length==length);
+    fcj4_replay_init(&replay);
+    CHECK(fcj4_replay_parse(bytes,read_length,&replay)==0);
+    CHECK(fcj4_writer_state_create(&recovered)==0);
+    CHECK(fcj4_writer_state_import_replay(recovered,&replay)==0);
+    CHECK(fcj4_writer_revision(recovered)==1U);
+    fcj4_replay_destroy(&replay);
+    fcj4_writer_state_destroy(recovered);
+    fcj4_writer_state_destroy(writer);
+    remove_temp_file(path);
+}
+
 static void test_cleanup_errors_do_not_erase_durable_result(void)
 {
     char path[128],line[FCJ4_MAX_LINE_BYTES];
@@ -691,6 +774,8 @@ int main(void)
     test_init_rejects_append_flag_without_ownership_transfer();
     test_lock_contention_preserves_caller_descriptor();
     test_external_size_change_poisoned();
+    test_post_write_identity_size_mismatch_is_uncertain();
+    test_destroy_with_unacknowledged_durable_record_requires_replay();
     test_cleanup_errors_do_not_erase_durable_result();
     test_process_exit_restart_replay();
     puts("FCJ4 test append adapter: all tests passed");

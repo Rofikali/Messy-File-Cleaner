@@ -413,13 +413,11 @@ static void test_independent_contexts_run_concurrently(void)
     gate_destroy(&gate_b);
 }
 
-int main(void)
+void test_fcj4_cross_thread_concurrency(void)
 {
     test_append_rejected_while_another_thread_appends();
     test_destroy_rejected_while_append_is_active();
     test_acknowledgement_rejected_while_append_is_active();
     test_poison_contention_does_not_change_active_append();
     test_independent_contexts_run_concurrently();
-    puts("FCJ4 cross-thread concurrency: all tests passed");
-    return EXIT_SUCCESS;
 }

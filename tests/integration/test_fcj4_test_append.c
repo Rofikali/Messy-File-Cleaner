@@ -464,9 +464,12 @@ static void test_writer_commit_failure_forces_replay(void)
     fcj4_test_append_poison(ctx);
     errno=0;
     CHECK(fcj4_test_append_ack_commit(ctx,line,length)==-1);
-    CHECK(fcj4_test_append_destroy(ctx,&result)==0);
+    errno=0;
+    CHECK(fcj4_test_append_destroy(ctx,&result)==-1);
+    CHECK(errno==EIO);
     CHECK(result.code==FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED);
     CHECK(result.primary_errno==EIO);
+    CHECK(result.cleanup_errno==0);
     CHECK(result.durable_length==length);
     CHECK(fcj4_writer_revision(writer)==0U);
 

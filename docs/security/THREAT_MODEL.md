@@ -188,6 +188,8 @@ Controls include `O_CLOEXEC`, `O_RDWR`, rejection of `O_APPEND`, regular-file/de
 
 Any uncertain write/fsync or missing writer acknowledgement requires preserving bytes and rebuilding state from complete replay. The adapter must not truncate, repair, accept a valid prefix, or perform filesystem recovery. Process-exit tests do not establish power-loss durability. No production journal path, CLI, mover, or recovery path may link or invoke this adapter.
 
+The adapter's atomic try-guard is fail-fast exclusion for overlapping calls on a live context; it is not a blocking mutex, queue, or context-lifetime mechanism. The caller must prevent new API entries once destruction begins and join all threads that may use the context before successful destruction. Calls racing with or following completed destruction are outside the contract. The dedicated cross-thread integration tests exercise selected overlap schedules; a clean ThreadSanitizer run is evidence only for the executed paths and does not prove arbitrary schedules safe. Pthread linkage and TSan instrumentation are confined to the Linux-only test executable; the production executable must not gain a dependency on the test adapter or its test synchronization harness.
+
 ## 7. Security testing requirements
 
 At minimum, test:

@@ -60,6 +60,7 @@ typedef struct {
     int lock_calls;
     int unlock_calls;
     int close_calls;
+    int free_calls;
 } TestGate;
 
 typedef struct {
@@ -102,7 +103,8 @@ static int gate_counter(TestGate *gate, int which)
     case 1: value = gate->fsync_calls; break;
     case 2: value = gate->unlock_calls; break;
     case 3: value = gate->close_calls; break;
-    default: value = gate->lock_calls; break;
+    case 4: value = gate->lock_calls; break;
+    default: value = gate->free_calls; break;
     }
     CHECK_PTHREAD(pthread_mutex_unlock(&gate->mutex));
     return value;
@@ -164,6 +166,21 @@ static int gated_flock(void *user, int fd, int operation)
     return flock(fd, operation);
 }
 
+static void *gated_calloc(void *user, size_t count, size_t size)
+{
+    (void)user;
+    return calloc(count, size);
+}
+
+static void gated_free(void *user, void *pointer)
+{
+    TestGate *gate = (TestGate *)user;
+    CHECK_PTHREAD(pthread_mutex_lock(&gate->mutex));
+    gate->free_calls++;
+    CHECK_PTHREAD(pthread_mutex_unlock(&gate->mutex));
+    free(pointer);
+}
+
 static int real_fstat(void *user, int fd, struct stat *out)
 {
     (void)user;
@@ -194,6 +211,9 @@ static Fcj4TestAppendOps make_ops(TestGate *gate)
     ops.getfl_fn = real_getfl;
     ops.getfd_fn = real_getfd;
     ops.user = gate;
+    ops.calloc_fn = gated_calloc;
+    ops.free_fn = gated_free;
+    ops.allocator_user = gate;
     return ops;
 }
 
@@ -268,6 +288,7 @@ static void acknowledge_and_destroy(Fcj4TestAppend *context,
     CHECK(fcj4_test_append_destroy(context, &result) == 0);
     CHECK(gate_counter(gate, 2) == 1);
     CHECK(gate_counter(gate, 3) == 1);
+    CHECK(gate_counter(gate, 5) == 1);
     remove_fixture(path);
 }
 
@@ -298,9 +319,12 @@ static void test_append_rejected_while_another_thread_appends(void)
     CHECK(worker_result.result.code == FCJ4_TEST_APPEND_DURABLE);
     CHECK(gate_counter(&gate, 0) == 1);
     {
+        char observed[FCJ4_MAX_LINE_BYTES];
         struct stat st;
         CHECK(stat(path, &st) == 0);
-        CHECK(st.st_size == (off_t)(record_length));
+        CHECK(st.st_size == (off_t)record_length);
+        CHECK(pread(fd, observed, record_length, 0) == (ssize_t)record_length);
+        CHECK(memcmp(observed, record_bytes, record_length) == 0);
     }
     CHECK(gate_counter(&gate, 1) == 1);
     acknowledge_and_destroy(context, path, &gate);
@@ -329,6 +353,7 @@ static void test_destroy_rejected_while_append_is_active(void)
     CHECK(destroy_rc == -1 && destroy_errno == EBUSY);
     CHECK(gate_counter(&gate, 2) == 0);
     CHECK(gate_counter(&gate, 3) == 0);
+    CHECK(gate_counter(&gate, 5) == 0);
     CHECK(worker_result.rc == 0);
     acknowledge_and_destroy(context, path, &gate);
     gate_destroy(&gate);

@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved design (PR #72). A first Linux-only test implementation is now present on `feat/fcj4-test-append-adapter`; it remains unreviewed and unvalidated until the implementation PR's CI and Codespaces checks complete. It follows the merged FCJ4 schema/replay, parser, serializer, in-memory writer, and writer-state reconciliation milestones.
+Approved design (PR #72). The Linux-only test adapter implementation was merged in PR #73, and deterministic byte-boundary errno coverage was merged in PR #74. The adapter remains test-only and is not production-integrated. This document now specifies the next isolated allocation-failure test design; implementation is not yet authorized by this design change alone.
 
 The only authorized adapter is a **test-only adapter for disposable private temporary journal files**. It must operate on a caller-supplied descriptor, must not open, create, or append to `journal/move.fcj4`, must not link into the production executable, and must not enable FCJ4 in the mover or CLI.
 
@@ -63,6 +63,35 @@ The interface must support:
 The adapter must never own or modify the in-memory writer's private state. The caller may call `fcj4_writer_commit()` only after the adapter reports complete write plus successful fsync. The interface must include an explicit post-durability acknowledgement: after reporting a durable append, the adapter enters `DURABLE_PENDING_WRITER_COMMIT` and rejects another append until the caller confirms that the exact prepared writer transition was successfully committed. If writer commit fails, the caller must mark the adapter poisoned (or destroy it without further append) and reconstruct state from a complete parser replay. This prevents the adapter's file offset from advancing while the in-memory writer remains behind. On uncertain write/fsync, the prepared writer state must not be committed and the adapter must reject future appends until a new context is initialized from a complete replay.
 
 The operations table is private to tests/adapter implementation. It must be immutable for a context lifetime, explicitly passed, and contain no process-global mutable fault controls.
+
+### 4.1 Per-context allocator injection (next test-only change)
+
+Allocation-failure injection must be added without global allocator replacement or process-wide fault state.
+
+- Extend the private operations contract with a paired allocator interface:
+  - `calloc_fn(allocator_user, count, size)`
+  - `free_fn(allocator_user, pointer)`
+- Keep `allocator_user` separate from the existing syscall `user` pointer. The allocator and syscall callbacks have independent responsibilities and may use different test state.
+- Both allocator callbacks must be supplied together or both omitted. If omitted, the adapter selects the real `calloc()` and `free()` pair. A half-configured pair is rejected before any descriptor ownership or lock change.
+- Copy the complete operations table into the context. Callback functions and their user data must remain valid and immutable until context destruction. The allocator's user data must outlive the context.
+- The context allocation itself is the only adapter-owned dynamic allocation in the current implementation. Allocate it through the selected `calloc_fn`; do not add allocations to the append hot path or create an unnecessary allocator framework.
+- A null allocation result is reported as `ENOMEM`; if an injected allocator returns null without setting errno, normalize errno to `ENOMEM`.
+- If allocation fails, initialization returns with `*out == NULL`, does not acquire `flock`, does not inspect or close the caller's descriptor, and leaves descriptor ownership with the caller.
+- If initialization fails after allocation but before ownership transfer, release the context exactly once through the matching `free_fn`. If a lock was acquired, attempt one unlock before freeing, preserve the original initialization error, and leave the descriptor caller-owned.
+- After successful initialization, destroy releases the context exactly once through the same copied `free_fn`, after the descriptor cleanup attempt. Never use a different allocator family or free callback.
+- The free callback is a non-failing operation by contract; it must accept only pointers returned by its paired allocator and must not retain or access the pointer after returning.
+- Allocator callbacks are invoked only during initialization and destruction. They are not called during append, acknowledgement, poisoning, or concurrent operations.
+
+Required tests:
+1. Fail the context allocation and assert `ENOMEM`, null output, zero lock/unlock/close calls, and caller ownership of the descriptor.
+2. Reject allocator-only and free-only configurations before lock acquisition.
+3. Inject a successful allocation followed by lock failure; assert one matching free, no close, and caller ownership.
+4. Inject post-lock descriptor-validation failure; assert one unlock attempt, one matching free, no close, and preservation of the validation errno even if unlock also fails.
+5. Initialize successfully and destroy; assert one matching free after exactly one unlock and one close.
+6. Use allocator canaries/counters to prove no cross-context/global allocator state is shared and no double-free or allocator mismatch occurs.
+7. Run under ASan/UBSan and all configured C11/C17/C23 Debug/Release workflows.
+
+Do not add allocator hooks to production modules, the FCJ4 serializer/writer, the global C runtime, test fixtures outside the adapter, or any production target.
 
 ## 5. File and descriptor preconditions
 
@@ -151,7 +180,7 @@ Required cases:
 - close failure after successful fsync.
 - `O_APPEND` descriptor rejection, exclusive `flock` contention, and unlock failure.
 - fstat identity mismatch, non-regular descriptor, unexpected file size, and descriptor flag mismatch. The open-file-description offset is intentionally irrelevant because appends use `pwrite()`.
-- Allocation failure before the first write.
+- Allocation failure before the first write, including initialization ownership and cleanup permutations described in §4.1.
 - Reentrant/concurrent append attempt.
 
 Assertions for every injected case:
@@ -208,7 +237,7 @@ The first implementation currently exercises:
 - O_APPEND rejection, non-blocking lock contention, and initialization rollback.
 - Unlock/close cleanup errors and process-exit replay.
 
-This is not yet the complete fault matrix below. The deterministic test now injects ENOSPC, EACCES, and EBADF at every byte boundary; this proves adapter state handling for those injected outcomes, not that a particular kernel/filesystem naturally emits each error at every offset. Allocation failure, deliberately concurrent calls from separate threads, a broader malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
+This is not yet the complete fault matrix below. The deterministic test now injects ENOSPC, EACCES, and EBADF at every byte boundary; this proves adapter state handling for those injected outcomes, not that a particular kernel/filesystem naturally emits each error at every offset. Allocation-failure injection is the next separately reviewed implementation milestone. Deliberately concurrent calls from separate threads, a broader malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
 
 Do not mark the implementation PR complete unless:
 
@@ -231,4 +260,4 @@ It must not create/open `journal/move.fcj4`, integrate with production mover/CLI
 
 ## 14. Rollback
 
-This design milestone adds one document. Rollback is removal of this document; no executable code, journal bytes, production behavior, or user files change.
+This allocation-injection design update changes documentation only. Rollback is removal of the §4.1 allocator contract and its corresponding fault-matrix references; no executable code, journal bytes, production behavior, or user files change.

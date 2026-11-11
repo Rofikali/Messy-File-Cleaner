@@ -208,8 +208,14 @@ static void test_every_strict_prefix(void)
     CHECK(begin_length > 1U && total > begin_length);
     for (size_t prefix = 0U; prefix < begin_length; prefix++)
         verify_fixture(journal, prefix, false, 0U);
-    for (size_t prefix = begin_length; prefix < total; prefix++)
+
+    /* A complete BEGIN record is itself a valid one-record journal. */
+    verify_fixture(journal, begin_length, true, 1U);
+
+    /* Every incomplete suffix of SEALED is rejected as a whole. */
+    for (size_t prefix = begin_length + 1U; prefix < total; prefix++)
         verify_fixture(journal, prefix, false, 0U);
+
     verify_fixture(journal, total, true, 2U);
 }
 

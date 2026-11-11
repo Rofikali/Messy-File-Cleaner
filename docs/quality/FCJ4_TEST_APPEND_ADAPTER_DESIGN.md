@@ -2,9 +2,9 @@
 
 ## Status
 
-Proposed design only. This is a focused implementation gate following the merged FCJ4 schema/replay, parser, serializer, in-memory writer, and writer-state reconciliation milestones.
+Approved design (PR #72). A first Linux-only test implementation is now present on `feat/fcj4-test-append-adapter`; it remains unreviewed and unvalidated until the implementation PR's CI and Codespaces checks complete. It follows the merged FCJ4 schema/replay, parser, serializer, in-memory writer, and writer-state reconciliation milestones.
 
-This document authorizes no implementation by itself. A separately reviewed implementation PR is required. The only proposed adapter is a **test-only adapter for disposable temporary journal files**. It must not open, create, or append to `journal/move.fcj4`, link into the production executable, or enable FCJ4 in the mover or CLI.
+The only authorized adapter is a **test-only adapter for disposable private temporary journal files**. It must operate on a caller-supplied descriptor, must not open, create, or append to `journal/move.fcj4`, must not link into the production executable, and must not enable FCJ4 in the mover or CLI.
 
 ## 1. Objective
 
@@ -14,7 +14,7 @@ The adapter exists to test protocol semantics, not to deliver production journal
 
 ## 2. Scope and explicit non-goals
 
-### Included in the future implementation proposal
+### Implemented in the current test-only proposal
 
 - A private/test-only append adapter operating only on an explicitly supplied descriptor for a disposable temporary file.
 - A narrow injected I/O operations table for pwrite, fsync, close, flock, fstat, and descriptor-flag inspection; production code must not gain global fault-injection switches.
@@ -184,19 +184,30 @@ Process-kill tests do not simulate power loss. The report must state this limita
 
 ## 11. Test organization and build isolation
 
-The implementation PR should:
+The implementation target currently:
 
 - Keep adapter sources in a test-only target or private test support library, not in the production executable source list.
-- Register focused CTest coverage with deterministic tests and bounded runtime.
+- Register a focused Linux-only CTest target with deterministic tests and a 30-second timeout.
 - Keep temporary-file fixtures isolated per test and clean up only test-owned paths.
 - Run under C11, C17, and C23 validation; production language baseline remains C17.
 - Run ASan/UBSan, `make test`, `make validate`, `make release`, Docker build/runtime smoke, Ubuntu 24.04 checks, and non-root runtime checks.
-- Add a test proving the production executable does not link or invoke the test adapter.
+- Keep the adapter in a separate test executable; CI review must additionally verify the production executable does not link or invoke it.
 - Preserve all existing FCJ2/legacy, FCJ3, FCJ4 parser, serializer, and writer-state tests.
 
 No benchmark is a substitute for correctness or crash/fault-injection coverage.
 
 ## 12. Acceptance gates
+
+The first implementation currently exercises:
+- Real disposable-file append, fsync, writer commit, and acknowledgement ordering.
+- EINTR and short writes, zero writes, and partial-write EIO.
+- fsync uncertainty and full replay reconstruction.
+- Writer-commit mismatch and a durable record destroyed before acknowledgement.
+- Pre-write and post-write descriptor identity/size mismatch.
+- O_APPEND rejection, non-blocking lock contention, and initialization rollback.
+- Unlock/close cleanup errors and process-exit replay.
+
+This is not yet the complete fault matrix below. In particular, ENOSPC/EACCES/EBADF permutations, failure injection at every byte boundary, allocation failure, deliberately concurrent calls from separate threads, malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
 
 Do not mark the implementation PR complete unless:
 
@@ -213,7 +224,7 @@ Do not mark the implementation PR complete unless:
 
 ## 13. Next milestone and prohibited expansion
 
-After this design is reviewed and merged, the next proposal may implement only the test-only append adapter and its fault/crash harness against disposable temporary journals.
+The implementation proposal may add only the test-only append adapter and its fault/restart harness against disposable private temporary journals. A separate production integration design remains mandatory.
 
 It must not create/open `journal/move.fcj4`, integrate with production mover/CLI/startup, or implement recovery planning/execution. A production journal lifecycle, directory ownership policy, production lock ownership, and FCJ4 adoption require separate threat-model review and explicit approval.
 

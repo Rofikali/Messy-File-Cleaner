@@ -41,6 +41,7 @@ The application reads directory trees and may create, publish, rename, and remov
 | Journal -> recovery | Truncated, malformed, duplicated, conflicting records | Versioned parser, strict validation, fail closed |
 | Container -> host mounts | Mount contents and permissions | Non-root, minimal mounts/capabilities, no Docker socket |
 | Test hooks -> production | Fault controls could weaken behavior | Compile-time test-only isolation |
+| FCJ4 test adapter -> temporary journal | Descriptor substitution, partial writes, uncertain fsync, concurrent writers | Linux-only test target; private disposable fixture; descriptor identity/size/owner/mode/link checks; explicit-offset pwrite; O_APPEND rejection; advisory lock; full replay after uncertainty |
 
 ## 5. Attacker model
 
@@ -178,6 +179,14 @@ Controls:
 - Never mount Docker socket or host root.
 - Separate build dependencies from runtime image.
 - Do not place secrets or credentials in image layers.
+
+### 6.13 FCJ4 test-only append adapter
+
+The current FCJ4 append adapter is a test harness, not a production journal facility. It is confined to `tests/support` and a Linux-only test executable. The harness supplies an already-open descriptor for a disposable private temporary file; the adapter does not create or open application journal paths.
+
+Controls include `O_CLOEXEC`, `O_RDWR`, rejection of `O_APPEND`, regular-file/device/inode/owner/mode/link-count/size checks, non-blocking advisory `flock`, explicit-offset `pwrite`, `fsync`, and an explicit writer-commit acknowledgement before another append. A post-write identity/size check is defense in depth only. `flock` does not constrain non-cooperating writers, and same-UID interference cannot be eliminated by these checks.
+
+Any uncertain write/fsync or missing writer acknowledgement requires preserving bytes and rebuilding state from complete replay. The adapter must not truncate, repair, accept a valid prefix, or perform filesystem recovery. Process-exit tests do not establish power-loss durability. No production journal path, CLI, mover, or recovery path may link or invoke this adapter.
 
 ## 7. Security testing requirements
 

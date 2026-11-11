@@ -64,8 +64,11 @@ This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans
 - Validate every proposed SEALED/ACTION_DEF record against immutable BEGIN/SEALED evidence before prepare. Writer acceptance must not create a history the parser rejects.
 - Preserve exact move and action sequences, independent lifecycle states, unique IDs, quarantine-action dependencies, and protocol resource limits.
 - Keep prepare/commit/abort semantics explicit: in-memory commit is not durable append or fsync.
-- Keep FCJ4 modules test-only/isolated until a separately reviewed production-integration gate.
-- Do not implement append adapters, locks, file descriptors, journal paths, recovery planners/executors, or filesystem mutations as part of parser/writer-state work.
+- Keep FCJ4 parser, serializer, and writer-state modules isolated from production. The separately approved Linux-only test append adapter belongs only under `tests/support` and may operate only on caller-supplied descriptors for disposable private temporary files.
+- Use explicit-offset `pwrite()`, reject `O_APPEND`, validate descriptor/file identity and private-file properties, and acquire a non-blocking advisory lock. Document that advisory locks do not constrain non-cooperating writers.
+- Enforce the durable-write → writer-commit acknowledgement handshake. Do not accept another append while a durable record is pending in-memory commit; on commit mismatch, poison the session and rebuild from complete replay.
+- Test short writes, EINTR, partial-write and fsync uncertainty, cleanup errors, descriptor ownership on init failure, restart/replay, and process exit. Process termination is not a power-loss test.
+- Never open/create the production FCJ4 journal path, link the adapter into production, expose a CLI, or add recovery planners/executors or filesystem mutations as part of this milestone.
 
 ## 6. Concurrency skills
 

@@ -41,6 +41,11 @@ typedef struct {
     bool fail_close;
     bool bad_identity;
     bool bad_post_size;
+    bool trigger_reentrant;
+    Fcj4TestAppend *reentrant_ctx;
+    const char *reentrant_bytes;
+    size_t reentrant_length;
+    int reentrant_errno;
 } MockIo;
 
 static const char operation_id[] =
@@ -149,6 +154,15 @@ static ssize_t mock_pwrite(void *user,int fd,const void *buffer,
 {
     MockIo *mock=(MockIo *)user;
     mock->pwrite_calls++;
+    if(mock->trigger_reentrant) {
+        Fcj4TestAppendResult nested;
+        mock->trigger_reentrant=false;
+        errno=0;
+        CHECK(fcj4_test_append_record(mock->reentrant_ctx,
+                                     mock->reentrant_bytes,
+                                     mock->reentrant_length,0U,&nested)==-1);
+        mock->reentrant_errno=errno;
+    }
     if(mock->mode==MOCK_SHORT_EINTR && mock->pwrite_calls==1) {
         errno=EINTR;
         return -1;
@@ -304,6 +318,40 @@ static void test_short_write_and_eintr(void)
     CHECK(fcj4_test_append_record(ctx,line,length,0U,&result)==0);
     CHECK(mock.pwrite_calls>=3);
     CHECK(mock.fsync_calls==1);
+    CHECK(fcj4_writer_commit(writer,&prepared,line,length)==0);
+    CHECK(fcj4_test_append_ack_commit(ctx,line,length)==0);
+    CHECK(fcj4_test_append_destroy(ctx,&result)==0);
+    check_replay(path,1U);
+    fcj4_writer_state_destroy(writer);
+    remove_temp_file(path);
+}
+
+
+static void test_reentrant_append_is_rejected(void)
+{
+    char path[128],line[FCJ4_MAX_LINE_BYTES];
+    int fd=make_temp_file(path);
+    MockIo mock;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx;
+    Fcj4TestAppendResult result;
+    Fcj4WriterState *writer=NULL;
+    Fcj4PreparedRecord prepared;
+    Fcj4Record record=make_begin();
+    size_t length=0U;
+
+    memset(&mock,0,sizeof(mock));
+    ops=make_mock_ops(&mock);
+    CHECK(fcj4_writer_state_create(&writer)==0);
+    ctx=init_adapter(fd,&ops,0U);
+    prepare_record(writer,&record,line,&length,&prepared);
+    mock.reentrant_ctx=ctx;
+    mock.reentrant_bytes=line;
+    mock.reentrant_length=length;
+    mock.trigger_reentrant=true;
+    CHECK(fcj4_test_append_record(ctx,line,length,0U,&result)==0);
+    CHECK(mock.reentrant_errno==EBUSY);
+    CHECK(mock.pwrite_calls==1);
     CHECK(fcj4_writer_commit(writer,&prepared,line,length)==0);
     CHECK(fcj4_test_append_ack_commit(ctx,line,length)==0);
     CHECK(fcj4_test_append_destroy(ctx,&result)==0);
@@ -765,6 +813,7 @@ int main(void)
 {
     test_real_append_commit_handshake();
     test_short_write_and_eintr();
+    test_reentrant_append_is_rejected();
     test_partial_write_failure_is_poisoned();
     test_fsync_failure_requires_replay();
     test_writer_commit_failure_forces_replay();

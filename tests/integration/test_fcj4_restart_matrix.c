@@ -380,7 +380,8 @@ static size_t append_record(char *out, size_t capacity, size_t used,
     return used + written;
 }
 
-static size_t append_begin_id(char *out, size_t capacity, const char *id)
+static size_t append_begin_id(char *out, size_t capacity, size_t used,
+                              const char *id)
 {
     Fcj4Record record;
     memset(&record, 0, sizeof(record));
@@ -391,7 +392,7 @@ static size_t append_begin_id(char *out, size_t capacity, const char *id)
         1, 2U, 3, 4U,
         "/tmp/dest", 1U, 4U, "dest", 1U, 5U
     };
-    return append_record(out, capacity, 0U, &record);
+    return append_record(out, capacity, used, &record);
 }
 
 static size_t append_sealed_id(char *out, size_t capacity, size_t used,
@@ -453,14 +454,14 @@ static size_t append_action(char *out, size_t capacity, size_t used,
 static void test_move_sequence_and_terminal_corruption(void)
 {
     char bytes[FIXTURE_CAPACITY];
-    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    size_t used = append_begin_id(bytes, sizeof(bytes), 0U, operation_id);
 
     used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
     used = append_move(bytes, sizeof(bytes), used, operation_id,
                        2U, FCJ4_MOVE_STAGED, 0U);
     verify_fixture(bytes, used, false, 0U);
 
-    used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_begin_id(bytes, sizeof(bytes), 0U, operation_id);
     used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
     used = append_move(bytes, sizeof(bytes), used, operation_id,
                        1U, FCJ4_MOVE_STAGED, 0U);
@@ -481,7 +482,7 @@ static void test_action_order_and_identity_corruption(void)
     static const char action_id[] =
         "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
     char bytes[FIXTURE_CAPACITY];
-    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    size_t used = append_begin_id(bytes, sizeof(bytes), 0U, operation_id);
     used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
 
     /* ACTION cannot appear before its immutable ACTION_DEF. */
@@ -489,7 +490,7 @@ static void test_action_order_and_identity_corruption(void)
                          action_id, 1U, FCJ4_ACTION_PREPARED);
     verify_fixture(bytes, used, false, 0U);
 
-    used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_begin_id(bytes, sizeof(bytes), 0U, operation_id);
     used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
     used = append_action_def(bytes, sizeof(bytes), used, operation_id,
         action_id, FCJ4_ACTION_KIND_QUARANTINE_STAGE,
@@ -498,7 +499,7 @@ static void test_action_order_and_identity_corruption(void)
     verify_fixture(bytes, used, false, 0U);
 
     /* ACTION_APPLIED cannot skip PREPARED and STARTED. */
-    used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_begin_id(bytes, sizeof(bytes), 0U, operation_id);
     used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
     used = append_action_def(bytes, sizeof(bytes), used, operation_id,
         action_id, FCJ4_ACTION_KIND_QUARANTINE_STAGE,
@@ -516,7 +517,7 @@ static void test_quarantine_followup_component_mismatch(void)
     static const char retire_action[] =
         "cccccccccccccccccccccccccccccccc";
     char bytes[FIXTURE_CAPACITY];
-    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    size_t used = append_begin_id(bytes, sizeof(bytes), 0U, operation_id);
     used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
     used = append_action_def(bytes, sizeof(bytes), used, operation_id,
         source_action, FCJ4_ACTION_KIND_QUARANTINE_SOURCE,
@@ -534,8 +535,8 @@ static void test_interleaved_operation_order_is_independent(void)
     static const char second_id[] =
         "22222222222222222222222222222222";
     char bytes[FIXTURE_CAPACITY];
-    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
-    used = append_begin_id(bytes, sizeof(bytes), second_id);
+    size_t used = append_begin_id(bytes, sizeof(bytes), 0U, operation_id);
+    used = append_begin_id(bytes, sizeof(bytes), used, second_id);
     used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
     used = append_sealed_id(bytes, sizeof(bytes), used, second_id);
     /* Operation one skips MOVE sequence 1; operation two is otherwise valid. */

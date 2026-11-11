@@ -50,10 +50,14 @@ typedef struct {
  * original initialization errno. The descriptor must be a private regular
  * file, O_CLOEXEC, not O_APPEND, with the supplied device/inode/size.
  *
- * ops == NULL selects real Linux syscalls. A supplied table must be complete,
- * immutable for the context lifetime, and must not be shared as mutable global
- * fault state. The context is single-owner; concurrent/reentrant append calls
- * are rejected using an atomic try-guard.
+ * ops == NULL selects real Linux syscalls and the real calloc/free pair.
+ * A supplied table must provide every syscall callback. Its allocator callbacks
+ * must be both present or both absent; absent callbacks select calloc/free.
+ * Keep syscall user and allocator_user independent. All callbacks and their
+ * user data must remain valid and immutable for the context lifetime. The
+ * allocator callbacks run only during init/destroy; free must not fail.
+ * Do not share mutable fault state globally. The context is single-owner;
+ * concurrent/reentrant append calls are rejected using an atomic try-guard.
  */
 int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
                           dev_t expected_dev, ino_t expected_ino,

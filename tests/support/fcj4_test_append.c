@@ -127,7 +127,8 @@ static int validate_line(const char *bytes, size_t length)
     return 1;
 }
 
-static int verify_descriptor(Fcj4TestAppend *ctx, int check_size)
+static int verify_descriptor(Fcj4TestAppend *ctx, uint64_t expected_size,
+                             int check_size)
 {
     struct stat st;
     int flags, fdflags;
@@ -137,7 +138,7 @@ static int verify_descriptor(Fcj4TestAppend *ctx, int check_size)
         st.st_ino!=ctx->inode || st.st_size<0 ||
         st.st_uid!=geteuid() || (st.st_mode&077U)!=0U || st.st_nlink!=1)
         return fail_with(ESTALE);
-    if (check_size && (uint64_t)st.st_size!=ctx->known_length)
+    if (check_size && (uint64_t)st.st_size!=expected_size)
         return fail_with(ESTALE);
     flags=ctx->ops.getfl_fn(ctx->ops.user,ctx->fd);
     if (flags<0) return -1;
@@ -243,7 +244,7 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
         atomic_store_explicit(&ctx->busy,false,memory_order_release);
         return fail_with(EINVAL);
     }
-    if (verify_descriptor(ctx,1)!=0) {
+    if (verify_descriptor(ctx,ctx->known_length,1)!=0) {
         error=errno;
         ctx->state=APPEND_POISONED;
         ctx->primary_errno=error;
@@ -287,6 +288,21 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
             return fail_with(error);
         }
         done+=(size_t)n;
+    }
+
+    /*
+     * Defense in depth against a non-cooperating writer changing the file
+     * while this append is in progress. flock is advisory, so this cannot
+     * eliminate every race; a mismatch is an uncertain write, never repair.
+     */
+    if (verify_descriptor(ctx,expected_offset+(uint64_t)length,1)!=0) {
+        error=errno ? errno : EIO;
+        ctx->state=APPEND_POISONED;
+        ctx->primary_errno=error;
+        ctx->last_code=FCJ4_TEST_APPEND_UNCERTAIN_WRITE;
+        atomic_store_explicit(&ctx->busy,false,memory_order_release);
+        set_result(result,ctx->last_code,error,0,ctx->known_length);
+        return fail_with(error);
     }
 
     if (ctx->ops.fsync_fn(ctx->ops.user,ctx->fd)!=0) {
@@ -353,6 +369,11 @@ int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
     primary_error=ctx->primary_errno;
     code=ctx->last_code;
     durable_length=ctx->known_length;
+    if (ctx->state==APPEND_DURABLE_PENDING) {
+        /* fsync succeeded, but caller never confirmed matching writer commit. */
+        code=FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED;
+        if (primary_error==0) primary_error=EIO;
+    }
 
     unlock_result=ctx->ops.flock_fn(ctx->ops.user,ctx->fd,LOCK_UN);
     if (unlock_result!=0) cleanup_error=errno ? errno : EIO;
@@ -367,5 +388,7 @@ int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
     memset(ctx->pending,0,sizeof(ctx->pending));
     free(ctx);
     if (cleanup_error) return fail_with(cleanup_error);
+    if (code==FCJ4_TEST_APPEND_RECONCILIATION_REQUIRED)
+        return fail_with(primary_error ? primary_error : EIO);
     return 0;
 }

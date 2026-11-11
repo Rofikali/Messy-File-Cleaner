@@ -176,6 +176,7 @@ if(BUILD_TESTING)
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(test_fcj4_test_append
       tests/integration/test_fcj4_test_append.c
+      tests/integration/test_fcj4_test_append_concurrency.c
       tests/support/fcj4_test_append.c
       src/journal/fcj4_writer.c
       src/journal/fcj4_parser.c
@@ -184,11 +185,35 @@ if(BUILD_TESTING)
       "${CMAKE_CURRENT_SOURCE_DIR}/include"
       "${CMAKE_CURRENT_SOURCE_DIR}/tests/support"
     )
+    # pthreads are required only by this Linux-only test executable.
+    target_link_libraries(test_fcj4_test_append PRIVATE Threads::Threads)
     target_compile_options(test_fcj4_test_append PRIVATE
       -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
     )
     add_test(NAME fcj4_test_append_integration COMMAND test_fcj4_test_append)
     set_tests_properties(fcj4_test_append_integration PROPERTIES TIMEOUT 30)
+
+    # Focused concurrency-only entry point keeps TSan away from the expensive
+    # maximum-record and exhaustive byte-boundary cases in the full harness.
+    add_executable(test_fcj4_test_append_concurrency
+      tests/integration/test_fcj4_test_append_concurrency_main.c
+      tests/integration/test_fcj4_test_append_concurrency.c
+      tests/support/fcj4_test_append.c
+      src/journal/fcj4_writer.c
+      src/journal/fcj4_parser.c
+    )
+    target_include_directories(test_fcj4_test_append_concurrency PRIVATE
+      "${CMAKE_CURRENT_SOURCE_DIR}/include"
+      "${CMAKE_CURRENT_SOURCE_DIR}/tests/support"
+    )
+    target_link_libraries(test_fcj4_test_append_concurrency PRIVATE Threads::Threads)
+    target_compile_options(test_fcj4_test_append_concurrency PRIVATE
+      -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+    )
+    add_test(NAME fcj4_test_append_concurrency
+      COMMAND test_fcj4_test_append_concurrency
+    )
+    set_tests_properties(fcj4_test_append_concurrency PROPERTIES TIMEOUT 30)
   endif()
 
   add_executable(test_fcj3_sha256

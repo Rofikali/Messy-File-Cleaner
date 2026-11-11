@@ -1,0 +1,45 @@
+name: FCJ4 append ThreadSanitizer
+
+on:
+  pull_request:
+    paths:
+      - "CMakeLists.txt"
+      - "tests/integration/test_fcj4_test_append.c"
+      - "tests/integration/test_fcj4_test_append_concurrency.c"
+      - "tests/integration/test_fcj4_test_append_concurrency_main.c"
+      - "tests/support/fcj4_test_append.c"
+      - "tests/support/fcj4_test_append.h"
+      - ".github/workflows/fcj4-tsan.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fcj4-append-tsan:
+    name: FCJ4 append integration (TSan)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure isolated ThreadSanitizer build
+        run: |
+          cmake -S . -B build/fcj4-tsan \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DFC_C_STANDARD=17 \
+            -DBUILD_TESTING=ON \
+            -DCMAKE_C_FLAGS="-O1 -g -fsanitize=thread -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=thread"
+
+      - name: Build only FCJ4 append integration target
+        run: cmake --build build/fcj4-tsan --target test_fcj4_test_append_concurrency --parallel 2
+
+      - name: Run focused FCJ4 append integration suite under TSan
+        env:
+          TSAN_OPTIONS: halt_on_error=1:second_deadlock_stack=1
+        run: |
+          ctest --test-dir build/fcj4-tsan \
+            --output-on-failure \
+            -R '^fcj4_test_append_concurrency$'

@@ -1187,6 +1187,8 @@ static void test_process_exit_restart_replay(void)
     remove_temp_file(path);
 }
 
+void test_fcj4_cross_thread_concurrency(void);
+
 int main(void)
 {
     test_real_append_commit_handshake();
@@ -1211,6 +1213,7 @@ int main(void)
     test_allocator_validation_failure_unlocks_then_frees();
     test_allocator_contexts_are_isolated_and_free_after_cleanup();
     test_process_exit_restart_replay();
+    test_fcj4_cross_thread_concurrency();
     puts("FCJ4 test append adapter: all tests passed");
     return EXIT_SUCCESS;
 }

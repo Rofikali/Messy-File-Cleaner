@@ -56,8 +56,13 @@ typedef struct {
  * Keep syscall user and allocator_user independent. All callbacks and their
  * user data must remain valid and immutable for the context lifetime. The
  * allocator callbacks run only during init/destroy; free must not fail.
- * Do not share mutable fault state globally. The context is single-owner;
- * concurrent/reentrant append calls are rejected using an atomic try-guard.
+ * Do not share mutable fault state globally. The atomic try-guard is a
+ * fail-fast exclusion mechanism for overlapping calls on a live context; it
+ * is not a blocking lock and does not make context lifetime thread-safe.
+ * The owner must prevent new calls once destruction begins and must join all
+ * threads that may use the context before a successful destroy. Never call an
+ * API through the context pointer after successful destruction. Concurrent
+ * calls that race with completed destruction are outside this API contract.
  */
 int fcj4_test_append_init(Fcj4TestAppend **out, int fd,
                           dev_t expected_dev, ino_t expected_ino,

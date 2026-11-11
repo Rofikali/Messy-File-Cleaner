@@ -2,6 +2,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include "fcj4_test_append.h"
+#include "journal/fcj4_writer.h"
 
 #include <errno.h>
 #include <fcntl.h>
@@ -30,7 +31,23 @@
     } \
 } while (0)
 
-static const char record_bytes[] = "FCJ4|BEGIN|concurrency-test\n";
+static char record_bytes[FCJ4_MAX_LINE_BYTES];
+static size_t record_length;
+
+static void prepare_canonical_record(void)
+{
+    Fcj4Record record;
+    memset(&record, 0, sizeof(record));
+    record.kind = FCJ4_RECORD_BEGIN;
+    record.value.begin = (Fcj4BeginRecord){
+        "11111111111111111111111111111111", "/tmp/fcj4-source",
+        1U, 2U, 1U, 3U, 1000U, 1000U, 384U, 5U, 1, 2U, 3, 4U,
+        "/tmp/destination", 1U, 4U, "destination", 1U, 5U
+    };
+    CHECK(fcj4_serialize(&record, record_bytes, sizeof(record_bytes),
+                         &record_length) == 0);
+    CHECK(record_length > 0U && record_bytes[record_length - 1U] == '\\n');
+}
 
 typedef struct {
     pthread_mutex_t mutex;
@@ -221,7 +238,7 @@ static void *append_worker(void *argument)
     AppendThread *thread = (AppendThread *)argument;
     errno = 0;
     thread->rc = fcj4_test_append_record(
-        thread->context, record_bytes, sizeof(record_bytes) - 1U,
+        thread->context, record_bytes, record_length,
         0U, &thread->result);
     thread->error = errno;
     return NULL;
@@ -247,7 +264,7 @@ static void acknowledge_and_destroy(Fcj4TestAppend *context,
 {
     Fcj4TestAppendResult result;
     CHECK(fcj4_test_append_ack_commit(
-        context, record_bytes, sizeof(record_bytes) - 1U) == 0);
+        context, record_bytes, record_length) == 0);
     CHECK(fcj4_test_append_destroy(context, &result) == 0);
     CHECK(gate_counter(gate, 2) == 1);
     CHECK(gate_counter(gate, 3) == 1);
@@ -271,7 +288,7 @@ static void test_append_rejected_while_another_thread_appends(void)
 
     errno = 0;
     competing_rc = fcj4_test_append_record(
-        context, record_bytes, sizeof(record_bytes) - 1U,
+        context, record_bytes, record_length,
         0U, &competing_result);
     competing_errno = errno;
 
@@ -283,7 +300,7 @@ static void test_append_rejected_while_another_thread_appends(void)
     {
         struct stat st;
         CHECK(stat(path, &st) == 0);
-        CHECK(st.st_size == (off_t)(sizeof(record_bytes) - 1U));
+        CHECK(st.st_size == (off_t)(record_length));
     }
     CHECK(gate_counter(&gate, 1) == 1);
     acknowledge_and_destroy(context, path, &gate);
@@ -333,7 +350,7 @@ static void test_acknowledgement_rejected_while_append_is_active(void)
 
     errno = 0;
     ack_rc = fcj4_test_append_ack_commit(
-        context, record_bytes, sizeof(record_bytes) - 1U);
+        context, record_bytes, record_length);
     ack_errno = errno;
 
     finish_blocked_append(&gate, worker);
@@ -363,15 +380,15 @@ static void test_poison_contention_does_not_change_active_append(void)
     CHECK(worker_result.rc == 0);
     CHECK(worker_result.result.code == FCJ4_TEST_APPEND_DURABLE);
     CHECK(fcj4_test_append_ack_commit(
-        context, record_bytes, sizeof(record_bytes) - 1U) == 0);
+        context, record_bytes, record_length) == 0);
 
     errno = 0;
     CHECK(fcj4_test_append_record(
-        context, record_bytes, sizeof(record_bytes) - 1U,
-        sizeof(record_bytes) - 1U, &second_result) == 0);
+        context, record_bytes, record_length,
+        record_length, &second_result) == 0);
     CHECK(second_result.code == FCJ4_TEST_APPEND_DURABLE);
     CHECK(fcj4_test_append_ack_commit(
-        context, record_bytes, sizeof(record_bytes) - 1U) == 0);
+        context, record_bytes, record_length) == 0);
 
     CHECK(fcj4_test_append_destroy(context, &second_result) == 0);
     CHECK(gate_counter(&gate, 2) == 1);
@@ -417,6 +434,7 @@ static void test_independent_contexts_run_concurrently(void)
 
 void test_fcj4_cross_thread_concurrency(void)
 {
+    prepare_canonical_record();
     test_append_rejected_while_another_thread_appends();
     test_destroy_rejected_while_append_is_active();
     test_acknowledgement_rejected_while_append_is_active();

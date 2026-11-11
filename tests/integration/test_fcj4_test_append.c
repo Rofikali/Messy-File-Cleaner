@@ -36,8 +36,13 @@ typedef struct {
     MockMode mode;
     int pwrite_calls;
     int fsync_calls;
+    int lock_calls;
     int unlock_calls;
     int close_calls;
+    int fstat_calls;
+    int getfl_calls;
+    int getfd_calls;
+    bool fail_lock;
     bool fail_unlock;
     bool fail_close;
     bool bad_identity;
@@ -51,6 +56,23 @@ typedef struct {
     size_t bytes_written;
     int injected_errno;
 } MockIo;
+
+#define ALLOCATOR_CANARY UINT32_C(0xFC4A110C)
+
+typedef struct {
+    int calloc_calls;
+    int free_calls;
+    bool fail_allocation;
+    int failure_errno;
+    void *allocated_pointer;
+    bool pointer_mismatch;
+    bool cleanup_order_ok;
+    bool check_cleanup_order;
+    int expected_unlocks;
+    int expected_closes;
+    MockIo *io;
+    uint32_t canary;
+} MockAllocator;
 
 static const char operation_id[] =
     "11111111111111111111111111111111";
@@ -231,6 +253,12 @@ static int mock_flock(void *user,int fd,int operation)
             errno=EIO;
             return -1;
         }
+    } else {
+        mock->lock_calls++;
+        if(mock->fail_lock) {
+            errno=EWOULDBLOCK;
+            return -1;
+        }
     }
     return flock(fd,operation);
 }
@@ -238,7 +266,9 @@ static int mock_flock(void *user,int fd,int operation)
 static int mock_fstat(void *user,int fd,struct stat *out)
 {
     MockIo *mock=(MockIo *)user;
-    int rc=fstat(fd,out);
+    int rc;
+    mock->fstat_calls++;
+    rc=fstat(fd,out);
     if(rc==0 && mock->bad_identity) out->st_dev=(dev_t)(out->st_dev+1);
     if(rc==0 && mock->bad_post_size && mock->pwrite_calls>0)
         out->st_size++;
@@ -247,14 +277,55 @@ static int mock_fstat(void *user,int fd,struct stat *out)
 
 static int mock_getfl(void *user,int fd)
 {
-    (void)user;
+    MockIo *mock=(MockIo *)user;
+    mock->getfl_calls++;
     return fcntl(fd,F_GETFL);
 }
 
 static int mock_getfd(void *user,int fd)
 {
-    (void)user;
+    MockIo *mock=(MockIo *)user;
+    mock->getfd_calls++;
     return fcntl(fd,F_GETFD);
+}
+
+static void *mock_allocator_calloc(void *user,size_t count,size_t size)
+{
+    MockAllocator *allocator=(MockAllocator *)user;
+    void *pointer;
+    allocator->calloc_calls++;
+    if(allocator->canary!=ALLOCATOR_CANARY)
+        allocator->pointer_mismatch=true;
+    if(allocator->fail_allocation) {
+        if(allocator->failure_errno!=0) errno=allocator->failure_errno;
+        return NULL;
+    }
+    pointer=calloc(count,size);
+    allocator->allocated_pointer=pointer;
+    return pointer;
+}
+
+static void mock_allocator_free(void *user,void *pointer)
+{
+    MockAllocator *allocator=(MockAllocator *)user;
+    allocator->free_calls++;
+    if(allocator->canary!=ALLOCATOR_CANARY ||
+       pointer!=allocator->allocated_pointer)
+        allocator->pointer_mismatch=true;
+    if(allocator->check_cleanup_order) {
+        allocator->cleanup_order_ok=
+            allocator->io!=NULL &&
+            allocator->io->unlock_calls==allocator->expected_unlocks &&
+            allocator->io->close_calls==allocator->expected_closes;
+    }
+    free(pointer);
+}
+
+static void attach_allocator(Fcj4TestAppendOps *ops,MockAllocator *allocator)
+{
+    ops->calloc_fn=mock_allocator_calloc;
+    ops->free_fn=mock_allocator_free;
+    ops->allocator_user=allocator;
 }
 
 static Fcj4TestAppendOps make_mock_ops(MockIo *mock)
@@ -860,6 +931,212 @@ static void test_cleanup_errors_do_not_erase_durable_result(void)
     remove_temp_file(path);
 }
 
+static void test_allocator_failure_keeps_descriptor_caller_owned(void)
+{
+    char path[128];
+    int fd=make_temp_file(path);
+    struct stat st;
+    MockIo io;
+    MockAllocator allocator;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx=NULL;
+
+    memset(&io,0,sizeof(io));
+    memset(&allocator,0,sizeof(allocator));
+    allocator.canary=ALLOCATOR_CANARY;
+    allocator.fail_allocation=true;
+    allocator.failure_errno=0;
+    ops=make_mock_ops(&io);
+    attach_allocator(&ops,&allocator);
+    CHECK(fstat(fd,&st)==0);
+
+    errno=0;
+    CHECK(fcj4_test_append_init(&ctx,fd,st.st_dev,st.st_ino,0U,&ops)==-1);
+    CHECK(errno==ENOMEM);
+    CHECK(ctx==NULL);
+    CHECK(allocator.calloc_calls==1);
+    CHECK(allocator.free_calls==0);
+    CHECK(io.lock_calls==0);
+    CHECK(io.unlock_calls==0);
+    CHECK(io.close_calls==0);
+    CHECK(io.fstat_calls==0);
+    CHECK(io.getfl_calls==0);
+    CHECK(io.getfd_calls==0);
+    CHECK(fcntl(fd,F_GETFD)>=0);
+
+    CHECK(close(fd)==0);
+    remove_temp_file(path);
+}
+
+static void test_allocator_callbacks_must_be_paired(void)
+{
+    char path[128];
+    int fd=make_temp_file(path);
+    struct stat st;
+    MockIo io;
+    MockAllocator allocator;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx=NULL;
+
+    memset(&io,0,sizeof(io));
+    memset(&allocator,0,sizeof(allocator));
+    allocator.canary=ALLOCATOR_CANARY;
+    ops=make_mock_ops(&io);
+    CHECK(fstat(fd,&st)==0);
+
+    ops.calloc_fn=mock_allocator_calloc;
+    ops.allocator_user=&allocator;
+    errno=0;
+    CHECK(fcj4_test_append_init(&ctx,fd,st.st_dev,st.st_ino,0U,&ops)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(ctx==NULL);
+    CHECK(allocator.calloc_calls==0);
+    CHECK(io.lock_calls==0 && io.fstat_calls==0);
+
+    ops=make_mock_ops(&io);
+    ops.free_fn=mock_allocator_free;
+    ops.allocator_user=&allocator;
+    errno=0;
+    CHECK(fcj4_test_append_init(&ctx,fd,st.st_dev,st.st_ino,0U,&ops)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(ctx==NULL);
+    CHECK(allocator.free_calls==0);
+    CHECK(io.lock_calls==0 && io.fstat_calls==0);
+    CHECK(fcntl(fd,F_GETFD)>=0);
+
+    CHECK(close(fd)==0);
+    remove_temp_file(path);
+}
+
+static void test_allocator_lock_failure_frees_without_closing(void)
+{
+    char path[128];
+    int fd=make_temp_file(path);
+    struct stat st;
+    MockIo io;
+    MockAllocator allocator;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx=NULL;
+
+    memset(&io,0,sizeof(io));
+    memset(&allocator,0,sizeof(allocator));
+    allocator.canary=ALLOCATOR_CANARY;
+    allocator.io=&io;
+    allocator.check_cleanup_order=true;
+    allocator.expected_unlocks=0;
+    allocator.expected_closes=0;
+    io.fail_lock=true;
+    ops=make_mock_ops(&io);
+    attach_allocator(&ops,&allocator);
+    CHECK(fstat(fd,&st)==0);
+
+    errno=0;
+    CHECK(fcj4_test_append_init(&ctx,fd,st.st_dev,st.st_ino,0U,&ops)==-1);
+    CHECK(errno==EWOULDBLOCK);
+    CHECK(ctx==NULL);
+    CHECK(allocator.calloc_calls==1 && allocator.free_calls==1);
+    CHECK(!allocator.pointer_mismatch);
+    CHECK(allocator.cleanup_order_ok);
+    CHECK(io.lock_calls==1);
+    CHECK(io.unlock_calls==0 && io.close_calls==0);
+    CHECK(io.fstat_calls==0);
+    CHECK(fcntl(fd,F_GETFD)>=0);
+
+    CHECK(close(fd)==0);
+    remove_temp_file(path);
+}
+
+static void test_allocator_validation_failure_unlocks_then_frees(void)
+{
+    char path[128];
+    int fd=make_temp_file(path);
+    struct stat st;
+    MockIo io;
+    MockAllocator allocator;
+    Fcj4TestAppendOps ops;
+    Fcj4TestAppend *ctx=NULL;
+
+    memset(&io,0,sizeof(io));
+    memset(&allocator,0,sizeof(allocator));
+    allocator.canary=ALLOCATOR_CANARY;
+    allocator.io=&io;
+    allocator.check_cleanup_order=true;
+    allocator.expected_unlocks=1;
+    allocator.expected_closes=0;
+    io.bad_identity=true;
+    io.fail_unlock=true;
+    ops=make_mock_ops(&io);
+    attach_allocator(&ops,&allocator);
+    CHECK(fstat(fd,&st)==0);
+
+    errno=0;
+    CHECK(fcj4_test_append_init(&ctx,fd,st.st_dev,st.st_ino,0U,&ops)==-1);
+    CHECK(errno==EINVAL);
+    CHECK(ctx==NULL);
+    CHECK(allocator.calloc_calls==1 && allocator.free_calls==1);
+    CHECK(!allocator.pointer_mismatch);
+    CHECK(allocator.cleanup_order_ok);
+    CHECK(io.lock_calls==1 && io.unlock_calls==1);
+    CHECK(io.close_calls==0);
+    CHECK(fcntl(fd,F_GETFD)>=0);
+
+    CHECK(close(fd)==0);
+    remove_temp_file(path);
+}
+
+static void test_allocator_contexts_are_isolated_and_free_after_cleanup(void)
+{
+    char path_a[128],path_b[128];
+    int fd_a=make_temp_file(path_a);
+    int fd_b=make_temp_file(path_b);
+    struct stat st_a,st_b;
+    MockIo io_a,io_b;
+    MockAllocator allocator_a,allocator_b;
+    Fcj4TestAppendOps ops_a,ops_b;
+    Fcj4TestAppend *ctx_a=NULL,*ctx_b=NULL;
+    Fcj4TestAppendResult result;
+
+    memset(&io_a,0,sizeof(io_a));
+    memset(&io_b,0,sizeof(io_b));
+    memset(&allocator_a,0,sizeof(allocator_a));
+    memset(&allocator_b,0,sizeof(allocator_b));
+    allocator_a.canary=ALLOCATOR_CANARY;
+    allocator_b.canary=ALLOCATOR_CANARY;
+    allocator_a.io=&io_a;
+    allocator_b.io=&io_b;
+    allocator_a.check_cleanup_order=true;
+    allocator_b.check_cleanup_order=true;
+    allocator_a.expected_unlocks=allocator_b.expected_unlocks=1;
+    allocator_a.expected_closes=allocator_b.expected_closes=1;
+    ops_a=make_mock_ops(&io_a);
+    ops_b=make_mock_ops(&io_b);
+    attach_allocator(&ops_a,&allocator_a);
+    attach_allocator(&ops_b,&allocator_b);
+    CHECK(fstat(fd_a,&st_a)==0 && fstat(fd_b,&st_b)==0);
+
+    CHECK(fcj4_test_append_init(&ctx_a,fd_a,st_a.st_dev,st_a.st_ino,
+                                0U,&ops_a)==0);
+    CHECK(fcj4_test_append_init(&ctx_b,fd_b,st_b.st_dev,st_b.st_ino,
+                                0U,&ops_b)==0);
+    CHECK(allocator_a.calloc_calls==1 && allocator_a.free_calls==0);
+    CHECK(allocator_b.calloc_calls==1 && allocator_b.free_calls==0);
+
+    CHECK(fcj4_test_append_destroy(ctx_a,&result)==0);
+    CHECK(allocator_a.free_calls==1 && allocator_b.free_calls==0);
+    CHECK(allocator_a.cleanup_order_ok);
+    CHECK(!allocator_a.pointer_mismatch && !allocator_b.pointer_mismatch);
+
+    CHECK(fcj4_test_append_destroy(ctx_b,&result)==0);
+    CHECK(allocator_b.free_calls==1);
+    CHECK(allocator_b.cleanup_order_ok);
+    CHECK(!allocator_a.pointer_mismatch && !allocator_b.pointer_mismatch);
+    CHECK(io_a.unlock_calls==1 && io_a.close_calls==1);
+    CHECK(io_b.unlock_calls==1 && io_b.close_calls==1);
+
+    remove_temp_file(path_a);
+    remove_temp_file(path_b);
+}
+
 static void test_process_exit_restart_replay(void)
 {
     char path[128],bytes[FCJ4_MAX_LINE_BYTES];
@@ -928,6 +1205,11 @@ int main(void)
     test_post_write_identity_size_mismatch_is_uncertain();
     test_destroy_with_unacknowledged_durable_record_requires_replay();
     test_cleanup_errors_do_not_erase_durable_result();
+    test_allocator_failure_keeps_descriptor_caller_owned();
+    test_allocator_callbacks_must_be_paired();
+    test_allocator_lock_failure_frees_without_closing();
+    test_allocator_validation_failure_unlocks_then_frees();
+    test_allocator_contexts_are_isolated_and_free_after_cleanup();
     test_process_exit_restart_replay();
     puts("FCJ4 test append adapter: all tests passed");
     return EXIT_SUCCESS;

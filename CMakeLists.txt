@@ -176,6 +176,7 @@ if(BUILD_TESTING)
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(test_fcj4_test_append
       tests/integration/test_fcj4_test_append.c
+      tests/integration/test_fcj4_test_append_concurrency.c
       tests/support/fcj4_test_append.c
       src/journal/fcj4_writer.c
       src/journal/fcj4_parser.c
@@ -184,6 +185,8 @@ if(BUILD_TESTING)
       "${CMAKE_CURRENT_SOURCE_DIR}/include"
       "${CMAKE_CURRENT_SOURCE_DIR}/tests/support"
     )
+    # pthreads are required only by this Linux-only test executable.
+    target_link_libraries(test_fcj4_test_append PRIVATE Threads::Threads)
     target_compile_options(test_fcj4_test_append PRIVATE
       -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
     )

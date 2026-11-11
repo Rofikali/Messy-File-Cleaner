@@ -201,13 +201,14 @@ No benchmark is a substitute for correctness or crash/fault-injection coverage.
 The first implementation currently exercises:
 - Real disposable-file append, fsync, writer commit, and acknowledgement ordering.
 - EINTR and short writes, zero writes, and partial-write EIO.
+- ENOSPC, EACCES, and EBADF injected at every byte boundary of a canonical record; assert exact persisted prefix, no fsync, unchanged writer revision, poisoned context, and parser rejection of every incomplete prefix.
 - fsync uncertainty and full replay reconstruction.
 - Writer-commit mismatch and a durable record destroyed before acknowledgement.
 - Pre-write and post-write descriptor identity/size mismatch.
 - O_APPEND rejection, non-blocking lock contention, and initialization rollback.
 - Unlock/close cleanup errors and process-exit replay.
 
-This is not yet the complete fault matrix below. In particular, ENOSPC/EACCES/EBADF permutations, failure injection at every byte boundary, allocation failure, deliberately concurrent calls from separate threads, malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
+This is not yet the complete fault matrix below. The deterministic test now injects ENOSPC, EACCES, and EBADF at every byte boundary; this proves adapter state handling for those injected outcomes, not that a particular kernel/filesystem naturally emits each error at every offset. Allocation failure, deliberately concurrent calls from separate threads, a broader malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
 
 Do not mark the implementation PR complete unless:
 

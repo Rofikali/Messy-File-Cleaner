@@ -1,0 +1,46 @@
+name: Rust test-support validation
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rust-toolchain.toml"
+      - "tests/rust/**"
+      - ".github/workflows/rust-test-support.yml"
+  pull_request:
+    paths:
+      - "rust-toolchain.toml"
+      - "tests/rust/**"
+      - ".github/workflows/rust-test-support.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rust-test-support-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-test-support:
+    name: Rust test-support (Ubuntu 24.04)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: tests/rust/fcj4-test-support
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Show pinned toolchain
+        run: rustc --version --verbose
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run Clippy
+        run: cargo clippy --locked --all-targets -- -D warnings
+
+      - name: Run Rust unit tests
+        run: cargo test --locked

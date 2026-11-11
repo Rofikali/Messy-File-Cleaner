@@ -64,7 +64,7 @@ The adapter must never own or modify the in-memory writer's private state. The c
 
 The operations table is private to tests/adapter implementation. It must be immutable for a context lifetime, explicitly passed, and contain no process-global mutable fault controls.
 
-### 4.1 Per-context allocator injection (next test-only change)
+### 4.1 Per-context allocator injection (current test-only implementation)
 
 Allocation-failure injection must be added without global allocator replacement or process-wide fault state.
 
@@ -213,7 +213,7 @@ Process-kill tests do not simulate power loss. The report must state this limita
 
 ## 11. Test organization and build isolation
 
-The implementation target currently:
+The test-only implementation must:
 
 - Keep adapter sources in a test-only target or private test support library, not in the production executable source list.
 - Register a focused Linux-only CTest target with deterministic tests and a 30-second timeout.

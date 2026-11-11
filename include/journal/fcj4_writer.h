@@ -122,8 +122,10 @@ int fcj4_writer_state_import_replay(Fcj4WriterState *state,
  * Exactly one prepare may be outstanding. The state does not advance here.
  * Commit requires the exact prepared bytes and length, checked against the
  * writer's one-record pending copy. It advances only in-memory state after
- * caller confirmation. This milestone provides no append adapter and does
- * not claim durable journal commitment.
+ * caller confirmation. This module itself has no file descriptor, filesystem,
+ * journal, or syscall API. A separate Linux-only test adapter exercises the
+ * durability handshake only with disposable caller-supplied test descriptors;
+ * neither module enables production journal append or durable commitment.
  */
 int fcj4_writer_prepare(Fcj4WriterState *state, const Fcj4Record *record,
                         char *output, size_t capacity, size_t *written,

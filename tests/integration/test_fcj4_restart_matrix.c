@@ -287,11 +287,22 @@ static void test_physical_framing_corruption(void)
 
     /* Exact physical-line limit is parsed (and rejected as malformed);
        one byte beyond the limit is rejected by the configured size bound. */
-    memset(changed, 'A', FCJ4_MAX_LINE_BYTES);
+    memset(changed, 'A', FCJ4_MAX_LINE_BYTES + 1U);
     changed[FCJ4_MAX_LINE_BYTES - 1U] = '\n';
     verify_fixture(changed, FCJ4_MAX_LINE_BYTES, false, 0U);
+    changed[FCJ4_MAX_LINE_BYTES - 1U] = 'A';
     changed[FCJ4_MAX_LINE_BYTES] = '\n';
     verify_fixture(changed, FCJ4_MAX_LINE_BYTES + 1U, false, 0U);
+    {
+        Fcj4Replay replay;
+        fcj4_replay_init(&replay);
+        errno = 0;
+        CHECK(fcj4_replay_parse(changed, FCJ4_MAX_LINE_BYTES + 1U,
+                                &replay) == -1);
+        CHECK(errno == E2BIG);
+        CHECK(replay.operations == NULL);
+        fcj4_replay_destroy(&replay);
+    }
 }
 
 static void test_sealed_digest_corruption(void)

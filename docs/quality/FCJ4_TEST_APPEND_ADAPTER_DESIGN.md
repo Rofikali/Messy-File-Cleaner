@@ -2,7 +2,7 @@
 
 ## Status
 
-Approved design (PR #72). The Linux-only test adapter implementation was merged in PR #73, and deterministic byte-boundary errno coverage was merged in PR #74. The adapter remains test-only and is not production-integrated. This document specifies the approved per-context allocation-failure contract. Its test-only implementation is being delivered in a separate implementation PR; the adapter remains outside production.
+Approved design (PR #72). The Linux-only test adapter implementation was merged in PR #73; deterministic byte-boundary errno coverage in PR #74; allocation-failure design/implementation in PRs #75–76; and cross-thread exclusion design/implementation in PRs #77–78. The adapter remains test-only and is not production-integrated. Allocation and selected cross-thread overlap cases are implemented. The broader malformed/truncated restart matrix and explicit production-binary link-isolation inspection remain separate open acceptance work.
 
 The only authorized adapter is a **test-only adapter for disposable private temporary journal files**. It must operate on a caller-supplied descriptor, must not open, create, or append to `journal/move.fcj4`, must not link into the production executable, and must not enable FCJ4 in the mover or CLI.
 
@@ -237,7 +237,7 @@ The first implementation currently exercises:
 - O_APPEND rejection, non-blocking lock contention, and initialization rollback.
 - Unlock/close cleanup errors and process-exit replay.
 
-This is not yet the complete fault matrix below. The deterministic test injects ENOSPC, EACCES, and EBADF at every byte boundary; this proves adapter state handling for those injected outcomes, not that a particular kernel/filesystem naturally emits each error at every offset. Per-context allocation-failure coverage now exercises null allocation, incomplete callback pairs, lock failure cleanup, post-lock validation rollback, allocator matching, independent per-context state, and free-after-unlock/close ordering. Deliberately concurrent calls from separate threads, a broader malformed/truncated restart matrix, and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until these are covered or explicitly dispositioned with evidence.
+This is not yet the complete fault matrix below. The deterministic test injects ENOSPC, EACCES, and EBADF at every byte boundary; this proves adapter state handling for those injected outcomes, not that a particular kernel/filesystem naturally emits each error at every offset. Per-context allocation-failure coverage now exercises null allocation, incomplete callback pairs, lock failure cleanup, post-lock validation rollback, allocator matching, independent per-context state, and free-after-unlock/close ordering. Selected cross-thread overlap cases are now covered by PR #78, including a dedicated TSan target. This does not make arbitrary races against completed context destruction valid; callers must externally synchronize lifetime. The broader malformed/truncated restart matrix and explicit production-binary link inspection remain open acceptance work. Reentrant append rejection is covered by the current test target. Do not describe the adapter milestone as fully accepted until the remaining gaps are covered or explicitly dispositioned with evidence.
 
 Do not mark the implementation PR complete unless:
 
@@ -254,7 +254,7 @@ Do not mark the implementation PR complete unless:
 
 ## 13. Next milestone and prohibited expansion
 
-The implementation PR may add only per-context allocator callbacks and their tests to the existing test-only append adapter and its fault/restart harness against disposable private temporary journals. A separate production integration design remains mandatory.
+The per-context allocator callbacks and selected cross-thread exclusion tests are implemented in the test-only adapter and harness. The next authorized milestone is the separate malformed/truncated restart matrix design in [FCJ4 Malformed and Truncated Restart Matrix Design](FCJ4_MALFORMED_TRUNCATED_RESTART_MATRIX_DESIGN.md). That design must be reviewed and merged before its implementation begins. Explicit production-binary link-isolation inspection remains a separate follow-on acceptance task. A separate production integration design remains mandatory.
 
 It must not create/open `journal/move.fcj4`, integrate with production mover/CLI/startup, or implement recovery planning/execution. A production journal lifecycle, directory ownership policy, production lock ownership, and FCJ4 adoption require separate threat-model review and explicit approval.
 

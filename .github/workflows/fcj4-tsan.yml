@@ -6,6 +6,7 @@ on:
       - "CMakeLists.txt"
       - "tests/integration/test_fcj4_test_append.c"
       - "tests/integration/test_fcj4_test_append_concurrency.c"
+      - "tests/integration/test_fcj4_test_append_concurrency_main.c"
       - "tests/support/fcj4_test_append.c"
       - "tests/support/fcj4_test_append.h"
       - ".github/workflows/fcj4-tsan.yml"
@@ -42,4 +43,3 @@ jobs:
           ctest --test-dir build/fcj4-tsan \
             --output-on-failure \
             -R '^fcj4_test_append_concurrency
-

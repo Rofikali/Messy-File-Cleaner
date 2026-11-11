@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #define CHECK(expr) do { \
@@ -293,6 +294,66 @@ static void test_physical_framing_corruption(void)
     verify_fixture(changed, FCJ4_MAX_LINE_BYTES + 1U, false, 0U);
 }
 
+static void test_sealed_digest_corruption(void)
+{
+    char journal[FIXTURE_CAPACITY];
+    char changed[FIXTURE_CAPACITY];
+    size_t begin_length = 0U;
+    size_t total = make_two_record_journal(journal, sizeof(journal),
+                                           &begin_length);
+    char *digest_field;
+
+    memcpy(changed, journal, total);
+    digest_field = strstr(changed + begin_length,
+        "0000000000000000000000000000000000000000000000000000000000000000");
+    CHECK(digest_field != NULL);
+    digest_field[0] = 'G';
+    verify_fixture(changed, total, false, 0U);
+
+    memcpy(changed, journal, total);
+    digest_field = strstr(changed + begin_length,
+        "0000000000000000000000000000000000000000000000000000000000000000");
+    CHECK(digest_field != NULL);
+    digest_field[63] = 'A';
+    verify_fixture(changed, total, false, 0U);
+}
+
+static void test_child_exit_with_partial_record(void)
+{
+    char begin[FCJ4_MAX_LINE_BYTES];
+    size_t length = serialize_begin(begin, sizeof(begin));
+    Fixture fixture;
+    pid_t child;
+    int status = 0;
+    char bytes[FIXTURE_CAPACITY];
+    size_t read_length;
+
+    fixture_create(&fixture, NULL, 0U);
+    child = fork();
+    CHECK(child >= 0);
+    if (child == 0) {
+        int fd = open(fixture.path, O_WRONLY | O_CLOEXEC | O_NOFOLLOW);
+        size_t prefix = length / 2U;
+        size_t offset = 0U;
+        if (fd < 0) _exit(20);
+        while (offset < prefix) {
+            ssize_t amount = write(fd, begin + offset, prefix - offset);
+            if (amount <= 0) _exit(21);
+            offset += (size_t)amount;
+        }
+        if (close(fd) != 0) _exit(22);
+        /* Process exit is not a hardware power-loss simulation. */
+        _exit(0);
+    }
+
+    CHECK(waitpid(child, &status, 0) == child);
+    CHECK(WIFEXITED(status) && WEXITSTATUS(status) == 0);
+    read_length = fixture_read(&fixture, bytes, sizeof(bytes));
+    CHECK(read_length == length / 2U);
+    verify_fixture(bytes, read_length, false, 0U);
+    fixture_destroy(&fixture);
+}
+
 static void test_semantic_corruption(void)
 {
     char begin[FCJ4_MAX_LINE_BYTES];
@@ -393,7 +454,9 @@ int main(void)
     test_every_strict_prefix();
     test_physical_framing_corruption();
     test_semantic_corruption();
+    test_sealed_digest_corruption();
     test_valid_prefix_plus_invalid_suffix();
+    test_child_exit_with_partial_record();
     puts("FCJ4 malformed/truncated restart matrix: all tests passed");
     return EXIT_SUCCESS;
 }

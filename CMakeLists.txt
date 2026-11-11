@@ -193,6 +193,22 @@ if(BUILD_TESTING)
     add_test(NAME fcj4_test_append_integration COMMAND test_fcj4_test_append)
     set_tests_properties(fcj4_test_append_integration PROPERTIES TIMEOUT 30)
 
+    # Restart/replay corruption matrix uses only serializer/parser APIs and
+    # private disposable files; it is test-only and never linked into production.
+    add_executable(test_fcj4_restart_matrix
+      tests/integration/test_fcj4_restart_matrix.c
+      src/journal/fcj4_writer.c
+      src/journal/fcj4_parser.c
+    )
+    target_include_directories(test_fcj4_restart_matrix PRIVATE
+      "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    )
+    target_compile_options(test_fcj4_restart_matrix PRIVATE
+      -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+    )
+    add_test(NAME fcj4_restart_matrix COMMAND test_fcj4_restart_matrix)
+    set_tests_properties(fcj4_restart_matrix PROPERTIES TIMEOUT 30)
+
     # Focused concurrency-only entry point keeps TSan away from the expensive
     # maximum-record and exhaustive byte-boundary cases in the full harness.
     add_executable(test_fcj4_test_append_concurrency

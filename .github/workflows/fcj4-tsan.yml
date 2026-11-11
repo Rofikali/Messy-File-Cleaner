@@ -42,4 +42,4 @@ jobs:
         run: |
           ctest --test-dir build/fcj4-tsan \
             --output-on-failure \
-            -R '^fcj4_test_append_concurrency
+            -R '^fcj4_test_append_concurrency$'

@@ -227,12 +227,11 @@ int fcj4_test_append_record(Fcj4TestAppend *ctx, const char *bytes,
     size_t done=0U;
     int error=0;
 
-    set_result(result,FCJ4_TEST_APPEND_REJECTED,0,0,
-               ctx ? ctx->known_length : 0U);
     if (!ctx || !result || !validate_line(bytes,length))
         return fail_with(EINVAL);
     if (atomic_exchange_explicit(&ctx->busy,true,memory_order_acquire))
         return fail_with(EBUSY);
+    set_result(result,FCJ4_TEST_APPEND_REJECTED,0,0,ctx->known_length);
 
     if (ctx->state!=APPEND_READY) {
         atomic_store_explicit(&ctx->busy,false,memory_order_release);
@@ -365,6 +364,8 @@ int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
     Fcj4TestAppendResultCode code;
     uint64_t durable_length;
     if (!ctx) return fail_with(EINVAL);
+    if (atomic_exchange_explicit(&ctx->busy,true,memory_order_acquire))
+        return fail_with(EBUSY);
 
     primary_error=ctx->primary_errno;
     code=ctx->last_code;

@@ -78,7 +78,9 @@ void fcj4_test_append_poison(Fcj4TestAppend *ctx);
 
 /*
  * Unlock once and close once. Never retry close after an error. A durable
- * fsync result is not undone by later cleanup errors. Context is freed.
+ * fsync result is not undone by later cleanup errors. Destroying a durable-
+ * pending context without acknowledgement returns EIO and requires replay.
+ * Context is freed even when cleanup reports an error.
  */
 int fcj4_test_append_destroy(Fcj4TestAppend *ctx,
                              Fcj4TestAppendResult *result);

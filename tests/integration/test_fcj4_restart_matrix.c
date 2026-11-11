@@ -371,6 +371,181 @@ static void test_child_exit_with_partial_record(void)
     fixture_destroy(&fixture);
 }
 
+static size_t append_record(char *out, size_t capacity, size_t used,
+                            const Fcj4Record *record)
+{
+    size_t written = 0U;
+    CHECK(used <= capacity);
+    CHECK(fcj4_serialize(record, out + used, capacity - used, &written) == 0);
+    return used + written;
+}
+
+static size_t append_begin_id(char *out, size_t capacity, const char *id)
+{
+    Fcj4Record record;
+    memset(&record, 0, sizeof(record));
+    record.kind = FCJ4_RECORD_BEGIN;
+    record.value.begin = (Fcj4BeginRecord){
+        id, "/tmp/source",
+        1U, 2U, 1U, 3U, 1000U, 1000U, 384U, 5U,
+        1, 2U, 3, 4U,
+        "/tmp/dest", 1U, 4U, "dest", 1U, 5U
+    };
+    return append_record(out, capacity, 0U, &record);
+}
+
+static size_t append_sealed_id(char *out, size_t capacity, size_t used,
+                               const char *id)
+{
+    Fcj4Record record;
+    memset(&record, 0, sizeof(record));
+    record.kind = FCJ4_RECORD_SEALED;
+    record.value.sealed = (Fcj4SealedRecord){
+        id, ".fc-tmp-x", 1U, 6U, 1000U, 384U, 5U, digest
+    };
+    return append_record(out, capacity, used, &record);
+}
+
+static size_t append_move(char *out, size_t capacity, size_t used,
+                          const char *id, uint64_t sequence,
+                          Fcj4MoveState state, uint32_t error_code)
+{
+    Fcj4Record record;
+    memset(&record, 0, sizeof(record));
+    record.kind = FCJ4_RECORD_MOVE;
+    record.value.move = (Fcj4MoveRecord){id, sequence, state, error_code};
+    return append_record(out, capacity, used, &record);
+}
+
+static size_t append_action_def(char *out, size_t capacity, size_t used,
+                                const char *id, const char *action_id,
+                                Fcj4ActionKind kind, Fcj4TargetRole role,
+                                uint64_t parent_dev, uint64_t parent_ino,
+                                uint64_t entry_dev, uint64_t entry_ino,
+                                const char *source_component,
+                                const char *target_component)
+{
+    Fcj4Record record;
+    memset(&record, 0, sizeof(record));
+    record.kind = FCJ4_RECORD_ACTION_DEF;
+    record.value.action_def = (Fcj4ActionDefRecord){
+        id, action_id, kind, role,
+        parent_dev, parent_ino, entry_dev, entry_ino,
+        1000U, 384U, 5U, digest,
+        source_component, target_component
+    };
+    return append_record(out, capacity, used, &record);
+}
+
+static size_t append_action(char *out, size_t capacity, size_t used,
+                            const char *id, const char *action_id,
+                            uint64_t sequence, Fcj4ActionState state)
+{
+    Fcj4Record record;
+    memset(&record, 0, sizeof(record));
+    record.kind = FCJ4_RECORD_ACTION;
+    record.value.action = (Fcj4ActionRecord){
+        id, action_id, sequence, state, 0U
+    };
+    return append_record(out, capacity, used, &record);
+}
+
+static void test_move_sequence_and_terminal_corruption(void)
+{
+    char bytes[FIXTURE_CAPACITY];
+    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
+
+    used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
+    used = append_move(bytes, sizeof(bytes), used, operation_id,
+                       2U, FCJ4_MOVE_STAGED, 0U);
+    verify_fixture(bytes, used, false, 0U);
+
+    used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
+    used = append_move(bytes, sizeof(bytes), used, operation_id,
+                       1U, FCJ4_MOVE_STAGED, 0U);
+    used = append_move(bytes, sizeof(bytes), used, operation_id,
+                       2U, FCJ4_MOVE_STARTED, 0U);
+    used = append_move(bytes, sizeof(bytes), used, operation_id,
+                       3U, FCJ4_MOVE_PUBLISHED, 0U);
+    used = append_move(bytes, sizeof(bytes), used, operation_id,
+                       4U, FCJ4_MOVE_COMPLETED, 0U);
+    verify_fixture(bytes, used, true, 6U);
+    used = append_move(bytes, sizeof(bytes), used, operation_id,
+                       5U, FCJ4_MOVE_FAILED, 1U);
+    verify_fixture(bytes, used, false, 0U);
+}
+
+static void test_action_order_and_identity_corruption(void)
+{
+    static const char action_id[] =
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    char bytes[FIXTURE_CAPACITY];
+    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
+
+    /* ACTION cannot appear before its immutable ACTION_DEF. */
+    used = append_action(bytes, sizeof(bytes), used, operation_id,
+                         action_id, 1U, FCJ4_ACTION_PREPARED);
+    verify_fixture(bytes, used, false, 0U);
+
+    used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
+    used = append_action_def(bytes, sizeof(bytes), used, operation_id,
+        action_id, FCJ4_ACTION_KIND_QUARANTINE_STAGE,
+        FCJ4_TARGET_QUARANTINE, 1U, 4U, 1U, 7U,
+        ".fc-tmp-x", "q-stage");
+    verify_fixture(bytes, used, false, 0U);
+
+    /* ACTION_APPLIED cannot skip PREPARED and STARTED. */
+    used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
+    used = append_action_def(bytes, sizeof(bytes), used, operation_id,
+        action_id, FCJ4_ACTION_KIND_QUARANTINE_STAGE,
+        FCJ4_TARGET_QUARANTINE, 1U, 4U, 1U, 6U,
+        ".fc-tmp-x", "q-stage");
+    used = append_action(bytes, sizeof(bytes), used, operation_id,
+                         action_id, 1U, FCJ4_ACTION_APPLIED);
+    verify_fixture(bytes, used, false, 0U);
+}
+
+static void test_quarantine_followup_component_mismatch(void)
+{
+    static const char source_action[] =
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    static const char retire_action[] =
+        "cccccccccccccccccccccccccccccccc";
+    char bytes[FIXTURE_CAPACITY];
+    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
+    used = append_action_def(bytes, sizeof(bytes), used, operation_id,
+        source_action, FCJ4_ACTION_KIND_QUARANTINE_SOURCE,
+        FCJ4_TARGET_QUARANTINE, 1U, 2U, 1U, 3U,
+        "source", "q-source");
+    used = append_action_def(bytes, sizeof(bytes), used, operation_id,
+        retire_action, FCJ4_ACTION_KIND_RETIRE_QUARANTINED_SOURCE,
+        FCJ4_TARGET_NONE, 1U, 5U, 1U, 3U,
+        "q-other", NULL);
+    verify_fixture(bytes, used, false, 0U);
+}
+
+static void test_interleaved_operation_order_is_independent(void)
+{
+    static const char second_id[] =
+        "22222222222222222222222222222222";
+    char bytes[FIXTURE_CAPACITY];
+    size_t used = append_begin_id(bytes, sizeof(bytes), operation_id);
+    used = append_begin_id(bytes, sizeof(bytes), second_id);
+    used = append_sealed_id(bytes, sizeof(bytes), used, operation_id);
+    used = append_sealed_id(bytes, sizeof(bytes), used, second_id);
+    /* Operation one skips MOVE sequence 1; operation two is otherwise valid. */
+    used = append_move(bytes, sizeof(bytes), used, operation_id,
+                       2U, FCJ4_MOVE_STAGED, 0U);
+    used = append_move(bytes, sizeof(bytes), used, second_id,
+                       1U, FCJ4_MOVE_STAGED, 0U);
+    verify_fixture(bytes, used, false, 0U);
+}
+
 static void test_semantic_corruption(void)
 {
     char begin[FCJ4_MAX_LINE_BYTES];
@@ -471,6 +646,10 @@ int main(void)
     test_every_strict_prefix();
     test_physical_framing_corruption();
     test_semantic_corruption();
+    test_move_sequence_and_terminal_corruption();
+    test_action_order_and_identity_corruption();
+    test_quarantine_followup_component_mismatch();
+    test_interleaved_operation_order_is_independent();
     test_sealed_digest_corruption();
     test_valid_prefix_plus_invalid_suffix();
     test_child_exit_with_partial_record();

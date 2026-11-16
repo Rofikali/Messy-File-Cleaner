@@ -44,6 +44,10 @@ Nanoseconds are a useful unit for timing CPU-bound work, but nanosecond units do
 - Report filesystem type, mount type, cache condition, and whether journal fsync is enabled.
 - Set targets only after the baseline exists. Never remove security or durability guarantees to hit a latency target.
 
+## Profile provenance and generated-artifact privacy
+
+Raw `perf.data`, `gmon.out`, `gprof` dumps and ad hoc local benchmarks may include machine details, process names and filenames. Keep them out of Git, use ignored paths or controlled CI artifacts, and share only sanitized, reproducible summaries. Existing legacy tracked profile files require owner review before any deletion. Read [profiling-artifact retention and provenance](PROFILE_ARTIFACT_RETENTION_AND_PROVENANCE.md).
+
 ## Performance claims
 Include workload, environment, command, repetitions, and result distribution. Do not compare different filesystems or cache states as equivalent.
 

@@ -152,6 +152,8 @@ Useful options:
 | `--workers <n>` | Override the configured worker count |
 | `--force` | Explicitly bypass the dangerous-root guard; it does **not** bypass path and filesystem safety validation |
 
+When using Docker Compose, the default `compose.yaml` also mounts `/input` read-only; real moves require the separate **explicit** `compose.execute.yaml` overlay described in [the Docker runbook](docs/docker/DOCKER-RUNBOOK.md). Merely overriding the default command does not make the input writable.
+
 Start with `--dry-run` on a disposable test directory. Inspect the output and configuration before running a real move. Do not point the tool at system directories, home directories, mounted data, or valuable files unless you understand the consequences and have a verified backup.
 
 ### Configuration

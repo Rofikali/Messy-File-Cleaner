@@ -2,6 +2,28 @@
 
 This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans and coding agents how to work in this repository. The architecture and security rationale is in [the Engineering Playbook](docs/architecture/ENGINEERING_PLAYBOOK.md) and [Threat Model](docs/security/THREAT_MODEL.md).
 
+## Always-on task selection and evidence recipe
+
+1. Open [next.md](next.md) and [docs index](docs/README.md); confirm actual `main` SHA, outstanding PRs and CI before choosing the next READY milestone.
+2. Read [agent continuation](docs/AGENT_CONTINUATION_AND_HANDOFF.md), [engineering operating model](docs/ENGINEERING_OPERATING_MODEL.md), [CI/Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md), and the affected module's specific contracts/tests.
+3. Choose **one** bounded dependency-unblocked task. Define acceptance, negative cases, filesystem and data preservation invariants, scope, non-goals, rollback and finance/support cost.
+4. Execute focused local tests, open review PR when authorized, inspect the **current exact-head** required CI checks, and summarize only statuses and failed-step excerpts.
+5. Do not call CI pass MERGED; do not call MERGED RELEASED. Human approves merge, real file operation, production release and any paid/irreversible action.
+6. A task file is a continuation instruction, not an always-running AI system. Resume later in a new approved session/runner from GitHub and the checkpoint.
+
+### Test-only Rust exception
+
+PR #81 accepted a narrow Rust verification pilot; PR #82 merged a dependency-free `tests/rust/fcj4-test-support` crate. Production remains pure C17. For this isolated crate, run:
+
+```sh
+cd tests/rust/fcj4-test-support
+cargo fmt --all -- --check
+cargo clippy --locked --all-targets -- -D warnings
+cargo test --locked
+```
+
+Rust FFI is **not implemented**; a future test-only shim requires a separate safety review. Public static/shared libraries, production Rust and FCJ4 real recovery are not authorized. Existing C11/C17/C23, Docker, sanitizer and required CI checks remain mandatory. `SKILLS.md` is a catalogue; this lower-case file owns contributor workflow recipes.
+
 ## 1. Non-negotiable project identity
 
 - Implement the product in **pure C**. C17 is the production baseline; validate C11 and C23 independently.

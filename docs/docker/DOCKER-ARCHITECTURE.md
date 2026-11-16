@@ -48,9 +48,10 @@ Review planned destinations. Dry-run must not change input files.
 ## Explicit execution
 After backing up test input and reviewing the dry-run:
 
-    docker compose run --rm cleaner /input --config /app/configs/default.conf --once
+    docker compose -f compose.yaml -f compose.execute.yaml config
+    docker compose -f compose.yaml -f compose.execute.yaml run --rm cleaner
 
-This removes the default dry-run argument and performs real moves. Use disposable files only.
+This deliberately changes the input mount from read-only to writable and removes `--dry-run`. It performs real moves, potentially removing input files. Use disposable fixtures, verified backups and reviewed configuration only.
 
 ## Permissions
 The image defaults to UID/GID 10001. On Linux, make the three directories writable by that identity or set PUID and PGID to an appropriate non-root identity:

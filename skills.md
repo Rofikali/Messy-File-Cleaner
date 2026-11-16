@@ -26,7 +26,7 @@ Rust FFI is **not implemented**; a future test-only shim requires a separate saf
 
 ## 1. Non-negotiable project identity
 
-- Implement the product in **pure C**. C17 is the production baseline; validate C11 and C23 independently.
+- Implement the **production product in pure C**. C17 is the production baseline; validate C11 and C23 independently. The accepted, isolated Rust test-support pilot under `tests/rust/` is an explicit exception, not permission for production Rust.
 - No C++, C++ runtime, Rust core, or other implementation language without a new explicit owner decision and written review.
 - Assembly is allowed only after profiling proves a CPU-bound bottleneck; it must be isolated behind C, have a portable C fallback, and pass equivalence tests.
 - Linux/POSIX is the current platform target. Document platform and filesystem assumptions; do not imply universal portability.

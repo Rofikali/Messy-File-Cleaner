@@ -10,7 +10,7 @@
 
 1. `git status --short`; `git branch --show-current`; `git rev-parse HEAD`; fetch latest `main`/PR state. Do not overwrite unknown dirty worktrees.
 2. Read root rules, `next.md`, docs index and the specific module's header, callers, tests, threat model and ADR.
-3. Reconcile stale statuses against actual merged PRs and SHA-specific CI. Distinguish completed design, code in PR, checked code, merged code and released product.
+3. Reconcile stale statuses against actual merged PRs and SHA-specific CI. Read only the top LIVE NOW / NEXT / LATER section of `next.md` for task selection and use [component completion inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) to distinguish **NOT_STARTED / DESIGN_ONLY / STARTED / PARTIAL / IMPLEMENTED** from **PR_OPEN / CI_PASS / MERGED / RELEASED**. The retained historical section is reference evidence, not the current queue.
 4. Choose **one** eligible task, respecting dependency order, top-priority file safety and available evidence. Declare out-of-scope and a bounded resource/test budget.
 5. Create branch from current main, implement smallest reviewable diff, focused tests, docs, and open draft PR only where publication is authorized.
 6. Inspect full required GitHub check **conclusions** and only failed excerpts; do not retest huge workloads merely to fill model context. Higher-risk journal/FS work still requires full gate.

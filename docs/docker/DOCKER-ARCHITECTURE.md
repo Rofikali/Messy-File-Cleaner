@@ -32,7 +32,7 @@ The devcontainer defines the developer workspace. Dockerfile and Compose define 
 
 ## Known limitations
 - The program currently hard-codes a relative journal path and the Others destination. This Compose layout accommodates them; a future API milestone should make state and destination roots explicit.
-- The CLI has no dedicated execute flag. Compose defaults to dry-run; execution is an explicit command override.
+- The CLI has no dedicated execute flag. Default Compose is dry-run plus read-only input; execution requires deliberately selecting the separately named writable-input overlay. Direct Docker/CLI invocations remain a separate trust boundary.
 - Watch mode and inotify on Docker Desktop bind mounts are not covered by this first milestone.
 - Container isolation does not replace path validation inside the application.
 - This is not an HTTP API service and exposes no ports.

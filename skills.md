@@ -11,6 +11,10 @@ This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans
 5. Do not call CI pass MERGED; do not call MERGED RELEASED. Human approves merge, real file operation, production release and any paid/irreversible action.
 6. A task file is a continuation instruction, not an always-running AI system. Resume later in a new approved session/runner from GitHub and the checkpoint.
 
+### Standing owner command: "go ahead"
+
+In a repo-related conversation, interpret **"go ahead" / "continue" / "next"** as **start the next eligible bounded item from the live `next.md` NOW/NEXT/LATER queue without requiring another copy-paste prompt**. First reconcile GitHub main/PRs/CI. Work on the existing PR if it is still open or its checks failed; never create duplicate work from stale history. Otherwise choose highest-priority unblocked work, scope it, make a review PR, record tests/NOT RUN and update the queue. If blocked, explain the missing prerequisite and advance a different independent READY item only when it stays within ordinary non-destructive authorization. See [agent continuation](docs/AGENT_CONTINUATION_AND_HANDOFF.md). **No automatic PR merge, user-file deletion, release, spend, bypass of security or continuous background work.**
+
 ### Test-only Rust exception
 
 PR #81 accepted a narrow Rust verification pilot; PR #82 merged a dependency-free `tests/rust/fcj4-test-support` crate. Production remains pure C17. For this isolated crate, run:

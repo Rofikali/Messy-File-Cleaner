@@ -14,7 +14,7 @@
 | What runs in CI, what Make targets do, and what counts as proof? | [CI/CD and Makefile operations](CI_CD_AND_MAKEFILE_OPERATIONS.md) and [Makefile](../Makefile) |
 | Which market, cost, free/paid or SDK opportunities are hypotheses? | [Product/business strategy](PRODUCT_AND_BUSINESS_STRATEGY.md) |
 | What modules and dependencies exist? | [HLD](HLD.md), [LLD](LLD.md), [engineering playbook](architecture/ENGINEERING_PLAYBOOK.md) |
-| What threatens user data? | [Threat model](security/THREAT_MODEL.md) and focused docs in [security](security/) |
+| What threatens user data? | [Threat model](security/THREAT_MODEL.md), [FS-01A production mover/journal audit](security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md) and focused docs in [security](security/) |
 | How does journal parsing/recovery work? | [FCJ4 schema](quality/FCJ4_SCHEMA_AND_REPLAY_DESIGN.md), [FCJ4 execution safety](quality/FCJ4_RECOVERY_EXECUTION_SAFETY_DESIGN.md), [other quality docs](quality/) |
 | What is Rust allowed to do now? | [Accepted Rust ADR](architecture/ADR_RUST_ADOPTION_STRATEGY.md), [test-support boundary](architecture/RUST_TEST_SUPPORT_BOUNDARY.md) |
 | How are C API/static/shared libraries proposed? | [C API/ABI/FFI roadmap](architecture/C-API-ABI-FFI-ROADMAP.md) |
@@ -36,5 +36,6 @@ If documents conflict, preserve user data, record the conflict, and seek owner r
 - `DESIGN_ONLY` ≠ `IMPLEMENTED` ≠ `CI_PASS` ≠ `MERGED` ≠ `RELEASED`.
 - Date every audit snapshot with the exact Git SHA; always consult current GitHub state.
 - Keep **current** task selection/status in the top LIVE BOARD of `next.md`; preserve its historical checkpoint section without treating stale labels as current. Detailed per-component maturity and blockers belong in [completion inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md), technical contracts in their canonical documents, exact evidence in PR/CI links. Do not duplicate giant logs.
+- In this repo, **"go ahead" / "continue" / "next"** tells a running agent to reconcile GitHub state and begin the next READY bounded job from the live `next.md` board; it is not authority to merge, deploy, spend, delete real files, or bypass gates. See [agent continuation](AGENT_CONTINUATION_AND_HANDOFF.md).
 - Docs/Makefile cannot autonomously start an agent, release software, or authorize destructive file handling.
 - No deployment, production FCJ4 recovery, external static/shared library or paid feature is authorized by this index.

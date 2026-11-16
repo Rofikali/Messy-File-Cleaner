@@ -48,7 +48,7 @@ For every meaningful task record ID, priority, customer/risk value, prerequisite
 
 ## D. Open, blocked, and conditional decisions
 
-- **FS-01 P0 for broader release:** independently review symlink/TOCTOU, cross-filesystem moves, source/destination identity, hardlinks, interruptions, partial durability and recovery error handling. Preserve uncertain files rather than guessing ownership. Security review is not proof of an exploit.
+- **FS-01 P0 for broader release:** [FS-01A source-first audit](security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md) now documents implemented controls and prioritized unresolved source-retirement check/unlink, legacy pathname-recovery and crash-orphan risks; **an audit PR is not a reproduced exploit, fix or release certification**. Follow with FS-01B controlled fixture evidence after owner review. Preserve uncertain files rather than guessing ownership.
 - **REL-01 P0 for distribution:** release artifact provenance, supported environment/filesystems, license, backup guidance, smoke, rollback and incident handling. No automatic deployment is established.
 - **RUST-01 P1:** permitted *scope* is future C parser test shim and Rust test harness only. An accepted test-pilot ADR is not automatic merge authorization.
 - **RUST-02 P1:** property/fuzz test improvements depend on RUST-01 or a separate reviewed design that does not duplicate protocol parsing.

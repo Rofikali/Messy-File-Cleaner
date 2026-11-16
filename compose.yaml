@@ -12,6 +12,7 @@ services:
       - type: bind
         source: ./input
         target: /input
+        read_only: true
       - type: bind
         source: ./output
         target: /output

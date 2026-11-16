@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Living Work Register
 
-> **Source-of-truth dashboard.** Snapshot audited 2026-11-16 against `main` `559ba1e4e747f7c8b1fed5741c95c5f429c50557`. This file tracks decisions and delivery; it does not claim tests were rerun. Reconcile against GitHub PRs/checks and source at the current SHA before selecting work.
+> **Source-of-truth dashboard.** Reconciled 2026-11-16 against `main` `6529bd9bb9ce5374ce2c065d61bc11b665eafa40` after [PR #83](https://github.com/Rofikali/Messy-File-Cleaner/pull/83) merged (its CMake, Docker, Makefile and Ubuntu PR-head workflows completed successfully). This file tracks decisions and delivery; SAFE-01 is a separate review candidate, **not** merged, and no new tests have been run merely by editing this file. Reconcile current GitHub/CI state before taking the next task.
 
 ## Product north star
 
@@ -16,8 +16,8 @@ Read [project identity and business strategy](docs/PRODUCT_AND_BUSINESS_STRATEGY
 
 | ID / priority | Status at baseline | Bounded next action | Completion gate |
 | --- | --- | --- | --- |
-| DOC-01 / P0 | **IN_PROGRESS — documentation-only candidate** | Establish this register and adapted governance/docs map using IMGENGINE's *methods*, not its image stack. | Review PR and checks; owner merge decision. No source/runtime change. |
-| SAFE-01 / P0 | **READY after DOC-01 merge** | Review Compose dry-run source mount; if practical make it read-only without weakening execution-mode safeguards; add policy/test assertions. | Separate small PR; disposable Docker dry-run and real-move fixtures, CI; no user-data use. |
+| DOC-01 / P0 | **MERGED** — [PR #83](https://github.com/Rofikali/Messy-File-Cleaner/pull/83), merge `6529bd9` | IMGENGINE-style governance adapted to local C17 product; docs only. | Four PR-head CI workflows passed; no production release implied. |
+| SAFE-01 / P0 | **IN_PROGRESS — review candidate; not merged** | Make default Compose source mount readonly, add explicitly named writable-source execution overlay and disposable Compose-mode CI tests; document safe usage. | PR-head Docker default/override smoke, CMake/Makefile/Ubuntu CI, exact source/target preservation, owner review; not yet verified. |
 | HYGIENE-01 / P1 | **READY after DOC-01** | Review tracked `perf.data` and `gprof.txt` for provenance/sensitive content, retention and safe cleanup; clarify .gitignore/benchmark artifacts. | Owner review before deleting tracked files; CI; no destruction of user data. |
 | GOV-01 / P1 | **READY after DOC-01** | Reconcile README, `AGENTS.md`, `skills.md` and uppercase `SKILLS.md` as a single clear authority, accurately permitting **test-only Rust**, not production Rust. | Docs-only or scoped PR; no policy loosening. |
 | RUST-01 / P1 | **READY only after preceding safety decisions** | Design test-only FCJ4 C shim and Rust FFI; no production link. | ABI/ownership/threat review, negative tests, C11/C17/C23 + Rust/CI, production isolation proof. |
@@ -49,8 +49,8 @@ Read [project identity and business strategy](docs/PRODUCT_AND_BUSINESS_STRATEGY
 
 ## Execution order
 
-1. Review/merge DOC-01 after owner approval and CI; reconcile main HEAD.
-2. Complete SAFE-01 narrowly, preserving both dry-run and explicit real-move test mode; safety before convenience.
+1. **DOC-01 merged** (PR #83); preserve its governance baseline and reconcile current main SHA.
+2. Review SAFE-01 separately, verifying actual Compose config and disposable real/dry-run smoke before any merge; safety before convenience.
 3. Address HYGIENE-01 and GOV-01 as separate low-risk changes (order by review readiness).
 4. Reassess FS-01 safety/release risks; advance RUST-01 only after safety gates and accepted test-shim contract.
 5. Start PERF-01, ABI-01 and BIZ-01 when dependencies, customer evidence, and resources justify them.

@@ -40,6 +40,8 @@ static atomic_uint test_fsync_fail_call;
 static atomic_int test_fsync_error;
 static atomic_int test_publish_error;
 static atomic_int test_retire_error;
+/* Single-threaded deterministic test characterization only, never production. */
+static FcTestMoverRetireProbe test_retire_probe;
 static atomic_int test_crash_stage;
 
 void fc_test_mover_stop_at_crash_stage(int stage)
@@ -79,6 +81,12 @@ void fc_test_mover_set_publish_error(int error_code)
 void fc_test_mover_set_retire_error(int error_code)
 {
     atomic_store_explicit(&test_retire_error, error_code, memory_order_release);
+}
+
+void fc_test_mover_set_retire_probe(FcTestMoverRetireProbe callback)
+{
+    /* Set only outside a move on single-threaded FC_TESTING fixtures. */
+    test_retire_probe = callback;
 }
 
 static int consume_injected_error(atomic_int *error_slot)
@@ -477,6 +485,15 @@ static int retire_source(int source_dirfd, const char *source_name,
             return -1;
         }
 
+        /* Test-only deterministic schedule point after the identity check.
+         * A callback may substitute the entry before unlinkat(), showing
+         * whether the production check/use pair is a safe trust boundary.
+         * Do not add a production callback or interpret this as a fix. */
+#ifdef FC_TESTING
+        if (test_retire_probe != NULL &&
+            test_retire_probe(source_dirfd, quarantine) != 0)
+            return -1;
+#endif
         if (unlinkat(source_dirfd, quarantine, 0) != 0)
             return -1;
 

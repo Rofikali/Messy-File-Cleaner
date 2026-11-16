@@ -147,7 +147,7 @@ Prioritize customer value, data safety, reliability, support cost, and total cos
 
 ## Mandatory language decision: pure C
 
-The project owner has made a firm product and engineering decision: **this repository is a pure C project, not a C++ project**.
+The project owner has made a firm product and engineering decision: **the production engine and shipped native targets are pure C, not C++**. The accepted Rust ADR permits a narrow **test-only** Rust-support crate; it does not authorize a Rust production core.
 
 - Implement the application, core modules, tests, tools that ship with the product, and native build targets in C.
 - Do not introduce C++ source files or C++ implementation: no `.cpp`, `.cc`, or `.cxx` files; no C++ classes, templates, exceptions, STL, or C++ runtime dependency.

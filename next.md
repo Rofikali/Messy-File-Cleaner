@@ -2,18 +2,20 @@
 
 ## LIVE BOARD — NOW / NEXT / LATER (authoritative task selection)
 
-**Reconciled 2026-11-16** against GitHub `main` `9dfb2ac30a3a539529e165d2ab168e0e332a0471`. [ROADMAP-02 PR #87](https://github.com/Rofikali/Messy-File-Cleaner/pull/87) is **MERGED** at this SHA; its PR head `df48832870250faba9d55d8575b5431d7705a6c5` had CMake, Docker, Makefile and Ubuntu 24.04 workflows **all PASS**. No open PRs were found before this new branch. **FS-01A** is the current source-audit review candidate; this is not production certification or permission for a source-retirement fix. Refresh GitHub/main/PR checks before every task.
+**Reconciled 2026-11-16** against GitHub `main` `5e41a6ba1ab2a6839c1156cb7959fcaa20eccd6d`. [FS-01A PR #88](https://github.com/Rofikali/Messy-File-Cleaner/pull/88) is **MERGED** at this SHA; its PR head `715dc7d73d8af92093d06c3b96f729fa92a6fd14` passed CMake, Docker, Makefile and Ubuntu 24.04 CI. No open PRs were found when starting FS-01B. **FS-01B is a test-only known-risk characterization in review**, not a fix. Current P0 production source-retirement and release safety remains **BLOCKED** pending the separately reviewed solution. Refresh GitHub/main/PR/check state before each task.
 
 **Product mission:** A safe, explainable Linux/POSIX file organizer. The current product is a C17 CLI, with C11/C23 compatibility tests, Docker dry-run / explicitly writable execute, and legacy journal-backed moves. FCJ3/FCJ4 are **test-only**. Rust is **test-only**, not connected via FFI. Broader release, public C SDK, GUI/API and monetization are not demonstrated. User data protection outranks speed and features.
 
-**Navigation:** [FS-01A production filesystem safety review](docs/security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md) · [Component completion inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) · [AGENTS](AGENTS.md) · [skills](skills.md) · [docs index](docs/README.md) · [CI/Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md) · [handoff](docs/AGENT_CONTINUATION_AND_HANDOFF.md) · [product/business](docs/PRODUCT_AND_BUSINESS_STRATEGY.md).
+**Navigation:** [FS-01B known-risk characterization](docs/quality/FS_01B_RETIREMENT_RACE_CHARACTERIZATION.md) · [FS-01A production filesystem safety review](docs/security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md) · [Component completion inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) · [AGENTS](AGENTS.md) · [skills](skills.md) · [docs index](docs/README.md) · [CI/Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md) · [handoff](docs/AGENT_CONTINUATION_AND_HANDOFF.md) · [product/business](docs/PRODUCT_AND_BUSINESS_STRATEGY.md).
 
 ### Live work lanes
 
 | Lane | Milestone / accurate current status | Next bounded action | Acceptance and gating |
 | --- | --- | --- | --- |
 | **FINISHED — documentation board** | **ROADMAP-02 — MERGED PR #87, merge `9dfb2ac`** | IMGENGINE-style live NOW/NEXT/LATER plus completed/partial/test-only inventory now exists. | Four PR-head workflows passed at `df48832`; no runtime release implied. |
-| **NOW — source-first safety review** | **FS-01A P0 — IN_PROGRESS, read-only documentation candidate** | Inspect C mover, quarantine/unlink, legacy journal and path admission against threat model; record evidence and identify next bounded regression. | [Audit](docs/security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md), docs-only PR, current-head CI and owner review. **FS-01 overall remains OPEN.** |
+| **FINISHED — FS-01A source review** | **FS-01A P0 — MERGED PR #88, merge `5e41a6`** | Read-only mover/journal audit and standing `go ahead` governance. | Four PR-head CI workflows passed at `715dc7d`; FS-01 P0 release gate remains OPEN. |
+| **NOW — controlled source-retirement evidence** | **FS-01B P0 — IN_PROGRESS, test-only known-risk PR candidate** | Reproduce post-`fstatat`/pre-`unlinkat` quarantine-name substitution using only private fixtures and retained backup link. | [Test interpretation](docs/quality/FS_01B_RETIREMENT_RACE_CHARACTERIZATION.md), exact-head C11/C17/C23 and CI; **PASS proves the risk is reproduced, not fixed.** |
+| **NOW — production source-retirement safety blocker** | **FS-01B-FIX P0 — BLOCKED, requires separate safety design/review** | Design a race-resilient source retirement/private quarantine with object ownership, failure/crash behavior and regression criteria. No implementation in FS-01B. | Owner-approved bounded design, positive preservation tests, required CI and supported filesystem evidence before any release claim. |
 | **NOW — separate release planning** | **REL-01 P0 release gate — BLOCKED** | Inventory supported Linux/fs targets, backup/restore, distribution license, build provenance, operational rollback and release evidence. | Owner decisions, complete exact-candidate safety validation; CI pass alone is not release certification. |
 | **NEXT — isolated Rust test seam** | **RUST-01 P1 — PLANNED / needs explicit test-shim design review** | Propose smallest C parser-only test shim and Rust `extern "C"` verification, with ownership, bounds, error and link-isolation contracts. | Separate bounded PR, C11/C17/C23, sanitizer + Rust fmt/clippy/test, negative inputs, production binary isolation, owner approval. |
 | **NEXT — Rust property/fuzz** | **RUST-02 P1 — BLOCKED on RUST-01** | Extend test-only Rust harness with deterministic valid/invalid byte generation and bounded parser fuzz/property tests. | Minimal reproducible counterexamples, C regression fixtures and CI, no second FCJ4 grammar or unsafe prod link. |
@@ -45,6 +47,7 @@ Every task checkpoint must include **ID, intended outcome, owner decision, exact
 | HYGIENE-01 | **MERGED** PR #85, merge `d3fd576` | Retention/ignore policy; tracked profiles **not deleted** |
 | GOV-01 | **MERGED** PR #86, merge `30f14e9` | C production and Rust test-only policy; 4/4 triggered CI workflows passed at PR head |
 | ROADMAP-02 | **MERGED** PR #87, merge `9dfb2ac` | Live NOW/NEXT/LATER and separate per-component maturity inventory; four PR-head workflows passed |
+| FS-01A | **MERGED** PR #88, merge `5e41a6` | Read-only source/journal audit and `go ahead` continuation rule; **not** a production fix |
 | FCJ4 restart tests | **MERGED** PR #80, merge `4362c41` | Malformed/truncated test scope; **not** production FCJ4 recovery |
 | Rust test scaffold | **MERGED** PRs #81 / #82 | Toolchain/Cargo crate; parser FFI **not implemented** |
 | Existing C17 CLI | **IMPLEMENTED, merged** | Scanner/classifier/worker/mover/legacy journal and 28 declared CTest cases; no broad release certification |
@@ -56,6 +59,7 @@ Every task checkpoint must include **ID, intended outcome, owner decision, exact
 | Workflow | Current maturity | Missing for full customer outcome |
 | --- | --- | --- |
 | Journal recovery under hostile/crash conditions | **PARTIAL evidence** | Verify preserved identity/durability and supported FS, no unsupported automatic deletion |
+| Source retirement under concurrent writable-directory substitution | **KNOWN P0 CHECK/USE RISK; FS-01B test characterization candidate** | Data-preserving test fixture can reproduce deletion of a swapped entry; production fix/positive regression is not implemented |
 | FCJ4 end-to-end production moves | **PARTIAL test-only building blocks / production NOT_STARTED** | Real durable journal/mover integration is blocked and unapproved |
 | Rust-based FCJ4 parser verification | **STARTED** | Safe C test seam, Rust FFI, property/fuzz run and regression evidence |
 | Public use/distribution | **PARTIAL preparation / RELEASE BLOCKED** | License/support matrix, backups, release artifacts, rollback and actual environment validation |

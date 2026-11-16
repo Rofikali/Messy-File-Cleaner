@@ -45,6 +45,11 @@ void fc_test_mover_set_temp_create_error(int error_code);
 void fc_test_mover_set_fsync_fault(unsigned int call_number, int error_code);
 void fc_test_mover_set_publish_error(int error_code);
 void fc_test_mover_set_retire_error(int error_code);
+/* Test-only injection at the post-fstatat/pre-unlinkat retirement boundary.
+ * Fixtures must be single-threaded and private; never ship this symbol. */
+typedef int (*FcTestMoverRetireProbe)(int source_dirfd,
+                                    const char *quarantine_name);
+void fc_test_mover_set_retire_probe(FcTestMoverRetireProbe callback);
 #endif
 
 #endif

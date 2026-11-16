@@ -2,7 +2,7 @@
 
 A Linux/POSIX file-organization tool with a **pure-C production engine** and isolated Rust **test-support** tooling. It scans a directory, classifies files using configurable extension rules, and processes work through a bounded worker pipeline. File moves are protected by a journal-backed transaction flow so interrupted operations can be examined and recovered conservatively.
 
-> **Project status:** Active development. Treat this repository as an engineering project under validation, not as a claim of production-grade or universally crash-proof file operations. Review the current tests, platform assumptions, and known limitations before using it on valuable data.
+> **Project status:** Active development. Treat this repository as an engineering project under validation, not as a claim of production-grade or universally crash-proof file operations. **P0 source-retirement risk under concurrently writable source directories:** a post-identity-check pathname unlink may act on a substituted directory entry. See [FS-01B known-risk characterization](docs/quality/FS_01B_RETIREMENT_RACE_CHARACTERIZATION.md). A characterization test passing means the gap was reproduced, **not** fixed. Do not use on valuable data without verified backups and a reviewed operating environment. Review current tests and limitations before real moves.
 
 ## Project roadmap, current status, and engineering docs
 

@@ -14,7 +14,7 @@
 | What runs in CI, what Make targets do, and what counts as proof? | [CI/CD and Makefile operations](CI_CD_AND_MAKEFILE_OPERATIONS.md) and [Makefile](../Makefile) |
 | Which market, cost, free/paid or SDK opportunities are hypotheses? | [Product/business strategy](PRODUCT_AND_BUSINESS_STRATEGY.md) |
 | What modules and dependencies exist? | [HLD](HLD.md), [LLD](LLD.md), [engineering playbook](architecture/ENGINEERING_PLAYBOOK.md) |
-| What threatens user data? | [Threat model](security/THREAT_MODEL.md), [FS-01A production mover/journal audit](security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md) and focused docs in [security](security/) |
+| What threatens user data? | [Threat model](security/THREAT_MODEL.md), [FS-01A mover/journal audit](security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md), [FS-01B known-risk race characterization](quality/FS_01B_RETIREMENT_RACE_CHARACTERIZATION.md) and focused docs in [security](security/) |
 | How does journal parsing/recovery work? | [FCJ4 schema](quality/FCJ4_SCHEMA_AND_REPLAY_DESIGN.md), [FCJ4 execution safety](quality/FCJ4_RECOVERY_EXECUTION_SAFETY_DESIGN.md), [other quality docs](quality/) |
 | What is Rust allowed to do now? | [Accepted Rust ADR](architecture/ADR_RUST_ADOPTION_STRATEGY.md), [test-support boundary](architecture/RUST_TEST_SUPPORT_BOUNDARY.md) |
 | How are C API/static/shared libraries proposed? | [C API/ABI/FFI roadmap](architecture/C-API-ABI-FFI-ROADMAP.md) |

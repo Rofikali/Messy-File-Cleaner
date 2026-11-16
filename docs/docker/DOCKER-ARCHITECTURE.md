@@ -7,7 +7,7 @@ Provide a reproducible Linux runtime for the POSIX C CLI without changing filesy
 
 | Container path | Purpose | Host mount |
 | --- | --- | --- |
-| /input | Files to classify and move | ./input |
+| /input | Files to classify and move | ./input (read-only by default; explicit execution override only) |
 | /output | Categorized folders | ./output |
 | /output/journal | Persistent journal and recovery state | ./state |
 | /app/configs | Configuration | Included in image |

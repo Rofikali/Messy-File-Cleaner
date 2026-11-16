@@ -108,12 +108,12 @@ jobs:
           docker tag messy-file-cleaner:ci messy-file-cleaner:local
 
           printf 'compose dry-run fixture\n' > input/dry-run.jpg
-          docker compose -f compose.yaml run --rm --no-deps --no-build cleaner
+          docker compose -f compose.yaml run --rm --no-deps cleaner
           test -f input/dry-run.jpg
           test ! -e output/Jpeg/dry-run.jpg
 
           printf 'compose explicit move fixture\n' > input/execute.png
-          docker compose -f compose.yaml -f compose.execute.yaml run --rm --no-deps --no-build cleaner
+          docker compose -f compose.yaml -f compose.execute.yaml run --rm --no-deps cleaner
           test ! -e input/execute.png
           test -f output/Png/execute.png
           test -s state/move.log

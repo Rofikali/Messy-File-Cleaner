@@ -111,7 +111,7 @@ Build a dependable file-management engine that is safe with user data. Prioritie
 - Define ABI version negotiation and size/version fields for extensible structs.
 - Never expose pthread types, FILE pointers, internal queues, or platform details in the stable ABI.
 - Rust FFI must use the C ABI, repr(C) where required, explicit pointer/length contracts, and documented safety invariants.
-- No Rust component until there is a concrete consumer and a benchmark or safety justification.
+- The accepted Rust test-support crate in `tests/rust/` is the sole approved exception to C-only development. Any **new** Rust component, C/Rust FFI connection, or production use requires its applicable staged ADR review, concrete test consumer or measured safety benefit, and explicit scope approval.
 - Panics, exceptions, and longjmp must never cross the C ABI boundary.
 
 ## Security and delivery
@@ -133,19 +133,19 @@ Every milestone is an independently reviewable delivery unit with written scope 
 2. Before implementation, record the objective, scope, risks, security impact, and measurable acceptance criteria.
 3. A milestone passes only when its required tests, security checks, documentation, and acceptance criteria pass. A successful compile alone is not a pass.
 4. Record exact commands, CI run links/results, test outcomes, and known limitations in the pull request.
-5. After the milestone passes, merge its PR into `main` (subject to required owner review and repository protections).
+5. After the milestone passes, **request owner approval** for merging that specific reviewed PR. Passing checks or generic continuation instructions do not authorize the agent to merge.
 6. Verify the merge commit and rerun/inspect required checks on `main`.
 7. Start the next milestone from the updated `main`; do not stack the next milestone on an unmerged branch.
 8. If any gate fails, keep work within that milestone, fix it, and rerun the gates. Do not declare it complete or advance.
 9. Never merge a failing, unreviewed, or unverified milestone just to maintain schedule. If GitHub permissions or branch protections prevent the merge, report the blocker and ask the repository owner to resolve it.
 
-The repository owner expects each passed milestone to reach `main` before the next milestone begins. The assistant must not claim a merge until GitHub confirms it.
+The repository owner expects each approved, passed milestone to reach `main` before a dependent milestone begins. The assistant must not merge without specific owner authorization or claim a merge until GitHub confirms it.
 
 ## Product and management
 Prioritize customer value, data safety, reliability, support cost, and total cost of ownership. Build the smallest reliable product first. Add GUI, API server, cloud, and distributed processing only when customer demand justifies them.
 
 
-## Mandatory language decision: pure C
+## Mandatory production language: pure C17; isolated Rust test support
 
 The project owner has made a firm product and engineering decision: **the production engine and shipped native targets are pure C, not C++**. The accepted Rust ADR permits a narrow **test-only** Rust-support crate; it does not authorize a Rust production core.
 
@@ -164,12 +164,14 @@ This policy overrides generic examples or recommendations that suggest C++ as an
 ## Mandatory engineering playbook and skills
 
 The detailed, enforceable engineering standards live in:
-- `skills.md` — day-to-day contributor and coding-agent workflow, review checklist, and implementation skills.
+- `skills.md` — day-to-day contributor and coding-agent workflow, review checklist, and implementation recipes.
+- `SKILLS.md` — non-binding knowledge catalogue; it does not override `AGENTS.md`, the accepted ADRs or `skills.md`.
+- `next.md` — living milestone status, sequencing and evidence board; it is not itself approval for a risky operation.
 - `docs/architecture/ENGINEERING_PLAYBOOK.md` — HLD/LLD, module design, architecture styles, design patterns, SOLID/DRY/KISS, testing, and documentation rules.
 - `docs/security/THREAT_MODEL.md` — assets, trust boundaries, attacker model, filesystem threats, controls, and security acceptance gates.
 
 These documents are normative together with this file. If guidance conflicts, apply this precedence:
-1. Explicit project-owner decisions (especially pure C).
+1. Explicit current project-owner decisions and accepted ADRs (C17 production, isolated Rust test-only pilot), without weakening mandatory data-preservation rules.
 2. Safety and security invariants in this file and the threat model.
 3. Public API/ABI and journal-format compatibility contracts.
 4. Architecture playbook and skills.

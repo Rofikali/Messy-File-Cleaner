@@ -11,7 +11,7 @@ Decision order:
 4. Measure performance and resource use.
 5. Optimize delivery speed and convenience.
 
-The product is a Linux/POSIX **modular monolith written in pure C**. It is not a distributed system. C17 is the production baseline; C11 and C23 are independent validation targets.
+The **production product** is a Linux/POSIX modular monolith written in **pure C17**. It is not a distributed system. C11 and C23 are independent compatibility validation targets. The accepted Rust ADR permits an isolated **test-only** Rust verification crate; it does not introduce production Rust, FFI or a stable library ABI.
 
 ## 2. HLD — high-level design
 
@@ -265,7 +265,7 @@ Prefer a smaller reliable product over a large feature list. Do not introduce mi
 A change is done only when:
 1. Requirements and acceptance criteria are explicit.
 2. Design and module contracts are updated.
-3. Implementation is pure C and follows the supported standards.
+3. Production implementation remains pure C17 and follows the supported standards; any approved isolated Rust test-support changes obey the accepted Rust ADR, crate boundary and test-only link-isolation requirements.
 4. Security and data-preservation invariants are maintained.
 5. Focused tests and risk-appropriate full gates pass.
 6. Documentation matches actual behavior.

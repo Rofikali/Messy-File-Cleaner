@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Living Work Register
 
-> **Source-of-truth dashboard.** Reconciled 2026-11-16 against `main` `6529bd9bb9ce5374ce2c065d61bc11b665eafa40` after [PR #83](https://github.com/Rofikali/Messy-File-Cleaner/pull/83) merged (its CMake, Docker, Makefile and Ubuntu PR-head workflows completed successfully). This file tracks decisions and delivery; SAFE-01 is a separate review candidate, **not** merged, and no new tests have been run merely by editing this file. Reconcile current GitHub/CI state before taking the next task.
+ > **Source-of-truth dashboard.** Reconciled 2026-11-16 against `main` `0184cc1b3fb8b70f599578a025bd134fec0c9618` after [SAFE-01 PR #84](https://github.com/Rofikali/Messy-File-Cleaner/pull/84) merged. This document records source-backed status and decisions; HYGIENE-01 is a review candidate, not merged. Verify current PR/CI SHAs before implementation.
 
 ## Product north star
 
@@ -17,8 +17,8 @@ Read [project identity and business strategy](docs/PRODUCT_AND_BUSINESS_STRATEGY
 | ID / priority | Status at baseline | Bounded next action | Completion gate |
 | --- | --- | --- | --- |
 | DOC-01 / P0 | **MERGED** — [PR #83](https://github.com/Rofikali/Messy-File-Cleaner/pull/83), merge `6529bd9` | IMGENGINE-style governance adapted to local C17 product; docs only. | Four PR-head CI workflows passed; no production release implied. |
-| SAFE-01 / P0 | **IN_PROGRESS — review candidate; not merged** | Make default Compose source mount readonly, add explicitly named writable-source execution overlay and disposable Compose-mode CI tests; document safe usage. | PR-head Docker default/override smoke, CMake/Makefile/Ubuntu CI, exact source/target preservation, owner review; not yet verified. |
-| HYGIENE-01 / P1 | **READY after DOC-01** | Review tracked `perf.data` and `gprof.txt` for provenance/sensitive content, retention and safe cleanup; clarify .gitignore/benchmark artifacts. | Owner review before deleting tracked files; CI; no destruction of user data. |
+| SAFE-01 / P0 | **MERGED** — [PR #84](https://github.com/Rofikali/Messy-File-Cleaner/pull/84), merge `0184cc1` | Default Compose source read-only, opt-in writable execution overlay and disposable Docker checks. | PR head `92c1d3d`: Docker, CMake and Makefile workflows passed; standalone Ubuntu job not triggered. |
+| HYGIENE-01 / P1 | **IN_PROGRESS — docs/ignore-rule review candidate** | Audit tracked `perf.data` (binary not decoded) and `gprof.txt` (historical paths); document data retention and ignore additional outputs. | No tracked file deletion; review PR/CI and current Git tree; owner decides whether to retain or archive artifacts. |
 | GOV-01 / P1 | **READY after DOC-01** | Reconcile README, `AGENTS.md`, `skills.md` and uppercase `SKILLS.md` as a single clear authority, accurately permitting **test-only Rust**, not production Rust. | Docs-only or scoped PR; no policy loosening. |
 | RUST-01 / P1 | **READY only after preceding safety decisions** | Design test-only FCJ4 C shim and Rust FFI; no production link. | ABI/ownership/threat review, negative tests, C11/C17/C23 + Rust/CI, production isolation proof. |
 | RUST-02 / P1 | **BLOCKED on RUST-01 merge** | Deterministic Rust property tests, then bounded fuzzing against existing C FCJ4 parser, with minimized C regressions. | Reproducible findings; no duplicate FCJ4 grammar or production C/Rust link. |
@@ -49,9 +49,9 @@ Read [project identity and business strategy](docs/PRODUCT_AND_BUSINESS_STRATEGY
 
 ## Execution order
 
-1. **DOC-01 merged** (PR #83); preserve its governance baseline and reconcile current main SHA.
-2. Review SAFE-01 separately, verifying actual Compose config and disposable real/dry-run smoke before any merge; safety before convenience.
-3. Address HYGIENE-01 and GOV-01 as separate low-risk changes (order by review readiness).
+1. **DOC-01 merged** (PR #83) and **SAFE-01 merged** (PR #84); preserve their governance and Compose safety baselines.
+2. Review HYGIENE-01's retention/ignore policy, **without** deleting currently tracked historical profiles until an explicit owner decision.
+3. Address GOV-01 as a separate bounded change after this branch merges; keep current authority clear.
 4. Reassess FS-01 safety/release risks; advance RUST-01 only after safety gates and accepted test-shim contract.
 5. Start PERF-01, ABI-01 and BIZ-01 when dependencies, customer evidence, and resources justify them.
 6. Never start a dependent branch on an unmerged PR; stop if an unverified security, journal, ABI, owner or release gate is unresolved.

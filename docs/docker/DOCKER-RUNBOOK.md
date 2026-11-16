@@ -46,7 +46,8 @@ The journal records paths and should be treated as operationally sensitive.
 ## Safety checklist
 - [ ] Input is disposable or backed up.
 - [ ] Output is not inside input.
-- [ ] Dry-run output reviewed.
+- [ ] Dry-run output reviewed; default `/input` is read-only.
+- [ ] For execution only: explicit `compose.execute.yaml` selected, backup verified, and writable-source operation understood.
 - [ ] Container runs non-root.
 - [ ] No host root, Docker socket, or unrelated paths mounted.
 - [ ] Journal directory is persistent.

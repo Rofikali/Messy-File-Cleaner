@@ -7,7 +7,7 @@
 | What is the product, implemented scope and user-facing usage? | [README](../README.md) |
 | What is finished, blocked, planned, and next? | [Living work register](../next.md) |
 | What may agents do and what requires approval? | [AGENTS](../AGENTS.md) |
-| How to perform recurring engineering tasks? | [skills.md](../skills.md); [SKILLS.md](../SKILLS.md) is a learning catalogue, **not** a second instruction hierarchy |
+| How to perform recurring engineering tasks? | [skills.md](../skills.md) is the operational recipe; [SKILLS.md](../SKILLS.md) is a non-binding learning catalogue and does **not** approve technologies, merges or runtime changes |
 | Seven engineering levels, CTO/security, decision and review criteria? | [Engineering operating model](ENGINEERING_OPERATING_MODEL.md) |
 | How to resume/handoff a bounded PR? | [Agent continuation](AGENT_CONTINUATION_AND_HANDOFF.md) |
 | What runs in CI, what Make targets do, and what counts as proof? | [CI/CD and Makefile operations](CI_CD_AND_MAKEFILE_OPERATIONS.md) and [Makefile](../Makefile) |
@@ -22,7 +22,7 @@
 
 ## Precedence
 
-1. Explicit current owner decisions and approved ADRs; no automatic approval of risky actions.
+1. Explicit current owner decisions and accepted ADRs, within mandatory filesystem and data-preservation safety constraints; no automatic approval of risky actions.
 2. Data preservation, security and recovery invariants in AGENTS/threat model.
 3. Existing on-disk journal compatibility and current source/API contracts.
 4. Architecture playbook and module-specific design docs.

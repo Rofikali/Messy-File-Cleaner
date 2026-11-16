@@ -2,6 +2,22 @@
 
 This file is the working contract for every human and automated contributor.
 
+## Project operating dashboard and agent continuation
+
+- Start every new task by reading the [living work register](next.md), [documentation authority map](docs/README.md), [seven-level engineering and business operating model](docs/ENGINEERING_OPERATING_MODEL.md), [CI/CD and Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md), and [agent continuation/handoff](docs/AGENT_CONTINUATION_AND_HANDOFF.md), then the affected code and security contracts. These documents supplement, never override, the safety invariants here.
+- `next.md` is the canonical cross-milestone status and dependency board. Confirm current main/PR/check SHAs before treating a dated entry as current. A design, implementation, checked PR, merged PR and released binary are distinct.
+- After a milestone, checkpoint exact SHA, reviewed diff, actual test/CI outcomes, blockers, risk, next READY item and owner decision. Use one bounded PR per milestone; never start its dependent implementation before the earlier PR is merged and verified.
+- A running coding agent may follow the documented next-task-selection procedure in its authorized session. Markdown does **not** start a stopped agent, monitor a repository on its own, or authorize merge, release, destructive filesystem operations or spending.
+- Apply the seven engineering levels as proportional **review perspectives**, not seven automatic code-changing agents. Security, SRE, CTO and CA/MBA review should scale with risk and data-loss consequences.
+- Keep heavy passing test logs in CI/artifacts; report exact SHA + job conclusions, retrieve only bounded failures. Change-scoped local tests never waive existing required PR/CI gates.
+
+## Approved narrow Rust test-tooling exception
+
+- The owner merged [Rust adoption ADR](docs/architecture/ADR_RUST_ADOPTION_STRATEGY.md) in PR #81 and the isolated test-support scaffold in PR #82. The **production engine remains pure C17**. The repository now contains Rust **test support only** under `tests/rust/`, with no production FFI, library or runtime dependency.
+- Where this file or `skills.md` says “pure C,” interpret it as the production core/production native targets. It does not prohibit the **approved, isolated Rust test-support pilot**. No extra language may enter the production core without a separate approved architecture/security decision.
+- No `.a`/`.so` product library, public ABI or production FCJ4 recovery is authorized by test-tooling acceptance. [Artifact policy](docs/architecture/RUST_TEST_SUPPORT_BOUNDARY.md) remains binding.
+- `skills.md` is the operational recipe; uppercase `SKILLS.md` is a skill catalogue, not a competing agent authority.
+
 ## Mission and priorities
 Build a dependable file-management engine that is safe with user data. Priorities: correctness and preservation of files; security and least privilege; recoverability and observability; measured performance; maintainability and delivery speed. Never trade data safety for a benchmark result. No performance claim without a reproducible benchmark and recorded environment.
 

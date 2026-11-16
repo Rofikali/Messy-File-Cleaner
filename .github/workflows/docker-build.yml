@@ -99,7 +99,7 @@ jobs:
           service = json.load(sys.stdin)["services"]["cleaner"]
           mounts = [m for m in service["volumes"] if m["target"] == "/input"]
           assert len(mounts) == 1, "expected exactly one input mount"
-          assert mounts[0].get("read_only") is False, "execute input must be writable"
+          assert mounts[0].get("read_only", False) is False, "execute input must be writable"
           assert "--dry-run" not in service["command"], "execute cannot be dry-run"
           assert "--once" in service["command"], "execute should be bounded batch"
           '

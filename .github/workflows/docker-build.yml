@@ -79,7 +79,9 @@ jobs:
           test ! -e output
           test ! -e state
           mkdir input output state
-          trap 'rm -rf -- input output state' EXIT
+          # Ephemeral GitHub runner disposes these CI-created fixtures. A
+          # non-root container owns subdirectories; never recursively delete
+          # them as the runner user or widen runtime permissions for cleanup.
           chmod 0777 input output state
 
           # The default path is dry-run AND read-only at the container mount layer.

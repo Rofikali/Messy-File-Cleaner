@@ -1,8 +1,19 @@
 # Messy File Cleaner
 
-A Linux/POSIX file-organization tool written in **pure C**. It scans a directory, classifies files using configurable extension rules, and processes work through a bounded worker pipeline. File moves are protected by a journal-backed transaction flow so interrupted operations can be examined and recovered conservatively.
+A Linux/POSIX file-organization tool with a **pure-C production engine** and isolated Rust **test-support** tooling. It scans a directory, classifies files using configurable extension rules, and processes work through a bounded worker pipeline. File moves are protected by a journal-backed transaction flow so interrupted operations can be examined and recovered conservatively.
 
 > **Project status:** Active development. Treat this repository as an engineering project under validation, not as a claim of production-grade or universally crash-proof file operations. Review the current tests, platform assumptions, and known limitations before using it on valuable data.
+
+## Project roadmap, current status, and engineering docs
+
+- **What is built, planned, blocked and next:** [`next.md`](next.md) — living milestone board with status/evidence requirements.
+- **Where to find authoritative docs:** [Documentation map](docs/README.md).
+- **How seven engineering levels, security, CTO, CA/MBA and management review changes:** [Operating model](docs/ENGINEERING_OPERATING_MODEL.md).
+- **CI/CD and supported Make targets:** [CI/CD and Makefile guide](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md).
+- **How an agent resumes and selects the next small PR:** [Continuation/handoff runbook](docs/AGENT_CONTINUATION_AND_HANDOFF.md).
+- **Product direction and free/paid/SDK hypotheses:** [Product and business strategy](docs/PRODUCT_AND_BUSINESS_STRATEGY.md).
+
+**Technology status:** The shipped application remains **C17**; C11 and C23 are compatibility-validation targets. PRs #81 and #82 approved/merged **isolated Rust test-support** for future parser verification. That Rust crate does not call C yet and is not part of the executable. No public `.a`/`.so` SDK, production Rust FFI, FCJ4 production recovery, SaaS/API, GUI, pricing, or automatic deployment is implemented by this documentation.
 
 ## Engineering direction
 
@@ -58,7 +69,7 @@ The production source list is explicit in `CMakeLists.txt`. Placeholder source f
 
 ## Architecture decisions
 
-- **Language:** pure C. C++ is not part of this project.
+- **Production language:** pure C; an accepted Rust test-only pilot exists outside production. C++ is not part of this project.
 - **Production baseline:** C17.
 - **Compatibility validation:** C11 and C23 are tested as separate build targets; C23 is not the minimum production requirement.
 - **Structure:** modular monolith with narrow module contracts.
@@ -215,6 +226,10 @@ Do not describe end-to-end file moves as nanosecond operations. Nanosecond-scale
 - Check system-call results and preserve useful error information.
 - Keep test fault-injection controls out of production builds.
 - Never commit credentials, private user files, runtime journals, or benchmark artifacts.
+
+## CI and release status
+
+The project has GitHub workflows for CMake Debug/Release and C11/C17/C23 tests, Makefile validation, Ubuntu 24.04 containers, Docker smoke, Rust test support and conditional FCJ4 TSan; manual large-scale/performance benchmark workflows are separate. **These are build/test workflows, not an automatic software deployment or production release.** Use [CI/CD and Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md) for actual triggers and evidence lanes. The existing `Makefile` remains unchanged by the documentation-alignment milestone; proposed `status`, `self-check` and `rust-check` targets are **future reviewed changes**, not current commands.
 
 ## Contributing
 

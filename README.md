@@ -69,7 +69,7 @@ The production source list is explicit in `CMakeLists.txt`. Placeholder source f
 
 ## Architecture decisions
 
-- **Language:** pure C. C++ is not part of this project.
+- **Production language:** pure C; an accepted Rust test-only pilot exists outside production. C++ is not part of this project.
 - **Production baseline:** C17.
 - **Compatibility validation:** C11 and C23 are tested as separate build targets; C23 is not the minimum production requirement.
 - **Structure:** modular monolith with narrow module contracts.

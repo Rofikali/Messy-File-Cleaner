@@ -18,7 +18,7 @@
 | What is Rust allowed to do now? | [Accepted Rust ADR](architecture/ADR_RUST_ADOPTION_STRATEGY.md), [test-support boundary](architecture/RUST_TEST_SUPPORT_BOUNDARY.md) |
 | How are C API/static/shared libraries proposed? | [C API/ABI/FFI roadmap](architecture/C-API-ABI-FFI-ROADMAP.md) |
 | Where are container instructions? | [Docker architecture](docker/DOCKER-ARCHITECTURE.md), [Docker runbook](docker/DOCKER-RUNBOOK.md) |
-| Where are benchmark baselines? | [Performance baseline](performance/CI-BASELINE-2026-11-04.md), [performance guidance](performance/PERFORMANCE-ENGINEERING.md) |
+| Where are benchmark baselines? | [Performance baseline](performance/CI-BASELINE-2026-11-04.md), [performance guidance](performance/PERFORMANCE-ENGINEERING.md), [profile artifact retention and provenance](performance/PROFILE_ARTIFACT_RETENTION_AND_PROVENANCE.md) |
 
 ## Precedence
 

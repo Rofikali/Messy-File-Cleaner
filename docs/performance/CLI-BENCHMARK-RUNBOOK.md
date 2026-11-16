@@ -55,6 +55,10 @@ Or use make benchmark-moves. Adjust MOVE_BENCH_FILES, MOVE_BENCH_BYTES, MOVE_BEN
 This benchmark measures same-filesystem disposable runs on the temporary filesystem: process startup, traversal, file copy/publish, source retirement, and journal durability. It does not model cross-filesystem mounts or per-file latency distributions. The reported amortized ns/file is total batch time divided by file count, not a measured individual-file latency. Use separate controlled experiments for cross-filesystem behavior and different storage/cache policies.
 
 
+## Generated artifact retention
+
+Keep local `benchmark-results/` files ignored and avoid committing raw profiles or data-dependent filenames. Export reviewed CSV/JSON with exact SHA/runner/workload metadata through CI artifacts as described below. See [profile artifact privacy and provenance](PROFILE_ARTIFACT_RETENTION_AND_PROVENANCE.md); the historic tracked `perf.data` and `gprof.txt` have **not** been deleted or validated for public distribution by the documentation review.
+
 ## Automated CI benchmark artifacts
 
 The Performance benchmark artifacts workflow runs on benchmark-related pushes to main and can also be started manually from GitHub Actions. Manual inputs let you set scan fixture size/repetitions and real-move fixture size/repetitions/payload bytes.

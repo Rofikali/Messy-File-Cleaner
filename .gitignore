@@ -24,10 +24,21 @@
 *.gcov
 *.d
 
-# Profiling output
+# Profiling output (root and nested build/work directories)
 /perf.data
 /gprof.txt
 /gmon.out
+**/perf.data
+**/perf.data.*
+**/gmon.out
+**/*.profraw
+**/*.profdata
+
+# Generated benchmark data; published evidence belongs in CI artifacts
+/benchmark-results/
+
+# Isolated Rust test-support compilation output
+/tests/rust/fcj4-test-support/target/
 
 # Runtime output and test data
 /generated_files/

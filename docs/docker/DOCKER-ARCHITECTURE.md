@@ -23,7 +23,7 @@ The working directory is /output. The current config uses relative category dest
 - All Linux capabilities dropped; no-new-privileges enabled.
 - Network disabled for this local filesystem workload.
 - PID and memory limits applied.
-- Compose defaults to dry-run. Remove that option only after reviewing the plan.
+- Compose defaults to dry-run **and read-only `/input`**. Real execution requires explicitly using the separate writable-input execution overlay after reviewing the plan.
 
 Source retirement needs a writable input mount **only for a real move**. Default Compose runs a dry-run with the input mounted read-only. The explicit `compose.execute.yaml` overlay replaces that source mount with read/write and removes `--dry-run`. Never use the execution overlay for preview; back up input and inspect the dry-run before any real moves.
 

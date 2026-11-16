@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Living Work Register
 
- > **Source-of-truth dashboard.** Reconciled 2026-11-16 against `main` `0184cc1b3fb8b70f599578a025bd134fec0c9618` after [SAFE-01 PR #84](https://github.com/Rofikali/Messy-File-Cleaner/pull/84) merged. This document records source-backed status and decisions; HYGIENE-01 is a review candidate, not merged. Verify current PR/CI SHAs before implementation.
+> **Source-of-truth dashboard.** Reconciled 2026-11-16 against `main` `0184cc1b3fb8b70f599578a025bd134fec0c9618` after [SAFE-01 PR #84](https://github.com/Rofikali/Messy-File-Cleaner/pull/84) merged. This document records source-backed status and decisions; HYGIENE-01 is a review candidate, not merged. Verify current PR/CI SHAs before implementation.
 
 ## Product north star
 

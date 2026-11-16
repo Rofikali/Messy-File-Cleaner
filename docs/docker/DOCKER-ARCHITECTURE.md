@@ -25,7 +25,7 @@ The working directory is /output. The current config uses relative category dest
 - PID and memory limits applied.
 - Compose defaults to dry-run. Remove that option only after reviewing the plan.
 
-The input mount must be writable for real moves. Never mount valuable files until the dry-run has been reviewed and a backup exists.
+Source retirement needs a writable input mount **only for a real move**. Default Compose runs a dry-run with the input mounted read-only. The explicit `compose.execute.yaml` overlay replaces that source mount with read/write and removes `--dry-run`. Never use the execution overlay for preview; back up input and inspect the dry-run before any real moves.
 
 ## Why .devcontainer remains
 The devcontainer defines the developer workspace. Dockerfile and Compose define the application runtime. They solve different problems.

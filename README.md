@@ -4,6 +4,17 @@ A Linux/POSIX file-organization tool written in **pure C**. It scans a directory
 
 > **Project status:** Active development. Treat this repository as an engineering project under validation, not as a claim of production-grade or universally crash-proof file operations. Review the current tests, platform assumptions, and known limitations before using it on valuable data.
 
+## Project roadmap, current status, and engineering docs
+
+- **What is built, planned, blocked and next:** [`next.md`](next.md) — living milestone board with status/evidence requirements.
+- **Where to find authoritative docs:** [Documentation map](docs/README.md).
+- **How seven engineering levels, security, CTO, CA/MBA and management review changes:** [Operating model](docs/ENGINEERING_OPERATING_MODEL.md).
+- **CI/CD and supported Make targets:** [CI/CD and Makefile guide](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md).
+- **How an agent resumes and selects the next small PR:** [Continuation/handoff runbook](docs/AGENT_CONTINUATION_AND_HANDOFF.md).
+- **Product direction and free/paid/SDK hypotheses:** [Product and business strategy](docs/PRODUCT_AND_BUSINESS_STRATEGY.md).
+
+**Technology status:** The shipped application remains **C17**; C11 and C23 are compatibility-validation targets. PRs #81 and #82 approved/merged **isolated Rust test-support** for future parser verification. That Rust crate does not call C yet and is not part of the executable. No public `.a`/`.so` SDK, production Rust FFI, FCJ4 production recovery, SaaS/API, GUI, pricing, or automatic deployment is implemented by this documentation.
+
 ## Engineering direction
 
 The project is intentionally a **modular C application (modular monolith)**, not a microservices system.

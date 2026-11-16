@@ -11,6 +11,12 @@ This file is the working contract for every human and automated contributor.
 - Apply the seven engineering levels as proportional **review perspectives**, not seven automatic code-changing agents. Security, SRE, CTO and CA/MBA review should scale with risk and data-loss consequences.
 - Keep heavy passing test logs in CI/artifacts; report exact SHA + job conclusions, retrieve only bounded failures. Change-scoped local tests never waive existing required PR/CI gates.
 
+## Standing owner shorthand: go ahead = next eligible next.md work
+
+When the owner says **"go ahead", "go ahead next", "continue" or "next milestone"** in the context of this repository, **do not ask them to restate the task list**. In the currently authorized agent session, first fetch actual GitHub `main`, open PRs, merged SHAs and required checks; read the **LIVE NOW / NEXT / LATER board** at the top of `next.md`; reconcile any stale labels; and select the **highest-priority dependency-unblocked bounded work item**. If the highest priority is blocked, state the blocker and choose a separate independent READY item. If an existing PR already covers the item, check its latest head CI and diagnose failures rather than repeating code. Create only the smallest justified reviewable change/PR, checkpoint the exact evidence and next action, and report what is implemented versus still open.
+
+**Authority limits:** This shorthand authorizes routine read-only review, documentation, and bounded work on disposable development/test fixtures consistent with the selected milestone. It **does not** authorize merging any PR, deleting branches or historical artifacts, overwriting real files, running destructive recovery, deploying, modifying secrets or protections, spending money, weakening CI/security gates, or new production FCJ3/FCJ4/FFI adoption. Ask for **specific** approval at those gates. A Markdown instruction cannot restart a stopped agent or run in the background. See [continuation policy](docs/AGENT_CONTINUATION_AND_HANDOFF.md).
+
 ## Approved narrow Rust test-tooling exception
 
 - The owner merged [Rust adoption ADR](docs/architecture/ADR_RUST_ADOPTION_STRATEGY.md) in PR #81 and the isolated test-support scaffold in PR #82. The **production engine remains pure C17**. The repository now contains Rust **test support only** under `tests/rust/`, with no production FFI, library or runtime dependency.

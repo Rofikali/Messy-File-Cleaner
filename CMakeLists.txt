@@ -119,6 +119,24 @@ if(BUILD_TESTING)
   target_compile_options(test_mover PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME mover_security COMMAND test_mover)
 
+  # FS-01B: intentional known-risk characterization in private fixtures only.
+  # PASS means a post-identity-check entry substitution is reproducible,
+  # NOT that production source retirement is safe. See docs/security/FS_01...
+  add_executable(test_fs01b_retirement_race
+    tests/integration/test_fs01b_retirement_race.c
+    src/mover/mover.c
+    src/journal/journal.c
+  )
+  target_include_directories(test_fs01b_retirement_race PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_link_libraries(test_fs01b_retirement_race PRIVATE Threads::Threads)
+  target_compile_definitions(test_fs01b_retirement_race PRIVATE FC_TESTING)
+  target_compile_options(test_fs01b_retirement_race PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG
+  )
+  add_test(NAME fs01b_known_race_characterization COMMAND test_fs01b_retirement_race)
+
   add_executable(test_journal
     tests/integration/test_journal.c
     src/journal/journal.c

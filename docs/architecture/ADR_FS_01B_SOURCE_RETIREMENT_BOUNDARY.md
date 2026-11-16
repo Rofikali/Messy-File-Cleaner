@@ -1,6 +1,6 @@
 # ADR FS-01B-FIX — Source-Retirement Authority and Private Quarantine
 
-**Status: PROPOSED / NOT APPROVED.** P0 security design review only. Based on `main` `fc09ae2df7d29d8c82419819e820455f58db7f4f` (merged [PR #89](https://github.com/Rofikali/Messy-File-Cleaner/pull/89), 2026-11-16). No production C change or release authorization in this ADR. Reconcile the live [next.md](../../next.md) before acting.
+**Status: PROPOSED / NOT APPROVED FOR PRODUCTION.** This P0 design **document** was merged in [PR #90](https://github.com/Rofikali/Messy-File-Cleaner/pull/90) at `54d70b95207191f2a7f22715a43a2fb39b18a132` (2026-11-16), but the PR did **not** accept a final source-retirement trust boundary, authorize code activation, or close release gates. Based on earlier [PR #89](https://github.com/Rofikali/Messy-File-Cleaner/pull/89) known-risk evidence. A narrow, separate [FS-01B-GUARD](../security/FS_01B_SHARED_SOURCE_GUARD.md) containment proposal refuses other-writable source directories without implementing the private-quarantine design. Reconcile live [next.md](../../next.md) before acting.
 
 ## 1. Evidence and security objective
 

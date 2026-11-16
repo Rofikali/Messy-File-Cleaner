@@ -227,6 +227,10 @@ Do not describe end-to-end file moves as nanosecond operations. Nanosecond-scale
 - Keep test fault-injection controls out of production builds.
 - Never commit credentials, private user files, runtime journals, or benchmark artifacts.
 
+## CI and release status
+
+The project has GitHub workflows for CMake Debug/Release and C11/C17/C23 tests, Makefile validation, Ubuntu 24.04 containers, Docker smoke, Rust test support and conditional FCJ4 TSan; manual large-scale/performance benchmark workflows are separate. **These are build/test workflows, not an automatic software deployment or production release.** Use [CI/CD and Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md) for actual triggers and evidence lanes. The existing `Makefile` remains unchanged by the documentation-alignment milestone; proposed `status`, `self-check` and `rust-check` targets are **future reviewed changes**, not current commands.
+
 ## Contributing
 
 Read [AGENTS.md](AGENTS.md) and [SKILLS.md](SKILLS.md) before changing the architecture or implementation.

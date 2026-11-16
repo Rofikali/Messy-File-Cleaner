@@ -27,7 +27,7 @@ Rust FFI is **not implemented**; a future test-only shim requires a separate saf
 ## 1. Non-negotiable project identity
 
 - Implement the **production product in pure C**. C17 is the production baseline; validate C11 and C23 independently. The accepted, isolated Rust test-support pilot under `tests/rust/` is an explicit exception, not permission for production Rust.
-- No C++, C++ runtime, Rust core, or other implementation language without a new explicit owner decision and written review.
+- No C++, C++ runtime, production Rust core or additional product implementation language without a new explicit owner decision and written review. The approved test-only Rust crate is governed by the accepted ADR.
 - Assembly is allowed only after profiling proves a CPU-bound bottleneck; it must be isolated behind C, have a portable C fallback, and pass equivalence tests.
 - Linux/POSIX is the current platform target. Document platform and filesystem assumptions; do not imply universal portability.
 - Data preservation and security outrank speed or delivery convenience.
@@ -162,9 +162,12 @@ Every PR must include:
 - Performance measurements only when relevant, with environment and repeat count.
 - Rollback or recovery plan.
 
-Do not claim a milestone passed until its acceptance criteria pass. Do not merge without required owner review and repository governance. Verify the merge on `main` before starting dependent work.
+Do not claim a milestone passed until its acceptance criteria pass. A passing PR is READY_FOR_REVIEW, not MERGED. Do not merge without specific owner approval and repository governance. Verify the merge on `main` before starting dependent work.
 
 ## 11. Documentation maintenance
+
+**Authority separation:** `AGENTS.md` sets binding engineering/safety rules, the accepted ADRs constrain architecture, this lower-case `skills.md` provides task execution recipes, uppercase `SKILLS.md` is a non-binding knowledge catalogue, `next.md` is the single current-status board and `docs/README.md` is the documentation index. Do not duplicate a task's status or contradict a newly accepted ADR in multiple places.
+
 
 Update the relevant documents in the same change:
 - User-visible behavior: README and CLI help.

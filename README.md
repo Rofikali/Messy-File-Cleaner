@@ -78,7 +78,7 @@ The production source list is explicit in `CMakeLists.txt`. Placeholder source f
 - **Testing:** unit, integration, end-to-end, fault-injection, sanitizer, container, and static-analysis checks where configured.
 - **Performance:** measure before optimizing. Filesystem throughput depends on storage, filesystem metadata, cache state, file sizes, and worker count.
 
-Do not add a broker, database, microservices, C++, Rust, or assembly merely to make the architecture look more advanced. Add a new technology only when a concrete requirement and an engineering review justify it. Assembly, if ever needed, must be isolated behind a C interface, supported by a portable C fallback, and justified by repeatable profiling.
+Do not add a broker, database, microservices, C++, **production Rust**, or assembly merely to make the architecture look more advanced. The accepted, isolated Rust test-support pilot remains separate from the C production executable. Add a new technology only when a concrete requirement and an engineering review justify it. Assembly, if ever needed, must be isolated behind a C interface, supported by a portable C fallback, and justified by repeatable profiling.
 
 ## Requirements
 
@@ -235,7 +235,7 @@ The project has GitHub workflows for CMake Debug/Release and C11/C17/C23 tests, 
 
 ## Contributing
 
-Read [AGENTS.md](AGENTS.md) and [SKILLS.md](SKILLS.md) before changing the architecture or implementation.
+Read [AGENTS.md](AGENTS.md) for binding rules and [skills.md](skills.md) for the contributor workflow; [SKILLS.md](SKILLS.md) is a non-binding engineering knowledge catalogue. Check the current [work register](next.md) and [documentation index](docs/README.md) before choosing a new milestone.
 
 Every change should:
 

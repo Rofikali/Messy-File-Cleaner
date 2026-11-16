@@ -1,6 +1,6 @@
 # Engineering Skills Catalogue
 
-This catalogue defines the knowledge required to build, review, secure, operate, and evolve the project. It is not a mandate to add every technology.
+This catalogue describes knowledge useful for building, reviewing, securing, operating, and evolving the project. It is **not** a second set of agent instructions, a mandate to introduce every technology, or an authorization to ship them. For binding rules use [AGENTS.md](AGENTS.md); for execution recipes use [skills.md](skills.md); for task status use [next.md](next.md); for approved language scope use the [Rust adoption ADR](docs/architecture/ADR_RUST_ADOPTION_STRATEGY.md).
 
 ## Core implementation
 - C17/C23, POSIX APIs, Linux syscalls, libc, errno, file descriptors
@@ -48,7 +48,7 @@ This catalogue defines the knowledge required to build, review, secure, operate,
 ## Milestone delivery and merge governance
 - Scope and acceptance-criteria definition for independent milestones
 - Branch-per-milestone workflow, PR review, CI evidence, security sign-off
-- Merge each passed milestone into main before beginning the next
+- After required checks pass, obtain owner review/approval and confirm the PR is actually merged into `main` before beginning a dependent milestone; an agent cannot infer permission to merge from a passing check
 - Verify merge commit and main-branch checks; never claim an unconfirmed merge
 - Handle failed gates in the same milestone instead of advancing
 
@@ -75,16 +75,16 @@ Do not add technology merely to make the architecture look advanced.
 - Test root/output overlap, symlink roots, symlink destinations, reserved journal paths, and forced-root behavior in temporary directories.
 
 
-## Mandatory project language: pure C
+## Production-language constraint and approved test-only exception
 
-The owner has selected **pure C** for this project. This is a firm constraint, not an open C-versus-C++ evaluation.
+The owner has selected **pure C17 for the production engine**, not C++ or a Rust rewrite. This is not an open C-versus-C++ evaluation. The accepted [Rust adoption ADR](docs/architecture/ADR_RUST_ADOPTION_STRATEGY.md) explicitly permits a **test-only Rust verification pilot**; [PR #82](https://github.com/Rofikali/Messy-File-Cleaner/pull/82) merged its isolated scaffold. Knowledge of Rust FFI in this catalogue is not permission to link Rust into the production executable.
 
-- Core implementation, tests, native tools, and product build targets use C only.
+- Production core, shipped native tools and product build targets use C. Existing native C tests remain C; the approved Rust verification crate is isolated under `tests/rust/` and is not a product dependency.
 - Never add C++ source files (`.cpp`, `.cc`, `.cxx`), C++ classes/templates/exceptions/STL, C++ runtime dependencies, or CXX build targets.
-- C17 is the default; C11 compatibility is maintained where practical; C23 is an optional compatibility target after toolchain validation.
+- C17 is the production baseline; C11 and C23 are separate validated compatibility build targets, not a promise that all compilers support both equally.
 - Use explicit C interfaces, opaque handles where useful, clear ownership/lifetime contracts, and modular boundaries.
-- Interoperability uses a stable, documented C ABI. It does not justify a C++ rewrite.
+- Future production interoperability, if approved, requires a reviewed versioned C ABI, explicit ownership/lifetime rules and compatibility tests. No public production ABI or `.a`/`.so` SDK currently exists.
 - Assembly is allowed only as an isolated, benchmark-justified optimization with a portable and tested C fallback.
-- Do not add Rust or another implementation language to the core without an explicit owner decision and documented review.
+- Do not add Rust or another implementation language to the production core without a new explicit owner decision and architecture/security review. A future **test-only C/Rust parser shim** is a separate staged milestone and may not link into the shipped executable.
 
 When a proposed design or tool suggests C++, translate the design into idiomatic, safe, maintainable C instead.

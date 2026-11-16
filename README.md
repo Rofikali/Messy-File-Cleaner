@@ -1,6 +1,6 @@
 # Messy File Cleaner
 
-A Linux/POSIX file-organization tool written in **pure C**. It scans a directory, classifies files using configurable extension rules, and processes work through a bounded worker pipeline. File moves are protected by a journal-backed transaction flow so interrupted operations can be examined and recovered conservatively.
+A Linux/POSIX file-organization tool with a **pure-C production engine** and isolated Rust **test-support** tooling. It scans a directory, classifies files using configurable extension rules, and processes work through a bounded worker pipeline. File moves are protected by a journal-backed transaction flow so interrupted operations can be examined and recovered conservatively.
 
 > **Project status:** Active development. Treat this repository as an engineering project under validation, not as a claim of production-grade or universally crash-proof file operations. Review the current tests, platform assumptions, and known limitations before using it on valuable data.
 

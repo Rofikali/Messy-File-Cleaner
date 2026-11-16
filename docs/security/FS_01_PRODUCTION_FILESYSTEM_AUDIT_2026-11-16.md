@@ -33,7 +33,7 @@
 ## Delivery sequence
 
 1. **FS-01A (this document):** read-only source review and priority register. Its merge **does not complete** FS-01 and does not authorize source deletion.
-2. **FS-01B next:** after FS-01A review/merge, design a deterministic, private-`mkdtemp`, test-only regression for retirement identity/race evidence. Start with existing mover test baseline and fail closed. If an exact race cannot be safely or reliably reproduced, document the limitation rather than fabricate results.
+2. **FS-01B in review:** FS-01A is merged; the [test-only race characterization](../quality/FS_01B_RETIREMENT_RACE_CHARACTERIZATION.md) schedules substitution between the quarantine identity check and the unlink using a private `mkdtemp` root and retained hard-link backup. A passing test shows a **known P0 hazard**, not secure source retirement. Any fix requires a separate reviewed milestone and positive preservation regression.
 3. **FS-01C:** read-only/append-only legacy recovery reporting and path-identity tests.
 4. **FS-01D/E/F:** orphan policy, writable-parent model, supported filesystem, crash/power and release requirements.
 

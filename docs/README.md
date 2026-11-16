@@ -35,6 +35,6 @@ If documents conflict, preserve user data, record the conflict, and seek owner r
 
 - `DESIGN_ONLY` ≠ `IMPLEMENTED` ≠ `CI_PASS` ≠ `MERGED` ≠ `RELEASED`.
 - Date every audit snapshot with the exact Git SHA; always consult current GitHub state.
-- Keep current task status in `next.md`, details in one canonical design file, exact evidence in PR/CI links; do not duplicate giant logs.
+- Keep **current** task selection/status in the top LIVE BOARD of `next.md`; preserve its historical checkpoint section without treating stale labels as current. Detailed per-component maturity and blockers belong in [completion inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md), technical contracts in their canonical documents, exact evidence in PR/CI links. Do not duplicate giant logs.
 - Docs/Makefile cannot autonomously start an agent, release software, or authorize destructive file handling.
 - No deployment, production FCJ4 recovery, external static/shared library or paid feature is authorized by this index.

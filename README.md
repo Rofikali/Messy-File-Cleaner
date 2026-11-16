@@ -6,7 +6,8 @@ A Linux/POSIX file-organization tool with a **pure-C production engine** and iso
 
 ## Project roadmap, current status, and engineering docs
 
-- **What is built, planned, blocked and next:** [`next.md`](next.md) — living milestone board with status/evidence requirements.
+- **What is NOW / NEXT / LATER:** [`next.md`](next.md) — live board of actionable milestones, gates and precise PR/CI evidence; older snapshots are retained under a clearly marked historical section.
+- **What is finished, half implemented, started, test-only, blocked or not started:** [Component completion and status inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md).
 - **Where to find authoritative docs:** [Documentation map](docs/README.md).
 - **How seven engineering levels, security, CTO, CA/MBA and management review changes:** [Operating model](docs/ENGINEERING_OPERATING_MODEL.md).
 - **CI/CD and supported Make targets:** [CI/CD and Makefile guide](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md).

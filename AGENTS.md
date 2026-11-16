@@ -149,7 +149,7 @@ Prioritize customer value, data safety, reliability, support cost, and total cos
 
 The project owner has made a firm product and engineering decision: **the production engine and shipped native targets are pure C, not C++**. The accepted Rust ADR permits a narrow **test-only** Rust-support crate; it does not authorize a Rust production core.
 
-- Implement the application, core modules, tests, tools that ship with the product, and native build targets in C.
+- Implement the application, core modules, production tests/tools and shipped native build targets in C; the approved isolated Rust verification harness under `tests/rust/` is the only present exception.
 - Do not introduce C++ source files or C++ implementation: no `.cpp`, `.cc`, or `.cxx` files; no C++ classes, templates, exceptions, STL, or C++ runtime dependency.
 - Do not enable CXX in CMake or add C++ compiler/build targets.
 - Use C17 as the default production language baseline. Preserve C11 compatibility where practical and validate C23 as an optional compatibility target; do not let C23-only features silently raise the minimum compiler requirement.

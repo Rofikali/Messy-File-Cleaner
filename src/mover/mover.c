@@ -427,6 +427,33 @@ static int copy_fd(int source_fd, int destination_fd, const struct stat *initial
 }
 
 /*
+ * FS-01B-GUARD: Fail closed when the source directory is not owned by
+ * this effective UID or permits group/other writes. A separately privileged
+ * writer could substitute the staged name between fstatat and unlinkat.
+ *
+ * This is defense-in-depth for different-UID writers, NOT a complete fix:
+ * a capable same-UID writer can still mutate the directory. POSIX ACL write
+ * permissions are limited by the group-class mode mask on Linux, but exotic
+ * network filesystems and privilege/namespace models need separate review.
+ */
+static int source_parent_retirement_guard(int source_dirfd)
+{
+    struct stat directory;
+    if (fstat(source_dirfd, &directory) != 0)
+        return -1;
+    if (!S_ISDIR(directory.st_mode)) {
+        errno = ENOTDIR;
+        return -1;
+    }
+    if (directory.st_uid != geteuid() ||
+        (directory.st_mode & (S_IWGRP | S_IWOTH)) != 0) {
+        errno = EPERM;
+        return -1;
+    }
+    return 0;
+}
+
+/*
  * Move only the inode opened and validated above. First rename the source
  * directory entry to a private, unique quarantine name, then verify that the
  * quarantined entry is still the opened inode. If it is not, restore it
@@ -443,6 +470,11 @@ static int retire_source(int source_dirfd, const char *source_name,
         return -1;
     }
 #endif
+    /* Recheck immediately before staging the entry. This cannot defeat
+     * same-UID or capability-based interference; see FS-01B-FIX ADR. */
+    if (source_parent_retirement_guard(source_dirfd) != 0)
+        return -1;
+
     char quarantine[NAME_MAX + 1];
 
     for (unsigned int attempt = 0; attempt < 1000; attempt++)
@@ -532,6 +564,11 @@ static int move_file_internal(const char *src, const char *dest_dir,
     int source_dirfd = open_directory_path(source_parent, 0);
     if (source_dirfd < 0)
         goto fail;
+
+    /* Reject untrusted source-parent permissions before copying/publishing.
+     * Avoid creating a destination when secure retirement is unavailable. */
+    if (source_parent_retirement_guard(source_dirfd) != 0)
+        goto fail_with_source_dir;
 
     int destination_dirfd = open_directory_path(dest_dir, 1);
     if (destination_dirfd < 0)

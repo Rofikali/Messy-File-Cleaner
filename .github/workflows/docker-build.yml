@@ -51,6 +51,10 @@ jobs:
           test ! -e "$ROOT/output/Jpeg/dry-run.jpg"
 
           printf 'move fixture\n' > "$ROOT/input/execute.png"
+          # FS-01B-GUARD: a real mover must not retire entries from an
+          # other-writable source. The standalone CTest covers refusal;
+          # this positive Docker smoke now uses private, runner-owned dirs.
+          chmod 0700 "$ROOT/input" "$ROOT/output" "$ROOT/state"
           docker run --rm \
             --user "$(id -u):$(id -g)" \
             --network none \
@@ -115,7 +119,12 @@ jobs:
           test ! -e output/Jpeg/dry-run.jpg
 
           printf 'compose explicit move fixture\n' > input/execute.png
-          docker compose -f compose.yaml -f compose.execute.yaml run --rm --no-deps cleaner
+          # Preview above intentionally exercises the default non-root UID.
+          # For real moves, match the host fixture owner and restrict the
+          # source, output and state to that UID; never relax the mover gate.
+          chmod 0700 input output state
+          PUID="$(id -u)" PGID="$(id -g)" \
+            docker compose -f compose.yaml -f compose.execute.yaml run --rm --no-deps cleaner
           test ! -e input/execute.png
           test -f output/Png/execute.png
           test -s state/move.log

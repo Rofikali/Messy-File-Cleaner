@@ -1,6 +1,6 @@
 # FS-01B — Source-retirement check/use race characterization
 
-**Status:** A bounded **test-only known-risk reproduction** against the C17 mover; source baseline `main` `5e41a6ba1ab2a6839c1156cb7959fcaa20eccd6d`. It is **not** a security fix, a readiness certification, or permission to use the CLI on unbacked-up valuable files. Applies to the [FS-01A source audit](../security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md), which already identified this P0 risk.
+**Status:** **MERGED test-only known-risk reproduction** via [PR #89](https://github.com/Rofikali/Messy-File-Cleaner/pull/89), merge `fc09ae2df7d29d8c82419819e820455f58db7f4f`. All five triggered PR-head workflows passed at `4d030275d30efe0a1e8b6ab7ad65647f6b72922d` (CMake, Docker, Makefile, Ubuntu 24.04, FCJ4 TSan); C17 Debug ran 29/29 tests. **PASS reproduced the unsafe unlink; no security fix or release certificate.** Applies to the [FS-01A source audit](../security/FS_01_PRODUCTION_FILESYSTEM_AUDIT_2026-11-16.md). Next: [proposed P0 fix ADR](../architecture/ADR_FS_01B_SOURCE_RETIREMENT_BOUNDARY.md) and [positive test plan](FS_01B_FIX_SECURITY_ACCEPTANCE_PLAN.md); neither is yet accepted or implemented.
 
 ## What is observed and why it matters
 

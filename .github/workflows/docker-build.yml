@@ -68,3 +68,52 @@ jobs:
           test ! -e "$ROOT/input/execute.png"
           test -f "$ROOT/output/Png/execute.png"
           test -s "$ROOT/state/move.log"
+
+      - name: Verify Compose default and explicit execution modes with disposable files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # CI starts from a fresh checkout. Never touch any pre-existing path.
+          test ! -e input
+          test ! -e output
+          test ! -e state
+          mkdir input output state
+          trap 'rm -rf -- input output state' EXIT
+          chmod 0777 input output state
+
+          # The default path is dry-run AND read-only at the container mount layer.
+          docker compose -f compose.yaml config --format json | python3 -c '
+          import json, sys
+          service = json.load(sys.stdin)["services"]["cleaner"]
+          mounts = [m for m in service["volumes"] if m["target"] == "/input"]
+          assert len(mounts) == 1, "expected exactly one input mount"
+          assert mounts[0].get("read_only") is True, "default input must be readonly"
+          assert "--dry-run" in service["command"], "default command must be dry-run"
+          '
+
+          # The deliberately named overlay is the ONLY Compose mode that
+          # supplies a writable source and removes the dry-run argument.
+          docker compose -f compose.yaml -f compose.execute.yaml config --format json | python3 -c '
+          import json, sys
+          service = json.load(sys.stdin)["services"]["cleaner"]
+          mounts = [m for m in service["volumes"] if m["target"] == "/input"]
+          assert len(mounts) == 1, "expected exactly one input mount"
+          assert mounts[0].get("read_only") is False, "execute input must be writable"
+          assert "--dry-run" not in service["command"], "execute cannot be dry-run"
+          assert "--once" in service["command"], "execute should be bounded batch"
+          '
+
+          # Reuse the exact image already built and smoke-tested in this job.
+          docker tag messy-file-cleaner:ci messy-file-cleaner:local
+
+          printf 'compose dry-run fixture\n' > input/dry-run.jpg
+          docker compose -f compose.yaml run --rm --no-deps --no-build cleaner
+          test -f input/dry-run.jpg
+          test ! -e output/Jpeg/dry-run.jpg
+
+          printf 'compose explicit move fixture\n' > input/execute.png
+          docker compose -f compose.yaml -f compose.execute.yaml run --rm --no-deps --no-build cleaner
+          test ! -e input/execute.png
+          test -f output/Png/execute.png
+          test -s state/move.log

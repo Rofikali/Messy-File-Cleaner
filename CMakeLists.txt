@@ -137,6 +137,22 @@ if(BUILD_TESTING)
   )
   add_test(NAME fs01b_known_race_characterization COMMAND test_fs01b_retirement_race)
 
+  # FS-01B-GUARD tests the production mover (NO FC_TESTING):
+  # prevent source retirement in group/other-writable directories.
+  add_executable(test_fs01b_source_permissions
+    tests/integration/test_fs01b_source_permissions.c
+    src/mover/mover.c
+    src/journal/journal.c
+  )
+  target_include_directories(test_fs01b_source_permissions PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+  )
+  target_link_libraries(test_fs01b_source_permissions PRIVATE Threads::Threads)
+  target_compile_options(test_fs01b_source_permissions PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG
+  )
+  add_test(NAME fs01b_untrusted_source_guard COMMAND test_fs01b_source_permissions)
+
   add_executable(test_journal
     tests/integration/test_journal.c
     src/journal/journal.c

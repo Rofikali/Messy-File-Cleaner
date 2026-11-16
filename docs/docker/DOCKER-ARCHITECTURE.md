@@ -19,7 +19,7 @@ The working directory is /output. The current config uses relative category dest
 - Multi-stage build; compiler tools are absent from runtime.
 - Non-root runtime identity.
 - Read-only container root filesystem.
-- Only input, output, and journal mounts are writable.
+- Default dry-run: `/input` is **read-only**; `/output` and `/output/journal` are writable mounts. The separate `compose.execute.yaml` intentionally allows writing to `/input` only for explicit real-move operation.
 - All Linux capabilities dropped; no-new-privileges enabled.
 - Network disabled for this local filesystem workload.
 - PID and memory limits applied.

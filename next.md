@@ -1,4 +1,72 @@
-# Messy-File-Cleaner — Living Work Register
+# Messy-File-Cleaner — Master Work Register
+
+## LIVE BOARD — NOW / NEXT / LATER (authoritative task selection)
+
+**Reconciled 2026-11-16** against GitHub `main` `30f14e93a70297d696026f2d3f60549ce50c7a1f`. [GOV-01 PR #86](https://github.com/Rofikali/Messy-File-Cleaner/pull/86) is **MERGED** at this SHA; its recorded PR-head **CMake, Docker, Makefile and Ubuntu 24.04 CI all passed** at `1228ebfe916922cb836ee853ec1d99c6091ae862`. No open PRs were found at reconciliation. **ROADMAP-02** is a new docs-only work candidate, not a merged milestone or runtime test. Refresh GitHub main/PRs/checks before each task selection.
+
+**Product mission:** A safe, explainable Linux/POSIX file organizer. The current product is a C17 CLI, with C11/C23 compatibility tests, Docker dry-run / explicitly writable execute, and legacy journal-backed moves. FCJ3/FCJ4 are **test-only**. Rust is **test-only**, not connected via FFI. Broader release, public C SDK, GUI/API and monetization are not demonstrated. User data protection outranks speed and features.
+
+**Navigation:** [Component completion inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) · [AGENTS](AGENTS.md) · [skills](skills.md) · [docs index](docs/README.md) · [CI/Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md) · [handoff](docs/AGENT_CONTINUATION_AND_HANDOFF.md) · [product/business](docs/PRODUCT_AND_BUSINESS_STRATEGY.md).
+
+### Live work lanes
+
+| Lane | Milestone / accurate current status | Next bounded action | Acceptance and gating |
+| --- | --- | --- | --- |
+| **NOW — documentation reconciliation** | **ROADMAP-02 — IN_PROGRESS, docs-only PR candidate** | Adopt IMGENGINE-style live board, separate per-component completed/partial/open/future inventory and evidence discipline; preserve existing historical register below. | Verify source references and historical PRs; Markdown-only diff, exact current-head CI and owner review. **Do not merge automatically.** |
+| **NOW — independent safety review** | **FS-01 P0 release gate — OPEN, risk review not certified** | Source-first non-destructive filesystem/mover/journal/restart audit against existing tests; identify reproducible gaps and a single safe follow-up. | Reproduction/threat model/negative tests if applicable, exact SHA; no speculative exploit or destructive recovery changes. |
+| **NOW — separate release planning** | **REL-01 P0 release gate — BLOCKED** | Inventory supported Linux/fs targets, backup/restore, distribution license, build provenance, operational rollback and release evidence. | Owner decisions, complete exact-candidate safety validation; CI pass alone is not release certification. |
+| **NEXT — isolated Rust test seam** | **RUST-01 P1 — PLANNED / needs explicit test-shim design review** | Propose smallest C parser-only test shim and Rust `extern "C"` verification, with ownership, bounds, error and link-isolation contracts. | Separate bounded PR, C11/C17/C23, sanitizer + Rust fmt/clippy/test, negative inputs, production binary isolation, owner approval. |
+| **NEXT — Rust property/fuzz** | **RUST-02 P1 — BLOCKED on RUST-01** | Extend test-only Rust harness with deterministic valid/invalid byte generation and bounded parser fuzz/property tests. | Minimal reproducible counterexamples, C regression fixtures and CI, no second FCJ4 grammar or unsafe prod link. |
+| **NEXT — project tooling** | **TOOL-01 P2 — PROPOSED** | Consider focused safe `make status`, `make self-check`, `make rust-check`; preserve existing `make` Debug default unless separately decided. | Refusal and no-user-mutation tests, existing full required CI, scoped cost review. |
+| **NEXT — reproducible benchmarks** | **PERF-01 P2 — PLANNED** | Representative 5k/100k/optional manual 1m disposable scan and real-move benchmarks with memory and filesystem context. | Exact SHA/runner, median/tails where supported, RSS/disk/inodes/CPU, no nanosecond claims. |
+| **LATER — artifact cleanup choice** | **HYG-02 P2 — OWNER DECISION OPEN** | Privately inspect tracked binary `perf.data` and legacy `gprof.txt`; decide archival versus removal from HEAD. | Specific owner approval before `git rm` or history modification; ignored paths alone do not untrack. |
+| **LATER — reusable engine** | **ABI-01 P2 — DESIGN_ONLY / DEFERRED** | Find independent C consumer; design opaque engine lifecycle and stable API then `.a` and optionally `.so`. | License, external consumer, exact ABI/ownership/fault/link and compatibility review. |
+| **LATER — product expansion** | **BIZ-01 P2 — HYPOTHESIS**, GUI/API/SaaS **NOT_STARTED** | Interview Linux users, validate file safety advantage, activation/support costs; decide whether any UI, desktop, paid or hosted channel has a real need. | Observed customer evidence and owner decision; no assumed pricing or infrastructure. |
+| **LATER — FCJ4 prod adoption** | **FCJ4-PROD — BLOCKED, NOT AUTHORIZED** | Only if FS-01, durable object evidence and compatibility design justify another separate decision. | Approved ADR, independent threat/recovery and actual crash evidence; never just link test-only objects into production. |
+
+**No-repeat rule:** A previously merged PR must never be repeated because a retained historical note calls it “next.” After each milestone check actual `main`, PR head/merge SHA, and required checks; a CI-passing PR becomes `READY_FOR_REVIEW`, not `MERGED`. A merged test module does not mean production adoption; a clean PR does not mean RELEASED.
+
+### Status dimensions
+
+- **Feature maturity:** `NOT_STARTED`, `DESIGN_ONLY`, `STARTED`, `PARTIAL`, `IMPLEMENTED`, `LEGACY`, `DEFERRED`, `SUPERSEDED`.
+- **Delivery/evidence:** `LOCAL_ONLY`, `PR_OPEN`, `CI_PENDING`, `RECORDED_TESTS`, `READY_FOR_REVIEW`, `MERGED`, `RELEASE_CANDIDATE`, `RELEASED`, `UNKNOWN`.
+- **Constraints:** `READY` only if prerequisites, scope and authority are established; `BLOCKED` when dependent on an unresolved gate or explicit owner decision; `P0` risk labels do not authorize irreversible actions.
+
+Every task checkpoint must include **ID, intended outcome, owner decision, exact base/head/merge SHAs, prerequisites, status in both dimensions, relevant changed files, tests executed/NOT RUN, CI links and conclusions, negative/security cases, cost/resource considerations, residual risk, and next action**. Full logs stay in CI; minimal failed-step excerpts enter agent context. Docs cannot restart an inactive agent.
+
+### Finished / implemented (current verified scope, not global certification)
+
+| ID / component | Result in main | Evidence and open qualification |
+| --- | --- | --- |
+| DOC-01 | **MERGED** PR #83, merge `6529bd9` | Initial governance, `next.md` and agents docs |
+| SAFE-01 | **MERGED** PR #84, merge `0184cc1` | Read-only default Compose source; explicit writable execution; PR-head Docker/CMake/Makefile pass |
+| HYGIENE-01 | **MERGED** PR #85, merge `d3fd576` | Retention/ignore policy; tracked profiles **not deleted** |
+| GOV-01 | **MERGED** PR #86, merge `30f14e9` | C production and Rust test-only policy; 4/4 triggered CI workflows passed at PR head |
+| FCJ4 restart tests | **MERGED** PR #80, merge `4362c41` | Malformed/truncated test scope; **not** production FCJ4 recovery |
+| Rust test scaffold | **MERGED** PRs #81 / #82 | Toolchain/Cargo crate; parser FFI **not implemented** |
+| Existing C17 CLI | **IMPLEMENTED, merged** | Scanner/classifier/worker/mover/legacy journal and 28 declared CTest cases; no broad release certification |
+| FCJ3/FCJ4 components | **IMPLEMENTED IN TESTS, merged** | Parser/writer/staging/append and fault tests; **not linked into product** |
+| Docker/CI/baseline | **IMPLEMENTED, recorded** | Eight workflows with distinct triggers; local Makefile, 2026-11-04 performance evidence; no deployment pipeline |
+
+### Started / half complete / unfinished customer journeys
+
+| Workflow | Current maturity | Missing for full customer outcome |
+| --- | --- | --- |
+| Journal recovery under hostile/crash conditions | **PARTIAL evidence** | Verify preserved identity/durability and supported FS, no unsupported automatic deletion |
+| FCJ4 end-to-end production moves | **PARTIAL test-only building blocks / production NOT_STARTED** | Real durable journal/mover integration is blocked and unapproved |
+| Rust-based FCJ4 parser verification | **STARTED** | Safe C test seam, Rust FFI, property/fuzz run and regression evidence |
+| Public use/distribution | **PARTIAL preparation / RELEASE BLOCKED** | License/support matrix, backups, release artifacts, rollback and actual environment validation |
+| Large-scale and worker tuning | **PARTIAL benchmark evidence** | Representative machine/filesystem resource and workload results |
+| Stable API/SDK and UI/cloud | **DESIGN_ONLY or NOT_STARTED** | Customer evidence and separately reviewed architecture |
+
+For detailed source paths and constraints see the [component-level inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md). This deliberately avoids false completion percentages.
+
+---
+
+## Historical work inventory and dated checkpoints (preserved, **not** the live task selector)
+
+> The material below is retained from prior `next.md` iterations for traceability. **Its older "current", "READY", "not merged" and execution-order labels may now be stale.** The live NOW / NEXT / LATER board above is authoritative; review exact GitHub evidence before changing code. Do not delete historical evidence simply to make the file look shorter.
+
 
 > **Source-of-truth dashboard.** Reconciled 2026-11-16 against `main` `d3fd576dbd15f184520e954e23c8a0593934e3df` after [HYGIENE-01 PR #85](https://github.com/Rofikali/Messy-File-Cleaner/pull/85) merged. Its PR-head CMake, Docker and Makefile CI checks passed. GOV-01 is a documentation review candidate, not merged. Refresh current GitHub/CI state before selecting work.
 

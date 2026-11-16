@@ -1,0 +1,11 @@
+# Explicitly destructive mode: requires -f compose.yaml -f compose.execute.yaml.
+# Use ONLY after reviewing a dry-run, checking backups and using disposable data.
+# This does not weaken the normal compose.yaml read-only input mount.
+services:
+  cleaner:
+    command: ["/input", "--config", "/app/configs/default.conf", "--once"]
+    volumes:
+      - type: bind
+        source: ./input
+        target: /input
+        read_only: false

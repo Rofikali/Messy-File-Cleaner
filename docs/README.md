@@ -5,7 +5,8 @@
 | Question | Canonical source |
 | --- | --- |
 | What is the product, implemented scope and user-facing usage? | [README](../README.md) |
-| What is finished, blocked, planned, and next? | [Living work register](../next.md) |
+| What should be done NOW, NEXT and LATER? | [Live NOW / NEXT / LATER register](../next.md) (authoritative task selection; historical notes explicitly marked) |
+| What is fully built, partially implemented, started, test-only, blocked or future? | [Component completion and status inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) (evidence and remaining customer-journey gaps, not a second live backlog) |
 | What may agents do and what requires approval? | [AGENTS](../AGENTS.md) |
 | How to perform recurring engineering tasks? | [skills.md](../skills.md) is the operational recipe; [SKILLS.md](../SKILLS.md) is a non-binding learning catalogue and does **not** approve technologies, merges or runtime changes |
 | Seven engineering levels, CTO/security, decision and review criteria? | [Engineering operating model](ENGINEERING_OPERATING_MODEL.md) |
@@ -34,6 +35,6 @@ If documents conflict, preserve user data, record the conflict, and seek owner r
 
 - `DESIGN_ONLY` ≠ `IMPLEMENTED` ≠ `CI_PASS` ≠ `MERGED` ≠ `RELEASED`.
 - Date every audit snapshot with the exact Git SHA; always consult current GitHub state.
-- Keep current task status in `next.md`, details in one canonical design file, exact evidence in PR/CI links; do not duplicate giant logs.
+- Keep **current** task selection/status in the top LIVE BOARD of `next.md`; preserve its historical checkpoint section without treating stale labels as current. Detailed per-component maturity and blockers belong in [completion inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md), technical contracts in their canonical documents, exact evidence in PR/CI links. Do not duplicate giant logs.
 - Docs/Makefile cannot autonomously start an agent, release software, or authorize destructive file handling.
 - No deployment, production FCJ4 recovery, external static/shared library or paid feature is authorized by this index.

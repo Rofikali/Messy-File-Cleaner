@@ -4,7 +4,7 @@ This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans
 
 ## Always-on task selection and evidence recipe
 
-1. Open [next.md](next.md) and [docs index](docs/README.md); confirm actual `main` SHA, outstanding PRs and CI before choosing the next READY milestone.
+1. Open the **LIVE NOW / NEXT / LATER board** in [next.md](next.md), the [component completion inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) and [docs index](docs/README.md). Confirm actual `main` SHA, outstanding PRs and CI before choosing the next READY milestone. Retained historical `next.md` notes must never override the live board.
 2. Read [agent continuation](docs/AGENT_CONTINUATION_AND_HANDOFF.md), [engineering operating model](docs/ENGINEERING_OPERATING_MODEL.md), [CI/Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md), and the affected module's specific contracts/tests.
 3. Choose **one** bounded dependency-unblocked task. Define acceptance, negative cases, filesystem and data preservation invariants, scope, non-goals, rollback and finance/support cost.
 4. Execute focused local tests, open review PR when authorized, inspect the **current exact-head** required CI checks, and summarize only statuses and failed-step excerpts.

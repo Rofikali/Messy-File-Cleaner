@@ -126,7 +126,8 @@ status:
 
 help:
 	@echo "make                 -> Debug build (ASan + UBSan)"
-	@echo "make status          -> Read-only Git working-tree/branch/HEAD summary"\n\t@echo "make self-check      -> Inspect dry-run and real-move refusal recipes (no execution)"
+	@echo "make status          -> Read-only Git working-tree/branch/HEAD summary"
+	@echo "make self-check      -> Inspect dry-run and real-move refusal recipes (no execution)"
 	@echo "make test            -> Debug build + CTest suite"
 	@echo "make validate        -> C11, C17, C23 Debug build + tests"
 	@echo "make release         -> Portable optimized Release build"

@@ -49,7 +49,23 @@ def verify_fixture(root: Path, file_count: int) -> None:
         path = root / f"set-{index // 100:04d}" / f"fixture-{index:08d}{extensions[index % len(extensions)]}"
         if path.is_symlink() or not path.is_file() or path.read_bytes() != payload:
             raise RuntimeError(f"dry-run modified or removed fixture: {path}")
-    entries = sum(1 for path in root.rglob("*") if path.is_file() or path.is_symlink())
+    # Check the directory tree too: extra empty directories and directory
+    # symlinks are not captured by the file-only count.
+    expected_dirs = {f"set-{index:04d}" for index in range((file_count + 99) // 100)}
+    actual_dirs = set()
+    entries = 0
+    for path in root.rglob("*"):
+        if path.is_symlink():
+            raise RuntimeError(f"dry-run introduced a symlink: {path}")
+        if path.is_dir():
+            relative = path.relative_to(root).as_posix()
+            actual_dirs.add(relative)
+        elif path.is_file():
+            entries += 1
+        else:
+            raise RuntimeError(f"dry-run introduced an unexpected entry: {path}")
+    if actual_dirs != expected_dirs:
+        raise RuntimeError("dry-run changed fixture directory layout")
     if entries != file_count:
         raise RuntimeError(f"dry-run changed fixture entry count: expected {file_count}, got {entries}")
 
@@ -112,8 +128,9 @@ def main() -> int:
                 detail = completed.stderr.decode(errors="replace")[-6000:] if args.diagnostics and completed.stderr else ""
                 raise RuntimeError(f"measured run failed with exit code {completed.returncode}\\n{detail}")
             samples_ns.append(elapsed)
-
-        verify_fixture(fixture_root, args.files)
+            # Outside the measured interval: detect mutation at the run
+            # that caused it, rather than only after all repetitions.
+            verify_fixture(fixture_root, args.files)
 
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]
     output_base = Path(args.output)

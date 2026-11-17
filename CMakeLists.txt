@@ -190,6 +190,22 @@ if(BUILD_TESTING)
   )
   add_test(NAME fcj4_parser_unit COMMAND test_fcj4_parser)
 
+  # RUST-01A: C-owned, test-only parser shim. NOT a product ABI.
+  # Rust extern-C integration is a separately reviewed future milestone.
+  add_executable(test_fcj4_parser_shim
+    tests/unit/test_fcj4_parser_shim.c
+    tests/support/fcj4_parser_test_shim.c
+    src/journal/fcj4_parser.c
+  )
+  target_include_directories(test_fcj4_parser_shim PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/support"
+  )
+  target_compile_options(test_fcj4_parser_shim PRIVATE
+    -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -UNDEBUG
+  )
+  add_test(NAME fcj4_parser_test_shim_unit COMMAND test_fcj4_parser_shim)
+
   # FCJ4 canonical serializer and in-memory state remain isolated from
   # journal-file I/O and production recovery.
   add_executable(test_fcj4_writer

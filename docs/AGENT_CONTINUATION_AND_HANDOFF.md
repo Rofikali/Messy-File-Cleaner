@@ -1,22 +1,22 @@
 # Coding Agent Continuation, Task Selection and Milestone Handoff
 
-**Standing process, not autonomous execution.** Applies to Codex, Astra, GitHub-connected agent or a human reviewer. Reading this runbook cannot wake a stopped chat, provision a coding agent, change branch protections or grant merge/deploy permission.
+**Standing process, not autonomous execution.** Applies to Codex, Astra, GitHub-connected agent or a human reviewer. Reading this runbook cannot wake a stopped chat, provision a coding agent, change branch protections or grant merge/deploy permission. The owner's **independent standing PR review/merge authorization** for the existing hourly autopilot is documented in [GOV-02](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md); only authorized agents with current GitHub access may exercise it.
 
 ## Standing owner shorthand: go ahead / continue / next
 
 This repository adopts the same **next-work selection** convention as IMGENGINE: when the owner says **"go ahead"** (including **"go ahead next"**, **"continue"** or **"next milestone"**), treat it as an instruction to **proceed now with the next dependency-unblocked work item in the top LIVE NOW / NEXT / LATER board of `next.md`**. Do not reflexively ask the owner which milestone to do or ask them to paste an agent prompt. Read actual GitHub state first: a task labelled open in an old paragraph may already have merged, and a green PR is not necessarily merged.
 
-1. If the active task has an **open PR**, inspect current-head checks and comments, fix CI/test failures in the **same** PR when safe, or report READY_FOR_REVIEW. Never duplicate or automatically merge it.
-2. If a PR was **externally merged**, verify merge SHA and current `main`, then select the next independent eligible task. Record merge reconciliation in the next authorized PR. Do not rewrite historical evidence.
+1. If the active task has an **open PR**, inspect current-head checks and comments, fix CI/test failures in the **same** PR when safe, or report READY_FOR_REVIEW. Never duplicate it. If this session is the owner-authorized autopilot, it may complete an eligible PR's exact-head review and **merge under GOV-02 gates**, not merely because checks are green.
+2. If a PR was **externally or autonomously merged**, verify merge SHA and current `main`, then select the next independent eligible task. Record merge reconciliation in the next authorized PR. Do not rewrite historical evidence.
 3. Choose the highest-priority **NOW** item that is READY and within ordinary non-destructive authorization. If blocked, disclose the gate and move to another independently READY NOW/NEXT item; do not bypass a release/security gate merely to keep moving.
 4. Perform a **single bounded milestone**: inspect relevant source and tests, implement the authorized review/docs/disposable-fixture scope, run applicable focused gates, open a draft PR for review and checkpoint CI results and residual risks. No background work is promised after the response.
-5. **Stop for explicit task-specific approval** before any merge, deployment, destructive real/user file operation, branch or historical evidence deletion, secrets/security-rule change, paid resources, or unapproved production journal/FFI change. An ambiguous **"go ahead" alone is not that approval**.
+5. **Merge exception:** the owner's active [GOV-02 standing authorization](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md) permits autonomous merges of **eligible, fully reviewed, exact-head green** PRs while respecting GitHub protections. The phrase **"go ahead" alone** is only task selection. Stop for explicit task-specific approval before blocked/high-risk production FS/journal/ABI changes, deployment, destructive real/user-file operations, branch/history deletion, secrets/security-rule changes, paid resources, or unapproved production FCJ3/FCJ4/FFI.
 
-The shorthand is a **workflow selector**, not an autonomous service, a blanket authorization to modify anything in the backlog, or a requirement to run a blocked task. For the present sequence, FS-01A is a **read-only source audit**; FS-01B requires a **separate test-only** evidence PR before any production filesystem mutation is proposed.
+The shorthand is a **workflow selector**, not an autonomous service, a blanket authorization to modify anything in the backlog, or a requirement to run a blocked task. FS-01B known-risk test and FS-01B-GUARD partial mitigation are merged; **the same-UID source-retirement race and broader release gates remain blocked**. A P0 fix still requires an accepted trust/crash model and positive preservation tests.
 
 ## First command for a new session
 
-> Read `AGENTS.md`, `next.md`, `docs/README.md`, `skills.md`, current `main`, relevant security/architecture docs and exact PR/CI state. Choose the next dependency-unblocked READY milestone, make one bounded change/PR with focused tests and applicable required CI, checkpoint exact results. Do not merge, release, delete branches, run on real user data, spend money or make a destructive decision without specific owner approval.
+> Read `AGENTS.md`, `next.md`, `docs/README.md`, `skills.md`, [GOV-02 autopilot merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md), current `main`, relevant security/architecture docs and exact PR/CI state. Choose the next dependency-unblocked READY milestone, make one bounded change/PR with focused tests and required CI, checkpoint exact results. Under active standing owner authorization, **independently review and merge only eligible PRs with exact SHA and mandatory protections**. Never deploy, delete real files/history, spend money, bypass security or implement a blocked P0/destructive change without a separate authorized decision.
 
 ## Start-of-session sequence
 
@@ -26,7 +26,7 @@ The shorthand is a **workflow selector**, not an autonomous service, a blanket a
 4. Choose **one** eligible task, respecting dependency order, top-priority file safety and available evidence. Declare out-of-scope and a bounded resource/test budget.
 5. Create branch from current main, implement smallest reviewable diff, focused tests, docs, and open draft PR only where publication is authorized.
 6. Inspect full required GitHub check **conclusions** and only failed excerpts; do not retest huge workloads merely to fill model context. Higher-risk journal/FS work still requires full gate.
-7. If checks pass, record `READY_FOR_REVIEW`; never infer `MERGED`. Only after explicit owner approval and verified merge should a dependent milestone start.
+7. If checks pass, record `READY_FOR_REVIEW`; never infer `MERGED`. Under the active GOV-02 standing merge authorization, independently review and merge **only eligible** PRs with the expected head SHA; otherwise request owner decision. Start a dependent milestone only after GitHub confirms merge.
 8. Leave one durable checkpoint in PR/next docs; when run ends, stop. An external configured runner is needed for scheduled or event-driven automatic continuation.
 
 ## Status/event decisions
@@ -37,7 +37,7 @@ The shorthand is a **workflow selector**, not an autonomous service, a blanket a
 | PR published | PR_OPEN / CI_PENDING | Observe relevant checks, avoid premature pass |
 | Exact-SHA required CI succeeded | READY_FOR_REVIEW | Send human review summary and blocker risks |
 | Failed required CI | IN_PROGRESS / BLOCKED | Diagnose within same task, preserve failure evidence |
-| Owner merges PR | MERGED | Verify main merge SHA; update next; select next eligible task only if authorized |
+| Owner or GOV-02 authorized autopilot merges eligible PR | MERGED | Verify exact main merge SHA; record proof, update next in next bounded PR and select eligible task only if authorized |
 | Required design/FS/ABI authority missing | BLOCKED | Preserve evidence and request decision; don't work around invariant |
 | Release candidate requested | RELEASE_CANDIDATE | Verify exact artifact/safety/rollback/support/license gates, explicit go/no-go |
 | Agent session exits | CHECKPOINTED (session only) | Do not claim background work |
@@ -72,4 +72,4 @@ NEXT SINGLE ACTION:
 
 ## Approval boundaries
 
-Never infer permission from "go ahead" for merging a PR, deleting source, overwriting customer files, paid infrastructure, production release, secrets changes or an unsafe recovery bypass. A task-specific approval permits only that named bounded action. Code-review feedback and artifacts alone cannot constitute a sign-off. State what is implemented, tested, merged and *not done*.
+Never infer permission from **"go ahead" alone** to merge a PR, delete source/history, overwrite customer files, use paid infrastructure, deploy, change secrets or bypass unsafe recovery gates. The owner provided **separate standing approval for eligible autopilot merges on 2026-11-17**; apply [GOV-02](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md) with exact-head review, current required CI, branch protections and explicit P0 safety exceptions. A task-specific authorization remains necessary for high-risk or irreversible operations. Do not self-approve as an independent reviewer. State what is implemented, tested, merged and *not done*.

@@ -34,6 +34,25 @@ class FixtureIntegrityTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "entry count"):
             verify_fixture(self.root, 4)
 
+    def test_extra_empty_directory_rejected(self):
+        (self.root / "unexpected-directory").mkdir()
+        with self.assertRaisesRegex(RuntimeError, "directory layout"):
+            verify_fixture(self.root, 4)
+
+    def test_directory_symlink_rejected(self):
+        (self.root / "directory-link").symlink_to(self.root / "set-0000", target_is_directory=True)
+        with self.assertRaisesRegex(RuntimeError, "symlink"):
+            verify_fixture(self.root, 4)
+
+    def test_nested_directory_rejected(self):
+        (self.root / "set-0000" / "nested").mkdir()
+        with self.assertRaisesRegex(RuntimeError, "directory layout"):
+            verify_fixture(self.root, 4)
+
+    def test_multiple_fixture_directories_accepted(self):
+        build_fixture(self.root, 101)
+        verify_fixture(self.root, 101)
+
     def test_symlink_replacement_rejected(self):
         original = self.root / "set-0000" / "fixture-00000000.jpg"
         original.unlink()

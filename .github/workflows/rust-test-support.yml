@@ -5,11 +5,13 @@ on:
     branches: [main]
     paths:
       - "rust-toolchain.toml"
+      - "Makefile"
       - "tests/rust/**"
       - ".github/workflows/rust-test-support.yml"
   pull_request:
     paths:
       - "rust-toolchain.toml"
+      - "Makefile"
       - "tests/rust/**"
       - ".github/workflows/rust-test-support.yml"
   workflow_dispatch:
@@ -44,3 +46,7 @@ jobs:
 
       - name: Run Rust unit tests
         run: cargo test --locked
+
+      - name: Verify root Makefile Rust wrapper
+        working-directory: .
+        run: make rust-check

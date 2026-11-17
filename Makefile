@@ -29,7 +29,7 @@ endif
 # Quote caller-overridable path/argument values for POSIX shells.
 shquote = '$(subst ','"'"',$(1))'
 
-.PHONY: all debug release profile test validate run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help status self-check
+.PHONY: all debug release profile test validate run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help status self-check rust-check
 
 all: debug
 
@@ -118,6 +118,13 @@ self-check:
 	  printf '%s\n' "$$guarded" | grep -F -- 'Refusing real file operations' >/dev/null || { echo 'FAIL: unconfirmed run-execute is not refused'; exit 1; }; \
 	  echo 'PASS: dry-run and unconfirmed-execute Makefile contracts (inspection only)'
 
+# Test-only Rust verification; never links Rust into the production C executable.
+# Cargo is confined to the existing dependency-free test-support crate.
+rust-check:
+	@cd tests/rust/fcj4-test-support && cargo fmt --all -- --check
+	@cd tests/rust/fcj4-test-support && cargo clippy --locked --all-targets -- -D warnings
+	@cd tests/rust/fcj4-test-support && cargo test --locked
+
 # Read-only repository inspection; no build, filesystem cleanup or user-file operations.
 status:
 	@git status --short
@@ -128,6 +135,7 @@ help:
 	@echo "make                 -> Debug build (ASan + UBSan)"
 	@echo "make status          -> Read-only Git working-tree/branch/HEAD summary"
 	@echo "make self-check      -> Inspect dry-run and real-move refusal recipes (no execution)"
+	@echo "make rust-check      -> Isolated Rust test-support fmt, Clippy and tests (no FFI)"
 	@echo "make test            -> Debug build + CTest suite"
 	@echo "make validate        -> C11, C17, C23 Debug build + tests"
 	@echo "make release         -> Portable optimized Release build"

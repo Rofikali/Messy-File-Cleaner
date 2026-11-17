@@ -7,7 +7,7 @@
 | What is the product, implemented scope and user-facing usage? | [README](../README.md) |
 | What should be done NOW, NEXT and LATER? | [Live NOW / NEXT / LATER register](../next.md) (authoritative task selection; historical notes explicitly marked) |
 | What is fully built, partially implemented, started, test-only, blocked or future? | [Component completion and status inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) (evidence and remaining customer-journey gaps, not a second live backlog) |
-| What may agents do and what requires approval? | [AGENTS](../AGENTS.md) |
+| What may agents do and what requires approval? | [AGENTS](../AGENTS.md) and [GOV-02 owner-authorized PR review/merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md) (eligible green merges only; no security/CI bypass) |
 | How to perform recurring engineering tasks? | [skills.md](../skills.md) is the operational recipe; [SKILLS.md](../SKILLS.md) is a non-binding learning catalogue and does **not** approve technologies, merges or runtime changes |
 | Seven engineering levels, CTO/security, decision and review criteria? | [Engineering operating model](ENGINEERING_OPERATING_MODEL.md) |
 | How to resume/handoff a bounded PR? | [Agent continuation](AGENT_CONTINUATION_AND_HANDOFF.md) |

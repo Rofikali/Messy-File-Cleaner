@@ -29,7 +29,7 @@ endif
 # Quote caller-overridable path/argument values for POSIX shells.
 shquote = '$(subst ','"'"',$(1))'
 
-.PHONY: all debug release profile test validate run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help status
+.PHONY: all debug release profile test validate run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help status self-check
 
 all: debug
 
@@ -108,6 +108,16 @@ clean:
 	@rm -f -- gmon.out perf.data
 	@echo "Cleaned build artifacts; user data folders were left untouched."
 
+# Verify Makefile safety contracts without executing build, cleanup, or mover commands.
+# Dry-run inspection is intentionally independent of the developer's input folder.
+self-check:
+	@set -eu; \
+	  dry="$( $(MAKE) --no-print-directory -n run )"; \
+	  printf '%s\n' "$dry" | grep -F -- '--dry-run' >/dev/null || { echo 'FAIL: run lacks --dry-run'; exit 1; }; \
+	  guarded="$( $(MAKE) --no-print-directory -n run-execute CONFIRM_MOVE=NO )"; \
+	  printf '%s\n' "$guarded" | grep -F -- 'Refusing real file operations' >/dev/null || { echo 'FAIL: unconfirmed run-execute is not refused'; exit 1; }; \
+	  echo 'PASS: dry-run and unconfirmed-execute Makefile contracts (inspection only)'
+
 # Read-only repository inspection; no build, filesystem cleanup or user-file operations.
 status:
 	@git status --short
@@ -116,7 +126,7 @@ status:
 
 help:
 	@echo "make                 -> Debug build (ASan + UBSan)"
-	@echo "make status          -> Read-only Git working-tree/branch/HEAD summary"
+	@echo "make status          -> Read-only Git working-tree/branch/HEAD summary"\n\t@echo "make self-check      -> Inspect dry-run and real-move refusal recipes (no execution)"
 	@echo "make test            -> Debug build + CTest suite"
 	@echo "make validate        -> C11, C17, C23 Debug build + tests"
 	@echo "make release         -> Portable optimized Release build"

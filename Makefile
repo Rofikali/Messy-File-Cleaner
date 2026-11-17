@@ -113,9 +113,9 @@ clean:
 self-check:
 	@set -eu; \
 	  dry="$$( $(MAKE) --no-print-directory -n run )"; \
-	  printf '%s\n' "$dry" | grep -F -- '--dry-run' >/dev/null || { echo 'FAIL: run lacks --dry-run'; exit 1; }; \
+	  printf '%s\n' "$$dry" | grep -F -- '--dry-run' >/dev/null || { echo 'FAIL: run lacks --dry-run'; exit 1; }; \
 	  guarded="$$( $(MAKE) --no-print-directory -n run-execute CONFIRM_MOVE=NO )"; \
-	  printf '%s\n' "$guarded" | grep -F -- 'Refusing real file operations' >/dev/null || { echo 'FAIL: unconfirmed run-execute is not refused'; exit 1; }; \
+	  printf '%s\n' "$$guarded" | grep -F -- 'Refusing real file operations' >/dev/null || { echo 'FAIL: unconfirmed run-execute is not refused'; exit 1; }; \
 	  echo 'PASS: dry-run and unconfirmed-execute Makefile contracts (inspection only)'
 
 # Read-only repository inspection; no build, filesystem cleanup or user-file operations.

@@ -18,6 +18,13 @@ The shorthand is a **workflow selector**, not an autonomous service, a blanket a
 
 > Read `AGENTS.md`, `next.md`, `docs/README.md`, `skills.md`, [GOV-02 autopilot merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md), current `main`, relevant security/architecture docs and exact PR/CI state. Choose the next dependency-unblocked READY milestone, make one bounded change/PR with focused tests and required CI, checkpoint exact results. Under active standing owner authorization, **independently review and merge only eligible PRs with exact SHA and mandatory protections**. Never deploy, delete real files/history, spend money, bypass security or implement a blocked P0/destructive change without a separate authorized decision.
 
+## Latest TOOL-01 self-check merge checkpoint (2026-11-17)
+
+- Verified `main` at `27a06701c8203a3279ee647543ce5b485bbdc405`, [PR #101](https://github.com/Rofikali/Messy-File-Cleaner/pull/101) **MERGED** from exact head `cd156241ebfd91ef5c0c89c881e1bb530f08043f`. No open PRs at checkpoint.
+- Maturity: `make self-check` **IMPLEMENTED**, delivery **MERGED**; TOOL-01 overall **PARTIAL** (`make rust-check` **NOT_STARTED**, remains test-only). Ubuntu Makefile CI explicitly executed self-check successfully; C11/C17/C23 Debug/Release 6 PASS, Docker 1 PASS, Makefile 1 PASS (8 PASS, 0 FAIL). Runs: [CMake](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44124849188), [Docker](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44124849204), [Makefile](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44124849390). Local full repository tests **NOT RUN**.
+- The self-check inspects Makefile recipes, **not** adversarial filesystem behavior. FS-01B-FIX and REL-01 remain P0 **BLOCKED**; same-UID source-retirement vulnerability unresolved. No FCJ3/FCJ4 production link, Rust FFI, data mutation or release authorization.
+- Next independent bounded milestone: evaluate isolated `make rust-check` only under existing Rust test-only rules; review this documentation PR's own exact-head CI before merging. Prior PR #101 CI is not this PR's CI.
+
 ## Latest verified RUST-01A checkpoint (2026-11-17)
 
 - `main` at `18661c8291a8afd2129573dfb57ca88146665995` includes [PR #97](https://github.com/Rofikali/Messy-File-Cleaner/pull/97), a documentation-only reconciliation of RUST-01A's already merged test shim ([PR #96](https://github.com/Rofikali/Messy-File-Cleaner/pull/96)).

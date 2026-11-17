@@ -26,6 +26,9 @@ jobs:
       - name: Show supported commands
         run: make help
 
+      - name: Verify non-executing Makefile self-check
+        run: make self-check
+
       - name: Run default Debug sanitizer suite through Makefile
         run: make test JOBS=2
 

@@ -18,6 +18,14 @@ The shorthand is a **workflow selector**, not an autonomous service, a blanket a
 
 > Read `AGENTS.md`, `next.md`, `docs/README.md`, `skills.md`, [GOV-02 autopilot merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md), current `main`, relevant security/architecture docs and exact PR/CI state. Choose the next dependency-unblocked READY milestone, make one bounded change/PR with focused tests and required CI, checkpoint exact results. Under active standing owner authorization, **independently review and merge only eligible PRs with exact SHA and mandatory protections**. Never deploy, delete real files/history, spend money, bypass security or implement a blocked P0/destructive change without a separate authorized decision.
 
+## Latest verified RUST-01A checkpoint (2026-11-17)
+
+- `main` at `18661c8291a8afd2129573dfb57ca88146665995` includes [PR #97](https://github.com/Rofikali/Messy-File-Cleaner/pull/97), a documentation-only reconciliation of RUST-01A's already merged test shim ([PR #96](https://github.com/Rofikali/Messy-File-Cleaner/pull/96)).
+- Maturity: RUST-01A **IMPLEMENTED IN TESTS**; delivery: **MERGED**. RUST-01B Rust unsafe/FFI boundary: **NOT STARTED / BLOCKED** pending explicit approval. Production FFI and FCJ4 integration: **NOT AUTHORIZED**.
+- FS-01B-FIX and REL-01 remain **P0 BLOCKED**. The same-UID source-retirement race is not fixed; a passing known-risk test is not positive preservation acceptance.
+- This follow-up documentation PR requires fresh exact-head CI review. Local C11/C17/C23, Docker and Rust tests were **NOT RUN** for this documentation-only checkpoint; never copy previous PR-head results as current-PR results.
+- Next: verify this follow-up PR's diff, comments, protections and CI before any routine merge. Then review the separate RUST-01B boundary decision without introducing Rust FFI prematurely.
+
 ## Start-of-session sequence
 
 1. `git status --short`; `git branch --show-current`; `git rev-parse HEAD`; fetch latest `main`/PR state. Do not overwrite unknown dirty worktrees.

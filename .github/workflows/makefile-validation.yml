@@ -29,6 +29,9 @@ jobs:
       - name: Verify non-executing Makefile self-check
         run: make self-check
 
+      - name: Verify dry-run benchmark fixture preservation regressions
+        run: python3 -m unittest discover -s tests/performance -p 'test_benchmark_fixture.py' -v
+
       - name: Run default Debug sanitizer suite through Makefile
         run: make test JOBS=2
 

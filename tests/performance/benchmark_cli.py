@@ -36,6 +36,23 @@ def build_fixture(root: Path, file_count: int) -> None:
         path.write_bytes(b"benchmark fixture\n")
 
 
+
+def verify_fixture(root: Path, file_count: int) -> None:
+    """Fail if a purported dry-run removed, altered, or added fixture entries.
+
+    Validation is deliberately outside timed measurements. This is a benchmark
+    integrity check, not a production filesystem security guarantee.
+    """
+    extensions = (".jpg", ".png", ".txt", ".html")
+    payload = b"benchmark fixture\n"
+    for index in range(file_count):
+        path = root / f"set-{index // 100:04d}" / f"fixture-{index:08d}{extensions[index % len(extensions)]}"
+        if path.is_symlink() or not path.is_file() or path.read_bytes() != payload:
+            raise RuntimeError(f"dry-run modified or removed fixture: {path}")
+    entries = sum(1 for path in root.rglob("*") if path.is_file() or path.is_symlink())
+    if entries != file_count:
+        raise RuntimeError(f"dry-run changed fixture entry count: expected {file_count}, got {entries}")
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
@@ -82,6 +99,8 @@ def main() -> int:
                 detail = warmup.stderr.decode(errors="replace")[-6000:] if args.diagnostics and warmup.stderr else ""
                 raise RuntimeError(f"warm-up run failed with exit code {warmup.returncode}\\n{detail}")
 
+        verify_fixture(fixture_root, args.files)
+
         for _ in range(args.runs):
             start = time.perf_counter_ns()
             completed = subprocess.run(command, cwd=workspace,
@@ -93,6 +112,8 @@ def main() -> int:
                 detail = completed.stderr.decode(errors="replace")[-6000:] if args.diagnostics and completed.stderr else ""
                 raise RuntimeError(f"measured run failed with exit code {completed.returncode}\\n{detail}")
             samples_ns.append(elapsed)
+
+        verify_fixture(fixture_root, args.files)
 
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]
     output_base = Path(args.output)

@@ -18,7 +18,14 @@ The shorthand is a **workflow selector**, not an autonomous service, a blanket a
 
 > Read `AGENTS.md`, `next.md`, `docs/README.md`, `skills.md`, [GOV-02 autopilot merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md), current `main`, relevant security/architecture docs and exact PR/CI state. Choose the next dependency-unblocked READY milestone, make one bounded change/PR with focused tests and required CI, checkpoint exact results. Under active standing owner authorization, **independently review and merge only eligible PRs with exact SHA and mandatory protections**. Never deploy, delete real files/history, spend money, bypass security or implement a blocked P0/destructive change without a separate authorized decision.
 
-## Latest TOOL-01 self-check merge checkpoint (2026-11-17)
+## Latest TOOL-01 rust-check merge checkpoint (2026-11-18)
+
+- Verified GitHub `main` `e1ab35558240113934126196a57cc22f68ecd563`; [PR #103](https://github.com/Rofikali/Messy-File-Cleaner/pull/103) **MERGED** from reviewed head `1c07b11b09f7c4e5ca73835b0a38e98476888320`. No open PRs before this documentation follow-up.
+- `make rust-check`: maturity **IMPLEMENTED**; delivery **MERGED / NOT RELEASED**. Runs at exact PR head: [Rust](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44158446471) PASS, [C matrix](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44158446455) 6 PASS, [Docker](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44158446574) PASS, [Makefile](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44158446593) PASS; **9 PASS / 0 FAIL**. Local tests **NOT RUN**.
+- The scoped TOOL-01 developer targets `make status`, `make self-check` and `make rust-check` are merged; Rust remains test-only. No production FFI, FCJ3/FCJ4 linkage, source deletion or release certification. FS-01B-FIX and REL-01 remain **P0 BLOCKED** with unresolved same-UID race.
+- Next: review this documentation PR's own diff and exact-head CI before merging. Then reassess independent READY work; RUST-01B requires explicit unsafe/FFI approval and cannot be started by inference.
+
+## Historical TOOL-01 self-check merge checkpoint (2026-11-17)
 
 - Verified `main` at `27a06701c8203a3279ee647543ce5b485bbdc405`, [PR #101](https://github.com/Rofikali/Messy-File-Cleaner/pull/101) **MERGED** from exact head `cd156241ebfd91ef5c0c89c881e1bb530f08043f`. No open PRs at checkpoint.
 - Maturity: `make self-check` **IMPLEMENTED**, delivery **MERGED**; TOOL-01 overall **PARTIAL** (`make rust-check` **NOT_STARTED**, remains test-only). Ubuntu Makefile CI explicitly executed self-check successfully; C11/C17/C23 Debug/Release 6 PASS, Docker 1 PASS, Makefile 1 PASS (8 PASS, 0 FAIL). Runs: [CMake](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44124849188), [Docker](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44124849204), [Makefile](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/44124849390). Local full repository tests **NOT RUN**.

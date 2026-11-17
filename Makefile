@@ -29,7 +29,7 @@ endif
 # Quote caller-overridable path/argument values for POSIX shells.
 shquote = '$(subst ','"'"',$(1))'
 
-.PHONY: all debug release profile test validate run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help
+.PHONY: all debug release profile test validate run run-execute perf perf-record gprof benchmark benchmark-moves clean asm help status
 
 all: debug
 
@@ -108,8 +108,15 @@ clean:
 	@rm -f -- gmon.out perf.data
 	@echo "Cleaned build artifacts; user data folders were left untouched."
 
+# Read-only repository inspection; no build, filesystem cleanup or user-file operations.
+status:
+	@git status --short
+	@git branch --show-current
+	@git rev-parse HEAD
+
 help:
 	@echo "make                 -> Debug build (ASan + UBSan)"
+	@echo "make status          -> Read-only Git working-tree/branch/HEAD summary"
 	@echo "make test            -> Debug build + CTest suite"
 	@echo "make validate        -> C11, C17, C23 Debug build + tests"
 	@echo "make release         -> Portable optimized Release build"

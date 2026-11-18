@@ -8,6 +8,7 @@ import csv
 import datetime as dt
 import json
 import platform
+import resource
 import statistics
 import subprocess
 import sys
@@ -69,6 +70,15 @@ def verify_fixture(root: Path, file_count: int) -> None:
     if entries != file_count:
         raise RuntimeError(f"dry-run changed fixture entry count: expected {file_count}, got {entries}")
 
+def child_cpu_delta_ns(before, after) -> tuple[int, int]:
+    """Return nonnegative child CPU deltas (user, system), excluding harness work."""
+    user = round((after.ru_utime - before.ru_utime) * 1_000_000_000)
+    system = round((after.ru_stime - before.ru_stime) * 1_000_000_000)
+    if user < 0 or system < 0:
+        raise RuntimeError("child CPU usage counters decreased")
+    return user, system
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
@@ -92,6 +102,8 @@ def main() -> int:
         parser.error(f"config not found: {config}")
 
     samples_ns: list[int] = []
+    cpu_user_ns: list[int] = []
+    cpu_system_ns: list[int] = []
     fixture_creation_ns = 0
     fixture_directory_count = 0
     with tempfile.TemporaryDirectory(prefix="file-cleaner-bench-") as temp:
@@ -118,16 +130,21 @@ def main() -> int:
         verify_fixture(fixture_root, args.files)
 
         for _ in range(args.runs):
+            cpu_before = resource.getrusage(resource.RUSAGE_CHILDREN)
             start = time.perf_counter_ns()
             completed = subprocess.run(command, cwd=workspace,
                                        stdout=subprocess.DEVNULL,
                                        stderr=subprocess.PIPE if args.diagnostics else subprocess.DEVNULL,
                                        check=False)
             elapsed = time.perf_counter_ns() - start
+            cpu_after = resource.getrusage(resource.RUSAGE_CHILDREN)
+            user_ns, system_ns = child_cpu_delta_ns(cpu_before, cpu_after)
             if completed.returncode != 0:
                 detail = completed.stderr.decode(errors="replace")[-6000:] if args.diagnostics and completed.stderr else ""
                 raise RuntimeError(f"measured run failed with exit code {completed.returncode}\\n{detail}")
             samples_ns.append(elapsed)
+            cpu_user_ns.append(user_ns)
+            cpu_system_ns.append(system_ns)
             # Outside the measured interval: detect mutation at the run
             # that caused it, rather than only after all repetitions.
             verify_fixture(fixture_root, args.files)
@@ -140,14 +157,18 @@ def main() -> int:
 
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=[
-            "run", "files", "elapsed_ns", "files_per_second"
+            "run", "files", "elapsed_ns", "files_per_second",
+            "child_cpu_user_ns", "child_cpu_system_ns"
         ])
         writer.writeheader()
-        for index, (elapsed, rate) in enumerate(zip(samples_ns, throughput), start=1):
+        for index, (elapsed, rate, user_ns, system_ns) in enumerate(
+                zip(samples_ns, throughput, cpu_user_ns, cpu_system_ns), start=1):
             writer.writerow({
                 "run": index,
                 "files": args.files,
                 "elapsed_ns": elapsed,
+                "child_cpu_user_ns": user_ns,
+                "child_cpu_system_ns": system_ns,
                 "files_per_second": f"{rate:.3f}",
             })
 
@@ -170,6 +191,9 @@ def main() -> int:
         "processor": platform.processor(),
         "python": sys.version,
         "elapsed_ns": samples_ns,
+        "child_cpu_user_ns": cpu_user_ns,
+        "child_cpu_system_ns": cpu_system_ns,
+        "cpu_scope_note": "POSIX RUSAGE_CHILDREN user/system CPU deltas per CLI subprocess; excludes Python fixture verification.",
         "files_per_second": [round(value, 3) for value in throughput],
         "elapsed_ns_summary": {
             "min": min(samples_ns),

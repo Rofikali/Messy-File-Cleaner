@@ -51,6 +51,22 @@ class FilesystemContextTests(unittest.TestCase):
                 with self.assertRaisesRegex(RuntimeError, "capacity"):
                     filesystem_context(Path(temp))
 
+    def test_available_blocks_cannot_exceed_capacity(self):
+        stats = SimpleNamespace(f_frsize=4096, f_bsize=4096, f_blocks=10,
+                                f_bavail=11, f_files=10, f_favail=5)
+        with tempfile.TemporaryDirectory() as temp:
+            with patch("benchmark_cli.os.statvfs", return_value=stats):
+                with self.assertRaisesRegex(RuntimeError, "capacity"):
+                    filesystem_context(Path(temp))
+
+    def test_available_inodes_cannot_exceed_total(self):
+        stats = SimpleNamespace(f_frsize=4096, f_bsize=4096, f_blocks=10,
+                                f_bavail=5, f_files=10, f_favail=11)
+        with tempfile.TemporaryDirectory() as temp:
+            with patch("benchmark_cli.os.statvfs", return_value=stats):
+                with self.assertRaisesRegex(RuntimeError, "inode"):
+                    filesystem_context(Path(temp))
+
     def test_invalid_inode_counters_rejected(self):
         stats = SimpleNamespace(f_frsize=4096, f_bsize=4096, f_blocks=10,
                                 f_bavail=5, f_files=10, f_favail=-1)

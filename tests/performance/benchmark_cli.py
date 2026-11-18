@@ -126,9 +126,9 @@ def filesystem_context(path: Path) -> dict[str, int | None]:
     stats = os.statvfs(path)
     device = path.stat().st_dev
     block_size = stats.f_frsize or stats.f_bsize
-    if block_size <= 0 or stats.f_blocks < 0 or stats.f_bavail < 0:
+    if block_size <= 0 or stats.f_blocks < 0 or not 0 <= stats.f_bavail <= stats.f_blocks:
         raise RuntimeError("invalid filesystem capacity counters")
-    if stats.f_files < 0 or stats.f_favail < 0:
+    if stats.f_files < 0 or not 0 <= stats.f_favail <= stats.f_files:
         raise RuntimeError("invalid filesystem inode counters")
     return {
         "device_id": device,
@@ -244,7 +244,7 @@ def main() -> int:
         "filesystem_after": filesystem_after,
         "filesystem_scope_note": "POSIX statvfs capacity/inode snapshots of disposable workspace before fixture creation and after measurements; not bytes written, cache state, disk speed or filesystem type.",
         "fixture_creation_elapsed_ns": fixture_creation_ns,
-        "fixture_file_bytes": len(b"benchmark fixture\\n"),
+        "fixture_file_bytes": len(b"benchmark fixture\n"),
         "measured_runs": args.runs,
         "workers": args.workers,
         "warmup_runs": 2,

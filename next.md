@@ -2,6 +2,8 @@
 
 ## LIVE BOARD — NOW / NEXT / LATER (authoritative task selection)
 
+**PERF-01I (2026-11-18):** Implemented on branch, PR CI/review pending: benchmark output CSV/JSON now use exclusive creation with an early existing-path/symlink check, preventing silent overwrites of prior results. Five focused tests cover existing CSV/JSON preservation, dangling symlink, and post-check creation race. A concurrent creation of the JSON after CSV is opened can still leave a partial new CSV; no existing output is overwritten. Local tests NOT RUN; exact-head CI NOT VERIFIED. PR #112 PERF-01H merged at main `0d77e905095128a78bdd55145709deab3da8e94f`. P0 FS-01B-FIX/REL-01 remain BLOCKED; no production file operations changed.
+
 **PERF-01H (2026-11-18):** Implementation PR pending CI/review: benchmark now verifies executable/configuration SHA-256 and fixture preservation after warm-up and each measured run, with three focused checkpoint tests. PR #111 PERF-01G was merged at main `9cf108a6e20cfcdea5afcc2345d00e47815ffbf0`; historical PERF-01G pending text below is superseded. Local tests NOT RUN; exact-head CI NOT VERIFIED. No production C or user-file operations. FS-01B-FIX and REL-01 remain P0 BLOCKED.
 
 **PERF-01G (2026-11-18):** Implemented on branch, PR review/CI pending: disposable dry-run benchmark records SHA-256 fingerprints for executable and configuration, verifies both again after measured runs, and adds seven regression cases. This is reproducibility instrumentation, not a speedup or safety proof. Local tests NOT RUN; exact-head CI NOT VERIFIED. P0 FS-01B-FIX and REL-01 remain BLOCKED; next action is exact-head CI, review and eligible merge. No production C or customer-file operations changed.

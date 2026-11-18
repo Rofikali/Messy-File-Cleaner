@@ -165,6 +165,17 @@ def verify_measurement_checkpoint(root: Path, count: int, binary: Path,
     verify_input_fingerprints(binary, config, expected)
 
 
+def ensure_fresh_output_paths(csv_path: Path, json_path: Path) -> None:
+    """Refuse to overwrite prior benchmark evidence or follow output symlinks.
+
+    This is an early diagnostic, not a race-free reservation: exclusive
+    creation at write time remains the authoritative no-clobber guard.
+    """
+    for path in (csv_path, json_path):
+        if path.is_symlink() or path.exists():
+            raise FileExistsError(f"benchmark output already exists: {path}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
@@ -241,11 +252,12 @@ def main() -> int:
 
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]
     output_base = Path(args.output)
-    output_base.parent.mkdir(parents=True, exist_ok=True)
     csv_path = output_base.with_suffix(".csv")
     json_path = output_base.with_suffix(".json")
+    ensure_fresh_output_paths(csv_path, json_path)
+    output_base.parent.mkdir(parents=True, exist_ok=True)
 
-    with csv_path.open("w", newline="", encoding="utf-8") as handle:
+    with csv_path.open("x", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=[
             "run", "files", "elapsed_ns", "files_per_second",
             "child_cpu_user_ns", "child_cpu_system_ns", "child_peak_rss_kib"
@@ -320,7 +332,8 @@ def main() -> int:
             "diagnostic formatting still occurs."
         ),
     }
-    json_path.write_text(json.dumps(metadata, indent=2) + "\n", encoding="utf-8")
+    with json_path.open("x", encoding="utf-8") as handle:
+        handle.write(json.dumps(metadata, indent=2) + "\n")
 
     print(f"Files/run: {args.files}; measured runs: {args.runs}; workers: {args.workers}")
     print(f"Elapsed ns median/p95/p99: "

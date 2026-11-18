@@ -158,6 +158,13 @@ def verify_input_fingerprints(binary: Path, config: Path, expected: dict[str, st
         raise RuntimeError("benchmark configuration changed during measurements")
 
 
+def verify_measurement_checkpoint(root: Path, count: int, binary: Path,
+                                  config: Path, expected: dict[str, str]) -> None:
+    """Validate fixture and both inputs outside timed subprocess execution."""
+    verify_fixture(root, count)
+    verify_input_fingerprints(binary, config, expected)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
@@ -210,7 +217,7 @@ def main() -> int:
             if returncode != 0:
                 raise RuntimeError(f"warm-up run failed with exit code {returncode}\\n{detail}")
 
-        verify_fixture(fixture_root, args.files)
+        verify_measurement_checkpoint(fixture_root, args.files, binary, config, fingerprints)
 
         for _ in range(args.runs):
             cpu_before = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -227,7 +234,7 @@ def main() -> int:
             peak_rss_kib_samples.append(peak_rss_kib(usage))
             # Outside the measured interval: detect mutation at the run
             # that caused it, rather than only after all repetitions.
-            verify_fixture(fixture_root, args.files)
+            verify_measurement_checkpoint(fixture_root, args.files, binary, config, fingerprints)
 
         filesystem_after = filesystem_context(workspace)
         verify_input_fingerprints(binary, config, fingerprints)
@@ -262,7 +269,7 @@ def main() -> int:
         "binary": str(binary),
         "binary_sha256": fingerprints["binary_sha256"],
         "config_sha256": fingerprints["config_sha256"],
-        "input_fingerprint_scope_note": "SHA-256 of executable and configuration before and after the benchmark; detects changes at those checkpoints, not concurrent modifications or provenance.",
+        "input_fingerprint_scope_note": "SHA-256 of executable and configuration before execution, after warm-up, after each measured run and at benchmark completion; detects changes at checkpoints, not concurrent modifications or provenance.",
         "config": str(config),
         "files": args.files,
         "fixture_directories": fixture_directory_count,

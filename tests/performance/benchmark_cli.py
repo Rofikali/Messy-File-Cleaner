@@ -116,6 +116,30 @@ def peak_rss_kib(usage) -> int:
     return int(value)
 
 
+
+def filesystem_context(path: Path) -> dict[str, int | None]:
+    """Capture POSIX filesystem capacity for the actual disposable workspace.
+
+    Values describe the filesystem at sampling time, not benchmark I/O usage.
+    A zero inode count means the filesystem does not report an inode limit.
+    """
+    stats = os.statvfs(path)
+    device = path.stat().st_dev
+    block_size = stats.f_frsize or stats.f_bsize
+    if block_size <= 0 or stats.f_blocks < 0 or stats.f_bavail < 0:
+        raise RuntimeError("invalid filesystem capacity counters")
+    if stats.f_files < 0 or stats.f_favail < 0:
+        raise RuntimeError("invalid filesystem inode counters")
+    return {
+        "device_id": device,
+        "block_size_bytes": block_size,
+        "capacity_bytes": stats.f_blocks * block_size,
+        "available_bytes": stats.f_bavail * block_size,
+        "total_inodes": stats.f_files or None,
+        "available_inodes": stats.f_favail if stats.f_files else None,
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
@@ -144,10 +168,13 @@ def main() -> int:
     peak_rss_kib_samples: list[int] = []
     fixture_creation_ns = 0
     fixture_directory_count = 0
+    filesystem_before: dict[str, int | None] = {}
+    filesystem_after: dict[str, int | None] = {}
     with tempfile.TemporaryDirectory(prefix="file-cleaner-bench-") as temp:
         workspace = Path(temp)
         fixture_root = workspace / "input"
         fixture_root.mkdir()
+        filesystem_before = filesystem_context(workspace)
         fixture_start = time.perf_counter_ns()
         build_fixture(fixture_root, args.files)
         fixture_creation_ns = time.perf_counter_ns() - fixture_start
@@ -180,6 +207,8 @@ def main() -> int:
             # that caused it, rather than only after all repetitions.
             verify_fixture(fixture_root, args.files)
 
+        filesystem_after = filesystem_context(workspace)
+
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]
     output_base = Path(args.output)
     output_base.parent.mkdir(parents=True, exist_ok=True)
@@ -211,6 +240,9 @@ def main() -> int:
         "config": str(config),
         "files": args.files,
         "fixture_directories": fixture_directory_count,
+        "filesystem_before": filesystem_before,
+        "filesystem_after": filesystem_after,
+        "filesystem_scope_note": "POSIX statvfs capacity/inode snapshots of disposable workspace before fixture creation and after measurements; not bytes written, cache state, disk speed or filesystem type.",
         "fixture_creation_elapsed_ns": fixture_creation_ns,
         "fixture_file_bytes": len(b"benchmark fixture\\n"),
         "measured_runs": args.runs,

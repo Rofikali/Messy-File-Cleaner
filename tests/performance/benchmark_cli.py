@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import datetime as dt
+import hashlib
 import json
 import os
 import platform
@@ -140,6 +141,23 @@ def filesystem_context(path: Path) -> dict[str, int | None]:
     }
 
 
+def sha256_file(path: Path) -> str:
+    """Stream a reproducible fingerprint without retaining the input in memory."""
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def verify_input_fingerprints(binary: Path, config: Path, expected: dict[str, str]) -> None:
+    """Reject changes to the executable or configuration during measurement."""
+    if sha256_file(binary) != expected["binary_sha256"]:
+        raise RuntimeError("benchmark executable changed during measurements")
+    if sha256_file(config) != expected["config_sha256"]:
+        raise RuntimeError("benchmark configuration changed during measurements")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
@@ -162,6 +180,10 @@ def main() -> int:
     if not config.is_file():
         parser.error(f"config not found: {config}")
 
+    fingerprints = {
+        "binary_sha256": sha256_file(binary),
+        "config_sha256": sha256_file(config),
+    }
     samples_ns: list[int] = []
     cpu_user_ns: list[int] = []
     cpu_system_ns: list[int] = []
@@ -208,6 +230,7 @@ def main() -> int:
             verify_fixture(fixture_root, args.files)
 
         filesystem_after = filesystem_context(workspace)
+        verify_input_fingerprints(binary, config, fingerprints)
 
     throughput = [args.files * 1_000_000_000 / value for value in samples_ns]
     output_base = Path(args.output)
@@ -237,6 +260,9 @@ def main() -> int:
         "benchmark": "file-cleaner-cli-dry-run",
         "created_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "binary": str(binary),
+        "binary_sha256": fingerprints["binary_sha256"],
+        "config_sha256": fingerprints["config_sha256"],
+        "input_fingerprint_scope_note": "SHA-256 of executable and configuration before and after the benchmark; detects changes at those checkpoints, not concurrent modifications or provenance.",
         "config": str(config),
         "files": args.files,
         "fixture_directories": fixture_directory_count,

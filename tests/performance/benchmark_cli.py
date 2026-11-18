@@ -161,7 +161,8 @@ def main() -> int:
             "child_cpu_user_ns", "child_cpu_system_ns"
         ])
         writer.writeheader()
-        for index, (elapsed, rate, user_ns, system_ns) in enumerate(\n                zip(samples_ns, throughput, cpu_user_ns, cpu_system_ns), start=1):
+        for index, (elapsed, rate, user_ns, system_ns) in enumerate(
+                zip(samples_ns, throughput, cpu_user_ns, cpu_system_ns), start=1):
             writer.writerow({
                 "run": index,
                 "files": args.files,

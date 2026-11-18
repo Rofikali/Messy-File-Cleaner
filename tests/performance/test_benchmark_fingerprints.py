@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from benchmark_cli import sha256_file, verify_input_fingerprints
+from benchmark_cli import build_fixture, sha256_file, verify_input_fingerprints, verify_measurement_checkpoint
 
 
 class InputFingerprintTests(unittest.TestCase):
@@ -49,6 +49,28 @@ class InputFingerprintTests(unittest.TestCase):
         self.config.unlink()
         with self.assertRaises(FileNotFoundError):
             verify_input_fingerprints(self.binary, self.config, self.expected)
+
+    def test_measurement_checkpoint_accepts_preserved_fixture_and_inputs(self):
+        fixture = Path(self.temp.name) / "fixture"
+        fixture.mkdir()
+        build_fixture(fixture, 2)
+        verify_measurement_checkpoint(fixture, 2, self.binary, self.config, self.expected)
+
+    def test_measurement_checkpoint_rejects_changed_config(self):
+        fixture = Path(self.temp.name) / "fixture"
+        fixture.mkdir()
+        build_fixture(fixture, 2)
+        self.config.write_bytes(b"changed after warmup")
+        with self.assertRaisesRegex(RuntimeError, "configuration changed"):
+            verify_measurement_checkpoint(fixture, 2, self.binary, self.config, self.expected)
+
+    def test_measurement_checkpoint_rejects_changed_fixture(self):
+        fixture = Path(self.temp.name) / "fixture"
+        fixture.mkdir()
+        build_fixture(fixture, 2)
+        (fixture / "set-0000" / "fixture-00000000.jpg").write_bytes(b"changed")
+        with self.assertRaisesRegex(RuntimeError, "modified or removed fixture"):
+            verify_measurement_checkpoint(fixture, 2, self.binary, self.config, self.expected)
 
     def test_large_file_streaming_digest(self):
         payload = b"abcdef0123456789" * 140000

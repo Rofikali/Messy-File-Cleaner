@@ -7,6 +7,7 @@ import argparse
 import csv
 import datetime as dt
 import json
+import os
 import platform
 import resource
 import statistics
@@ -79,6 +80,42 @@ def child_cpu_delta_ns(before, after) -> tuple[int, int]:
     return user, system
 
 
+
+def run_with_peak_rss(command: list[str], cwd: Path, diagnostics: bool):
+    """Return (exit status, bounded stderr, child resource usage) on Linux/POSIX.
+
+    wait4 captures per-process peak RSS. RUSAGE_CHILDREN.ru_maxrss is a
+    historical maximum and cannot be differenced to obtain per-run RSS.
+    """
+    with tempfile.TemporaryFile() as stderr_file:
+        with subprocess.Popen(
+            command, cwd=cwd, stdout=subprocess.DEVNULL,
+            stderr=stderr_file if diagnostics else subprocess.DEVNULL,
+        ) as process:
+            while True:
+                try:
+                    _, status, usage = os.wait4(process.pid, 0)
+                    break
+                except InterruptedError:
+                    continue
+            process.returncode = os.waitstatus_to_exitcode(status)
+        detail = ""
+        if diagnostics and process.returncode != 0:
+            stderr_file.seek(0, os.SEEK_END)
+            size = stderr_file.tell()
+            stderr_file.seek(max(0, size - 6000))
+            detail = stderr_file.read().decode(errors="replace")
+        return process.returncode, detail, usage
+
+
+def peak_rss_kib(usage) -> int:
+    """Linux wait4 ru_maxrss reports peak resident set size in KiB."""
+    value = usage.ru_maxrss
+    if not isinstance(value, (int, float)) or not 0 <= value < float("inf"):
+        raise RuntimeError("invalid child peak RSS")
+    return int(value)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--binary", required=True, help="Built file-cleaner executable")
@@ -104,6 +141,7 @@ def main() -> int:
     samples_ns: list[int] = []
     cpu_user_ns: list[int] = []
     cpu_system_ns: list[int] = []
+    peak_rss_kib_samples: list[int] = []
     fixture_creation_ns = 0
     fixture_directory_count = 0
     with tempfile.TemporaryDirectory(prefix="file-cleaner-bench-") as temp:
@@ -119,32 +157,25 @@ def main() -> int:
         command = [str(binary), str(fixture_root), "--config", str(config),
                    "--dry-run", "--once", "--workers", str(args.workers)]
         for _ in range(2):
-            warmup = subprocess.run(command, cwd=workspace,
-                                    stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.PIPE if args.diagnostics else subprocess.DEVNULL,
-                                    check=False)
-            if warmup.returncode != 0:
-                detail = warmup.stderr.decode(errors="replace")[-6000:] if args.diagnostics and warmup.stderr else ""
-                raise RuntimeError(f"warm-up run failed with exit code {warmup.returncode}\\n{detail}")
+            returncode, detail, _ = run_with_peak_rss(command, workspace, args.diagnostics)
+            if returncode != 0:
+                raise RuntimeError(f"warm-up run failed with exit code {returncode}\\n{detail}")
 
         verify_fixture(fixture_root, args.files)
 
         for _ in range(args.runs):
             cpu_before = resource.getrusage(resource.RUSAGE_CHILDREN)
             start = time.perf_counter_ns()
-            completed = subprocess.run(command, cwd=workspace,
-                                       stdout=subprocess.DEVNULL,
-                                       stderr=subprocess.PIPE if args.diagnostics else subprocess.DEVNULL,
-                                       check=False)
+            returncode, detail, usage = run_with_peak_rss(command, workspace, args.diagnostics)
             elapsed = time.perf_counter_ns() - start
             cpu_after = resource.getrusage(resource.RUSAGE_CHILDREN)
             user_ns, system_ns = child_cpu_delta_ns(cpu_before, cpu_after)
-            if completed.returncode != 0:
-                detail = completed.stderr.decode(errors="replace")[-6000:] if args.diagnostics and completed.stderr else ""
-                raise RuntimeError(f"measured run failed with exit code {completed.returncode}\\n{detail}")
+            if returncode != 0:
+                raise RuntimeError(f"measured run failed with exit code {returncode}\\n{detail}")
             samples_ns.append(elapsed)
             cpu_user_ns.append(user_ns)
             cpu_system_ns.append(system_ns)
+            peak_rss_kib_samples.append(peak_rss_kib(usage))
             # Outside the measured interval: detect mutation at the run
             # that caused it, rather than only after all repetitions.
             verify_fixture(fixture_root, args.files)
@@ -158,17 +189,18 @@ def main() -> int:
     with csv_path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=[
             "run", "files", "elapsed_ns", "files_per_second",
-            "child_cpu_user_ns", "child_cpu_system_ns"
+            "child_cpu_user_ns", "child_cpu_system_ns", "child_peak_rss_kib"
         ])
         writer.writeheader()
-        for index, (elapsed, rate, user_ns, system_ns) in enumerate(
-                zip(samples_ns, throughput, cpu_user_ns, cpu_system_ns), start=1):
+        for index, (elapsed, rate, user_ns, system_ns, rss_kib) in enumerate(
+                zip(samples_ns, throughput, cpu_user_ns, cpu_system_ns, peak_rss_kib_samples), start=1):
             writer.writerow({
                 "run": index,
                 "files": args.files,
                 "elapsed_ns": elapsed,
                 "child_cpu_user_ns": user_ns,
                 "child_cpu_system_ns": system_ns,
+                "child_peak_rss_kib": rss_kib,
                 "files_per_second": f"{rate:.3f}",
             })
 
@@ -193,6 +225,14 @@ def main() -> int:
         "elapsed_ns": samples_ns,
         "child_cpu_user_ns": cpu_user_ns,
         "child_cpu_system_ns": cpu_system_ns,
+        "child_peak_rss_kib": peak_rss_kib_samples,
+        "child_peak_rss_kib_summary": {
+            "min": min(peak_rss_kib_samples),
+            "median": statistics.median(peak_rss_kib_samples),
+            "p95": percentile(peak_rss_kib_samples, 95),
+            "max": max(peak_rss_kib_samples),
+        },
+        "rss_scope_note": "Linux os.wait4 per-child ru_maxrss (KiB), including CLI startup; not cumulative child usage.",
         "cpu_scope_note": "POSIX RUSAGE_CHILDREN user/system CPU deltas per CLI subprocess; excludes Python fixture verification.",
         "files_per_second": [round(value, 3) for value in throughput],
         "elapsed_ns_summary": {

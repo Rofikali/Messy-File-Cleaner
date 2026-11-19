@@ -1,10 +1,11 @@
 """No-clobber regression tests for disposable benchmark result paths."""
 
+import stat
 import tempfile
 import unittest
 from pathlib import Path
 
-from benchmark_cli import ensure_fresh_output_paths
+from benchmark_cli import ensure_fresh_output_paths, open_private_output
 
 
 class ExclusiveBenchmarkOutputTests(unittest.TestCase):
@@ -14,6 +15,38 @@ class ExclusiveBenchmarkOutputTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.csv = self.root / "measurements.csv"
         self.json = self.root / "measurements.json"
+
+    def test_private_csv_creation_preserves_text_and_permissions(self):
+        with open_private_output(self.csv, newline="") as handle:
+            handle.write("run,elapsed_ns\\n1,42\\n")
+        self.assertEqual(self.csv.read_text(encoding="utf-8"), "run,elapsed_ns\\n1,42\\n")
+        self.assertEqual(stat.S_IMODE(self.csv.stat().st_mode) & 0o077, 0)
+
+    def test_private_json_creation_preserves_text_and_permissions(self):
+        with open_private_output(self.json) as handle:
+            handle.write('{"runs":1}\\n')
+        self.assertEqual(self.json.read_text(encoding="utf-8"), '{"runs":1}\\n')
+        self.assertEqual(stat.S_IMODE(self.json.stat().st_mode) & 0o077, 0)
+
+    def test_private_creation_rejects_existing_file_without_clobber(self):
+        self.json.write_text("prior result", encoding="utf-8")
+        with self.assertRaises(FileExistsError):
+            with open_private_output(self.json) as handle:
+                handle.write("unreachable")
+        self.assertEqual(self.json.read_text(encoding="utf-8"), "prior result")
+
+    def test_private_creation_rejects_symlink_to_existing_evidence(self):
+        original = self.root / "original.json"
+        original.write_text("prior evidence", encoding="utf-8")
+        self.json.symlink_to(original)
+        with self.assertRaises(FileExistsError):
+            open_private_output(self.json)
+        self.assertEqual(original.read_text(encoding="utf-8"), "prior evidence")
+
+    def test_private_creation_rejects_dangling_symlink(self):
+        self.json.symlink_to(self.root / "missing.json")
+        with self.assertRaises(FileExistsError):
+            open_private_output(self.json)
 
     def test_fresh_paths_accepted(self):
         ensure_fresh_output_paths(self.csv, self.json)

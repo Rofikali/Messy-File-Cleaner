@@ -18,14 +18,14 @@ class ExclusiveBenchmarkOutputTests(unittest.TestCase):
 
     def test_private_csv_creation_preserves_text_and_permissions(self):
         with open_private_output(self.csv, newline="") as handle:
-            handle.write("run,elapsed_ns\\n1,42\\n")
-        self.assertEqual(self.csv.read_text(encoding="utf-8"), "run,elapsed_ns\\n1,42\\n")
+            handle.write("run,elapsed_ns\n1,42\n")
+        self.assertEqual(self.csv.read_text(encoding="utf-8"), "run,elapsed_ns\n1,42\n")
         self.assertEqual(stat.S_IMODE(self.csv.stat().st_mode) & 0o077, 0)
 
     def test_private_json_creation_preserves_text_and_permissions(self):
         with open_private_output(self.json) as handle:
-            handle.write('{"runs":1}\\n')
-        self.assertEqual(self.json.read_text(encoding="utf-8"), '{"runs":1}\\n')
+            handle.write('{"runs":1}\n')
+        self.assertEqual(self.json.read_text(encoding="utf-8"), '{"runs":1}\n')
         self.assertEqual(stat.S_IMODE(self.json.stat().st_mode) & 0o077, 0)
 
     def test_private_creation_rejects_existing_file_without_clobber(self):

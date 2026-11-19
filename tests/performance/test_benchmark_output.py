@@ -1,5 +1,6 @@
 """No-clobber regression tests for disposable benchmark result paths."""
 
+import os
 import stat
 import tempfile
 import unittest
@@ -47,6 +48,31 @@ class ExclusiveBenchmarkOutputTests(unittest.TestCase):
         self.json.symlink_to(self.root / "missing.json")
         with self.assertRaises(FileExistsError):
             open_private_output(self.json)
+
+    def test_private_creation_ignores_permissive_umask(self):
+        # POSIX mode 0600 must remain private even if the caller's umask is 000.
+        # Restore process-global umask before any assertions or cleanup.
+        previous = os.umask(0)
+        try:
+            with open_private_output(self.csv, newline="") as handle:
+                handle.write("private csv\\n")
+            with open_private_output(self.json) as handle:
+                handle.write('{"private":true}\\n')
+        finally:
+            os.umask(previous)
+        for path in (self.csv, self.json):
+            self.assertEqual(stat.S_IMODE(path.stat().st_mode), 0o600)
+        self.assertEqual(self.csv.read_text(encoding="utf-8"), "private csv\\n")
+        self.assertEqual(self.json.read_text(encoding="utf-8"), '{"private":true}\\n')
+
+    def test_exclusive_private_open_rejects_post_preflight_symlink(self):
+        ensure_fresh_output_paths(self.csv, self.json)
+        original = self.root / "protected.csv"
+        original.write_text("do not overwrite", encoding="utf-8")
+        self.csv.symlink_to(original)
+        with self.assertRaises(FileExistsError):
+            open_private_output(self.csv, newline="")
+        self.assertEqual(original.read_text(encoding="utf-8"), "do not overwrite")
 
     def test_fresh_paths_accepted(self):
         ensure_fresh_output_paths(self.csv, self.json)

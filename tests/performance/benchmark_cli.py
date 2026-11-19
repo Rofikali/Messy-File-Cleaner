@@ -165,6 +165,23 @@ def verify_measurement_checkpoint(root: Path, count: int, binary: Path,
     verify_input_fingerprints(binary, config, expected)
 
 
+def open_private_output(path: Path, *, newline: str | None = None):
+    """Create non-overwriting benchmark evidence with owner-only permissions.
+
+    The final pathname is protected by exclusive creation; this is not an
+    atomic transaction across CSV and JSON or a hostile-parent-directory defense.
+    """
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    fd = os.open(path, flags, 0o600)
+    try:
+        return os.fdopen(fd, "w", encoding="utf-8", newline=newline)
+    except BaseException:
+        os.close(fd)
+        raise
+
+
 def ensure_fresh_output_paths(csv_path: Path, json_path: Path) -> None:
     """Refuse to overwrite prior benchmark evidence or follow output symlinks.
 
@@ -257,7 +274,7 @@ def main() -> int:
     ensure_fresh_output_paths(csv_path, json_path)
     output_base.parent.mkdir(parents=True, exist_ok=True)
 
-    with csv_path.open("x", newline="", encoding="utf-8") as handle:
+    with open_private_output(csv_path, newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=[
             "run", "files", "elapsed_ns", "files_per_second",
             "child_cpu_user_ns", "child_cpu_system_ns", "child_peak_rss_kib"
@@ -332,7 +349,7 @@ def main() -> int:
             "diagnostic formatting still occurs."
         ),
     }
-    with json_path.open("x", encoding="utf-8") as handle:
+    with open_private_output(json_path) as handle:
         handle.write(json.dumps(metadata, indent=2) + "\n")
 
     print(f"Files/run: {args.files}; measured runs: {args.runs}; workers: {args.workers}")

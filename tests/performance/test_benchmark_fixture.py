@@ -104,6 +104,30 @@ class FixtureIntegrityTests(unittest.TestCase):
             self.assertFalse((root / "set-0000").exists())
             self.assertEqual(outside.read_bytes(), b"preserve external")
 
+    def test_later_unexpected_file_rejected_before_earlier_creation(self):
+        with tempfile.TemporaryDirectory(prefix="benchmark-unexpected-file-") as temp:
+            root = Path(temp)
+            later = root / "set-0001"
+            later.mkdir()
+            sentinel = later / "unrelated.txt"
+            sentinel.write_bytes(b"preserve unrelated")
+            with self.assertRaisesRegex(FileExistsError, "not empty"):
+                build_fixture(root, 101)
+            self.assertFalse((root / "set-0000").exists())
+            self.assertEqual(sentinel.read_bytes(), b"preserve unrelated")
+
+    def test_later_unexpected_directory_rejected_without_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="benchmark-unexpected-dir-") as temp:
+            root = Path(temp)
+            nested = root / "set-0001" / "nested"
+            nested.mkdir(parents=True)
+            sentinel = nested / "sentinel"
+            sentinel.write_bytes(b"preserve nested")
+            with self.assertRaisesRegex(FileExistsError, "not empty"):
+                build_fixture(root, 101)
+            self.assertFalse((root / "set-0000").exists())
+            self.assertEqual(sentinel.read_bytes(), b"preserve nested")
+
     def test_intact_fixture_accepted(self):
         verify_fixture(self.root, 4)
 

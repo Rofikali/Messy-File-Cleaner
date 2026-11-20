@@ -36,7 +36,7 @@ def build_fixture(root: Path, file_count: int) -> None:
         directory = root / f"set-{index // 100:04d}"
         directory.mkdir(parents=True, exist_ok=True)
         path = directory / f"fixture-{index:08d}{extensions[index % len(extensions)]}"
-        path.write_bytes(b"benchmark fixture\n")
+        # Exclusive creation prevents clobbering pre-existing files or symlink targets.\n        with path.open("xb") as handle:\n            handle.write(b"benchmark fixture\\n")
 
 
 

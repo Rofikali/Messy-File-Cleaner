@@ -79,6 +79,31 @@ class FixtureIntegrityTests(unittest.TestCase):
             self.assertFalse((root / "set-0000").exists())
             self.assertEqual(blocker.read_bytes(), b"preserve blocker")
 
+    def test_later_existing_fixture_rejected_before_earlier_creation(self):
+        with tempfile.TemporaryDirectory(prefix="benchmark-preflight-collision-") as temp:
+            root = Path(temp)
+            later = root / "set-0001"
+            later.mkdir()
+            preserved = later / "fixture-00000100.jpg"
+            preserved.write_bytes(b"preserve existing")
+            with self.assertRaises(FileExistsError):
+                build_fixture(root, 101)
+            self.assertFalse((root / "set-0000").exists())
+            self.assertEqual(preserved.read_bytes(), b"preserve existing")
+
+    def test_later_symlink_fixture_rejected_before_earlier_creation(self):
+        with tempfile.TemporaryDirectory(prefix="benchmark-preflight-alias-") as temp:
+            root = Path(temp)
+            later = root / "set-0001"
+            later.mkdir()
+            outside = root / "external-sentinel"
+            outside.write_bytes(b"preserve external")
+            (later / "fixture-00000100.jpg").symlink_to(outside)
+            with self.assertRaises(FileExistsError):
+                build_fixture(root, 101)
+            self.assertFalse((root / "set-0000").exists())
+            self.assertEqual(outside.read_bytes(), b"preserve external")
+
     def test_intact_fixture_accepted(self):
         verify_fixture(self.root, 4)
 

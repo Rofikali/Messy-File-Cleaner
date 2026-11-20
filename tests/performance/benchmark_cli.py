@@ -31,10 +31,18 @@ def percentile(values: list[float], percent: float) -> float:
 
 
 def build_fixture(root: Path, file_count: int) -> None:
+    # Reject directory aliases before creating any fixture files. This is a
+    # preflight guard, not atomic protection against concurrent same-UID swaps.
+    if root.is_symlink() or not root.is_dir():
+        raise RuntimeError("benchmark fixture root must be a real directory")
     extensions = (".jpg", ".png", ".txt", ".html")
     for index in range(file_count):
         directory = root / f"set-{index // 100:04d}"
+        if directory.is_symlink():
+            raise RuntimeError(f"benchmark fixture directory is a symlink: {directory}")
         directory.mkdir(parents=True, exist_ok=True)
+        if directory.is_symlink() or not directory.is_dir():
+            raise RuntimeError(f"benchmark fixture directory is not a real directory: {directory}")
         path = directory / f"fixture-{index:08d}{extensions[index % len(extensions)]}"
         # Exclusive creation prevents clobbering pre-existing files or symlink targets.
         with path.open("xb") as handle:

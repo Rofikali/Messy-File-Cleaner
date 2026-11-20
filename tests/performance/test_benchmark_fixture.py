@@ -34,6 +34,29 @@ class FixtureIntegrityTests(unittest.TestCase):
             build_fixture(self.root, 4)
         self.assertEqual(outside.read_bytes(), b"external preserved")
 
+    def test_builder_rejects_symlinked_directory_and_preserves_external(self):
+        outside = self.root.parent / (self.root.name + "-builder-directory")
+        outside.mkdir()
+        self.addCleanup(outside.rmdir)
+        alias = self.root / "set-0000"
+        # This test uses an empty external directory; no customer data is touched.
+        for fixture in alias.iterdir():
+            fixture.unlink()
+        alias.rmdir()
+        alias.symlink_to(outside, target_is_directory=True)
+        with self.assertRaisesRegex(RuntimeError, "fixture directory is a symlink"):
+            build_fixture(self.root, 1)
+        self.assertEqual(list(outside.iterdir()), [])
+
+    def test_builder_rejects_symlinked_root_without_external_creation(self):
+        with tempfile.TemporaryDirectory(prefix="benchmark-builder-root-") as temp:
+            outside = Path(temp)
+            alias = self.root / "builder-root-alias"
+            alias.symlink_to(outside, target_is_directory=True)
+            with self.assertRaisesRegex(RuntimeError, "fixture root"):
+                build_fixture(alias, 1)
+            self.assertEqual(list(outside.iterdir()), [])
+
     def test_intact_fixture_accepted(self):
         verify_fixture(self.root, 4)
 

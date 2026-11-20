@@ -20,7 +20,7 @@ class FixtureIntegrityTests(unittest.TestCase):
         verify_fixture(self.root, 4)
 
     def test_symlinked_fixture_root_rejected_without_touching_original(self):
-        alias = self.root.parent / "fixture-root-alias"
+        alias = self.root.with_name(self.root.name + "-alias")
         alias.symlink_to(self.root, target_is_directory=True)
         self.addCleanup(alias.unlink)
         with self.assertRaisesRegex(RuntimeError, "fixture root"):

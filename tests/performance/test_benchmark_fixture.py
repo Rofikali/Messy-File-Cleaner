@@ -19,6 +19,18 @@ class FixtureIntegrityTests(unittest.TestCase):
     def test_intact_fixture_accepted(self):
         verify_fixture(self.root, 4)
 
+    def test_symlinked_fixture_root_rejected_without_touching_original(self):
+        alias = self.root.parent / "fixture-root-alias"
+        alias.symlink_to(self.root, target_is_directory=True)
+        self.addCleanup(alias.unlink)
+        with self.assertRaisesRegex(RuntimeError, "fixture root"):
+            verify_fixture(alias, 4)
+        verify_fixture(self.root, 4)
+
+    def test_missing_fixture_root_rejected(self):
+        with self.assertRaisesRegex(RuntimeError, "fixture root"):
+            verify_fixture(self.root / "not-a-fixture", 4)
+
     def test_removed_fixture_rejected(self):
         (self.root / "set-0000" / "fixture-00000000.jpg").unlink()
         with self.assertRaisesRegex(RuntimeError, "modified or removed"):

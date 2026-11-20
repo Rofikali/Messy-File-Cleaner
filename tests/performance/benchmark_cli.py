@@ -40,7 +40,9 @@ def build_fixture(root: Path, file_count: int) -> None:
     # It remains non-atomic against concurrent same-UID path substitutions.
     for directory_index in range((file_count + 99) // 100):
         directory = root / f"set-{directory_index:04d}"
-        if directory.is_symlink() or (directory.exists() and not directory.is_dir()):
+        if directory.is_symlink():
+            raise RuntimeError(f"benchmark fixture directory is a symlink: {directory}")
+        if directory.exists() and not directory.is_dir():
             raise RuntimeError(f"benchmark fixture directory is not a real directory: {directory}")
     extensions = (".jpg", ".png", ".txt", ".html")
     for index in range(file_count):

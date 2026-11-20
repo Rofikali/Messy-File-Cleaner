@@ -121,8 +121,12 @@ class FixtureIntegrityTests(unittest.TestCase):
             verify_fixture(self.root, 4)
 
     def test_multiple_fixture_directories_accepted(self):
-        build_fixture(self.root, 101)
-        verify_fixture(self.root, 101)
+        # The setUp fixture already contains four files; exclusive creation
+        # intentionally refuses to overwrite them. Use a fresh disposable root.
+        with tempfile.TemporaryDirectory(prefix="benchmark-multidir-test-") as temp:
+            root = Path(temp)
+            build_fixture(root, 101)
+            verify_fixture(root, 101)
 
     def test_symlink_replacement_rejected(self):
         original = self.root / "set-0000" / "fixture-00000000.jpg"

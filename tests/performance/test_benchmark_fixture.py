@@ -160,6 +160,29 @@ class FixtureIntegrityTests(unittest.TestCase):
             verify_fixture(self.root, 4)
         self.assertEqual(outside.read_bytes(), b"benchmark fixture\n")
 
+    @unittest.skipUnless(hasattr(__import__("os"), "mkfifo"), "POSIX FIFO required")
+    def test_expected_fifo_rejected_without_blocking_or_reading(self):
+        import os
+        fixture = self.root / "set-0000" / "fixture-00000000.jpg"
+        fixture.unlink()
+        os.mkfifo(fixture)
+        with self.assertRaisesRegex(RuntimeError, "modified or removed"):
+            verify_fixture(self.root, 4)
+        self.assertTrue(fixture.is_fifo())
+
+    @unittest.skipUnless(hasattr(__import__("os"), "mkfifo"), "POSIX FIFO required")
+    def test_builder_refuses_expected_fifo_without_opening_it(self):
+        import os
+        with tempfile.TemporaryDirectory(prefix="benchmark-fifo-builder-") as temp:
+            root = Path(temp)
+            directory = root / "set-0000"
+            directory.mkdir()
+            fifo = directory / "fixture-00000000.jpg"
+            os.mkfifo(fifo)
+            with self.assertRaises(FileExistsError):
+                build_fixture(root, 1)
+            self.assertTrue(fifo.is_fifo())
+
     def test_removed_fixture_rejected(self):
         (self.root / "set-0000" / "fixture-00000000.jpg").unlink()
         with self.assertRaisesRegex(RuntimeError, "modified or removed"):

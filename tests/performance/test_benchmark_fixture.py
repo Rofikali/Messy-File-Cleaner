@@ -60,6 +60,18 @@ class FixtureIntegrityTests(unittest.TestCase):
             verify_fixture(self.root, 4)
         self.assertTrue(fifo.exists())
 
+    def test_hardlinked_fixture_rejected_and_external_payload_preserved(self):
+        import os
+        outside = self.root.parent / (self.root.name + "-hardlink-target")
+        outside.write_bytes(b"benchmark fixture\n")
+        self.addCleanup(outside.unlink)
+        fixture = self.root / "set-0000" / "fixture-00000000.jpg"
+        fixture.unlink()
+        os.link(outside, fixture)
+        with self.assertRaisesRegex(RuntimeError, "modified or removed"):
+            verify_fixture(self.root, 4)
+        self.assertEqual(outside.read_bytes(), b"benchmark fixture\n")
+
     def test_removed_fixture_rejected(self):
         (self.root / "set-0000" / "fixture-00000000.jpg").unlink()
         with self.assertRaisesRegex(RuntimeError, "modified or removed"):

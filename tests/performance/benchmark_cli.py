@@ -56,7 +56,7 @@ def verify_fixture(root: Path, file_count: int) -> None:
             raise RuntimeError(f"dry-run replaced fixture directory with a symlink or non-directory: {directory}")
     for index in range(file_count):
         path = root / f"set-{index // 100:04d}" / f"fixture-{index:08d}{extensions[index % len(extensions)]}"
-        if path.is_symlink() or not path.is_file() or path.read_bytes() != payload:
+        if path.is_symlink() or not path.is_file() or path.stat().st_nlink != 1 or path.read_bytes() != payload:
             raise RuntimeError(f"dry-run modified or removed fixture: {path}")
     # Check the directory tree too: extra empty directories and directory
     # symlinks are not captured by the file-only count.

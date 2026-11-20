@@ -35,6 +35,13 @@ def build_fixture(root: Path, file_count: int) -> None:
     # preflight guard, not atomic protection against concurrent same-UID swaps.
     if root.is_symlink() or not root.is_dir():
         raise RuntimeError("benchmark fixture root must be a real directory")
+    # Check every expected directory before creating any fixture payload.
+    # This avoids partial setup when a later directory is already an alias.
+    # It remains non-atomic against concurrent same-UID path substitutions.
+    for directory_index in range((file_count + 99) // 100):
+        directory = root / f"set-{directory_index:04d}"
+        if directory.is_symlink() or (directory.exists() and not directory.is_dir()):
+            raise RuntimeError(f"benchmark fixture directory is not a real directory: {directory}")
     extensions = (".jpg", ".png", ".txt", ".html")
     for index in range(file_count):
         directory = root / f"set-{index // 100:04d}"

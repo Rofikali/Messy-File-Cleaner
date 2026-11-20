@@ -57,6 +57,28 @@ class FixtureIntegrityTests(unittest.TestCase):
                 build_fixture(alias, 1)
             self.assertEqual(list(outside.iterdir()), [])
 
+    def test_later_symlink_directory_rejected_before_any_fixture_creation(self):
+        with tempfile.TemporaryDirectory(prefix="benchmark-preflight-later-") as temp:
+            root = Path(temp)
+            outside = root / "external-preserved"
+            outside.mkdir()
+            (outside / "sentinel").write_bytes(b"preserve")
+            (root / "set-0001").symlink_to(outside, target_is_directory=True)
+            with self.assertRaisesRegex(RuntimeError, "fixture directory is a symlink"):
+                build_fixture(root, 101)
+            self.assertFalse((root / "set-0000").exists())
+            self.assertEqual((outside / "sentinel").read_bytes(), b"preserve")
+
+    def test_later_regular_file_directory_rejected_before_writes(self):
+        with tempfile.TemporaryDirectory(prefix="benchmark-preflight-file-") as temp:
+            root = Path(temp)
+            blocker = root / "set-0001"
+            blocker.write_bytes(b"preserve blocker")
+            with self.assertRaisesRegex(RuntimeError, "not a real directory"):
+                build_fixture(root, 101)
+            self.assertFalse((root / "set-0000").exists())
+            self.assertEqual(blocker.read_bytes(), b"preserve blocker")
+
     def test_intact_fixture_accepted(self):
         verify_fixture(self.root, 4)
 

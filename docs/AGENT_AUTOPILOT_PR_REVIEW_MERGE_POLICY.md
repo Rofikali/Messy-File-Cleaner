@@ -2,6 +2,17 @@
 
 **Status: ACTIVE owner workflow authorization (2026-11-17), bounded to `Rofikali/Messy-File-Cleaner`.** The owner expressly asked the existing hourly autopilot to perform PR creation, review, correction and merging when appropriate. This is an **external owner instruction** recorded here for continuity; this Markdown file by itself does not confer GitHub permissions, bypass protections or authorize an unrelated agent. The recurring schedule belongs to ChatGPT Automations and can be paused by the owner.
 
+## Dual-trigger, unattended operation (owner reaffirmed 2026-11-20)
+
+- **Manual trigger:** An owner message such as `go ahead` requests an immediate bounded engineering run; it does not disable, reset, postpone, or replace the scheduled hourly run.
+- **Scheduled trigger:** The **existing** Messy-File-Cleaner ChatGPT automation runs hourly independently of chat activity. User inactivity is not a blocker. Never create duplicate hourly tasks or claim Markdown itself schedules execution. If the task is paused, only its actual automation setting can resume it.
+- **Real delivery:** A completed scheduler invocation is not a completed milestone. Prefer an open PR's latest-head CI/review repair or safe eligible merge; otherwise implement one independent READY source/test/CI improvement and open a reviewable PR. Do not repeatedly create docs-only status PRs.
+- **Fallback:** If checkout is unavailable, attempt bounded GitHub connector source/test edits; label local tests NOT RUN and rely on subsequent exact-head CI. After two consecutive no-change attempts on the same blocker, escalate the precise owner/upstream decision and choose another independent READY non-destructive task.
+- **C-specific verification:** Apply current-head C11/C17/C23 Debug/Release and sanitizer/CTest gates, Ubuntu 24.04 Docker, Makefile refusal tests, path-filtered TSan and isolated Rust test-only checks where applicable. A conditional workflow not triggered is NOT RUN, not PASS. Never run real user-file moves as a test.
+- **Safety priority:** FS-01B same-UID source-retirement and REL-01 remain blocked until an accepted trust/crash model and positive preservation tests exist. No automated source deletion, production recovery, public ABI/FFI, release, paid resources, or protection bypass. Green CI cannot substitute for those decisions.
+- **Report each run:** Trigger type (manual or scheduled), CODE CHANGED or NO CODE CHANGED and reason, verified old/new main SHA, PR head/base/merge SHA, changed files, per-gate exact-head conclusions and links, review/protection evidence, blockers/remedies and one next executable job. Distinguish IMPLEMENTED, PR_OPEN, CI_PASS, MERGED and RELEASED.
+- **Reliability limit:** ChatGPT scheduling and connector availability may fail; report missed or blocked execution truthfully rather than promising uninterrupted autonomous progress.
+
 ## Scope of owner standing authorization
 
 - Inspect current GitHub `main`, the LIVE NOW/NEXT/LATER board of [next.md](../next.md), open/merged PRs, related issue discussions, review threads, branch protections and CI.

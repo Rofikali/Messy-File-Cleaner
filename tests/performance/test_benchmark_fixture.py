@@ -16,6 +16,24 @@ class FixtureIntegrityTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         build_fixture(self.root, 4)
 
+    def test_builder_refuses_existing_fixture_without_overwrite(self):
+        fixture = self.root / "set-0000" / "fixture-00000000.jpg"
+        fixture.write_bytes(b"preserve existing payload")
+        with self.assertRaises(FileExistsError):
+            build_fixture(self.root, 4)
+        self.assertEqual(fixture.read_bytes(), b"preserve existing payload")
+
+    def test_builder_refuses_symlink_without_touching_external_target(self):
+        outside = self.root.parent / (self.root.name + "-builder-target")
+        outside.write_bytes(b"external preserved")
+        self.addCleanup(outside.unlink)
+        fixture = self.root / "set-0000" / "fixture-00000000.jpg"
+        fixture.unlink()
+        fixture.symlink_to(outside)
+        with self.assertRaises(FileExistsError):
+            build_fixture(self.root, 4)
+        self.assertEqual(outside.read_bytes(), b"external preserved")
+
     def test_intact_fixture_accepted(self):
         verify_fixture(self.root, 4)
 
@@ -103,8 +121,12 @@ class FixtureIntegrityTests(unittest.TestCase):
             verify_fixture(self.root, 4)
 
     def test_multiple_fixture_directories_accepted(self):
-        build_fixture(self.root, 101)
-        verify_fixture(self.root, 101)
+        # The setUp fixture already contains four files; exclusive creation
+        # intentionally refuses to overwrite them. Use a fresh disposable root.
+        with tempfile.TemporaryDirectory(prefix="benchmark-multidir-test-") as temp:
+            root = Path(temp)
+            build_fixture(root, 101)
+            verify_fixture(root, 101)
 
     def test_symlink_replacement_rejected(self):
         original = self.root / "set-0000" / "fixture-00000000.jpg"

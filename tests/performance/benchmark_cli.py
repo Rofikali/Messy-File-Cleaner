@@ -50,6 +50,10 @@ def verify_fixture(root: Path, file_count: int) -> None:
         raise RuntimeError("dry-run replaced fixture root with a symlink or non-directory")
     extensions = (".jpg", ".png", ".txt", ".html")
     payload = b"benchmark fixture\n"
+    for directory_index in range((file_count + 99) // 100):
+        directory = root / f"set-{directory_index:04d}"
+        if directory.is_symlink() or not directory.is_dir():
+            raise RuntimeError(f"dry-run replaced fixture directory with a symlink or non-directory: {directory}")
     for index in range(file_count):
         path = root / f"set-{index // 100:04d}" / f"fixture-{index:08d}{extensions[index % len(extensions)]}"
         if path.is_symlink() or not path.is_file() or path.read_bytes() != payload:

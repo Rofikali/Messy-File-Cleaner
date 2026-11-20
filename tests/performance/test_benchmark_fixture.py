@@ -31,6 +31,15 @@ class FixtureIntegrityTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "fixture root"):
             verify_fixture(self.root / "not-a-fixture", 4)
 
+    def test_expected_directory_symlink_rejected_before_file_reads(self):
+        original = self.root / "set-0000"
+        sibling = self.root / "preserved"
+        original.rename(sibling)
+        original.symlink_to(sibling, target_is_directory=True)
+        with self.assertRaisesRegex(RuntimeError, "fixture directory"):
+            verify_fixture(self.root, 4)
+        self.assertEqual((sibling / "fixture-00000000.jpg").read_bytes(), b"benchmark fixture\n")
+
     def test_removed_fixture_rejected(self):
         (self.root / "set-0000" / "fixture-00000000.jpg").unlink()
         with self.assertRaisesRegex(RuntimeError, "modified or removed"):

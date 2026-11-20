@@ -6,6 +6,7 @@ A Linux/POSIX file-organization tool with a **pure-C production engine** and iso
 
 ## Project roadmap, current status, and engineering docs
 
+- **How documentation stays current with each code/CI milestone:** [milestone documentation transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md), [PR checklist](.github/pull_request_template.md), and [historical archive](next-history.md). Existing PR and CI state must be verified live; the compact board is a dated checkpoint, not a GitHub API feed.
 - **What is NOW / NEXT / LATER:** [`next.md`](next.md) — live board of actionable milestones, gates and precise PR/CI evidence; older snapshots are retained under a clearly marked historical section.
 - **What is finished, half implemented, started, test-only, blocked or not started:** [Component completion and status inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md).
 - **Where to find authoritative docs:** [Documentation map](docs/README.md).

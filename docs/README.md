@@ -4,6 +4,8 @@
 
 | Question | Canonical source |
 | --- | --- |
+| How must documentation change with each code/test/CI milestone? | [Milestone documentation transaction](MILESTONE_DOCUMENTATION_WORKFLOW.md) and [PR checklist](../.github/pull_request_template.md): update compact live board inside the implementation PR; mark other scoped docs UPDATED or N/A. |
+| Where is the full history of older PR_OPEN and CI snapshots? | [Archived work-register history](../next-history.md): dated audit evidence, **not the current task selector**. |
 | What is the product, implemented scope and user-facing usage? | [README](../README.md) |
 | What should be done NOW, NEXT and LATER? | [Live NOW / NEXT / LATER register](../next.md) (authoritative task selection; historical notes explicitly marked) |
 | What is fully built, partially implemented, started, test-only, blocked or future? | [Component completion and status inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) (evidence and remaining customer-journey gaps, not a second live backlog) |
@@ -39,3 +41,5 @@ If documents conflict, preserve user data, record the conflict, and seek owner r
 - In this repo, **"go ahead" / "continue" / "next"** tells a running agent to reconcile GitHub state and begin the next READY bounded job from the live `next.md` board; it is not authority to merge, deploy, spend, delete real files, or bypass gates. See [agent continuation](AGENT_CONTINUATION_AND_HANDOFF.md).
 - Docs/Makefile cannot autonomously start an agent, release software, or authorize destructive file handling.
 - No deployment, production FCJ4 recovery, external static/shared library or paid feature is authorized by this index.
+
+**Documentation synchronization note (2026-11-20):** IMGENGINE's compact live-board plus history and milestone-impact checklist were adapted for this C17 codebase. This repository does not copy Design Platform's Node generator or introduce a mandatory new runtime to maintain docs. The [live board](../next.md) is current task authority; GitHub is authority for actual PR/merge/check state. The contribution checklist makes the update explicit; CI cannot infer truthful current status from historical markdown alone.

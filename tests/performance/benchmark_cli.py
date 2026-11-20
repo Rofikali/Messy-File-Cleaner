@@ -45,6 +45,12 @@ def build_fixture(root: Path, file_count: int) -> None:
         if directory.exists() and not directory.is_dir():
             raise RuntimeError(f"benchmark fixture directory is not a real directory: {directory}")
     extensions = (".jpg", ".png", ".txt", ".html")
+    # Reject pre-existing expected names before any fixture payload is written.
+    # Exclusive creation below remains authoritative against later collisions.
+    for index in range(file_count):
+        candidate = root / f"set-{index // 100:04d}" / f"fixture-{index:08d}{extensions[index % len(extensions)]}"
+        if candidate.is_symlink() or candidate.exists():
+            raise FileExistsError(f"benchmark fixture already exists: {candidate}")
     for index in range(file_count):
         directory = root / f"set-{index // 100:04d}"
         if directory.is_symlink():

@@ -2,6 +2,10 @@
 
 This file is the working contract for every human and automated contributor.
 
+## Milestone documentation with implementation (owner-directed, 2026-11-20)
+
+Borrow IMGENGINE's **compact living work board plus historical archive** and per-PR documentation-impact transaction, adapted to this native **C17/POSIX** project: [current NOW/NEXT board](next.md), [dated archive](next-history.md), [documentation transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md), and [PR checklist](.github/pull_request_template.md). Each meaningful code/test/CI milestone PR must update current `next.md` scope/status/evidence and the affected README, scoped AGENTS/skills, HLD/LLD, security, journal, Docker, perf or business docs **only when facts change**, explicitly recording UPDATED or N/A in the PR. Do not maintain parallel live queues or open repetitive docs-only PRs after every merge; after actual merge, reconcile main/merge SHA in the next authorized implementation PR. Historical labels do not outweigh live GitHub. C17 production, Rust test-only, same-UID source-retirement P0 and release limits remain unchanged. A Markdown checklist is not an autonomous scheduler or GitHub CI check.
+
 ## Project operating dashboard and agent continuation
 
 - Start every new task by reading the [living work register](next.md), [documentation authority map](docs/README.md), [seven-level engineering and business operating model](docs/ENGINEERING_OPERATING_MODEL.md), [CI/CD and Makefile operations](docs/CI_CD_AND_MAKEFILE_OPERATIONS.md), and [agent continuation/handoff](docs/AGENT_CONTINUATION_AND_HANDOFF.md), then the affected code and security contracts. These documents supplement, never override, the safety invariants here.

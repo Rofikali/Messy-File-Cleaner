@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Verified GitHub checkpoint, 2026-11-20:** default branch `main` at `8144736aeebcb961cad5d7f32e5f0e4468bb73c5` when documentation work began. PRs #114, #115 (private, exclusive/no-follow benchmark evidence and negative regressions) and #116 (dual-trigger governance) are **MERGED**; there were zero open work PRs at that checkpoint. This is a dated snapshot; fetch current GitHub main, open PRs, CI and review gates before work. **No production release is authorized.**
+> **Verified GitHub checkpoint, 2026-11-20:** default branch `main` at `24044b7cbc77e661e49d0b41ddfbe89f77b78372` when PERF-01K work began. PRs #114, #115 (private, exclusive/no-follow benchmark evidence and negative regressions) and #116 (dual-trigger governance) are **MERGED**; there were zero open work PRs at that checkpoint. This is a dated snapshot; fetch current GitHub main, open PRs, CI and review gates before work. **No production release is authorized.**
 >
 > **One authoritative current queue:** this compact file; older chronological logs are preserved in [next-history.md](next-history.md) and must not be used as the current task selector. [Documentation map](docs/README.md) and [milestone documentation transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md) explain what changes alongside each code PR.
 
@@ -8,8 +8,8 @@
 
 | Lane | ID and current state | Next bounded engineering action | Required evidence / reason |
 | --- | --- | --- | --- |
-| **NOW** | **PERF-01K — READY CANDIDATE** | Inspect current `tests/performance/benchmark_cli.py` and its regressions, select a new independent disposable **dry-run** evidence integrity/measurement gap, and implement a focused negative test + minimal fix in one PR. **Do not duplicate PERF-01I/J.** | Scoped fixture preservation/no-clobber tests, actual current-head CI and honest benchmark environment; never run against user files or invent nanosecond claims |
-| **NEXT** | **DOC-GOV-01 — IN REVIEW** | Align documentation impact checkpoints with IMGENGINE's compact live board and PR checklist; include doc changes with actual source/CI milestones | This docs change does not alter the C17 product or prove P0 fixed; actual PR/CI status must be fetched |
+| **NOW** | **PERF-01K — IMPLEMENTED ON BRANCH / CI NOT YET VERIFIED** | Reject symlinked/missing disposable fixture roots in `verify_fixture`; add negative tests preserving original fixtures. Review exact-head CI and PR before MERGED; **do not duplicate PERF-01I/J.** | Scoped fixture preservation/no-clobber tests, actual current-head CI and honest benchmark environment; never run against user files or invent nanosecond claims |
+| **NEXT** | **DOC-GOV-01 — MERGED** | PR #117 integrated the compact live board, history archive and documentation impact checklist; continue updating affected docs in each implementation PR | Merge `24044b7cbc77e661e49d0b41ddfbe89f77b78372`; this does not prove filesystem P0 fixed |
 | **BLOCKED P0** | **FS-01B-FIX — BLOCKED** | Obtain approved same-UID source-retirement authority/trust/crash model, design safe positive preservation tests | [Threat model](docs/security/THREAT_MODEL.md), [FS-01B safety plan](docs/quality/FS_01B_FIX_SECURITY_ACCEPTANCE_PLAN.md); merged guard is only partial |
 | **BLOCKED P0** | **REL-01 — BLOCKED** | After FS design/safety evidence, establish candidate, backups, supported filesystems, recovery and rollback signoff | C11/C17/C23 + Docker CI passing alone is not release certification |
 | **NEXT gated** | **RUST-01 / ABI-01 — DEFERRED** | Test-only Rust verification work only with approved test boundary; production public .a/.so, FFI or FCJ4 recovery require separate ADR/owner decision | C17 production core and Ubuntu 24.04 Docker remain unchanged |
@@ -22,6 +22,7 @@
 | [#113](https://github.com/Rofikali/Messy-File-Cleaner/pull/113) | `58a451ab640672950f16cb6b87348737da9c9c82` | Existing benchmark CSV/JSON evidence preserved |
 | [#114](https://github.com/Rofikali/Messy-File-Cleaner/pull/114) | `0ae0b63277ba7a04ec566cf0c92b66eb02088e40` | Private no-clobber evidence creation |
 | [#115](https://github.com/Rofikali/Messy-File-Cleaner/pull/115) | `4fd2d8c031e9da5a20f34ff0fcd2477b04eff662` | Evidence permissions and symlink-race regression |
+| [#117](https://github.com/Rofikali/Messy-File-Cleaner/pull/117) | `24044b7cbc77e661e49d0b41ddfbe89f77b78372` | Compact board, dated history and docs impact PR checklist |
 | [#116](https://github.com/Rofikali/Messy-File-Cleaner/pull/116) | `8144736aeebcb961cad5d7f32e5f0e4468bb73c5` | Manual plus unattended hourly governance |
 
 ## Non-negotiable continuation and status truth

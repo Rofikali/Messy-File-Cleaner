@@ -46,6 +46,8 @@ def verify_fixture(root: Path, file_count: int) -> None:
     Validation is deliberately outside timed measurements. This is a benchmark
     integrity check, not a production filesystem security guarantee.
     """
+    if root.is_symlink() or not root.is_dir():
+        raise RuntimeError("dry-run replaced fixture root with a symlink or non-directory")
     extensions = (".jpg", ".png", ".txt", ".html")
     payload = b"benchmark fixture\n"
     for index in range(file_count):

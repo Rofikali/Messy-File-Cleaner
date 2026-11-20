@@ -40,6 +40,26 @@ class FixtureIntegrityTests(unittest.TestCase):
             verify_fixture(self.root, 4)
         self.assertEqual((sibling / "fixture-00000000.jpg").read_bytes(), b"benchmark fixture\n")
 
+    def test_external_symlink_rejected_and_target_preserved(self):
+        outside = self.root.parent / (self.root.name + "-external-target")
+        outside.write_bytes(b"external customer-like payload\\n")
+        self.addCleanup(outside.unlink)
+        fixture = self.root / "set-0000" / "fixture-00000000.jpg"
+        fixture.unlink()
+        fixture.symlink_to(outside)
+        with self.assertRaisesRegex(RuntimeError, "modified or removed"):
+            verify_fixture(self.root, 4)
+        self.assertEqual(outside.read_bytes(), b"external customer-like payload\\n")
+
+    @unittest.skipUnless(hasattr(__import__("os"), "mkfifo"), "POSIX FIFO required")
+    def test_unexpected_fifo_rejected_without_opening_it(self):
+        import os
+        fifo = self.root / "unexpected-fifo"
+        os.mkfifo(fifo)
+        with self.assertRaisesRegex(RuntimeError, "unexpected entry"):
+            verify_fixture(self.root, 4)
+        self.assertTrue(fifo.exists())
+
     def test_removed_fixture_rejected(self):
         (self.root / "set-0000" / "fixture-00000000.jpg").unlink()
         with self.assertRaisesRegex(RuntimeError, "modified or removed"):

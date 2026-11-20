@@ -2,6 +2,10 @@
 
 This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans and coding agents how to work in this repository. The architecture and security rationale is in [the Engineering Playbook](docs/architecture/ENGINEERING_PLAYBOOK.md) and [Threat Model](docs/security/THREAT_MODEL.md).
 
+## Project-specific documentation-impact recipe (2026-11-20)
+
+Start with the compact [live work board](next.md) and live GitHub status; use [next-history.md](next-history.md) only as a dated archive. For every meaningful change, keep documentation in the **same implementation PR**: identify current milestone, tested SHA, PR/CI evidence and next READY task in `next.md`; review AGENTS, README, this contributor recipe, the docs index and the relevant FS-01/FCJ3/FCJ4, HLD/LLD, CMake/Makefile, Docker, C11/C17/C23, Rust test-only and benchmark contracts. List UPDATED or N/A and why in the [PR template](.github/pull_request_template.md). Do not duplicate live status throughout docs, create status-only PRs after every merge, or claim a green test fixes the same-UID source-retirement P0. [Canonical transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md).
+
 ## Always-on task selection and evidence recipe
 
 1. Open the **LIVE NOW / NEXT / LATER board** in [next.md](next.md), the [component completion inventory](docs/PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) and [docs index](docs/README.md). Confirm actual `main` SHA, outstanding PRs and CI before choosing the next READY milestone. Retained historical `next.md` notes must never override the live board.

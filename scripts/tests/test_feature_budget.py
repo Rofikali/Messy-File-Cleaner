@@ -50,6 +50,20 @@ class BudgetTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Exactly one matching"):
             validate_record(data)
 
+    def test_terminal_feature_states_are_accepted_but_cannot_reopen(self):
+        for state in ("DONE", "PARTIAL", "BLOCKED"):
+            with self.subTest(state=state):
+                data = fixture()
+                data["features"].append({
+                    "id": "SCAN-ROBUST-01", "status": "ACTIVE",
+                    "title": "Scanner", "summary": "Current", "prs": [131],
+                })
+                data["features"][1]["status"] = state
+                data["active_feature_id"] = "SCAN-ROBUST-01"
+                validate_pr(validate_record(data), event("SCAN-ROBUST-01", 131))
+                with self.assertRaisesRegex(ValueError, "not eligible"):
+                    validate_pr(data, event("CLI-DRYRUN-01", 130))
+
     def test_pr_requires_real_ledger_number(self):
         data = fixture()
         validate_pr(validate_record(data), event())

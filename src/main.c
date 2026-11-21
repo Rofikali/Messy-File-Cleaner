@@ -127,6 +127,7 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
     opts->mode_override = 0;
     opts->mode = MODE_BATCH;
     opts->workers_override = 0;
+    int config_seen = 0;
 
     for (int i = 1; i < argc; i++)
     {
@@ -138,8 +139,9 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
         }
         else if (strcmp(argv[i], "--config") == 0)
         {
-            if (++i >= argc)
+            if (++i >= argc || config_seen)
                 return -1;
+            config_seen = 1;
             opts->config_path = argv[i];
         }
         else if (strcmp(argv[i], "--dry-run") == 0)

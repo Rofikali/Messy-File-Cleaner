@@ -229,7 +229,7 @@ class FixtureIntegrityTests(unittest.TestCase):
             self.assertTrue(unexpected.is_socket())
         self.assertEqual(
             (self.root / "set-0000" / "fixture-00000001.png").read_bytes(),
-            b"benchmark fixture\\n",
+            b"benchmark fixture\n",
         )
 
     def test_removed_fixture_rejected(self):

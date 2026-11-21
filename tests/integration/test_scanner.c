@@ -30,6 +30,14 @@ static int fail_after_one(const char *path)
     return -1;
 }
 
+static int fail_without_errno(const char *path)
+{
+    (void)path;
+    found_count++;
+    errno = 0;
+    return -1;
+}
+
 static void write_file(const char *path)
 {
     FILE *fp = fopen(path, "w");
@@ -109,6 +117,28 @@ int main(void)
     assert(scan_directory(root, fail_after_one, NULL) == -1);
     assert(errno == ECANCELED);
     assert(found_count == 1);
+
+    /* A callback that fails without setting errno must report EIO, not success. */
+    found_count = 0;
+    errno = 0;
+    assert(scan_directory(root, fail_without_errno, NULL) == -1);
+    assert(errno == EIO);
+    assert(found_count == 1);
+    assert(access(path, F_OK) == 0);
+    assert(access(deep_file, F_OK) == 0);
+
+    /* Invalid inputs fail before any traversal or callback invocation. */
+    found_count = 0;
+    errno = 0;
+    assert(scan_directory(NULL, collect, NULL) == -1);
+    assert(errno == EINVAL);
+    errno = 0;
+    assert(scan_directory("", collect, NULL) == -1);
+    assert(errno == EINVAL);
+    errno = 0;
+    assert(scan_directory(root, NULL, NULL) == -1);
+    assert(errno == EINVAL);
+    assert(found_count == 0);
 
     atomic_int stop_signal;
     atomic_init(&stop_signal, SIGTERM);

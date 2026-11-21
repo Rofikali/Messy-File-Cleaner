@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Verified handoff (2026-11-21):** main `18b467f40d5f4be853b95c1ffa7a494a45292574`; PR #134 MERGED (tested head `cb0b9da560672fec3e828cecf22afaf284b4bff9`; CMake, Docker, Ubuntu 24.04, Makefile, FCJ4 TSan workflow families PASS). CLI-INPUT-01 DONE (1/5). CLI-MODE-01 PR #135 OPEN (1/5): conflicting `--once` / `--watch` rejected before config access; negative CTest. Previous head CI PASS (CMake, Docker, Ubuntu 24.04, Makefile, FCJ4 TSan); current documentation-fix head CI pending. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.
+> **Verified handoff (2026-11-21):** main `d6ea61cb9d6d4ffbd034ab1c3d7f27bdc20815e4`; PR #135 MERGED (tested head `93e8a3ccea412bf3ac5e46f9ce826de91ba14e1f`; exact-head CMake C11/C17/C23, feature-budget, Docker, Ubuntu 24.04, Makefile and FCJ4 TSan workflow families PASS). CLI-MODE-01 DONE (1/5). CLI-ROOT-01 implementation PR pending number (0/5 until opened): reject duplicate root selection before configuration access, with negative CTest. Local and exact-head CI NOT RUN; manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.
 >
 > **One live selector:** this document; [feature budget ledger](docs/feature-budget.json) and [five-PR feature-delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) enforce delivery ceilings, while [next-history.md](next-history.md) is the unchanged dated archive. Live GitHub overrides any stale snapshot.
 
@@ -8,7 +8,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **CLI-MODE-01 (1/5; PR #135 OPEN)** | Reject contradictory `--once` and `--watch` before config/filesystem access; CTest negative regression | Previous head CI PASS; current head CI pending; no source-retirement or release approval |
+| **NOW — IMPLEMENTATION PR** | **CLI-ROOT-01 (0/5; PR pending)** | Reject ambiguous duplicate `--root`/positional roots before config access; negative CTest | Exact-head CI NOT RUN; no source-retirement or release approval |
+| **DONE** | **CLI-MODE-01 (1/5; #135 merged)** | Conflicting `--once`/`--watch` rejected at `d6ea61cb9d6d4ffbd034ab1c3d7f27bdc20815e4`; tested head `93e8a3ccea412bf3ac5e46f9ce826de91ba14e1f` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-INPUT-01 (1/5; #134 merged)** | Strict `--workers` parsing merged at `18b467f40d5f4be853b95c1ffa7a494a45292574`; tested head `cb0b9da560672fec3e828cecf22afaf284b4bff9` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **PARTIAL** | **BENCH-SCALE-01 (2/5; #132 and #133 merged)** | Python disposable enumeration baseline and CTest registration; latest merge `88ec4632e984b2164ce863bd2906e7d56b4465dd` | Not production C scanner throughput; manual OS/Compose/filesystem/crash NOT RUN |
 | **DONE** | **SCAN-ROBUST-01 (1/5; #131 merged)** | Callback-error/invalid-input preservation regressions merged at `8748679d71606415883dbc2b121c46f1a00d576a`; exact-head workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
@@ -31,7 +32,7 @@
 
 ## Five-PR continuation rule (hard ceiling, not five PRs mandatory)
 
-Each **opened feature-specific PR attempt** (merged, closed, abandoned) counts once under the same stable feature ID, including test-only refinements and renamed subtasks. The `docs/feature-budget.json` ledger is validated in required PR CI; the PR must declare `Feature-ID: CLI-MODE-01` and then record its actual assigned PR number in the ledger before checks can pass. A changed PR gets additional commits without consuming another slot. At five PRs (or earlier if accepted), close DONE/PARTIAL/BLOCKED with verified scope and explicit gaps and move to a different READY feature. Don't hide a sixth PR under a new milestone name or a generic security exception.
+Each **opened feature-specific PR attempt** (merged, closed, abandoned) counts once under the same stable feature ID, including test-only refinements and renamed subtasks. The `docs/feature-budget.json` ledger is validated in required PR CI; the PR must declare `Feature-ID: CLI-ROOT-01` and then record its actual assigned PR number in the ledger before checks can pass. A changed PR gets additional commits without consuming another slot. At five PRs (or earlier if accepted), close DONE/PARTIAL/BLOCKED with verified scope and explicit gaps and move to a different READY feature. Don't hide a sixth PR under a new milestone name or a generic security exception.
 
 Separate *code exists*, *merged*, *CI pass at exact SHA*, *manual Ubuntu/Compose*, *real filesystem/backup/crash testing*, *security approval* and *RELEASED*. Keep unexecuted checks **NOT RUN**, NEVER "PASS". The existing separate hourly autopilot must select current READY from here and stop repeated PERF-01 test-only PRs. P0 FS-01B-FIX remains prohibited until its prerequisites are approved, independent of feature cap.
 

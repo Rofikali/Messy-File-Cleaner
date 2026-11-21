@@ -8,7 +8,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **BENCH-SCALE-01 (0/5; PR number pending)** | Bounded disposable Python os.scandir enumeration resource baseline; NOT engine scanner benchmark. Exact-head CI NOT RUN | No C engine million-file throughput, owner-run acceptance or release |
+| **NOW — IMPLEMENTATION PR** | **BENCH-SCALE-01 (1/5; #132 OPEN)** | Bounded disposable Python os.scandir enumeration resource baseline; NOT engine scanner benchmark. Exact-head CI NOT RUN | No C engine million-file throughput, owner-run acceptance or release |
 | **DONE** | **SCAN-ROBUST-01 (1/5; #131 merged)** | Callback-error/invalid-input preservation regressions merged at `8748679d71606415883dbc2b121c46f1a00d576a`; exact-head workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-DRYRUN-01 (1/5; #130 merged)** | Read-only preview and failure status merged at `74176cf4f90984bae660960c4f59de0441f1043a`; exact-head four workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; no release |
 | **CLOSED LEGACY** | **PERF-01 — ENGINEERING IMPLEMENTED / MERGED through #128** | Existing disposable benchmark safety, provenance, output integrity, hardlink/symlink/FIFO/Unix socket and collision regressions | Earlier feature exceeded new cap; no more PERF-01-only PRs; no end-to-end release or physical-filesystem proof |

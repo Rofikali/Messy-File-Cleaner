@@ -8,6 +8,12 @@ Historically `next.md` collected dated PR_OPEN and CI_PENDING paragraphs even af
 
 The **single live task selector** is now compact [next.md](../next.md); the original chronology is preserved unchanged inside [next-history.md](../next-history.md). Other documents are scoped contracts or historical evidence, **not competing live status dashboards**. Do not generate duplicate status paragraphs across dozens of docs.
 
+## Owner five-PR gate and lightweight CI check (2026-11-21)
+
+Each product/engineering feature has one stable ID in [feature-budget.json](feature-budget.json). No more than five opened feature PR attempts (merged, failed, closed or abandoned); updates within one existing PR do not add attempts. PRs use the single `Feature-ID: ID` body line; once GitHub assigns its number, record it in `features[].prs` in the SAME PR. The CI stdlib-only Python validator under `scripts/feature_budget_check.py` checks the ledger, count, and current PR number/ID. This does **not** add a production Python runtime or generate Markdown, and cannot independently guarantee all historic GitHub PRs were recorded. Live reconciliation and reviewer enforcement remain mandatory. An actual policy-only PR may declare `Feature-ID: GOVERNANCE-EXEMPT` with a docs(...) title; reviewers must reject misuse.
+
+After <=5 PRs end the feature with DONE/PARTIAL/BLOCKED, exact evidence, manual NOT RUN and deferred issues, then select the next independent READY feature. The repeated historical PERF-01 lane is CLOSED_LEGACY after merged #128. P0 same-UID source-retirement and REL-01 are never waived by a feature budget. [Full feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md).
+
 ## Transaction for every bounded engineering milestone
 
 1. **Reconcile first:** query live `main`, all open and merged PRs, head/base/merge SHAs, relevant issues, review threads, protections, current PR-head check jobs. Existing PR before new work. Never use a historical PR_OPEN line as current proof.
@@ -33,6 +39,6 @@ The **single live task selector** is now compact [next.md](../next.md); the orig
 ## Evidence, limitations and change discipline
 
 - **CI cannot prove live status unless it queries and verifies GitHub.** A markdown validator can prove syntax or links are valid, not that an old PR_OPEN is still open. Exact-head CI belongs to the linked workflow run.
-- **Avoid a new docs generator/runtime solely for this repository.** CMake/CTest and existing repo documentation are authoritative; the compact one-board-and-history pattern is simpler, DRY and appropriate to the pure-C product. A future generator/CI gate requires a separate reviewed milestone and tests.
+- **No new Markdown generator or production runtime.** The Python-standard-library, CI-only feature-budget checker is narrow governance validation, with unit tests; existing CMake/CTest and documentation remain authoritative. It does not auto-edit status or infer current GitHub state.
 - **No data-destructive operations:** the known same-UID source-retirement check/use race remains unresolved. Positive preservation and accepted trust/crash designs are prerequisites for any production fix/release. Passing negative tests, auto-merge authorization and CMake checks do not override safety approval.
 - **No spending or deployment:** Markdown is not an unattended worker, GitHub Actions is not a coding agent, and a ChatGPT scheduled automation can miss a run or have unavailable connectors. Report the exact blocker without claiming work occurred.

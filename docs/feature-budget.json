@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "repository": "Rofikali/Messy-File-Cleaner",
+  "policy_effective_date": "2026-11-21",
+  "snapshot_main_sha": "3d7e14ed16040d6918f5d88330c510db77be0b96",
+  "max_opened_prs_per_feature": 5,
+  "active_feature_id": "CLI-DRYRUN-01",
+  "features": [
+    {
+      "id": "PERF-01",
+      "title": "Disposable benchmark safety and evidence preservation",
+      "status": "CLOSED_LEGACY",
+      "prs": [],
+      "summary": "Historical feature delivered across numerous PRs before the five-PR policy, including #105-#115 and #118-#128. No additional PERF-01-only PRs in this cycle. Source state and CI are not production release proof.",
+      "last_merged_pr": 128
+    },
+    {
+      "id": "CLI-DRYRUN-01",
+      "title": "Clear and trustworthy read-only CLI preview",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "NEXT READY; improve existing --dry-run --once diagnostics, failure reporting and safe fixture-based acceptance without enabling destructive operations. 0/5 PRs at baseline."
+    },
+    {
+      "id": "SCAN-ROBUST-01",
+      "title": "Non-destructive scanner reliability and stress diagnostics",
+      "status": "PLANNED",
+      "prs": [],
+      "summary": "Independent after CLI preview, bounded scanner error/limits behavior and disposal-only tests; avoid fabricated million-file performance claims."
+    },
+    {
+      "id": "BENCH-SCALE-01",
+      "title": "Reproducible scaled dry-run resource baseline",
+      "status": "PLANNED",
+      "prs": [],
+      "summary": "Independent evidence for varying disposable workloads with explicit size/CPU/RSS/provenance; no CI million-file requirement or unsafe real moves."
+    }
+  ]
+}

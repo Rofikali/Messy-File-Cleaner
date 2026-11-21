@@ -2,6 +2,10 @@
 
 **Purpose:** Evidence-conscious companion to the [live NOW / NEXT / LATER board](../next.md). Source snapshot: GitHub `main` `30f14e93a70297d696026f2d3f60549ce50c7a1f`, 2026-11-16. This is a **source/recorded-CI review**, not a newly executed end-to-end safety assessment. When code and this page differ, current source and accepted contracts win. This page classifies **feature completion**, not only merged PRs.
 
+## 2026-11-21 transition checkpoint — current evidence, not universal acceptance
+
+Live audited main `3d7e14ed16040d6918f5d88330c510db77be0b96` includes [PERF-01U PR #128](https://github.com/Rofikali/Messy-File-Cleaner/pull/128). **PERF-01 CLOSED_LEGACY / engineering implemented**: disposable benchmark provenance and negative fixture-preservation coverage integrated, without a validated production million-file scale or real-host power-loss proof. The [feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) prospectively caps each new feature at five opened PRs; **NOW CLI-DRYRUN-01** improves user-facing safe preview and carries 0/5 at this snapshot. C11/C17/C23, Makefile, Ubuntu 24.04, Docker and performance main-head CI passed; owner-run local Compose, external filesystems, deliberate power cuts and real customer data testing are NOT RUN/NOT AUTHORIZED. FS-01B P0 and REL-01 stay BLOCKED. Rust and FCJ3/FCJ4 remain isolated test-only/proposed.
+
 ## A. Status and evidence semantics
 
 Two independent dimensions must be recorded:
@@ -22,7 +26,7 @@ For every meaningful task record ID, priority, customer/risk value, prerequisite
 | Queues/worker lifetime | **IMPLEMENTED / merged** for current CLI | `src/core/lf_queue.c`, `queue.c`, `thread_pool.c`; queue, pipeline and worker lifecycle tests | SPSC topology and embedding/global-state constraints; do not claim general MPMC |
 | Production move/journal/recovery | **IMPLEMENTED / merged** for existing legacy behavior | `src/mover/mover.c`, `src/journal/journal.c`; mover/journal/fault/crash tests | **FS-01 release review**: untrusted paths, crash windows, source identity and other filesystems need evidence; never claim crash-proof |
 | C portability and build | **IMPLEMENTED / recorded CI** | CMake C17 production, independent C11/C17/C23 Debug/Release tests; 28 CTest names visible in current CMake; ASan/UBSan on Debug | Matrix proves selected runner/compiler/fixtures, not all Linux filesystems |
-| Makefile local workflow | **IMPLEMENTED / merged** | `Makefile`: Debug, Release, Profile, `test`, `validate`, dry-run `run`, guarded `run-execute`, benchmarks | `make self-check`/`make status`/`make rust-check` are **not implemented**; optional future tooling milestone |
+| Makefile local workflow | **IMPLEMENTED / merged** | `Makefile`: Debug, Release, Profile, `test`, `validate`, dry-run `run`, guarded `run-execute`, benchmarks | `make self-check`, `make status` and `make rust-check` are now present in the root Makefile; recheck exact target behavior and CI before promising additional guarantees |
 | Docker safe preview | **IMPLEMENTED / MERGED** | [PR #84](https://github.com/Rofikali/Messy-File-Cleaner/pull/84), merge `0184cc1`: readonly `/input` default; `compose.execute.yaml` explicit writable move path; Docker PR-head CI passed | Real data/backup/host permissions still operator responsibility; no release certification |
 | CI workflows | **IMPLEMENTED / recorded CI** | Eight tracked workflows for CMake, Makefile, Ubuntu 24.04, Docker, TSan, Rust, performance and large-scale tests | Not all are run on every PR; no deployment/CD pipeline or universal release gate |
 | Rust pilot policy/scaffold | **IMPLEMENTED / MERGED** **test-only** | [PR #81](https://github.com/Rofikali/Messy-File-Cleaner/pull/81) ADR and [PR #82](https://github.com/Rofikali/Messy-File-Cleaner/pull/82) Cargo scaffold; `tests/rust/fcj4-test-support` | No Rust FFI call to C; no Rust product binary/runtime |

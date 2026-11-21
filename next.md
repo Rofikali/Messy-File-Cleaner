@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **GitHub checkpoint (2026-11-21):** main `3d7e14ed16040d6918f5d88330c510db77be0b96`, [PR #128](https://github.com/Rofikali/Messy-File-Cleaner/pull/128) MERGED; zero open PRs at audit. Five main-head workflow families (CMake, Makefile, Ubuntu 24.04, Docker, performance) completed SUCCESS. This is a dated snapshot; always re-fetch PRs/CI/main before acting. **FS-01B P0 risk and REL-01 release gate remain BLOCKED.**
+> **Verified handoff (2026-11-21):** main `74176cf4f90984bae660960c4f59de0441f1043a`; PR #130 MERGED (tested head `682099797ee2a23bd3bc34f53bb5e7c69acb9ea6`, CMake/feature-budget, Docker, Ubuntu 24.04, Makefile PASS). CLI-DRYRUN-01 closed DONE at 1/5; manual Ubuntu/Docker/Compose/other-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 BLOCKED. This is a snapshot, not proof of current GitHub status.
 >
 > **One live selector:** this document; [feature budget ledger](docs/feature-budget.json) and [five-PR feature-delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) enforce delivery ceilings, while [next-history.md](next-history.md) is the unchanged dated archive. Live GitHub overrides any stale snapshot.
 
@@ -8,9 +8,9 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IN PR / CI PENDING** | **CLI-DRYRUN-01 (1/5 PRs; #130 OPEN)** | User-facing non-destructive `--dry-run --once` preview reliability, clear exit/errors and bounded safe diagnostics; PR #130 clarifies preview-only stdout and failure completion; disposable end-to-end assertions; exact-head CI NOT RUN pending | No real input tree or target-hardware acceptance; no release |
-| **NEXT — PLANNED** | **SCAN-ROBUST-01 (0/5)** | Independent non-destructive scanner error/limits and resource regression feature after preview handoff | No assumption of Linux filesystem universality |
-| **LATER — PLANNED** | **BENCH-SCALE-01 (0/5)** | Comparable disposable scan-scale CPU/RSS/throughput evidence on declared hardware, not just fixture-hardening | A 100k/1m-file workload is not a CI requirement or proof until executed |
+| **NOW — IMPLEMENTATION PR** | **SCAN-ROBUST-01 (first of 5; PR number pending)** | Disposable scanner regression for callback failure without errno (EIO fallback), invalid input rejection and unchanged source files; exact-head CI NOT RUN pending | No production source-retirement fix or owner-run acceptance |
+| **NEXT — PLANNED** | **BENCH-SCALE-01 (0/5)** | Independent reproducible disposable scan-scale evidence after scanner closure | No million-file performance proof |
+| **DONE** | **CLI-DRYRUN-01 (1/5; #130 merged)** | Read-only preview and failure status merged at `74176cf4f90984bae660960c4f59de0441f1043a`; exact-head four workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; no release |
 | **CLOSED LEGACY** | **PERF-01 — ENGINEERING IMPLEMENTED / MERGED through #128** | Existing disposable benchmark safety, provenance, output integrity, hardlink/symlink/FIFO/Unix socket and collision regressions | Earlier feature exceeded new cap; no more PERF-01-only PRs; no end-to-end release or physical-filesystem proof |
 | **P0 BLOCKED** | **FS-01B-FIX** | Security/trust/crash-model review and positive unrelated-file-preservation tests **before** an explicitly approved production correction | Known same-UID check/use unlink risk remains; a passing reproduction is NOT a fix |
 | **RELEASE BLOCKED** | **REL-01** | Approved FS-01B-FIX, source/journal safety, supported filesystem/operator manual tests, backup/recovery and rollback signoff | C11/C17/C23, Docker and benchmark CI do not grant release authority |
@@ -29,7 +29,7 @@
 
 ## Five-PR continuation rule (hard ceiling, not five PRs mandatory)
 
-Each **opened feature-specific PR attempt** (merged, closed, abandoned) counts once under the same stable feature ID, including test-only refinements and renamed subtasks. The `docs/feature-budget.json` ledger is validated in required PR CI; the PR must declare `Feature-ID: CLI-DRYRUN-01` and then record its actual assigned PR number in the ledger before checks can pass. A changed PR gets additional commits without consuming another slot. At five PRs (or earlier if accepted), close DONE/PARTIAL/BLOCKED with verified scope and explicit gaps and move to a different READY feature. Don't hide a sixth PR under a new milestone name or a generic security exception.
+Each **opened feature-specific PR attempt** (merged, closed, abandoned) counts once under the same stable feature ID, including test-only refinements and renamed subtasks. The `docs/feature-budget.json` ledger is validated in required PR CI; the PR must declare `Feature-ID: SCAN-ROBUST-01` and then record its actual assigned PR number in the ledger before checks can pass. A changed PR gets additional commits without consuming another slot. At five PRs (or earlier if accepted), close DONE/PARTIAL/BLOCKED with verified scope and explicit gaps and move to a different READY feature. Don't hide a sixth PR under a new milestone name or a generic security exception.
 
 Separate *code exists*, *merged*, *CI pass at exact SHA*, *manual Ubuntu/Compose*, *real filesystem/backup/crash testing*, *security approval* and *RELEASED*. Keep unexecuted checks **NOT RUN**, NEVER "PASS". The existing separate hourly autopilot must select current READY from here and stop repeated PERF-01 test-only PRs. P0 FS-01B-FIX remains prohibited until its prerequisites are approved, independent of feature cap.
 

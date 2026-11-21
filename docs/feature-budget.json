@@ -42,7 +42,9 @@
       "id": "BENCH-SCALE-01",
       "title": "Reproducible scaled dry-run resource baseline",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        132
+      ],
       "summary": "Bounded disposable Python os.scandir enumeration baseline and unit tests in implementation PR; NOT an engine scanner throughput benchmark; exact-head CI NOT RUN pending. Manual host/Compose/backup/crash NOT RUN."
     }
   ]

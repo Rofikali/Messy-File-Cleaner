@@ -148,11 +148,15 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
             opts->force = 1;
         else if (strcmp(argv[i], "--once") == 0)
         {
+            if (opts->mode_override && opts->mode != MODE_BATCH)
+                return -1;
             opts->mode_override = 1;
             opts->mode = MODE_BATCH;
         }
         else if (strcmp(argv[i], "--watch") == 0)
         {
+            if (opts->mode_override && opts->mode != MODE_DAEMON)
+                return -1;
             opts->mode_override = 1;
             opts->mode = MODE_DAEMON;
         }

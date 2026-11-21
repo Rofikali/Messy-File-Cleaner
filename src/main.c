@@ -132,7 +132,7 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
     {
         if (strcmp(argv[i], "--root") == 0)
         {
-            if (++i >= argc)
+            if (++i >= argc || opts->root)
                 return -1;
             opts->root = argv[i];
         }

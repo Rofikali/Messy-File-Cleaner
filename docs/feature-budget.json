@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "18b467f40d5f4be853b95c1ffa7a494a45292574",
+  "snapshot_main_sha": "d6ea61cb9d6d4ffbd034ab1c3d7f27bdc20815e4",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CLI-MODE-01",
+  "active_feature_id": "CLI-ROOT-01",
   "features": [
     {
       "id": "PERF-01",
@@ -66,11 +66,23 @@
     {
       "id": "CLI-MODE-01",
       "title": "Reject contradictory CLI execution modes before configuration access",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         135
       ],
-      "summary": "PR #135 OPEN: reject --once and --watch combinations in either order; negative subprocess CTest uses nonexistent paths. Local and exact-head CI NOT RUN. Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "summary": "PR #135 merged: contradictory --once/--watch rejected before configuration access; exact-head CMake C11/C17/C23, feature-budget, Docker, Ubuntu 24.04, Makefile and FCJ4 TSan workflow families PASS. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.",
+      "last_merged_pr": 135,
+      "merge_sha": "d6ea61cb9d6d4ffbd034ab1c3d7f27bdc20815e4",
+      "tested_head_sha": "93e8a3ccea412bf3ac5e46f9ce826de91ba14e1f"
+    },
+    {
+      "id": "CLI-ROOT-01",
+      "title": "Reject ambiguous duplicate CLI input roots before configuration access",
+      "status": "ACTIVE",
+      "prs": [
+        136
+      ],
+      "summary": "Bounded C17 duplicate-root rejection and disposable negative subprocess CTest. PR #136 OPEN; exact-head CI pending. Exact-head CI and local tests NOT RUN. Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

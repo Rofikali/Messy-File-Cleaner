@@ -55,8 +55,10 @@
       "id": "CLI-INPUT-01",
       "title": "Reject malformed CLI worker counts before filesystem access",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Bounded C17 CLI argument validation and non-destructive invalid-argument CTest; PR creation pending registration. Manual acceptance NOT RUN; P0 and release BLOCKED."
+      "prs": [
+        134
+      ],
+      "summary": "PR #134 OPEN: C17 strict --workers decimal 1..MAX_WORKERS validation before config/filesystem access, negative CLI CTest; exact-head CI NOT RUN. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

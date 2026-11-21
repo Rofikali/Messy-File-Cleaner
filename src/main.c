@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <limits.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdatomic.h>
@@ -159,7 +160,20 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
         {
             if (++i >= argc)
                 return -1;
-            opts->workers_override = atoi(argv[i]);
+            /* Reject malformed/overflowed counts before config or filesystem access. */
+            const char *value = argv[i];
+            if (!value[0] || value[0] == '+' || value[0] == '-')
+                return -1;
+            for (const char *p = value; *p; ++p)
+                if (*p < '0' || *p > '9')
+                    return -1;
+            errno = 0;
+            char *end = NULL;
+            long count = strtol(value, &end, 10);
+            if (errno == ERANGE || !end || *end != '\0' ||
+                count < 1 || count > MAX_WORKERS)
+                return -1;
+            opts->workers_override = (int)count;
         }
         else if (argv[i][0] == '-')
             return -1;

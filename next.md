@@ -8,7 +8,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **SCAN-ROBUST-01 (first of 5; PR number pending)** | Disposable scanner regression for callback failure without errno (EIO fallback), invalid input rejection and unchanged source files; exact-head CI NOT RUN pending | No production source-retirement fix or owner-run acceptance |
+| **NOW — IMPLEMENTATION PR** | **SCAN-ROBUST-01 (1/5; #131 OPEN)** | Disposable scanner regression for callback failure without errno (EIO fallback), invalid input rejection and unchanged source files; exact-head CI NOT RUN pending | No production source-retirement fix or owner-run acceptance |
 | **NEXT — PLANNED** | **BENCH-SCALE-01 (0/5)** | Independent reproducible disposable scan-scale evidence after scanner closure | No million-file performance proof |
 | **DONE** | **CLI-DRYRUN-01 (1/5; #130 merged)** | Read-only preview and failure status merged at `74176cf4f90984bae660960c4f59de0441f1043a`; exact-head four workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; no release |
 | **CLOSED LEGACY** | **PERF-01 — ENGINEERING IMPLEMENTED / MERGED through #128** | Existing disposable benchmark safety, provenance, output integrity, hardlink/symlink/FIFO/Unix socket and collision regressions | Earlier feature exceeded new cap; no more PERF-01-only PRs; no end-to-end release or physical-filesystem proof |

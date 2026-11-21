@@ -91,8 +91,10 @@
       "id": "CLI-CONFIG-01",
       "title": "Reject repeated CLI configuration selectors before config access",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 duplicate --config rejection with disposable negative subprocess CTest. PR assignment and exact-head CI pending; local/manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "prs": [
+        137
+      ],
+      "summary": "C17 duplicate --config rejection with disposable negative subprocess CTest. PR #137 OPEN; exact-head CI pending; local/manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

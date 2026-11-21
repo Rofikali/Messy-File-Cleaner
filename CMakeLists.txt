@@ -488,6 +488,15 @@ if(BUILD_TESTING)
   target_compile_options(test_watcher PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME watcher_integration COMMAND test_watcher)
 
+  # CLI-INPUT-01: malformed worker counts must fail before config/filesystem access.
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME cli_workers_invalid
+    COMMAND ${Python3_EXECUTABLE}
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/system/test_cli_workers.py"
+            "$<TARGET_FILE:${PROJECT_NAME}>"
+  )
+  set_tests_properties(cli_workers_invalid PROPERTIES TIMEOUT 15)
+
   add_test(NAME cli_end_to_end
     COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/tests/system/test_full_run.sh"
             "$<TARGET_FILE:${PROJECT_NAME}>"

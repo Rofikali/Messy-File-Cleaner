@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Verified handoff (2026-11-21):** main `8748679d71606415883dbc2b121c46f1a00d576a`; PR #131 MERGED (tested head `ff0fb4e618c11878a561a0819ae62388cd453e96`, CMake/feature-budget, Docker, Ubuntu 24.04 and Makefile PASS). BENCH-SCALE-01 PR #132 OPEN; manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 BLOCKED. This is a snapshot, not proof of current GitHub status.
+> **Verified handoff (2026-11-21):** main `8d879626575f68cf23be90a252dfd090518ce7fc`; PR #132 MERGED (tested head `e360f24af98a4c29f6348e3283ce68dc151438f9`, CMake/feature-budget, Docker, Ubuntu 24.04 and Makefile PASS). BENCH-SCALE-01 PR #133 OPEN for CTest coverage; new exact-head CI NOT RUN. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED. This is a snapshot, not proof of current GitHub status.
 >
 > **One live selector:** this document; [feature budget ledger](docs/feature-budget.json) and [five-PR feature-delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) enforce delivery ceilings, while [next-history.md](next-history.md) is the unchanged dated archive. Live GitHub overrides any stale snapshot.
 
@@ -8,7 +8,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **BENCH-SCALE-01 (1/5; #132 OPEN)** | Bounded disposable Python os.scandir enumeration resource baseline; NOT engine scanner benchmark. Exact-head CI NOT RUN | No C engine million-file throughput, owner-run acceptance or release |
+| **NOW — IMPLEMENTATION PR** | **BENCH-SCALE-01 (2/5; #132 merged, #133 OPEN)** | Baseline merged at `8d879626575f68cf23be90a252dfd090518ce7fc`; #133 registers existing disposable unit tests in CTest. Exact-head #133 CI NOT RUN | No C engine million-file throughput, owner-run acceptance or release |
 | **DONE** | **SCAN-ROBUST-01 (1/5; #131 merged)** | Callback-error/invalid-input preservation regressions merged at `8748679d71606415883dbc2b121c46f1a00d576a`; exact-head workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-DRYRUN-01 (1/5; #130 merged)** | Read-only preview and failure status merged at `74176cf4f90984bae660960c4f59de0441f1043a`; exact-head four workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; no release |
 | **CLOSED LEGACY** | **PERF-01 — ENGINEERING IMPLEMENTED / MERGED through #128** | Existing disposable benchmark safety, provenance, output integrity, hardlink/symlink/FIFO/Unix socket and collision regressions | Earlier feature exceeded new cap; no more PERF-01-only PRs; no end-to-end release or physical-filesystem proof |

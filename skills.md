@@ -2,6 +2,10 @@
 
 This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans and coding agents how to work in this repository. The architecture and security rationale is in [the Engineering Playbook](docs/architecture/ENGINEERING_PLAYBOOK.md) and [Threat Model](docs/security/THREAT_MODEL.md).
 
+## Five-PR execution and handoff recipe
+
+For every new feature PR, select the stable active ID in [docs/feature-budget.json](docs/feature-budget.json), put `Feature-ID: ID` in the PR body, open one focused PR, then **add GitHub's actual assigned PR number to the ledger in that same PR**. Local CI validates five slots and the PR association. Count closed/failed PRs; never reset by renaming tasks. End after up to five, document DONE/PARTIAL/BLOCKED with exact head/main SHA, manual NOT RUN and remaining FS/data-preservation risks, and switch to the next independent READY feature. Current CLI-DRYRUN-01 follows CLOSED_LEGACY PERF-01. Do not enable production moves or treat reproduced unsafe unlink as fixed. Full rules: [feature policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md).
+
 ## Project-specific documentation-impact recipe (2026-11-20)
 
 Start with the compact [live work board](next.md) and live GitHub status; use [next-history.md](next-history.md) only as a dated archive. For every meaningful change, keep documentation in the **same implementation PR**: identify current milestone, tested SHA, PR/CI evidence and next READY task in `next.md`; review AGENTS, README, this contributor recipe, the docs index and the relevant FS-01/FCJ3/FCJ4, HLD/LLD, CMake/Makefile, Docker, C11/C17/C23, Rust test-only and benchmark contracts. List UPDATED or N/A and why in the [PR template](.github/pull_request_template.md). Do not duplicate live status throughout docs, create status-only PRs after every merge, or claim a green test fixes the same-UID source-retirement P0. [Canonical transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md).

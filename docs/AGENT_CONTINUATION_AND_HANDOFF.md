@@ -2,6 +2,10 @@
 
 **Standing process, not autonomous execution.** Applies to Codex, Astra, GitHub-connected agent or a human reviewer. Reading this runbook cannot wake a stopped chat, provision a coding agent, change branch protections or grant merge/deploy permission. The owner's **independent standing PR review/merge authorization** for the existing hourly autopilot is documented in [GOV-02](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md); only authorized agents with current GitHub access may exercise it.
 
+## Five-PR handoff (current owner rule)
+
+From 2026-11-21 follow [feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) and `docs/feature-budget.json`. Verify live main and existing PRs before opening one. Stable feature ID, all opened PR attempts, ceiling five; end early on accepted outcome, otherwise close DONE/PARTIAL/BLOCKED at fifth PR and advance. No unlimited tiny tests under a new sub-ID. Historical PERF-01 was merged through #128 and is CLOSED_LEGACY; NOW is CLI-DRYRUN-01. Distinguish exact-head CI from local Ubuntu/Compose, filesystem safety, crash/power-loss and release signoff; preserve blocked FS-01B-FIX without destructive execution.
+
 ## Standing owner shorthand: go ahead / continue / next
 
 This repository adopts the same **next-work selection** convention as IMGENGINE: when the owner says **"go ahead"** (including **"go ahead next"**, **"continue"** or **"next milestone"**), treat it as an instruction to **proceed now with the next dependency-unblocked work item in the top LIVE NOW / NEXT / LATER board of `next.md`**. Do not reflexively ask the owner which milestone to do or ask them to paste an agent prompt. Read actual GitHub state first: a task labelled open in an old paragraph may already have merged, and a green PR is not necessarily merged.

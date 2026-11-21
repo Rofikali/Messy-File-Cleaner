@@ -2,6 +2,10 @@
 
 **Status: ACTIVE owner workflow authorization (2026-11-17), bounded to `Rofikali/Messy-File-Cleaner`.** The owner expressly asked the existing hourly autopilot to perform PR creation, review, correction and merging when appropriate. This is an **external owner instruction** recorded here for continuity; this Markdown file by itself does not confer GitHub permissions, bypass protections or authorize an unrelated agent. The recurring schedule belongs to ChatGPT Automations and can be paused by the owner.
 
+## Owner amendment — five-PR feature progression (2026-11-21)
+
+Latest instruction: **five opened PR attempts maximum per feature** (not five per tiny test/regression). The ledger and [policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) count all post-policy attempted PR numbers and CI checks `Feature-ID` identity. PERF-01 through #128 is CLOSED_LEGACY, with the repetitive fixture loop finished; the independent NOW lane is CLI-DRYRUN-01. At fifth PR or sooner, state exactly what is IMPLEMENTED, CI_PASS, MANUAL_NOT_RUN, PARTIAL/BLOCKED and move to another dependency-cleared READY feature. No sixth PR by renaming work. A confirmed safety interruption remains separately scoped and subject to FS-01B trust/crash approval. Never infer actual Ubuntu/Compose, power-loss, backup or broad host validation from CI. Do not continue a stale PERF-01U PR_OPEN record once #128 is merged.
+
 ## Dual-trigger, unattended operation (owner reaffirmed 2026-11-20)
 
 - **Manual trigger:** An owner message such as `go ahead` requests an immediate bounded engineering run; it does not disable, reset, postpone, or replace the scheduled hourly run.

@@ -10,6 +10,16 @@ permissions:
   contents: read
 
 jobs:
+  feature-budget:
+    name: Five-PR feature delivery contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test feature ledger validator
+        run: python3 -m unittest discover -s scripts/tests -p 'test_feature_budget.py'
+      - name: Verify budget and PR's declared feature
+        run: python3 scripts/feature_budget_check.py --event "$GITHUB_EVENT_PATH"
+
   build-and-test:
     runs-on: ubuntu-latest
     strategy:

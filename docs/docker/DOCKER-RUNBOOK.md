@@ -1,5 +1,9 @@
 # Docker Setup and Safe Operation
 
+## Verification scope as of 2026-11-21
+
+GitHub-hosted Ubuntu 24.04 validation and Docker build/runtime smoke workflows passed on main `3d7e14ed16040d6918f5d88330c510db77be0b96`. This is evidence for those **configured CI jobs**, not proof of an owner-run local Docker Desktop/Ubuntu Compose session, different host mount permissions, malicious same-UID interference, or real-file recovery. The five-PR [delivery policy](../FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) does not override the FS-01B P0 gate. Use only disposable fixture previews and do not run the execution override as an acceptance shortcut.
+
 ## Prerequisites
 - Docker Engine or Docker Desktop with Compose v2
 - Linux shell or Docker Desktop terminal

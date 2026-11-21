@@ -4,6 +4,12 @@ A Linux/POSIX file-organization tool with a **pure-C production engine** and iso
 
 > **Project status:** Active development; not certified for production or valuable unbacked-up data. The [FS-01B test](docs/quality/FS_01B_RETIREMENT_RACE_CHARACTERIZATION.md) reproduced a **P0 source-retirement check/use risk**: a substituted name can be unlinked after a prior inode check. The [proposed FS-01B-GUARD](docs/security/FS_01B_SHARED_SOURCE_GUARD.md) refuses moves from group/other-writable or non-owned input directories to reduce other-UID exposure, but **does not fix same-UID interference, arbitrary malicious writers, or power-loss recovery**. If merged, previously accepted shared-writable directories will receive `EPERM` instead of being moved. Require verified backups before any real move.
 
+## Feature progression and verification (2026-11-21)
+
+The latest audited main `3d7e14ed16040d6918f5d88330c510db77be0b96` includes merged [PR #128](https://github.com/Rofikali/Messy-File-Cleaner/pull/128). The extensive PERF-01 disposable benchmark-safety/provenance work is **engineering implemented and closed to more PERF-01-only PRs**, rather than repeatedly consuming new regression PRs. See [five-PR feature delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) and [budget ledger](docs/feature-budget.json). **NOW:** improve existing CLI dry-run diagnostics and read-only acceptance (CLI-DRYRUN-01, 0/5 PRs); then scanner resilience, then independent benchmark-scale evidence.
+
+GitHub's Ubuntu 24.04, C11/C17/C23, Docker runtime and Makefile workflows have passed at the audited main. This does not establish a personally executed local Ubuntu/Docker Desktop/Compose test, physical/same-UID hostile-filesystem or power-failure durability tests, nor production authorization. FS-01B P0 and REL-01 remain **BLOCKED**. No production Rust FFI, FCJ4 recovery, live file deletion, automatic publishing or spend is authorized.
+
 ## Project roadmap, current status, and engineering docs
 
 - **How documentation stays current with each code/CI milestone:** [milestone documentation transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md), [PR checklist](.github/pull_request_template.md), and [historical archive](next-history.md). Existing PR and CI state must be verified live; the compact board is a dated checkpoint, not a GitHub API feed.

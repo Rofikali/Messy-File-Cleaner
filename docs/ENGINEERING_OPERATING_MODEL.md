@@ -2,6 +2,10 @@
 
 **Status:** Review method; not a certificate, personnel hierarchy, auto-merge policy, or authority to deploy. Applies to Messy-File-Cleaner, a **local Linux/POSIX C17 production tool** with isolated Rust test support. It is not IMGENGINE's Rust API / Nuxt / SaaS architecture.
 
+## Feature progression and fiduciary risk (2026-11-21)
+
+Owner delivery boundary: [five-PR feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) — one stable user/security outcome, five opened PR attempts maximum, close DONE/PARTIAL/BLOCKED and advance. From historical PERF-01 through PR #128, select CLI-DRYRUN-01 for a safe non-destructive operator outcome. Apply software architecture, Linux/POSIX, QA/SDET, security/CISSP, network/CCIE only where local path/IPC design warrants it, release/SRE, finance/CA, MBA/management proportionately. Engineering effort and CI minutes are opportunity cost; unsafe real-data moves and same-UID race liability outrank PR throughput. Zero unauthorized paid infrastructure, false safety certifications or nanosecond file-move claims.
+
 ## Mission and decisions
 
 **North star:** user file preservation and clear recoverability above throughput, feature count, language fashion and release speed. Risk priority: data integrity -> security -> operational correctness -> measurable throughput -> code clarity -> cost and delivery.

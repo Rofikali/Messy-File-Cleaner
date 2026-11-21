@@ -1,36 +1,42 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Verified GitHub checkpoint, 2026-11-20:** default branch `main` at `24044b7cbc77e661e49d0b41ddfbe89f77b78372` when PERF-01K work began. PRs #114, #115 (private, exclusive/no-follow benchmark evidence and negative regressions) and #116 (dual-trigger governance) are **MERGED**; there were zero open work PRs at that checkpoint. This is a dated snapshot; fetch current GitHub main, open PRs, CI and review gates before work. **No production release is authorized.**
+> **GitHub checkpoint (2026-11-21):** main `3d7e14ed16040d6918f5d88330c510db77be0b96`, [PR #128](https://github.com/Rofikali/Messy-File-Cleaner/pull/128) MERGED; zero open PRs at audit. Five main-head workflow families (CMake, Makefile, Ubuntu 24.04, Docker, performance) completed SUCCESS. This is a dated snapshot; always re-fetch PRs/CI/main before acting. **FS-01B P0 risk and REL-01 release gate remain BLOCKED.**
 >
-> **One authoritative current queue:** this compact file; older chronological logs are preserved in [next-history.md](next-history.md) and must not be used as the current task selector. [Documentation map](docs/README.md) and [milestone documentation transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md) explain what changes alongside each code PR.
+> **One live selector:** this document; [feature budget ledger](docs/feature-budget.json) and [five-PR feature-delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) enforce delivery ceilings, while [next-history.md](next-history.md) is the unchanged dated archive. Live GitHub overrides any stale snapshot.
 
 ## LIVE NOW / NEXT / LATER
 
-| Lane | ID and current state | Next bounded engineering action | Required evidence / reason |
+| Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTED / PR PENDING** | **PERF-01U — Unix-domain socket fixture preservation** | Two POSIX test-only negative regressions for expected/unexpected socket entries; implementation commit `e9d270703b26b0c8db576f8b5fe168e0f1427bf6`; local tests NOT RUN, exact-head CI NOT RUN. Next READY: open PR, verify exact-head CMake/Docker/Ubuntu 24.04/Makefile and merge only if eligible. | No production C17 changes; does not fix P0 same-UID races. |
-| **NEXT — completed** | **PERF-01T (#127) — MERGED** | Verified actual merge/main SHA `e1cc0aef374a3d93f729bf2d8c025ea38614bdfa`; reconciled head `7dddac619b5e927dd0c5952f47473ba23be40a91` had four CI workflows PASS. | FIFO regression only; no release or P0 repair. |
-| **NEXT** | **DOC-GOV-01 — MERGED** | PR #117 integrated the compact live board, history archive and documentation impact checklist; continue updating affected docs in each implementation PR | Merge `24044b7cbc77e661e49d0b41ddfbe89f77b78372`; this does not prove filesystem P0 fixed |
-| **BLOCKED P0** | **FS-01B-FIX — BLOCKED** | Obtain approved same-UID source-retirement authority/trust/crash model, design safe positive preservation tests | [Threat model](docs/security/THREAT_MODEL.md), [FS-01B safety plan](docs/quality/FS_01B_FIX_SECURITY_ACCEPTANCE_PLAN.md); merged guard is only partial |
-| **BLOCKED P0** | **REL-01 — BLOCKED** | After FS design/safety evidence, establish candidate, backups, supported filesystems, recovery and rollback signoff | C11/C17/C23 + Docker CI passing alone is not release certification |
-| **NEXT gated** | **RUST-01 / ABI-01 — DEFERRED** | Test-only Rust verification work only with approved test boundary; production public .a/.so, FFI or FCJ4 recovery require separate ADR/owner decision | C17 production core and Ubuntu 24.04 Docker remain unchanged |
-| **LATER** | **BIZ-01 — PLANNED** | Validate users, support and cost with real evidence before commercial SDK/API | No paid infra, SaaS, telemetry or billing on this workstream |
+| **NOW — READY** | **CLI-DRYRUN-01 (0/5 PRs)** | User-facing non-destructive `--dry-run --once` preview reliability, clear exit/errors and bounded safe diagnostics; first actual PR inventories behavior and adds disposable negative cases before altering logic | No real input tree or target-hardware acceptance; no release |
+| **NEXT — PLANNED** | **SCAN-ROBUST-01 (0/5)** | Independent non-destructive scanner error/limits and resource regression feature after preview handoff | No assumption of Linux filesystem universality |
+| **LATER — PLANNED** | **BENCH-SCALE-01 (0/5)** | Comparable disposable scan-scale CPU/RSS/throughput evidence on declared hardware, not just fixture-hardening | A 100k/1m-file workload is not a CI requirement or proof until executed |
+| **CLOSED LEGACY** | **PERF-01 — ENGINEERING IMPLEMENTED / MERGED through #128** | Existing disposable benchmark safety, provenance, output integrity, hardlink/symlink/FIFO/Unix socket and collision regressions | Earlier feature exceeded new cap; no more PERF-01-only PRs; no end-to-end release or physical-filesystem proof |
+| **P0 BLOCKED** | **FS-01B-FIX** | Security/trust/crash-model review and positive unrelated-file-preservation tests **before** an explicitly approved production correction | Known same-UID check/use unlink risk remains; a passing reproduction is NOT a fix |
+| **RELEASE BLOCKED** | **REL-01** | Approved FS-01B-FIX, source/journal safety, supported filesystem/operator manual tests, backup/recovery and rollback signoff | C11/C17/C23, Docker and benchmark CI do not grant release authority |
+| **DEFERRED** | **RUST-01 / ABI-01** | Only owner-approved isolated Rust testing; production .a/.so/FFI require distinct ADR/consumer and review | Current Rust is test-only |
+| **LATER** | **BIZ-01** | Validate users and ownership/support liability before commercial library or paid services | No revenue, SaaS or pricing is implemented |
 
-## Recent verified merges (not a live CI claim)
+## 2026-11-21 completion and evidence snapshot
 
-| PR | Actual integrated commit | Delivered bounded scope |
-| --- | --- | --- |
-| [#113](https://github.com/Rofikali/Messy-File-Cleaner/pull/113) | `58a451ab640672950f16cb6b87348737da9c9c82` | Existing benchmark CSV/JSON evidence preserved |
-| [#114](https://github.com/Rofikali/Messy-File-Cleaner/pull/114) | `0ae0b63277ba7a04ec566cf0c92b66eb02088e40` | Private no-clobber evidence creation |
-| [#115](https://github.com/Rofikali/Messy-File-Cleaner/pull/115) | `4fd2d8c031e9da5a20f34ff0fcd2477b04eff662` | Evidence permissions and symlink-race regression |
-| [#117](https://github.com/Rofikali/Messy-File-Cleaner/pull/117) | `24044b7cbc77e661e49d0b41ddfbe89f77b78372` | Compact board, dated history and docs impact PR checklist |
-| [#116](https://github.com/Rofikali/Messy-File-Cleaner/pull/116) | `8144736aeebcb961cad5d7f32e5f0e4468bb73c5` | Manual plus unattended hourly governance |
+| Area | IMPLEMENTED / MERGED | Evidence observed | Remaining acceptance |
+| --- | --- | --- | --- |
+| C17 CLI, scanning/classification, queue/worker, legacy mover and journal | Existing code on main | C11/C17/C23 CMake/CTest, Makefile and Ubuntu 24.04 on main | Known source-retirement race; no approval for valuable files |
+| FCJ3/FCJ4 parser/writer/testing | Isolated test-domain features, **not** production recovery | Source, tests and conditional CI lanes | No production FCJ4 link, trusted recovery or FFI |
+| Disposable benchmarking and fixture refusal | PERF-01 work merged through #128 | CMake, Docker, Makefile, Ubuntu, performance workflows all success at `3d7e14ed1604` | No claimed nanosecond end-to-end latency, target-host million-file workload or power-loss test |
+| Docker and developer tooling | Dev/prod Docker images, safe dry-run Compose default, guarded explicit execution, Makefile status/self-check/rust-check | Docker, Makefile and Ubuntu CI success at referenced main | Owner-run Ubuntu/Docker Desktop/Compose and external host filesystem tests NOT RUN in this audit |
+| Release / real user safety | No approved release | Current repository remains prototype/development | FS-01B-FIX and REL-01 BLOCKED; no automated real file moves |
 
-## Non-negotiable continuation and status truth
+## Five-PR continuation rule (hard ceiling, not five PRs mandatory)
 
-- **First:** current GitHub main/PR head, code diff, reviews, comments, branch protections, current exact-head CI and this live board. Continue an open PR first; if blocked, advance independent READY non-destructive work.
-- **Every material PR:** update this single live work board *with the code/tests*, record implemented versus PR_OPEN versus CI_PASS versus MERGED versus RELEASED, explain updated docs and N/A, check applicable security/architecture/runtime/CMake/Makefile/finance docs. Do not create repetitive status-only PRs.
-- **Verification:** C17 production; independent C11/C23 compatibility, CMake/CTest/sanitizer, Ubuntu Docker, safe Makefile refusal tests and conditional TSan/Rust test-only gates when relevant. SKIPPED / not triggered / API-only edits are NOT RUN.
-- **Safety:** never automatically execute a real move on user/customer files, retire sources, adopt production Rust/FFI/FCJ4, weaken CI/branch policies, publish or spend. Unresolved same-UID check/unlink risk remains a P0 release blocker, not a solved regression.
-- **Scheduler:** the external ChatGPT automation is independently enabled hourly; manual `go ahead` does not reset it. A repo Markdown change never constitutes an actual scheduled run. Log verified execution and the one next executable job.
-- **History:** old milestone states, dated PR updates and full development chronology remain intact in [next-history.md](next-history.md); consult only when relevant, and never elevate an old PR_OPEN label above current GitHub state.
+Each **opened feature-specific PR attempt** (merged, closed, abandoned) counts once under the same stable feature ID, including test-only refinements and renamed subtasks. The `docs/feature-budget.json` ledger is validated in required PR CI; the PR must declare `Feature-ID: CLI-DRYRUN-01` and then record its actual assigned PR number in the ledger before checks can pass. A changed PR gets additional commits without consuming another slot. At five PRs (or earlier if accepted), close DONE/PARTIAL/BLOCKED with verified scope and explicit gaps and move to a different READY feature. Don't hide a sixth PR under a new milestone name or a generic security exception.
+
+Separate *code exists*, *merged*, *CI pass at exact SHA*, *manual Ubuntu/Compose*, *real filesystem/backup/crash testing*, *security approval* and *RELEASED*. Keep unexecuted checks **NOT RUN**, NEVER "PASS". The existing separate hourly autopilot must select current READY from here and stop repeated PERF-01 test-only PRs. P0 FS-01B-FIX remains prohibited until its prerequisites are approved, independent of feature cap.
+
+## Standing evidence and ownership rules
+
+- Reconcile current GitHub main SHA, open PRs, merge SHAs, workflow runs and review protections **before** any change; an open PR takes precedence over creating duplicate work.
+- For every material feature PR, update the ledger + this compact board + affected docs **in the same PR** and report UPDATED vs N/A; don't create repeated post-merge status-only PRs. Archive retains historical chronology; never overwrite it.
+- CI is a gate, not a release certificate. Confirm exact-head checks; conditional TSan/Rust/scale work not triggered is NOT RUN.
+- The owner-authorized autopilot may merge only when current-head tests, security and independent review/branch protection are satisfied, with an expected-head safeguard; never deploy, move real customer data, publish or spend.
+- C17 production and C11/C23 portability remain; Rust, FCJ3/FCJ4 and API/ABI concepts retain test-only/proposed boundaries.

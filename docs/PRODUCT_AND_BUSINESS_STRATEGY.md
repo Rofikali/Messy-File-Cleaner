@@ -2,6 +2,10 @@
 
 **Status: hypotheses and decision framework, not customer validation, prices, approved monetization, or launch.** Reviewed C17 CLI + test-only Rust at `main` `559ba1e` on 2026-11-16.
 
+## Five-PR cost and customer-outcome discipline (2026-11-21)
+
+Each feature now has a maximum of five opened PR attempts, not five automatically required iterations; earlier accepted outcomes exit sooner. Closing the repetitive historical PERF-01 fixture lane frees engineering and CI time to improve the CLI's existing dry-run clarity and safety diagnostics. Treat actual engineering hours, CI compute/energy, security review, support obligations and possible file-loss liability as business costs; do not invent revenue, market fit or claim a production-safe release. A release remains blocked on FS-01B same-UID source-retirement trust/crash safety regardless of schedule efficiency.
+
 ## 1. Problem and customer outcome
 
 Proposed job: "Organize a local Linux file tree into understandable categories **without unexpectedly overwriting or losing user files**, and explain what happened if execution fails." Competing differentiation is a **testable safety contract**, dry-run, journal evidence and reproducible performance, not an unsupported nanosecond guarantee.

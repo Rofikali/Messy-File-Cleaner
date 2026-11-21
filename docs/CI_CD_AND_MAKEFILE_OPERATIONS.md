@@ -2,6 +2,10 @@
 
 **Status: factual workflow inventory + proposed process, 2026-11-16; reviewed `main` at `559ba1e`.** This document does not change GitHub Actions, branch rules, code, Docker runtime or release. Reinspect exact current workflow content and required checks at PR SHA before claiming coverage.
 
+## 2026-11-21 documentation and feature-budget gate
+
+A new stdlib-only Python policy check runs in the existing CMake workflow on PRs and pushes: `python3 -m unittest discover -s scripts/tests -p 'test_feature_budget.py'` plus `python3 scripts/feature_budget_check.py --event "$GITHUB_EVENT_PATH"`. This enforces **at most five opened PR numbers per feature**, one active feature, and a PR's body `Feature-ID` and actual ledger registration; it cannot replace live GitHub reviews or validate user files. No Python is linked into the production C17 binary. CMake/CTest, Linux, Docker, Makefile, Rust/TSan checks remain independently scoped. New PR policy checks are pending until executed on the changed head; previous CI success cannot be copied to it.
+
 ## 1. Build authority and safe command menu
 
 **CMake is the C build source of truth. The root Makefile is a thin local command interface.** Do not copy IMGENGINE's Rust-Axum/Nuxt/Playwright targets: the file cleaner has neither production web nor browser code.
@@ -20,7 +24,7 @@
 | `make profile`, `make perf`, `make gprof`, `make asm` | Diagnostic build/measurements | No assembly deployment promise |
 | `make clean` | Deletes specified build/profiling files | Review ownership of deleted paths; do not use on customer data |
 
-`rust-toolchain.toml` and the test-only `tests/rust/fcj4-test-support/Cargo.toml` are **not currently wrapped by root Make targets**. Use `cargo fmt --all -- --check`, `cargo clippy --locked --all-targets -- -D warnings`, `cargo test --locked` from that package. A future `make rust-check`, `make status` and `make self-check` is an appropriate **separate** bounded implementation PR with refusal tests; do not claim these targets already exist.
+The root Makefile now provides `make rust-check`, `make status`, and `make self-check` (verified target names on 2026-11-21); inspect each recipe and CI evidence before inferring its guarantees. `rust-check` is **test-only** Rust and is not production C/Rust linking.
 
 ## 2. Current GitHub Actions inventory
 

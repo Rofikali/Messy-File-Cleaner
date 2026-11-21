@@ -18,7 +18,7 @@ class ScanScaleBaselineTests(unittest.TestCase):
         self.assertGreater(report["results"][0]["median_entries_per_second"], 0)
 
     def test_rejects_unbounded_or_invalid_workload(self):
-        for counts, repeats in [([0], 2), ([10001], 2), ([2], 0), ([], 1)]:
+        for counts, repeats in [([0], 2), ([10001], 2), ([2], 0), ([2], 21), ([10000, 10000, 1], 1), ([1, 1, 1, 1, 1, 1], 1), ([], 1)]:
             with self.subTest(counts=counts, repeats=repeats):
                 with self.assertRaises(ValueError):
                     baseline.run(counts, repeats)

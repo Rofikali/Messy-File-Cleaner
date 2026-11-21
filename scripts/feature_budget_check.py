@@ -14,7 +14,7 @@ from pathlib import Path
 REPO = "Rofikali/Messy-File-Cleaner"
 ID = re.compile(r"^[A-Z][A-Z0-9-]{2,64}$")
 SHA = re.compile(r"^[0-9a-f]{40}$")
-STATES = {"ACTIVE", "PLANNED", "CLOSED", "BLOCKED", "CLOSED_LEGACY", "SAFETY_INTERRUPT"}
+STATES = {"ACTIVE", "PLANNED", "DONE", "PARTIAL", "CLOSED", "BLOCKED", "CLOSED_LEGACY", "SAFETY_INTERRUPT"}
 
 
 def require(condition, message):

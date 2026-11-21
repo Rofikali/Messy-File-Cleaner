@@ -83,6 +83,15 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # CLI-ROOT-01: ambiguous root arguments must fail before config/filesystem access.
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME cli_root_duplicates
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration/test_cli_root_duplicates.py
+            $<TARGET_FILE:${PROJECT_NAME}>
+  )
+  set_tests_properties(cli_root_duplicates PROPERTIES TIMEOUT 15)
+
   add_executable(test_hashmap tests/unit/test_hashmap.c src/utils/hashmap.c)
   target_include_directories(test_hashmap PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_options(test_hashmap PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)

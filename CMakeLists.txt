@@ -521,6 +521,15 @@ if(BUILD_TESTING)
   )
   set_tests_properties(cli_benchmark_smoke PROPERTIES TIMEOUT 60)
 
+  # BENCH-SCALE-01: validate the bounded disposable Python enumeration
+  # baseline in the existing CTest/CI matrix. This does not run scale
+  # measurements or exercise the production C scanner.
+  add_test(NAME bench_scale_baseline_unit
+    COMMAND ${Python3_EXECUTABLE}
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/test_scan_scale_baseline.py"
+  )
+  set_tests_properties(bench_scale_baseline_unit PROPERTIES TIMEOUT 30)
+
   add_test(NAME cli_move_benchmark_smoke
     COMMAND ${Python3_EXECUTABLE}
             "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_moves.py"

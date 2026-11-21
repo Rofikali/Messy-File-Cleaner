@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "8748679d71606415883dbc2b121c46f1a00d576a",
+  "snapshot_main_sha": "8d879626575f68cf23be90a252dfd090518ce7fc",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "BENCH-SCALE-01",
   "features": [
@@ -43,9 +43,13 @@
       "title": "Reproducible scaled dry-run resource baseline",
       "status": "ACTIVE",
       "prs": [
-        132
+        132,
+        133
       ],
-      "summary": "Bounded disposable Python os.scandir enumeration baseline and unit tests in implementation PR; NOT an engine scanner throughput benchmark; exact-head CI NOT RUN pending. Manual host/Compose/backup/crash NOT RUN."
+      "summary": "PR #132 merged at 8d879626575f68cf23be90a252dfd090518ce7fc (tested head e360f24af98a4c29f6348e3283ce68dc151438f9; CMake/feature-budget, Docker, Ubuntu 24.04, Makefile PASS). PR #133 OPEN: register disposable Python baseline unit tests in CTest; exact-head CI NOT RUN pending. Baseline is Python os.scandir, NOT production C scanner throughput. Manual Ubuntu/Docker Desktop/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.",
+      "last_merged_pr": 132,
+      "merge_sha": "8d879626575f68cf23be90a252dfd090518ce7fc",
+      "tested_head_sha": "e360f24af98a4c29f6348e3283ce68dc151438f9"
     }
   ]
 }

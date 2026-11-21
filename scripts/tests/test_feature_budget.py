@@ -25,7 +25,7 @@ def fixture():
 
 def event(feature_id="CLI-DRYRUN-01", number=130, title="feat(cli): preview evidence"):
     return {"number": number, "pull_request": {
-        "number": number, "title": title, "body": "## Scope\\nFeature-ID: " + feature_id + "\\n"}}
+        "number": number, "title": title, "body": "## Scope\nFeature-ID: " + feature_id + "\n"}}
 
 
 class BudgetTests(unittest.TestCase):
@@ -67,7 +67,7 @@ class BudgetTests(unittest.TestCase):
             validate_pr(data, {"number": 130, "pull_request": {"number": 130, "body": ""}})
         with self.assertRaisesRegex(ValueError, "exactly one"):
             validate_pr(data, {"number": 130, "pull_request": {"number": 130,
-                "body": "Feature-ID: CLI-DRYRUN-01\\nFeature-ID: CLI-DRYRUN-01"}})
+                "body": "Feature-ID: CLI-DRYRUN-01\nFeature-ID: CLI-DRYRUN-01"}})
 
     def test_governance_exemption_requires_docs_title(self):
         data = fixture()

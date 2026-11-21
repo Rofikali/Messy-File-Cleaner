@@ -79,8 +79,10 @@
       "id": "CLI-ROOT-01",
       "title": "Reject ambiguous duplicate CLI input roots before configuration access",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Bounded C17 duplicate-root rejection and disposable negative subprocess CTest. PR number to be registered in this same PR. Exact-head CI and local tests NOT RUN. Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "prs": [
+        136
+      ],
+      "summary": "Bounded C17 duplicate-root rejection and disposable negative subprocess CTest. PR #136 OPEN; exact-head CI pending. Exact-head CI and local tests NOT RUN. Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

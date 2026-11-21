@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Verified handoff (2026-11-21):** main `18b467f40d5f4be853b95c1ffa7a494a45292574`; PR #134 MERGED (tested head `cb0b9da560672fec3e828cecf22afaf284b4bff9`; CMake, Docker, Ubuntu 24.04, Makefile, FCJ4 TSan workflow families PASS). CLI-INPUT-01 DONE (1/5). CLI-MODE-01 PR #135 OPEN (1/5): conflicting `--once` / `--watch` rejected before config access; negative CTest. New PR exact-head CI NOT RUN. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.
+> **Verified handoff (2026-11-21):** main `18b467f40d5f4be853b95c1ffa7a494a45292574`; PR #134 MERGED (tested head `cb0b9da560672fec3e828cecf22afaf284b4bff9`; CMake, Docker, Ubuntu 24.04, Makefile, FCJ4 TSan workflow families PASS). CLI-INPUT-01 DONE (1/5). CLI-MODE-01 PR #135 OPEN (1/5): conflicting `--once` / `--watch` rejected before config access; negative CTest. Previous head CI PASS (CMake, Docker, Ubuntu 24.04, Makefile, FCJ4 TSan); current documentation-fix head CI pending. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.
 >
 > **One live selector:** this document; [feature budget ledger](docs/feature-budget.json) and [five-PR feature-delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) enforce delivery ceilings, while [next-history.md](next-history.md) is the unchanged dated archive. Live GitHub overrides any stale snapshot.
 
@@ -8,7 +8,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **CLI-MODE-01 (1/5; PR #135 OPEN)** | Reject contradictory `--once` and `--watch` before config/filesystem access; CTest negative regression | New exact-head CI NOT RUN; no source-retirement or release approval |\n| **DONE** | **CLI-INPUT-01 (1/5; #134 merged)** | Strict `--workers` parsing merged at `18b467f40d5f4be853b95c1ffa7a494a45292574`; tested head `cb0b9da560672fec3e828cecf22afaf284b4bff9` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
+| **NOW — IMPLEMENTATION PR** | **CLI-MODE-01 (1/5; PR #135 OPEN)** | Reject contradictory `--once` and `--watch` before config/filesystem access; CTest negative regression | Previous head CI PASS; current head CI pending; no source-retirement or release approval |
+| **DONE** | **CLI-INPUT-01 (1/5; #134 merged)** | Strict `--workers` parsing merged at `18b467f40d5f4be853b95c1ffa7a494a45292574`; tested head `cb0b9da560672fec3e828cecf22afaf284b4bff9` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **PARTIAL** | **BENCH-SCALE-01 (2/5; #132 and #133 merged)** | Python disposable enumeration baseline and CTest registration; latest merge `88ec4632e984b2164ce863bd2906e7d56b4465dd` | Not production C scanner throughput; manual OS/Compose/filesystem/crash NOT RUN |
 | **DONE** | **SCAN-ROBUST-01 (1/5; #131 merged)** | Callback-error/invalid-input preservation regressions merged at `8748679d71606415883dbc2b121c46f1a00d576a`; exact-head workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-DRYRUN-01 (1/5; #130 merged)** | Read-only preview and failure status merged at `74176cf4f90984bae660960c4f59de0441f1043a`; exact-head four workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; no release |

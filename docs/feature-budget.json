@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "88ec4632e984b2164ce863bd2906e7d56b4465dd",
+  "snapshot_main_sha": "18b467f40d5f4be853b95c1ffa7a494a45292574",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CLI-INPUT-01",
+  "active_feature_id": "CLI-MODE-01",
   "features": [
     {
       "id": "PERF-01",
@@ -54,11 +54,23 @@
     {
       "id": "CLI-INPUT-01",
       "title": "Reject malformed CLI worker counts before filesystem access",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         134
       ],
-      "summary": "PR #134 OPEN: C17 strict --workers decimal 1..MAX_WORKERS validation before config/filesystem access, negative CLI CTest; exact-head CI NOT RUN. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "summary": "PR #134 merged: strict decimal --workers validation before configuration/filesystem access; exact-head CMake, Docker, Ubuntu 24.04, Makefile, FCJ4 TSan workflow families PASS. Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.",
+      "last_merged_pr": 134,
+      "merge_sha": "18b467f40d5f4be853b95c1ffa7a494a45292574",
+      "tested_head_sha": "cb0b9da560672fec3e828cecf22afaf284b4bff9"
+    },
+    {
+      "id": "CLI-MODE-01",
+      "title": "Reject contradictory CLI execution modes before configuration access",
+      "status": "ACTIVE",
+      "prs": [
+        135
+      ],
+      "summary": "PR #135 OPEN: reject --once and --watch combinations in either order; negative subprocess CTest uses nonexistent paths. Local and exact-head CI NOT RUN. Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

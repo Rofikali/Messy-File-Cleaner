@@ -497,6 +497,14 @@ if(BUILD_TESTING)
   )
   set_tests_properties(cli_workers_invalid PROPERTIES TIMEOUT 15)
 
+  # CLI-MODE-01: contradictory modes must fail before configuration or I/O.
+  add_test(NAME cli_mode_conflicts
+    COMMAND ${Python3_EXECUTABLE}
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/system/test_cli_mode_conflicts.py"
+            "$<TARGET_FILE:${PROJECT_NAME}>"
+  )
+  set_tests_properties(cli_mode_conflicts PROPERTIES TIMEOUT 15)
+
   add_test(NAME cli_end_to_end
     COMMAND bash "${CMAKE_CURRENT_SOURCE_DIR}/tests/system/test_full_run.sh"
             "$<TARGET_FILE:${PROJECT_NAME}>"

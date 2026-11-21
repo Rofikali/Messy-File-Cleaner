@@ -8,15 +8,15 @@
 
 | Lane | ID and current state | Next bounded engineering action | Required evidence / reason |
 | --- | --- | --- | --- |
-| **NOW — awaiting integration** | **PERF-01S (#126) — PR OPEN / CI PASS, NOT MERGED** | Exact PR head `af6c99a12480f17880896a8226971bb95265c86a`; four workflows PASS at prior checkpoint, local tests NOT RUN. Recheck current exact-head checks, review and protection requirements before any merge. | Non-atomic fixture-directory preflight; independent review/protection gate not established. No P0 fix or release. |
-| **NOW — independent READY** | **PERF-01T — IMPLEMENTED / CI NOT RUN** | Two POSIX expected-FIFO preservation regressions in `test/perf-01t-expected-fifo-preservation`; based on main `3a7282ea616105c76e35e3d4474a1f1fe3dc3c9a`. Local tests NOT RUN; exact-head CI NOT RUN. Next READY: open PR, inspect exact-head CMake/Ubuntu/Makefile/Docker checks and review gates. | Test-only, disposable fixtures; no production behavior, no same-UID safety claim. |
+| **NOW — PR OPEN** | **PERF-01T (#127) — RECONCILED / CI PENDING** | FIFO preservation regression tests retained after #126 merge; PR original tested head `0ec3430e92539fd1e2282709acfcbecb42f1fad5` had CMake, Docker, Ubuntu 24.04, Makefile PASS, but reconciled head requires new exact-head CI. Local tests NOT RUN. Next READY: verify exact-head CI, reviews and protections; merge only if eligible. | Test-only, disposable fixtures; no P0 repair or release. |
+| **NEXT — completed** | **PERF-01S (#126) — MERGED** | Verified actual merge/main SHA `e4056759602aefb3f8e3814fd81f2643c23742c6`; prior exact-head four CI workflows PASS. | Nonempty-directory benchmark preflight only; non-atomic. |
 | **NEXT** | **DOC-GOV-01 — MERGED** | PR #117 integrated the compact live board, history archive and documentation impact checklist; continue updating affected docs in each implementation PR | Merge `24044b7cbc77e661e49d0b41ddfbe89f77b78372`; this does not prove filesystem P0 fixed |
 | **BLOCKED P0** | **FS-01B-FIX — BLOCKED** | Obtain approved same-UID source-retirement authority/trust/crash model, design safe positive preservation tests | [Threat model](docs/security/THREAT_MODEL.md), [FS-01B safety plan](docs/quality/FS_01B_FIX_SECURITY_ACCEPTANCE_PLAN.md); merged guard is only partial |
 | **BLOCKED P0** | **REL-01 — BLOCKED** | After FS design/safety evidence, establish candidate, backups, supported filesystems, recovery and rollback signoff | C11/C17/C23 + Docker CI passing alone is not release certification |
 | **NEXT gated** | **RUST-01 / ABI-01 — DEFERRED** | Test-only Rust verification work only with approved test boundary; production public .a/.so, FFI or FCJ4 recovery require separate ADR/owner decision | C17 production core and Ubuntu 24.04 Docker remain unchanged |
 | **LATER** | **BIZ-01 — PLANNED** | Validate users, support and cost with real evidence before commercial SDK/API | No paid infra, SaaS, telemetry or billing on this workstream |
 
-## Recent verified merges (historical, not a live queue or CI claim)
+## Recent verified merges (not a live CI claim)
 
 | PR | Actual integrated commit | Delivered bounded scope |
 | --- | --- | --- |

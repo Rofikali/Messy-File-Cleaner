@@ -44,6 +44,12 @@ def build_fixture(root: Path, file_count: int) -> None:
             raise RuntimeError(f"benchmark fixture directory is a symlink: {directory}")
         if directory.exists() and not directory.is_dir():
             raise RuntimeError(f"benchmark fixture directory is not a real directory: {directory}")
+    # A reused fixture directory must be empty: otherwise the resulting tree
+    # cannot pass verification. Refuse before creating any new payloads.
+    for directory_index in range((file_count + 99) // 100):
+        directory = root / f"set-{directory_index:04d}"
+        if directory.is_dir() and any(directory.iterdir()):
+            raise FileExistsError(f"benchmark fixture directory is not empty: {directory}")
     extensions = (".jpg", ".png", ".txt", ".html")
     # Reject pre-existing expected names before any fixture payload is written.
     # Exclusive creation below remains authoritative against later collisions.

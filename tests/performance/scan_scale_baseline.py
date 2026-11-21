@@ -29,8 +29,8 @@ def measure(root: Path, expected: int, repeats: int):
 
 
 def run(counts, repeats):
-    if repeats < 1 or not counts or any(n < 1 or n > 10000 for n in counts):
-        raise ValueError("counts must be 1..10000 and repeats >= 1")
+    if not 1 <= repeats <= 20 or not 1 <= len(counts) <= 5 or any(n < 1 or n > 10000 for n in counts) or sum(counts) > 20000:
+        raise ValueError("counts must be 1..10000, 1..5 cases, total <= 20000; repeats 1..20")
     results = []
     with tempfile.TemporaryDirectory(prefix="mfc-bench-scale-") as temporary:
         root = Path(temporary)

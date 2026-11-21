@@ -207,6 +207,31 @@ class FixtureIntegrityTests(unittest.TestCase):
                 build_fixture(root, 1)
             self.assertTrue(fifo.is_fifo())
 
+    @unittest.skipUnless(hasattr(__import__("socket"), "AF_UNIX"), "POSIX Unix socket required")
+    def test_expected_unix_socket_rejected_without_connecting(self):
+        import socket
+        fixture = self.root / "set-0000" / "fixture-00000000.jpg"
+        fixture.unlink()
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as listener:
+            listener.bind(str(fixture))
+            with self.assertRaisesRegex(RuntimeError, "modified or removed"):
+                verify_fixture(self.root, 4)
+            self.assertTrue(fixture.is_socket())
+
+    @unittest.skipUnless(hasattr(__import__("socket"), "AF_UNIX"), "POSIX Unix socket required")
+    def test_unexpected_unix_socket_rejected_and_preserved(self):
+        import socket
+        unexpected = self.root / "unexpected-socket"
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as listener:
+            listener.bind(str(unexpected))
+            with self.assertRaisesRegex(RuntimeError, "unexpected entry"):
+                verify_fixture(self.root, 4)
+            self.assertTrue(unexpected.is_socket())
+        self.assertEqual(
+            (self.root / "set-0000" / "fixture-00000001.png").read_bytes(),
+            b"benchmark fixture\n",
+        )
+
     def test_removed_fixture_rejected(self):
         (self.root / "set-0000" / "fixture-00000000.jpg").unlink()
         with self.assertRaisesRegex(RuntimeError, "modified or removed"):

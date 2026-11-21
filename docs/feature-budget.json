@@ -18,8 +18,10 @@
       "id": "CLI-DRYRUN-01",
       "title": "Clear and trustworthy read-only CLI preview",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "NEXT READY; improve existing --dry-run --once diagnostics, failure reporting and safe fixture-based acceptance without enabling destructive operations. 0/5 PRs at baseline."
+      "prs": [
+        130
+      ],
+      "summary": "PR #130 OPEN: preview-only batch diagnostics and disposable system assertions; exact-head CI pending; manual acceptance NOT RUN."
     },
     {
       "id": "SCAN-ROBUST-01",

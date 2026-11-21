@@ -8,7 +8,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — READY** | **CLI-DRYRUN-01 (0/5 PRs)** | User-facing non-destructive `--dry-run --once` preview reliability, clear exit/errors and bounded safe diagnostics; first actual PR inventories behavior and adds disposable negative cases before altering logic | No real input tree or target-hardware acceptance; no release |
+| **NOW — IN PR / CI PENDING** | **CLI-DRYRUN-01 (1/5 PRs; #130 OPEN)** | User-facing non-destructive `--dry-run --once` preview reliability, clear exit/errors and bounded safe diagnostics; PR #130 clarifies preview-only stdout and failure completion; disposable end-to-end assertions; exact-head CI NOT RUN pending | No real input tree or target-hardware acceptance; no release |
 | **NEXT — PLANNED** | **SCAN-ROBUST-01 (0/5)** | Independent non-destructive scanner error/limits and resource regression feature after preview handoff | No assumption of Linux filesystem universality |
 | **LATER — PLANNED** | **BENCH-SCALE-01 (0/5)** | Comparable disposable scan-scale CPU/RSS/throughput evidence on declared hardware, not just fixture-hardening | A 100k/1m-file workload is not a CI requirement or proof until executed |
 | **CLOSED LEGACY** | **PERF-01 — ENGINEERING IMPLEMENTED / MERGED through #128** | Existing disposable benchmark safety, provenance, output integrity, hardlink/symlink/FIFO/Unix socket and collision regressions | Earlier feature exceeded new cap; no more PERF-01-only PRs; no end-to-end release or physical-filesystem proof |

@@ -572,6 +572,8 @@ int main(int argc, char *argv[])
     if (ctx.cfg.mode == MODE_BATCH)
     {
         printf("[MODE] BATCH%s\n", opts.dry_run ? " (dry-run)" : "");
+        if (opts.dry_run)
+            printf("[PREVIEW] Read-only batch: no file moves or journal writes.\n");
         fflush(stdout);
 
         int scan_status = scan_directory(opts.root, enqueue_event, &ctx.stop_signal);
@@ -604,7 +606,10 @@ int main(int argc, char *argv[])
             exit_status = 1;
 
         print_metrics(&ctx);
-        printf("✅ Batch complete\n");
+        if (exit_status == 0)
+            printf("Batch complete%s\n", opts.dry_run ? " (preview only)" : "");
+        else
+            fprintf(stderr, "Batch failed (exit status %d)\n", exit_status);
     }
     else
     {

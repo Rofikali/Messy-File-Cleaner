@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
- > **Verified handoff (2026-11-21):** main `8748679d71606415883dbc2b121c46f1a00d576a`; #131 MERGED, tested head `ff0fb4e618c11878a561a0819ae62388cd453e96` with CMake/feature-budget, Docker, Ubuntu 24.04, Makefile PASS. Manual acceptance NOT RUN. FS-01B P0 and REL-01 BLOCKED.n `74176cf4f90984bae660960c4f59de0441f1043a`; PR #130 MERGED (tested head `682099797ee2a23bd3bc34f53bb5e7c69acb9ea6`, CMake/feature-budget, Docker, Ubuntu 24.04, Makefile PASS). CLI-DRYRUN-01 closed DONE at 1/5; manual Ubuntu/Docker/Compose/other-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 BLOCKED. This is a snapshot, not proof of current GitHub status.
+> **Verified handoff (2026-11-21):** main `8748679d71606415883dbc2b121c46f1a00d576a`; PR #131 MERGED (tested head `ff0fb4e618c11878a561a0819ae62388cd453e96`, CMake/feature-budget, Docker, Ubuntu 24.04 and Makefile PASS). BENCH-SCALE-01 PR #132 OPEN; manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 BLOCKED. This is a snapshot, not proof of current GitHub status.
 >
 > **One live selector:** this document; [feature budget ledger](docs/feature-budget.json) and [five-PR feature-delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) enforce delivery ceilings, while [next-history.md](next-history.md) is the unchanged dated archive. Live GitHub overrides any stale snapshot.
 

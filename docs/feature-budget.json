@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "74176cf4f90984bae660960c4f59de0441f1043a",
+  "snapshot_main_sha": "8748679d71606415883dbc2b121c46f1a00d576a",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCAN-ROBUST-01",
+  "active_feature_id": "BENCH-SCALE-01",
   "features": [
     {
       "id": "PERF-01",
@@ -29,18 +29,21 @@
     {
       "id": "SCAN-ROBUST-01",
       "title": "Non-destructive scanner reliability and stress diagnostics",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         131
       ],
-      "summary": "PR #131 OPEN: disposable callback EIO fallback, invalid argument, and source-preservation regressions; exact-head CI pending, local and owner acceptance NOT RUN."
+      "summary": "PR #131 merged: disposable scanner callback error and source-preservation regressions; exact-head CMake/feature-budget, Docker, Ubuntu 24.04 and Makefile PASS. Production scanner unchanged. Owner-run Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; P0 and release BLOCKED.",
+      "last_merged_pr": 131,
+      "merge_sha": "8748679d71606415883dbc2b121c46f1a00d576a",
+      "tested_head_sha": "ff0fb4e618c11878a561a0819ae62388cd453e96"
     },
     {
       "id": "BENCH-SCALE-01",
       "title": "Reproducible scaled dry-run resource baseline",
-      "status": "PLANNED",
+      "status": "ACTIVE",
       "prs": [],
-      "summary": "Independent evidence for varying disposable workloads with explicit size/CPU/RSS/provenance; no CI million-file requirement or unsafe real moves."
+      "summary": "Bounded disposable Python os.scandir enumeration baseline and unit tests in implementation PR; NOT an engine scanner throughput benchmark; exact-head CI NOT RUN pending. Manual host/Compose/backup/crash NOT RUN."
     }
   ]
 }

@@ -30,8 +30,10 @@
       "id": "SCAN-ROBUST-01",
       "title": "Non-destructive scanner reliability and stress diagnostics",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First bounded PR: disposable scanner callback errno fallback, invalid-input and source-preservation regression tests. PR number and exact-head CI to be registered in same PR; manual OS/Docker/Compose/filesystem/backup/crash NOT RUN."
+      "prs": [
+        131
+      ],
+      "summary": "PR #131 OPEN: disposable callback EIO fallback, invalid argument, and source-preservation regressions; exact-head CI pending, local and owner acceptance NOT RUN."
     },
     {
       "id": "BENCH-SCALE-01",

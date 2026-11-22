@@ -25,7 +25,7 @@ with tempfile.TemporaryDirectory(prefix="fc-plan-json-") as temp:
         assert sample.read_bytes() == b"keep-original"
         assert not (base / "journal").exists()
     # A config-selected daemon must reject JSON without starting a watcher.
-    config.write_text("mode=daemon\\nworker_threads=1\\next.jpg=Jpeg/\\n")
+    config.write_text("mode=daemon\nworker_threads=1\next.jpg=Jpeg/\n")
     config_watch = run("--dry-run", "--report-json")
     assert config_watch.returncode != 0, (config_watch.stdout, config_watch.stderr)
     assert '"schema_version"' not in config_watch.stdout
@@ -35,7 +35,7 @@ with tempfile.TemporaryDirectory(prefix="fc-plan-json-") as temp:
     override = run("--dry-run", "--once", "--report-json")
     assert override.returncode == 0, (override.stdout, override.stderr)
     assert any(line.startswith('{"schema_version":1') for line in override.stdout.splitlines())
-    config.write_text("mode=batch\\nworker_threads=1\\next.jpg=Jpeg/\\n")
+    config.write_text("mode=batch\nworker_threads=1\next.jpg=Jpeg/\n")
     baseline = run("--dry-run", "--once")
     assert baseline.returncode == 0, (baseline.stdout, baseline.stderr)
     assert '"schema_version"' not in baseline.stdout

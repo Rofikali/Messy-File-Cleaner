@@ -60,7 +60,7 @@ int main(void)
     {
         FILE *file = fopen(path, "w");
         assert(file != NULL);
-        assert(fprintf(file, "mode=%s\\n", valid_modes[i]) > 0);
+        assert(fprintf(file, "mode=%s\n", valid_modes[i]) > 0);
         assert(fclose(file) == 0);
         static HashEntry entries[64];
         Config cfg;
@@ -73,7 +73,7 @@ int main(void)
     {
         FILE *file = fopen(path, "w");
         assert(file != NULL);
-        assert(fprintf(file, "mode=%s\\n", invalid_modes[i]) > 0);
+        assert(fprintf(file, "mode=%s\n", invalid_modes[i]) > 0);
         assert(fclose(file) == 0);
         static HashEntry entries[64];
         Config cfg;

@@ -185,11 +185,18 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
             opts->workers_override = (int)count;
         }
         else if (argv[i][0] == '-')
+        {
+            /* Do not echo untrusted argument bytes into terminal diagnostics. */
+            fprintf(stderr, "Invalid CLI: unrecognized option. See usage below.\n");
             return -1;
+        }
         else if (!opts->root)
             opts->root = argv[i];
         else
+        {
+            fprintf(stderr, "Invalid CLI: multiple input roots. See usage below.\n");
             return -1;
+        }
     }
 
     return opts->root ? 0 : -1;

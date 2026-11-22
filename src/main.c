@@ -136,13 +136,13 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
     {
         if (strcmp(argv[i], "--root") == 0)
         {
-            if (++i >= argc || opts->root)
+            if (++i >= argc || opts->root || !argv[i][0] || argv[i][0] == '-')
                 return -1;
             opts->root = argv[i];
         }
         else if (strcmp(argv[i], "--config") == 0)
         {
-            if (++i >= argc || config_seen)
+            if (++i >= argc || config_seen || !argv[i][0] || argv[i][0] == '-')
                 return -1;
             config_seen = 1;
             opts->config_path = argv[i];
@@ -190,7 +190,7 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
             fprintf(stderr, "Invalid CLI: unrecognized option. See usage below.\n");
             return -1;
         }
-        else if (!opts->root)
+        else if (!opts->root && argv[i][0] != '\0')
             opts->root = argv[i];
         else
         {

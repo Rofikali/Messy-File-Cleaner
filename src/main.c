@@ -110,12 +110,11 @@ static void print_metrics(const AppContext *app_ctx)
             atomic_load(&app_ctx->metrics.signals_received));
 }
 
-static void print_usage(const char *program)
+static void print_usage(void)
 {
     fprintf(stderr,
-            "Usage: %s <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n"
-            "       %s --root <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n",
-            program, program);
+            "Usage: file-cleaner <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n"
+            "       file-cleaner --root <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n");
 }
 
 static int parse_cli(int argc, char **argv, CliOptions *opts)
@@ -520,7 +519,7 @@ int main(int argc, char *argv[])
     int cli_result = parse_cli(argc, argv, &opts);
     if (cli_result != 0)
     {
-        print_usage(argv[0]);
+        print_usage();
         return cli_result > 0 ? 0 : 1;
     }
 

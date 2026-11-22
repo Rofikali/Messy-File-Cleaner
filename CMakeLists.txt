@@ -83,6 +83,14 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # CLI-ERROR-01: unknown options and excess roots get safe diagnostics.
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME cli_errors
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration/test_cli_errors.py
+            $<TARGET_FILE:${PROJECT_NAME}>
+  )
+  set_tests_properties(cli_errors PROPERTIES TIMEOUT 15)
   # CLI-HELP-01: standalone help is successful and side-effect-free.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   add_test(NAME cli_help

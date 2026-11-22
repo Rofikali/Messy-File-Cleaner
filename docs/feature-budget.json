@@ -199,8 +199,10 @@
       "id": "CONFIG-NUMERIC-01",
       "title": "Reject malformed numeric configuration values without atoi fallback",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Implementation PR pending assignment; strict numeric lexical/range validation with disposable positive/negative tests. No destructive filesystem changes. CI and independent review pending; manual OS/Compose/filesystem/backup/crash NOT RUN; FS-01B P0/REL-01 BLOCKED."
+      "prs": [
+        147
+      ],
+      "summary": "PR #147 OPEN (1/5); strict numeric lexical/range validation with disposable positive/negative tests. No destructive filesystem changes. CI and independent review pending; manual OS/Compose/filesystem/backup/crash NOT RUN; FS-01B P0/REL-01 BLOCKED."
     }
   ]
 }

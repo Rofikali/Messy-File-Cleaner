@@ -4,7 +4,7 @@
 
 ## Five-PR handoff (current owner rule)
 
-From 2026-11-21 follow [feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) and `docs/feature-budget.json`. Verify live main and existing PRs before opening one. Stable feature ID, all opened PR attempts, ceiling five; end early on accepted outcome, otherwise close DONE/PARTIAL/BLOCKED at fifth PR and advance. No unlimited tiny tests under a new sub-ID. Historical PERF-01 was merged through #128 and is CLOSED_LEGACY; NOW is CLI-DRYRUN-01. Distinguish exact-head CI from local Ubuntu/Compose, filesystem safety, crash/power-loss and release signoff; preserve blocked FS-01B-FIX without destructive execution.
+From 2026-11-21 follow [feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) and `docs/feature-budget.json`. Verify live main and existing PRs before opening one. Stable feature ID, all opened PR attempts, ceiling five; end early on accepted outcome, otherwise close DONE/PARTIAL/BLOCKED at fifth PR and advance. No unlimited tiny tests under a new sub-ID. Historical PERF-01 was merged through #128 and is CLOSED_LEGACY; PR #142 merged at `69fdffe49e2bf502e178fe3a92044d04f4f2653c`. NOW is AUTOPILOT-HANDOFF-01 (bounded offline active-selector validation); the live board and live GitHub supersede previous task snapshots. Distinguish exact-head CI from local Ubuntu/Compose, filesystem safety, crash/power-loss and release signoff; preserve blocked FS-01B-FIX without destructive execution.
 
 ## Standing owner shorthand: go ahead / continue / next
 
@@ -17,6 +17,9 @@ This repository adopts the same **next-work selection** convention as IMGENGINE:
 5. **Merge exception:** the owner's active [GOV-02 standing authorization](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md) permits autonomous merges of **eligible, fully reviewed, exact-head green** PRs while respecting GitHub protections. The phrase **"go ahead" alone** is only task selection. Stop for explicit task-specific approval before blocked/high-risk production FS/journal/ABI changes, deployment, destructive real/user-file operations, branch/history deletion, secrets/security-rule changes, paid resources, or unapproved production FCJ3/FCJ4/FFI.
 
 The shorthand is a **workflow selector**, not an autonomous service, a blanket authorization to modify anything in the backlog, or a requirement to run a blocked task. FS-01B known-risk test and FS-01B-GUARD partial mitigation are merged; **the same-UID source-retirement race and broader release gates remain blocked**. A P0 fix still requires an accepted trust/crash model and positive preservation tests.
+
+
+**No READY task is not a reason to idle:** After reconciling live merged PRs and current board, identify a distinct, evidenced, non-destructive C17 correctness or CI/automation-validation gap with bounded acceptance and tests. Register ONE stable feature ID and update the ledger + live board in the SAME implementation PR. Never manufacture cosmetic work or rename closed features to evade the five-PR cap. After two no-code attempts on the same blockage, try a different independent safe candidate or escalate a precise owner decision. Live GitHub overrides stale open/merged labels. A board/ledger consistency test cannot prove GitHub PR liveness.
 
 ## First command for a new session
 

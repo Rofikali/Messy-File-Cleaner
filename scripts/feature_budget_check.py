@@ -58,6 +58,28 @@ def validate_record(record):
     return record
 
 
+def validate_selector(record, markdown):
+    """Enforce exactly one live NOW row matching the active feature ledger ID.
+
+    This offline check does not prove GitHub PRs are open or merged.
+    Scheduled agents still need to reconcile live GitHub before selecting work.
+    """
+    require(isinstance(markdown, str), "Live work board must be readable text")
+    heading = "## LIVE NOW / NEXT / LATER"
+    require(markdown.count(heading) == 1, "Exactly one LIVE NOW / NEXT / LATER heading required")
+    current = markdown.split(heading, 1)[1].split("\n## ", 1)[0]
+    now_rows = []
+    for line in current.splitlines():
+        cells = [cell.strip() for cell in line.split("|")]
+        if len(cells) >= 4 and re.search(r"\*\*NOW\b", cells[1]):
+            now_rows.append(cells)
+    require(len(now_rows) == 1, "Exactly one NOW row required in live board")
+    match = re.search(r"\*\*([A-Z][A-Z0-9-]{2,64})\s+\(", now_rows[0][2])
+    require(match is not None, "NOW row must contain a stable feature ID")
+    require(match.group(1) == record["active_feature_id"],
+            "Live NOW feature differs from active_feature_id: " + match.group(1))
+
+
 def validate_pr(record, event):
     pr = event.get("pull_request")
     if not isinstance(pr, dict):
@@ -91,12 +113,13 @@ def main():
     root = Path(__file__).resolve().parent.parent
     try:
         record = validate_record(json.loads((root / "docs/feature-budget.json").read_text(encoding="utf-8")))
+        validate_selector(record, (root / "next.md").read_text(encoding="utf-8"))
         if args.event:
             validate_pr(record, json.loads(Path(args.event).read_text(encoding="utf-8")))
     except (ValueError, OSError, json.JSONDecodeError) as exc:
         print("Feature budget validation failed: " + str(exc), file=sys.stderr)
         return 1
-    print("Five-PR feature budget valid (dated ledger, not live GitHub reconciliation).")
+    print("Five-PR feature budget and live board agree (GitHub PR state still requires live reconciliation).")
     return 0
 
 

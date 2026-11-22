@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "85302ffa3a9749930c6f9513c3985a8b3d64d45f",
+  "snapshot_main_sha": "69fdffe49e2bf502e178fe3a92044d04f4f2653c",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCAN-ENTRY-IDENTITY-01",
+  "active_feature_id": "AUTOPILOT-HANDOFF-01",
   "features": [
     {
       "id": "PERF-01",
@@ -150,11 +150,23 @@
     {
       "id": "SCAN-ENTRY-IDENTITY-01",
       "title": "Verify directory object identity across scanner stat/open race",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         142
       ],
-      "summary": "PR #142 OPEN: compare fstatat directory identity against opened descriptor before descent; positive nested-directory disposable scanner regression. Local tests and exact-head CI NOT RUN. This does not repair path-based post-scan TOCTOU, FS-01B source retirement or release."
+      "summary": "PR #142 merged: descriptor identity verification during scanner descent and disposable nested-directory tests. Exact PR head dd7a07a09f6d819d2b57f22b2a15a727203fb2e1 and post-merge main 69fdffe49e2bf502e178fe3a92044d04f4f2653c passed four CMake/Makefile/Docker/Ubuntu workflow families. Manual Ubuntu/Docker Desktop/Compose, other filesystems, backup and power-loss NOT RUN. Pathname TOCTOU, FS-01B P0 and REL-01 remain BLOCKED.",
+      "last_merged_pr": 142,
+      "merge_sha": "69fdffe49e2bf502e178fe3a92044d04f4f2653c",
+      "tested_head_sha": "dd7a07a09f6d819d2b57f22b2a15a727203fb2e1"
+    },
+    {
+      "id": "AUTOPILOT-HANDOFF-01",
+      "title": "Reject stale active-task/ledger mismatches in CI",
+      "status": "ACTIVE",
+      "prs": [
+        143
+      ],
+      "summary": "PR #143 OPEN: offline board/ledger consistency validator and negative Python-stdlib unit tests; merged scanner PR #142 evidence reconciled. Actual GitHub PR liveness remains a run-time agent check. CI pending; local tests NOT RUN; no source-retirement or production release."
     }
   ]
 }

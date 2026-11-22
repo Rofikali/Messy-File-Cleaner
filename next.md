@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Handoff (2026-11-22):** PR #141 CLI-USAGE-SAFETY-01 merged at `85302ffa3a9749930c6f9513c3985a8b3d64d45f`, tested head `e5d4ff71237ffcd449e386c378845013c0420a38`, four exact-head workflow families PASS; FCJ4 TSan NOT RUN. PR #142 SCAN-ENTRY-IDENTITY-01 OPEN; four workflow families passed on prior head `5344d02da23519d6aa6e71700e586928e5133fc7`, but final exact-head CI must rerun after this documentation correction; local tests NOT RUN. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.
+> **Handoff (2026-11-22):** PR #142 SCAN-ENTRY-IDENTITY-01 **MERGED** at `69fdffe49e2bf502e178fe3a92044d04f4f2653c`; verified PR head `dd7a07a09f6d819d2b57f22b2a15a727203fb2e1` and four passing post-merge workflow families (CMake, Makefile, Docker, Ubuntu 24.04). Its device/inode check does **not** address pathname races after inspection or FS-01B source-retirement P0. **NOW AUTOPILOT-HANDOFF-01:** implement an offline CI consistency check between the only LIVE NOW row and the active feature ledger, with negative tests. This is independent non-destructive tooling work; no local host tests or manual filesystem/backup/crash acceptance is claimed. FS-01B P0 and REL-01 remain BLOCKED.
 >
 > **One live selector:** this document; [feature budget ledger](docs/feature-budget.json) and [five-PR feature-delivery policy](docs/FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) enforce delivery ceilings, while [next-history.md](next-history.md) is the unchanged dated archive. Live GitHub overrides any stale snapshot.
 
@@ -8,7 +8,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **SCAN-ENTRY-IDENTITY-01 (1/5; PR #142 OPEN)** | Verify opened child directory dev/inode against prior no-follow metadata; disposable nested-directory regression | Prior head CI PASS; final head pending; pathname TOCTOU and P0 remain unresolved |
+| **NOW — CI IMPLEMENTATION PR** | **AUTOPILOT-HANDOFF-01 (1/5; PR #143 OPEN)** | Reject a stale/mismatched LIVE NOW task versus the active feature ledger; add failure-path tests and reconcile #142 | GitHub PR liveness requires live API checks; local and exact-head PR CI NOT RUN |
+| **DONE** | **SCAN-ENTRY-IDENTITY-01 (1/5; #142 merged)** | Opened-directory identity check, merged `69fdffe49e2bf502e178fe3a92044d04f4f2653c`; tested PR head `dd7a07a09f6d819d2b57f22b2a15a727203fb2e1`; four post-merge workflow families PASS | Pathname TOCTOU and source-retirement P0 unresolved; manual OS/Compose/crash NOT RUN |
 | **DONE** | **CLI-USAGE-SAFETY-01 (1/5; #141 merged)** | Fixed usage label at `85302ffa3a9749930c6f9513c3985a8b3d64d45f`; tested head `e5d4ff71237ffcd449e386c378845013c0420a38`; four workflow families PASS, TSan NOT RUN | Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-VALUES-01 (1/5; #140 merged)** | Missing/empty CLI operands rejected at `89e3914603352d094ebca221e6b2bd4770457f9d`; tested head `1fd9cb537d0619ccafe6877a95752e77445fda6e`; five workflow families PASS | Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-ERROR-01 (1/5; #139 merged)** | Bounded non-echoing diagnostics merged at `7bf033b18570adca94c42186c50fa0676b159284`; tested head `f01c074aaf7cb14b6e7749f175dea42019f2444e` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
@@ -38,7 +39,7 @@
 
 ## Five-PR continuation rule (hard ceiling, not five PRs mandatory)
 
-Each **opened feature-specific PR attempt** (merged, closed, abandoned) counts once under the same stable feature ID, including test-only refinements and renamed subtasks. The `docs/feature-budget.json` ledger is validated in required PR CI; the PR must declare `Feature-ID: SCAN-ENTRY-IDENTITY-01` and then record its actual assigned PR number in the ledger before checks can pass. A changed PR gets additional commits without consuming another slot. At five PRs (or earlier if accepted), close DONE/PARTIAL/BLOCKED with verified scope and explicit gaps and move to a different READY feature. Don't hide a sixth PR under a new milestone name or a generic security exception.
+Each **opened feature-specific PR attempt** (merged, closed, abandoned) counts once under the same stable feature ID, including test-only refinements and renamed subtasks. The `docs/feature-budget.json` ledger is validated in required PR CI; the PR must declare `Feature-ID: AUTOPILOT-HANDOFF-01` and then record its actual assigned PR number in the ledger before checks can pass. A changed PR gets additional commits without consuming another slot. At five PRs (or earlier if accepted), close DONE/PARTIAL/BLOCKED with verified scope and explicit gaps and move to a different READY feature. Don't hide a sixth PR under a new milestone name or a generic security exception.
 
 Separate *code exists*, *merged*, *CI pass at exact SHA*, *manual Ubuntu/Compose*, *real filesystem/backup/crash testing*, *security approval* and *RELEASED*. Keep unexecuted checks **NOT RUN**, NEVER "PASS". The existing separate hourly autopilot must select current READY from here and stop repeated PERF-01 test-only PRs. P0 FS-01B-FIX remains prohibited until its prerequisites are approved, independent of feature cap.
 

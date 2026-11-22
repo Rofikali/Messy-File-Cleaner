@@ -23,7 +23,9 @@ After at most five PRs, close the feature **DONE / PARTIAL / BLOCKED** in the ha
 
 **Passing a test intentionally reproducing an unsafe unlink is not a safety pass.** No broad production claim or live customer-file exercise is permitted merely because C11/C17/C23 and Docker CI are green.
 
-## 3. Verified historical closure and next feature
+## 3. Historical 2026-11-21 feature snapshot (superseded by live board)
+
+The section below records the policy's initial 21 November selection, not today's READY queue. Current `next.md` and live GitHub supersede it. On 22 November, PR #142 merged and a separate non-destructive `AUTOPILOT-HANDOFF-01` CI consistency milestone became active. Do not treat a previously completed CLI-DRYRUN-01 as READY again.
 
 - **PERF-01 — CLOSED_LEGACY:** Earlier benchmark instrumentation and fixture-preservation work reached merged PR #128 on main `3d7e14ed16040d6918f5d88330c510db77be0b96`, well above five PRs before this policy. CSV/JSON provenance, no-clobber tests, FIFO/socket/symlink/hardlink negative regressions are implemented; latest main CMake/Ubuntu/Makefile/Docker/performance workflows passed. No further PERF-01-only PRs this cycle. Neither a million-file production benchmark nor actual filesystem power-loss certification has been observed.
 - **NOW CLI-DRYRUN-01 — 0/5:** Enhance the *existing* `--dry-run --once` flow for understandable, bounded status/error diagnostics and safe read-only user expectations. First PR should inventory current CLI text/exit codes and add disposable-only negative tests; implement code only when an actual missing user outcome is demonstrated. Keep no real moves and no private path leakage in new evidence artifacts.

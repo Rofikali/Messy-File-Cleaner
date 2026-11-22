@@ -8,7 +8,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **CLI-ERROR-01 (1/5; PR pending assignment)** | Non-echoing unknown-option and excess-root diagnostics with disposable CTest | Exact-head CI pending; no source-retirement or release approval |\n| **DONE** | **CLI-HELP-01 (1/5; #138 merged)** | Side-effect-free standalone help merged at `ced2ed12e44a1c0433d6d3d583b883f6f5e954e4`; tested head `36aae2003e36d363430723c5809b5160d7906435` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
+| **NOW — IMPLEMENTATION PR** | **CLI-ERROR-01 (1/5; PR pending assignment)** | Non-echoing unknown-option and excess-root diagnostics with disposable CTest | Exact-head CI pending; no source-retirement or release approval |
+| **DONE** | **CLI-HELP-01 (1/5; #138 merged)** | Side-effect-free standalone help merged at `ced2ed12e44a1c0433d6d3d583b883f6f5e954e4`; tested head `36aae2003e36d363430723c5809b5160d7906435` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-CONFIG-01 (1/5; #137 merged)** | Repeated `--config` rejected at `5d7a58f7f49b4db9d965e16a94254590b29cdb51`; tested head `6848a6f9f7a377c82a79bf178b923c7baaebf9ae` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-ROOT-01 (1/5; #136 merged)** | Duplicate roots rejected at `ebf757cc0d66c78aa80b105f423535c426a435cf`; tested head `9f9f650eec40c1ed43dc3eb48e5890939e955c02` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-MODE-01 (1/5; #135 merged)** | Conflicting `--once`/`--watch` rejected at `d6ea61cb9d6d4ffbd034ab1c3d7f27bdc20815e4`; tested head `93e8a3ccea412bf3ac5e46f9ce826de91ba14e1f` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |

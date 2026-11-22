@@ -8,7 +8,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — IMPLEMENTATION PR** | **CLI-USAGE-SAFETY-01 (0/5 before PR assignment)** | Use constant program label in CLI usage; spoofed `argv[0]` terminal-escape regression | Exact-head CI NOT RUN; no release approval |
+| **NOW — IMPLEMENTATION PR** | **CLI-USAGE-SAFETY-01 (1/5; PR #141 OPEN)** | Use constant program label in CLI usage; spoofed `argv[0]` terminal-escape regression | Exact-head CI NOT RUN; no release approval |
 | **DONE** | **CLI-VALUES-01 (1/5; #140 merged)** | Missing/empty CLI operands rejected at `89e3914603352d094ebca221e6b2bd4770457f9d`; tested head `1fd9cb537d0619ccafe6877a95752e77445fda6e`; five workflow families PASS | Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-ERROR-01 (1/5; #139 merged)** | Bounded non-echoing diagnostics merged at `7bf033b18570adca94c42186c50fa0676b159284`; tested head `f01c074aaf7cb14b6e7749f175dea42019f2444e` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-HELP-01 (1/5; #138 merged)** | Side-effect-free standalone help merged at `ced2ed12e44a1c0433d6d3d583b883f6f5e954e4`; tested head `36aae2003e36d363430723c5809b5160d7906435` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |

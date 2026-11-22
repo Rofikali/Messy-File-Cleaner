@@ -55,7 +55,7 @@ int main(void)
 
     /* A typo must not silently select daemon mode. */
     const char *valid_modes[] = {"batch", "daemon", NULL};
-    const char *invalid_modes[] = {"batc", "DAEMON", "watch", "batchx", NULL};
+    const char *invalid_modes[] = {"batc", "DAEMON", "watch", "batchx", "batch daemon", "daemon batch", "batch #unexpected", NULL};
     for (size_t i = 0; valid_modes[i]; ++i)
     {
         FILE *file = fopen(path, "w");

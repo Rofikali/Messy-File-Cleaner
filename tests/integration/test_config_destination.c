@@ -90,7 +90,7 @@ int main(void)
         {
             FILE *file = fopen(path, "w");
             assert(file != NULL);
-            assert(fprintf(file, "%s=%s\\n", numeric_keys[k], invalid_numbers[i]) > 0);
+            assert(fprintf(file, "%s=%s\n", numeric_keys[k], invalid_numbers[i]) > 0);
             assert(fclose(file) == 0);
             static HashEntry entries[64];
             Config cfg;
@@ -102,7 +102,7 @@ int main(void)
     {
         FILE *file = fopen(path, "w");
         assert(file != NULL);
-        assert(fputs("batch_size=128\\nworker_threads=99\\nidle_sleep_ms=-1\\n", file) >= 0);
+        assert(fputs("batch_size=128\nworker_threads=99\nidle_sleep_ms=-1\n", file) >= 0);
         assert(fclose(file) == 0);
         static HashEntry entries[64];
         Config cfg;

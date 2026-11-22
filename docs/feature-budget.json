@@ -187,7 +187,9 @@
       "id": "CONFIG-MODE-01",
       "title": "Reject invalid configured execution mode instead of silently starting daemon",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        146
+      ],
       "summary": "Scoped C17 config parser correction plus positive/negative disposable config tests; PR number to be registered in this same PR. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]

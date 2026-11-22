@@ -10,6 +10,10 @@ The latest verified main `80de73b465ede49eec0882846c50efc0cbdee254` includes mer
 
 GitHub's Ubuntu 24.04, C11/C17/C23, Docker runtime and Makefile workflows have passed at the audited main. This does not establish a personally executed local Ubuntu/Docker Desktop/Compose test, physical/same-UID hostile-filesystem or power-failure durability tests, nor production authorization. FS-01B P0 and REL-01 remain **BLOCKED**. No production Rust FFI, FCJ4 recovery, live file deletion, automatic publishing or spend is authorized.
 
+## Opt-in dry-run JSON summary (PR #145, pending review)
+
+Proposed usage: `file-cleaner --root /path/to/disposable-input --dry-run --once --report-json`. This emits one JSON line on standard output with `schema_version: 1`, `kind: dry_run_summary`, `complete`, `events_seen`, `events_enqueued`, `previewed_moves`, and `move_failures`. Existing human-readable output remains; consumers must select the JSON line, not parse all stdout as JSON. No filenames or paths appear in the JSON record. This is an aggregate diagnostic, **not** a deterministic per-file operation plan, collision/conflict inventory, or permission to execute. `--report-json` without dry-run or with watch mode is rejected. Feature remains **PR OPEN / CI NOT VERIFIED**, not released; all FS-01B and REL-01 restrictions remain.
+
 ## Project roadmap, current status, and engineering docs
 
 - **How documentation stays current with each code/CI milestone:** [milestone documentation transaction](docs/MILESTONE_DOCUMENTATION_WORKFLOW.md), [PR checklist](.github/pull_request_template.md), and [historical archive](next-history.md). Existing PR and CI state must be verified live; the compact board is a dated checkpoint, not a GitHub API feed.

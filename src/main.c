@@ -33,6 +33,7 @@ typedef struct
     const char *root;
     const char *config_path;
     int dry_run;
+    int report_json;
     int force;
     int mode_override;
     Mode mode;
@@ -113,8 +114,8 @@ static void print_metrics(const AppContext *app_ctx)
 static void print_usage(void)
 {
     fprintf(stderr,
-            "Usage: file-cleaner <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n"
-            "       file-cleaner --root <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n");
+            "Usage: file-cleaner <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force] [--report-json]\n"
+            "       file-cleaner --root <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force] [--report-json]\n");
 }
 
 static int parse_cli(int argc, char **argv, CliOptions *opts)
@@ -125,6 +126,7 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
     opts->root = NULL;
     opts->config_path = "configs/default.conf";
     opts->dry_run = 0;
+    opts->report_json = 0;
     opts->force = 0;
     opts->mode_override = 0;
     opts->mode = MODE_BATCH;
@@ -148,6 +150,8 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
         }
         else if (strcmp(argv[i], "--dry-run") == 0)
             opts->dry_run = 1;
+        else if (strcmp(argv[i], "--report-json") == 0)
+            opts->report_json = 1;
         else if (strcmp(argv[i], "--force") == 0)
             opts->force = 1;
         else if (strcmp(argv[i], "--once") == 0)
@@ -198,6 +202,9 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
         }
     }
 
+    if (opts->report_json && (!opts->dry_run ||
+                              (opts->mode_override && opts->mode != MODE_BATCH)))
+        return -1;
     return opts->root ? 0 : -1;
 }
 
@@ -544,6 +551,13 @@ int main(int argc, char *argv[])
 
     if (opts.mode_override)
         ctx.cfg.mode = opts.mode;
+    if (opts.report_json && ctx.cfg.mode != MODE_BATCH)
+    {
+        fprintf(stderr, "--report-json requires --dry-run --once (batch mode).\n");
+        free(canonical_root);
+        free_config(&ctx.cfg);
+        return 1;
+    }
     if (opts.workers_override > 0)
         ctx.cfg.worker_threads = opts.workers_override;
     if (ctx.cfg.worker_threads > MAX_WORKERS)
@@ -636,6 +650,19 @@ int main(int argc, char *argv[])
             exit_status = 1;
 
         print_metrics(&ctx);
+        if (opts.report_json)
+        {
+            /* Aggregate-only schema: never serialize private filenames or paths. */
+            printf("{\"schema_version\":1,\"kind\":\"dry_run_summary\","
+                   "\"complete\":%s,\"events_seen\":%lu,"
+                   "\"events_enqueued\":%lu,\"previewed_moves\":%lu,"
+                   "\"move_failures\":%lu}\n",
+                   exit_status == 0 ? "true" : "false",
+                   atomic_load(&ctx.metrics.events_seen),
+                   atomic_load(&ctx.metrics.events_enqueued),
+                   atomic_load(&ctx.metrics.dry_run_moves),
+                   atomic_load(&ctx.metrics.move_failures));
+        }
         if (exit_status == 0)
             printf("Batch complete%s\n", opts.dry_run ? " (preview only)" : "");
         else

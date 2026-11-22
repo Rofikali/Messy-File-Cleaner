@@ -175,8 +175,10 @@
       "id": "PLAN-REPORT-01",
       "title": "Opt-in, read-only structured operation preview and conflict report",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "SELECTED FOR NEXT BOUNDED FEATURE (0/5 PR attempts; no implementation yet): first inventory existing C17 --dry-run metrics and user experience; implement only a verified opt-in machine-readable planning/reporting gap with disposable non-mutating tests. Proposed acceptance in docs/ADVANCED_FEATURE_ROADMAP.md and docs/ADVANCED_FEATURE_ACCEPTANCE.md. Not an authorization for moves, filesystem destructive behavior, production release, paid usage, or FFI."
+      "prs": [
+        145
+      ],
+      "summary": "PR #145 OPEN: opt-in aggregate-only JSON dry-run summary (no per-file plan or conflict report); disposable preservation/invalid-mode CTest. Local and exact-head CI NOT RUN at creation. Manual Ubuntu/Docker Desktop/Compose/real-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 remain BLOCKED."
     }
   ]
 }

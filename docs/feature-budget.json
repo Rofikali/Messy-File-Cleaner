@@ -190,7 +190,7 @@
       "prs": [
         146
       ],
-      "summary": "Scoped C17 config parser correction plus positive/negative disposable config tests; PR number to be registered in this same PR. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "summary": "PR #146 registered (1/5). Scoped C17 config parser rejects unknown mode values and ambiguous trailing mode tokens; disposable positive/negative config tests added. Exact-head CI must be reverified after latest changes; independent review/protection eligibility unverified. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

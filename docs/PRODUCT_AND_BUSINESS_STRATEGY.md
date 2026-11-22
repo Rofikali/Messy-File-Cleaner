@@ -2,9 +2,13 @@
 
 **Status: hypotheses and decision framework, not customer validation, prices, approved monetization, or launch.** Reviewed C17 CLI + test-only Rust at `main` `559ba1e` on 2026-11-16.
 
+## Advanced product hypotheses and financial gate (2026-11-22)
+
+The [advanced feature roadmap](ADVANCED_FEATURE_ROADMAP.md) proposes staged **safe preview/rules, duplicate and metadata reports, reliable watcher/scanner, C static/shared SDK, Rust FFI, optional desktop and distribution**. The [review/acceptance matrix](ADVANCED_FEATURE_ACCEPTANCE.md) imposes measurable security, Linux/CI/SRE and CA/MBA/management evidence for each stage. These are **NOT_STARTED or DESIGN_ONLY**, not an approved product tier, revenue forecast, paid service, guaranteed ROI or production release. Validate first-user jobs and willingness to pay before implementing desktop/SDK products; define open-source or commercial licensing, third-party obligations and support liability before public redistribution. Compare staff time, tests/CI minutes, maintenance, privacy, platform/installer costs and potential file-loss exposure against actual evidence. Never buy infrastructure or automatically enable remote user-data collection. For the immediate NEXT, prioritize read-only PLAN-REPORT-01 rather than destructive moves; FS-01B P0 and REL-01 remain release blockers.
+
 ## Five-PR cost and customer-outcome discipline (2026-11-21)
 
-Each feature now has a maximum of five opened PR attempts, not five automatically required iterations; earlier accepted outcomes exit sooner. Closing the repetitive historical PERF-01 fixture lane frees engineering and CI time to improve the CLI's existing dry-run clarity and safety diagnostics. Treat actual engineering hours, CI compute/energy, security review, support obligations and possible file-loss liability as business costs; do not invent revenue, market fit or claim a production-safe release. A release remains blocked on FS-01B same-UID source-retirement trust/crash safety regardless of schedule efficiency.
+Each feature now has a maximum of five opened PR attempts, not five automatically required iterations; earlier accepted outcomes exit sooner. Closing the repetitive historical PERF-01 fixture lane freed capacity for bounded safety and CLI work; current planned read-only preview reporting follows merged PR #143. Use the live board for today's work rather than old snapshot selections. Treat actual engineering hours, CI compute/energy, security review, support obligations and possible file-loss liability as business costs; do not invent revenue, market fit or claim a production-safe release. A release remains blocked on FS-01B same-UID source-retirement trust/crash safety regardless of schedule efficiency.
 
 ## 1. Problem and customer outcome
 

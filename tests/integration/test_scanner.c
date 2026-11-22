@@ -90,6 +90,15 @@ int main(void)
     assert(n > 0 && (size_t)n < sizeof(deep_file));
     write_file(deep_file);
 
+    /* A second real nested directory must still be traversed normally. */
+    char sibling[PATH_MAX], sibling_file[PATH_MAX];
+    n = snprintf(sibling, sizeof(sibling), "%s/second", root);
+    assert(n > 0 && (size_t)n < sizeof(sibling));
+    assert(mkdir(sibling, 0700) == 0);
+    n = snprintf(sibling_file, sizeof(sibling_file), "%s/ok.txt", sibling);
+    assert(n > 0 && (size_t)n < sizeof(sibling_file));
+    write_file(sibling_file);
+
     char link_path[PATH_MAX];
     n = snprintf(link_path, sizeof(link_path), "%s/file-link", root);
     assert(n > 0 && (size_t)n < sizeof(link_path));
@@ -101,10 +110,15 @@ int main(void)
 
     found_count = 0;
     assert(scan_directory(root, collect, NULL) == 0);
-    assert(found_count == 2);
+    assert(found_count == 3);
     assert(strlen(deep_file) > 1024);
-    assert((strcmp(found[0], path) == 0 && strcmp(found[1], deep_file) == 0) ||
-           (strcmp(found[1], path) == 0 && strcmp(found[0], deep_file) == 0));
+    int saw_inside = 0, saw_deep = 0, saw_sibling = 0;
+    for (size_t i = 0; i < found_count; ++i) {
+        saw_inside += strcmp(found[i], path) == 0;
+        saw_deep += strcmp(found[i], deep_file) == 0;
+        saw_sibling += strcmp(found[i], sibling_file) == 0;
+    }
+    assert(saw_inside == 1 && saw_deep == 1 && saw_sibling == 1);
 
     char root_link[PATH_MAX];
     n = snprintf(root_link, sizeof(root_link), "%s/root-link", outside);

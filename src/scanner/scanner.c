@@ -215,6 +215,24 @@ int scan_directory(const char *path, event_handler_fn handler,
                 continue;
             }
 
+            /* The name may have been replaced between fstatat() and openat().
+             * Only descend into the same directory object we inspected.
+             * This is not a guarantee that later pathname consumers are safe. */
+            struct stat opened_metadata;
+            int stat_status = fstat(child_fd, &opened_metadata);
+            if (stat_status != 0 ||
+                !S_ISDIR(opened_metadata.st_mode) ||
+                opened_metadata.st_dev != metadata.st_dev ||
+                opened_metadata.st_ino != metadata.st_ino)
+            {
+                int identity_errno = stat_status != 0 ? errno : ESTALE;
+                close(child_fd);
+                free(child_path);
+                errno = identity_errno ? identity_errno : ESTALE;
+                record_failure(&status, &saved_errno);
+                continue;
+            }
+
             DIR *child_directory = fdopendir(child_fd);
             if (!child_directory)
             {

@@ -83,6 +83,14 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # PLAN-REPORT-01: opt-in aggregate JSON with disposable preservation checks.
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME plan_report_json
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration/test_plan_report_json.py
+            $<TARGET_FILE:${PROJECT_NAME}>
+  )
+  set_tests_properties(plan_report_json PROPERTIES TIMEOUT 25)
   # CLI-ERROR-01: unknown options and excess roots get safe diagnostics.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   add_test(NAME cli_errors

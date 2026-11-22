@@ -98,6 +98,20 @@ int main(void)
             init_config(&cfg);
             assert(load_config(path, &cfg) != 0);
         }
+    /* Bare recognized numeric keys must not silently retain defaults. */
+    for (size_t k = 0; numeric_keys[k]; ++k)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fprintf(file, "%s\n", numeric_keys[k]) > 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
     /* Valid signed values retain the existing normalize/clamp behavior. */
     {
         FILE *file = fopen(path, "w");

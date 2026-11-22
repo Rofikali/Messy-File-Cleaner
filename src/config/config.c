@@ -104,7 +104,7 @@ int load_config(const char *path, Config *cfg)
                                 strcmp(key, "worker_threads") == 0 ||
                                 strcmp(key, "idle_sleep_ms") == 0))
             {
-                fprintf(stderr, "config: missing integer value\\n");
+                fprintf(stderr, "config: missing integer value\n");
                 fclose(f);
                 return -1;
             }
@@ -165,7 +165,7 @@ int load_config(const char *path, Config *cfg)
             int parsed;
             if (fields != 2 || parse_config_int(value, &parsed) != 0)
             {
-                fprintf(stderr, "config: invalid integer for %s\\n", key);
+                fprintf(stderr, "config: invalid integer for %s\n", key);
                 fclose(f);
                 return -1;
             }

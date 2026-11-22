@@ -4,7 +4,11 @@
 
 ## Feature progression and fiduciary risk (2026-11-21)
 
-Owner delivery boundary: [five-PR feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) — one stable user/security outcome, five opened PR attempts maximum, close DONE/PARTIAL/BLOCKED and advance. From historical PERF-01 through PR #128, select CLI-DRYRUN-01 for a safe non-destructive operator outcome. Apply software architecture, Linux/POSIX, QA/SDET, security/CISSP, network/CCIE only where local path/IPC design warrants it, release/SRE, finance/CA, MBA/management proportionately. Engineering effort and CI minutes are opportunity cost; unsafe real-data moves and same-UID race liability outrank PR throughput. Zero unauthorized paid infrastructure, false safety certifications or nanosecond file-move claims.
+Owner delivery boundary: [five-PR feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) — one stable user/security outcome, five opened PR attempts maximum, close DONE/PARTIAL/BLOCKED and advance. After historical PERF-01 through #128 and merged handoff PR #143, select PLAN-REPORT-01 for an independently scoped read-only operator preview, subject to current GitHub/board status. Apply software architecture, Linux/POSIX, QA/SDET, security/CISSP, network/CCIE only where local path/IPC design warrants it, release/SRE, finance/CA, MBA/management proportionately. Engineering effort and CI minutes are opportunity cost; unsafe real-data moves and same-UID race liability outrank PR throughput. Zero unauthorized paid infrastructure, false safety certifications or nanosecond file-move claims.
+
+## Forward architecture and finance review
+
+Use the [advanced feature roadmap](ADVANCED_FEATURE_ROADMAP.md) and [feature-specific acceptance criteria](ADVANCED_FEATURE_ACCEPTANCE.md) as proposal intake, **never** as an authorization to bypass `next.md`, FS-01B P0, REL-01 or owner decisions. For future SDK, Rust FFI, TUI, desktop or enterprise claims demand concrete consumers, licensing, support economics and platform/ABI/security evidence; CCIE-style network review is **N/A** for the current offline CLI and required only for an actual networked product. This proportional review avoids speculative tech and spending.
 
 ## Mission and decisions
 

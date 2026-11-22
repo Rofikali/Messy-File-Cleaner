@@ -1,5 +1,7 @@
 # C API, ABI, and Rust FFI Roadmap
 
+**Planning cross-reference (2026-11-22):** the [advanced feature roadmap](../ADVANCED_FEATURE_ROADMAP.md) puts a public C `.a` / `.so`, ABI stabilization and Rust FFI in a **future gated stage**; the [acceptance matrix](../ADVANCED_FEATURE_ACCEPTANCE.md) requires a real consumer, licensing, ABI/ownership tests, security review and explicit owner approval. This document is **DESIGN ONLY**, not permission for production FFI or SDK release. See the [live board](../../next.md) and [test-only Rust boundary](RUST_TEST_SUPPORT_BOUNDARY.md).
+
 ## Decision
 Keep the current engine in C. Design a small public C API first, stabilize its ABI only after ownership rules and tests exist, and add Rust FFI only when a concrete Rust consumer exists.
 

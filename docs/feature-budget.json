@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "69fdffe49e2bf502e178fe3a92044d04f4f2653c",
+  "snapshot_main_sha": "80de73b465ede49eec0882846c50efc0cbdee254",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "AUTOPILOT-HANDOFF-01",
+  "active_feature_id": "PLAN-REPORT-01",
   "features": [
     {
       "id": "PERF-01",
@@ -162,11 +162,21 @@
     {
       "id": "AUTOPILOT-HANDOFF-01",
       "title": "Reject stale active-task/ledger mismatches in CI",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         143
       ],
-      "summary": "PR #143 OPEN: offline board/ledger consistency validator and negative Python-stdlib unit tests; merged scanner PR #142 evidence reconciled. Actual GitHub PR liveness remains a run-time agent check. CI pending; local tests NOT RUN; no source-retirement or production release."
+      "summary": "PR #143 MERGED at 80de73b465ede49eec0882846c50efc0cbdee254: offline live NOW/feature-ledger consistency guard and negative Python-stdlib tests. Four exact PR-head and post-merge workflow families PASS (CMake, Makefile, Ubuntu 24.04, Docker). Does not validate live GitHub PR state. Operator-run Linux/Compose, hostile-filesystem, backup and power-loss NOT RUN. FS-01B P0 and REL-01 BLOCKED.",
+      "last_merged_pr": 143,
+      "merge_sha": "80de73b465ede49eec0882846c50efc0cbdee254",
+      "tested_head_sha": "c2c232aa7aceebf26c776a01f403fd3ac0d8ff77"
+    },
+    {
+      "id": "PLAN-REPORT-01",
+      "title": "Opt-in, read-only structured operation preview and conflict report",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "SELECTED FOR NEXT BOUNDED FEATURE (0/5 PR attempts; no implementation yet): first inventory existing C17 --dry-run metrics and user experience; implement only a verified opt-in machine-readable planning/reporting gap with disposable non-mutating tests. Proposed acceptance in docs/ADVANCED_FEATURE_ROADMAP.md and docs/ADVANCED_FEATURE_ACCEPTANCE.md. Not an authorization for moves, filesystem destructive behavior, production release, paid usage, or FFI."
     }
   ]
 }

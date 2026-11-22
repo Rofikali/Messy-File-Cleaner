@@ -2,7 +2,7 @@
 
 **Read this before starting a milestone.** This index borrows IMGENGINE's living documentation *structure*, not its stack, product or operational assumptions. Sources, actual behavior, versioned protocol contracts and exact-SHA CI evidence outrank historical notes.
 
-**Feature delivery change (2026-11-21):** [Five-PR feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) and [machine-checked ledger](feature-budget.json) govern post-policy opened feature PR attempts. PERF-01 is closed as historical; current work is bounded CLI-DRYRUN-01. The live `next.md` remains the sole task selector, `next-history.md` the immutable chronology, and the completion inventory the evidence register. Test-only Rust/FCJ3/FCJ4, FS-01B P0 and release boundaries are unchanged.
+**Feature delivery change (2026-11-21):** [Five-PR feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) and [machine-checked ledger](feature-budget.json) govern post-policy opened feature PR attempts. PERF-01 is closed as historical; PR #143 autopilot handoff was merged and PLAN-REPORT-01 is the selected, not-yet-implemented read-only preview candidate (0/5). The live `next.md` remains the sole task selector, `next-history.md` the immutable chronology, and the completion inventory the evidence register. Test-only Rust/FCJ3/FCJ4, FS-01B P0 and release boundaries are unchanged.
 
 | Question | Canonical source |
 | --- | --- |
@@ -10,6 +10,8 @@
 | Where is the full history of older PR_OPEN and CI snapshots? | [Archived work-register history](../next-history.md): dated audit evidence, **not the current task selector**. |
 | What is the product, implemented scope and user-facing usage? | [README](../README.md) |
 | What should be done NOW, NEXT and LATER? | [Live NOW / NEXT / LATER register](../next.md) (authoritative task selection; historical notes explicitly marked) |
+| Which next-level capabilities are proposed, their security prerequisites and staged dependencies? | [Advanced feature roadmap](ADVANCED_FEATURE_ROADMAP.md) — proposal/candidate catalogue; **not** the live queue. |
+| Which proof and approvals must future advanced features meet? | [Advanced feature acceptance matrix](ADVANCED_FEATURE_ACCEPTANCE.md) — L1–L7, CISSP/security, Linux, SRE, finance/management gates. |
 | What is fully built, partially implemented, started, test-only, blocked or future? | [Component completion and status inventory](PROJECT_COMPLETION_AND_STATUS_INVENTORY.md) (evidence and remaining customer-journey gaps, not a second live backlog) |
 | What may agents do and what requires approval? | [AGENTS](../AGENTS.md) and [GOV-02 owner-authorized PR review/merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md) (eligible green merges only; no security/CI bypass) |
 | How to perform recurring engineering tasks? | [skills.md](../skills.md) is the operational recipe; [SKILLS.md](../SKILLS.md) is a non-binding learning catalogue and does **not** approve technologies, merges or runtime changes |

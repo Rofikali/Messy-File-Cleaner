@@ -14,6 +14,10 @@ Each product/engineering feature has one stable ID in [feature-budget.json](feat
 
 After <=5 PRs end the feature with DONE/PARTIAL/BLOCKED, exact evidence, manual NOT RUN and deferred issues, then select the next independent READY feature. The repeated historical PERF-01 lane is CLOSED_LEGACY after merged #128. P0 same-UID source-retirement and REL-01 are never waived by a feature budget. [Full feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md).
 
+## Roadmap documentation lifecycle (2026-11-22)
+
+The owner's [advanced roadmap](ADVANCED_FEATURE_ROADMAP.md) and [advanced acceptance matrix](ADVANCED_FEATURE_ACCEPTANCE.md) list **proposals and evidence gates**, not another NOW selector. Promote a candidate into the [live task board](../next.md) and [active feature ledger](feature-budget.json) only after a distinct security/dependency assessment and scoped acceptance. Current read-only PLAN-REPORT-01 follows merged #143; do not count a docs-only prospective plan as a feature implementation. Review links from README/AGENTS/skills/docs index and the affected HLD/LLD, FS-01, API/ABI/FFI, performance, CI, Linux, finance/business documents when facts actually change. Do not grant future authorization via Markdown alone.
+
 ## Transaction for every bounded engineering milestone
 
 1. **Reconcile first:** query live `main`, all open and merged PRs, head/base/merge SHAs, relevant issues, review threads, protections, current PR-head check jobs. Existing PR before new work. Never use a historical PR_OPEN line as current proof.

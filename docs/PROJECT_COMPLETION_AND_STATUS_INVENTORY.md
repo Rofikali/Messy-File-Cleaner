@@ -6,6 +6,10 @@
 
 Live audited main `3d7e14ed16040d6918f5d88330c510db77be0b96` includes [PERF-01U PR #128](https://github.com/Rofikali/Messy-File-Cleaner/pull/128). **PERF-01 CLOSED_LEGACY / engineering implemented**: disposable benchmark provenance and negative fixture-preservation coverage integrated, without a validated production million-file scale or real-host power-loss proof. The [feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) prospectively caps each new feature at five opened PRs; **NOW CLI-DRYRUN-01** improves user-facing safe preview and carries 0/5 at this snapshot. C11/C17/C23, Makefile, Ubuntu 24.04, Docker and performance main-head CI passed; owner-run local Compose, external filesystems, deliberate power cuts and real customer data testing are NOT RUN/NOT AUTHORIZED. FS-01B P0 and REL-01 stay BLOCKED. Rust and FCJ3/FCJ4 remain isolated test-only/proposed.
 
+## Advanced roadmap status clarification (2026-11-22)
+
+The [advanced feature roadmap](ADVANCED_FEATURE_ROADMAP.md) and [acceptance matrix](ADVANCED_FEATURE_ACCEPTANCE.md) describe **proposed** preview/rules, duplicate detection, transactional recovery, watcher/scale, C SDK/FFI, desktop and product channels. They do not upgrade the below historical completion statuses. Current live selection (after merged PR #143) is read-only PLAN-REPORT-01 at 0/5; exact current state remains in [next.md](../next.md), verified against GitHub. FS-01B/REL-01 continue BLOCKED.
+
 ## A. Status and evidence semantics
 
 Two independent dimensions must be recorded:

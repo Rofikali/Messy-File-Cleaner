@@ -83,6 +83,15 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # CLI-HELP-01: standalone help is successful and side-effect-free.
+  find_package(Python3 COMPONENTS Interpreter REQUIRED)
+  add_test(NAME cli_help
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration/test_cli_help.py
+            $<TARGET_FILE:${PROJECT_NAME}>
+  )
+  set_tests_properties(cli_help PROPERTIES TIMEOUT 15)
+
   # CLI-ROOT-01: ambiguous root arguments must fail before config/filesystem access.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   add_test(NAME cli_root_duplicates

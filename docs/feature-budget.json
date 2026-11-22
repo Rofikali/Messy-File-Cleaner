@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ebf757cc0d66c78aa80b105f423535c426a435cf",
+  "snapshot_main_sha": "5d7a58f7f49b4db9d965e16a94254590b29cdb51",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CLI-CONFIG-01",
+  "active_feature_id": "CLI-HELP-01",
   "features": [
     {
       "id": "PERF-01",
@@ -90,11 +90,23 @@
     {
       "id": "CLI-CONFIG-01",
       "title": "Reject repeated CLI configuration selectors before config access",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         137
       ],
-      "summary": "C17 duplicate --config rejection with disposable negative subprocess CTest. PR #137 OPEN; exact-head CI pending; local/manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "summary": "PR #137 merged: repeated --config rejected before config access; exact-head C11/C17/C23 CMake/feature-budget, Docker, Ubuntu 24.04, Makefile and FCJ4 TSan PASS. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED.",
+      "last_merged_pr": 137,
+      "merge_sha": "5d7a58f7f49b4db9d965e16a94254590b29cdb51",
+      "tested_head_sha": "6848a6f9f7a377c82a79bf178b923c7baaebf9ae"
+    },
+    {
+      "id": "CLI-HELP-01",
+      "title": "Side-effect-free standalone CLI help",
+      "status": "ACTIVE",
+      "prs": [
+        138
+      ],
+      "summary": "PR #138 OPEN: standalone --help returns success before config/filesystem access, mixed help/execution rejected, disposable subprocess CTest. Exact-head CI/local/manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

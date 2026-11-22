@@ -120,6 +120,9 @@ static void print_usage(const char *program)
 
 static int parse_cli(int argc, char **argv, CliOptions *opts)
 {
+    /* Help is an explicit, side-effect-free command, not a scan mode. */
+    if (argc == 2 && strcmp(argv[1], "--help") == 0)
+        return 1;
     opts->root = NULL;
     opts->config_path = "configs/default.conf";
     opts->dry_run = 0;
@@ -507,10 +510,11 @@ int enqueue_event(const char *path)
 int main(int argc, char *argv[])
 {
     CliOptions opts;
-    if (parse_cli(argc, argv, &opts) != 0)
+    int cli_result = parse_cli(argc, argv, &opts);
+    if (cli_result != 0)
     {
         print_usage(argv[0]);
-        return 1;
+        return cli_result > 0 ? 0 : 1;
     }
 
     static HashEntry buffer[64];

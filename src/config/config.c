@@ -99,6 +99,9 @@ int load_config(const char *path, Config *cfg)
         int fields = sscanf(line, "%63[^=]=%127s %c", key, value, &trailing);
         if (fields < 2)
         {
+            /* sscanf can include a newline in a bare key without '='. */
+            if (fields == 1)
+                key[strcspn(key, " \t\r\n")] = '\0';
             /* A recognized numeric key without a value must not be ignored. */
             if (fields == 1 && (strcmp(key, "batch_size") == 0 ||
                                 strcmp(key, "worker_threads") == 0 ||

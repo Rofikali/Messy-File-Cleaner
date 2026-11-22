@@ -163,8 +163,10 @@
       "id": "AUTOPILOT-HANDOFF-01",
       "title": "Reject stale active-task/ledger mismatches in CI",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Independent bounded CI validation: cross-check the single live NOW row in next.md against active_feature_id, add negative unit tests, and reconcile PR #142 completion. This does not establish GitHub PR liveness or change production file operations. Exact-head CI pending."
+      "prs": [
+        143
+      ],
+      "summary": "PR #143 OPEN: offline board/ledger consistency validator and negative Python-stdlib unit tests; merged scanner PR #142 evidence reconciled. Actual GitHub PR liveness remains a run-time agent check. CI pending; local tests NOT RUN; no source-retirement or production release."
     }
   ]
 }

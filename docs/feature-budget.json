@@ -139,8 +139,10 @@
       "id": "CLI-USAGE-SAFETY-01",
       "title": "Prevent caller-controlled argv0 terminal injection in usage diagnostics",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Implementation PR pending assignment: constant usage label and forged argv0 negative regression; exact-head CI and owner acceptance NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "prs": [
+        141
+      ],
+      "summary": "PR #141 OPEN: fixed CLI usage executable label and forged argv0 regression; local and exact-head CI NOT RUN; owner acceptance NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

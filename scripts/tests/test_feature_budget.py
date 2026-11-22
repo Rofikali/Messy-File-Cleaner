@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from feature_budget_check import validate_record, validate_pr
+from feature_budget_check import validate_record, validate_pr, validate_selector
 
 
 def fixture():
@@ -88,6 +88,34 @@ class BudgetTests(unittest.TestCase):
         validate_pr(data, event("GOVERNANCE-EXEMPT", number=999, title="docs(policy): update"))
         with self.assertRaisesRegex(ValueError, "docs"):
             validate_pr(data, event("GOVERNANCE-EXEMPT", number=999, title="feat: sneak around budget"))
+
+    def test_live_now_selector_agrees_with_ledger(self):
+        data = validate_record(fixture())
+        board = """# Sample
+## LIVE NOW / NEXT / LATER
+
+| Lane | ID / budget / status | Description |
+| --- | --- | --- |
+| **NOW — IMPLEMENTATION PR** | **CLI-DRYRUN-01 (1/5)** | Safe preview |
+| **DONE** | **PERF-01 (legacy)** | Historical |
+## Historical
+"""
+        validate_selector(data, board)
+
+    def test_live_now_selector_rejects_stale_or_duplicate_rows(self):
+        data = validate_record(fixture())
+        prefix = "## LIVE NOW / NEXT / LATER\n| Lane | ID |\n| --- | --- |\n"
+        correct = "| **NOW — IMPLEMENTATION** | **CLI-DRYRUN-01 (1/5)** |\n"
+        stale = "| **NOW — IMPLEMENTATION** | **SCAN-ROBUST-01 (1/5)** |\n"
+        for board, diagnostic in (
+            (prefix + stale, "differs"),
+            (prefix + correct + stale, "Exactly one NOW row"),
+            (prefix, "Exactly one NOW row"),
+            ("## unrelated\n" + correct, "Exactly one LIVE"),
+        ):
+            with self.subTest(diagnostic=diagnostic):
+                with self.assertRaisesRegex(ValueError, diagnostic):
+                    validate_selector(data, board)
 
 
 if __name__ == "__main__":

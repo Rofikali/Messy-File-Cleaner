@@ -53,6 +53,35 @@ int main(void)
     for (size_t i = 0; unsafe[i] != NULL; i++)
         assert(load_with_destination(path, unsafe[i]) != 0);
 
+    /* A typo must not silently select daemon mode. */
+    const char *valid_modes[] = {"batch", "daemon", NULL};
+    const char *invalid_modes[] = {"batc", "DAEMON", "watch", "batchx", "batch daemon", "daemon batch", "batch #unexpected", NULL};
+    for (size_t i = 0; valid_modes[i]; ++i)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fprintf(file, "mode=%s\n", valid_modes[i]) > 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) == 0);
+        assert(cfg.mode == (i == 0 ? MODE_BATCH : MODE_DAEMON));
+    }
+    for (size_t i = 0; invalid_modes[i]; ++i)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fprintf(file, "mode=%s\n", invalid_modes[i]) > 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
     assert(unlink(path) == 0);
     puts("config destination security tests passed");
     return 0;

@@ -4,7 +4,7 @@
   "policy_effective_date": "2026-11-21",
   "snapshot_main_sha": "80de73b465ede49eec0882846c50efc0cbdee254",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "PLAN-REPORT-01",
+  "active_feature_id": "CONFIG-MODE-01",
   "features": [
     {
       "id": "PERF-01",
@@ -174,11 +174,23 @@
     {
       "id": "PLAN-REPORT-01",
       "title": "Opt-in, read-only structured operation preview and conflict report",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         145
       ],
-      "summary": "PR #145 OPEN: opt-in aggregate-only JSON dry-run summary (no per-file plan or conflict report); disposable preservation/invalid-mode CTest. Local and exact-head CI NOT RUN at creation. Manual Ubuntu/Docker Desktop/Compose/real-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 remain BLOCKED."
+      "summary": "PR #145 merged aggregate-only read-only JSON summary; no per-file plan/conflict inventory. Exact tested head 4674ee4293c9c97c0c871fe6601b5aa33908119c; CMake C11/C17/C23, Docker, Ubuntu 24.04, Makefile, FCJ4 TSan PASS. Manual OS/Compose/real-filesystem/backup/crash NOT RUN. Independent approval evidence not verified; FS-01B P0 and REL-01 blocked.",
+      "last_merged_pr": 145,
+      "merge_sha": "ac9fc87a91a665e2d0f09a3af79ee7f7ca310139",
+      "tested_head_sha": "4674ee4293c9c97c0c871fe6601b5aa33908119c"
+    },
+    {
+      "id": "CONFIG-MODE-01",
+      "title": "Reject invalid configured execution mode instead of silently starting daemon",
+      "status": "ACTIVE",
+      "prs": [
+        146
+      ],
+      "summary": "PR #146 registered (1/5). Scoped C17 config parser rejects unknown mode values and ambiguous trailing mode tokens; disposable positive/negative config tests added. Exact-head CI must be reverified after latest changes; independent review/protection eligibility unverified. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

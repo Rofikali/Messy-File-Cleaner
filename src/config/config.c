@@ -79,10 +79,17 @@ int load_config(const char *path, Config *cfg)
         if (line[0] == '#' || line[0] == '\n')
             continue;
 
-        char key[64], value[128];
+        char key[64], value[128], trailing;
 
-        if (sscanf(line, "%63[^=]=%127s", key, value) != 2)
+        int fields = sscanf(line, "%63[^=]=%127s %c", key, value, &trailing);
+        if (fields < 2)
             continue;
+        if (strcmp(key, "mode") == 0 && fields != 2)
+        {
+            fprintf(stderr, "config: invalid mode (unexpected trailing input)\n");
+            fclose(f);
+            return -1;
+        }
 
         if (strncmp(key, "ext.", 4) == 0)
         {
@@ -138,8 +145,15 @@ int load_config(const char *path, Config *cfg)
         {
             if (strcmp(value, "batch") == 0)
                 cfg->mode = MODE_BATCH;
-            else
+            else if (strcmp(value, "daemon") == 0)
                 cfg->mode = MODE_DAEMON;
+            else
+            {
+                /* Never silently turn a misspelled batch mode into a watcher. */
+                fprintf(stderr, "config: invalid mode (expected batch or daemon)\n");
+                fclose(f);
+                return -1;
+            }
         }
     }
 

@@ -91,6 +91,13 @@ if(BUILD_TESTING)
             $<TARGET_FILE:${PROJECT_NAME}>
   )
   set_tests_properties(cli_errors PROPERTIES TIMEOUT 15)
+  # CLI-VALUES-01: missing/empty option operands must fail before filesystem access.
+  add_test(NAME cli_required_values
+    COMMAND ${Python3_EXECUTABLE}
+            ${CMAKE_CURRENT_SOURCE_DIR}/tests/integration/test_cli_required_values.py
+            $<TARGET_FILE:${PROJECT_NAME}>
+  )
+  set_tests_properties(cli_required_values PROPERTIES TIMEOUT 15)
   # CLI-HELP-01: standalone help is successful and side-effect-free.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   add_test(NAME cli_help

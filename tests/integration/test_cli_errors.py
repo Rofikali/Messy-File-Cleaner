@@ -25,5 +25,17 @@ def main():
             assert not (root / "configs").exists()
             assert "Config load failed" not in result.stdout
 
+    # argv[0] is caller-controlled via execve; never print escape sequences from it.
+    with tempfile.TemporaryDirectory(prefix="fc-cli-argv0-") as tmp:
+        forged = "spoofed-\\x1b[31m-program"
+        result = subprocess.run([forged, "--invalid"], executable=binary,
+                                cwd=tmp, capture_output=True, text=True,
+                                timeout=5, check=False)
+        assert result.returncode != 0
+        assert "Usage: file-cleaner" in result.stderr
+        assert "spoofed" not in result.stderr
+        assert "\\x1b" not in result.stderr
+        assert not (pathlib.Path(tmp) / "journal").exists()
+
 if __name__ == "__main__":
     main()

@@ -79,10 +79,17 @@ int load_config(const char *path, Config *cfg)
         if (line[0] == '#' || line[0] == '\n')
             continue;
 
-        char key[64], value[128];
+        char key[64], value[128], trailing;
 
-        if (sscanf(line, "%63[^=]=%127s", key, value) != 2)
+        int fields = sscanf(line, "%63[^=]=%127s %c", key, value, &trailing);
+        if (fields < 2)
             continue;
+        if (strcmp(key, "mode") == 0 && fields != 2)
+        {
+            fprintf(stderr, "config: invalid mode (unexpected trailing input)\n");
+            fclose(f);
+            return -1;
+        }
 
         if (strncmp(key, "ext.", 4) == 0)
         {

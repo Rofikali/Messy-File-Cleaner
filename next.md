@@ -8,7 +8,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — CI IMPLEMENTATION PR** | **AUTOPILOT-HANDOFF-01 (0/5; PR pending)** | Reject a stale/mismatched LIVE NOW task versus the active feature ledger; add failure-path tests and reconcile #142 | GitHub PR liveness requires live API checks; local and exact-head PR CI NOT RUN |
+| **NOW — CI IMPLEMENTATION PR** | **AUTOPILOT-HANDOFF-01 (1/5; PR #143 OPEN)** | Reject a stale/mismatched LIVE NOW task versus the active feature ledger; add failure-path tests and reconcile #142 | GitHub PR liveness requires live API checks; local and exact-head PR CI NOT RUN |
 | **DONE** | **SCAN-ENTRY-IDENTITY-01 (1/5; #142 merged)** | Opened-directory identity check, merged `69fdffe49e2bf502e178fe3a92044d04f4f2653c`; tested PR head `dd7a07a09f6d819d2b57f22b2a15a727203fb2e1`; four post-merge workflow families PASS | Pathname TOCTOU and source-retirement P0 unresolved; manual OS/Compose/crash NOT RUN |
 | **DONE** | **CLI-USAGE-SAFETY-01 (1/5; #141 merged)** | Fixed usage label at `85302ffa3a9749930c6f9513c3985a8b3d64d45f`; tested head `e5d4ff71237ffcd449e386c378845013c0420a38`; four workflow families PASS, TSan NOT RUN | Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-VALUES-01 (1/5; #140 merged)** | Missing/empty CLI operands rejected at `89e3914603352d094ebca221e6b2bd4770457f9d`; tested head `1fd9cb537d0619ccafe6877a95752e77445fda6e`; five workflow families PASS | Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN |

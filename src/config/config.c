@@ -98,7 +98,18 @@ int load_config(const char *path, Config *cfg)
 
         int fields = sscanf(line, "%63[^=]=%127s %c", key, value, &trailing);
         if (fields < 2)
+        {
+            /* A recognized numeric key without a value must not be ignored. */
+            if (fields == 1 && (strcmp(key, "batch_size") == 0 ||
+                                strcmp(key, "worker_threads") == 0 ||
+                                strcmp(key, "idle_sleep_ms") == 0))
+            {
+                fprintf(stderr, "config: missing integer value\\n");
+                fclose(f);
+                return -1;
+            }
             continue;
+        }
         if (strcmp(key, "mode") == 0 && fields != 2)
         {
             fprintf(stderr, "config: invalid mode (unexpected trailing input)\n");

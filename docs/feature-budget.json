@@ -115,8 +115,10 @@
       "id": "CLI-ERROR-01",
       "title": "Bounded and terminal-safe CLI argument diagnostics",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Implementation PR pending assignment: fixed diagnostic categories for unrecognized options and multiple roots, without echoing untrusted bytes. Disposable subprocess test; local/CI/manual NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "prs": [
+        139
+      ],
+      "summary": "PR #139 OPEN: fixed diagnostic categories for unrecognized options and multiple roots, without echoing untrusted bytes. Disposable subprocess test; local/CI/manual NOT RUN; FS-01B P0 and REL-01 BLOCKED."
     }
   ]
 }

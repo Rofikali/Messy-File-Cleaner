@@ -114,8 +114,7 @@ static void print_usage(void)
 {
     fprintf(stderr,
             "Usage: file-cleaner <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n"
-            "       file-cleaner --root <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n",
-            );
+            "       file-cleaner --root <root> [--config <file>] [--dry-run] [--once|--watch] [--workers <n>] [--force]\n");
 }
 
 static int parse_cli(int argc, char **argv, CliOptions *opts)

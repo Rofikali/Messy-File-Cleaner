@@ -138,8 +138,15 @@ int load_config(const char *path, Config *cfg)
         {
             if (strcmp(value, "batch") == 0)
                 cfg->mode = MODE_BATCH;
-            else
+            else if (strcmp(value, "daemon") == 0)
                 cfg->mode = MODE_DAEMON;
+            else
+            {
+                /* Never silently turn a misspelled batch mode into a watcher. */
+                fprintf(stderr, "config: invalid mode (expected batch or daemon)\n");
+                fclose(f);
+                return -1;
+            }
         }
     }
 

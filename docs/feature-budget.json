@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "89e3914603352d094ebca221e6b2bd4770457f9d",
+  "snapshot_main_sha": "85302ffa3a9749930c6f9513c3985a8b3d64d45f",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CLI-USAGE-SAFETY-01",
+  "active_feature_id": "SCAN-ENTRY-IDENTITY-01",
   "features": [
     {
       "id": "PERF-01",
@@ -138,11 +138,23 @@
     {
       "id": "CLI-USAGE-SAFETY-01",
       "title": "Prevent caller-controlled argv0 terminal injection in usage diagnostics",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         141
       ],
-      "summary": "PR #141 OPEN: fixed CLI usage executable label and forged argv0 regression; local and exact-head CI NOT RUN; owner acceptance NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "summary": "PR #141 merged: fixed executable usage label and forged argv0 regression; exact-head CMake/feature-budget, Docker, Ubuntu 24.04 and Makefile PASS; FCJ4 TSan NOT RUN. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 BLOCKED.",
+      "last_merged_pr": 141,
+      "merge_sha": "85302ffa3a9749930c6f9513c3985a8b3d64d45f",
+      "tested_head_sha": "e5d4ff71237ffcd449e386c378845013c0420a38"
+    },
+    {
+      "id": "SCAN-ENTRY-IDENTITY-01",
+      "title": "Verify directory object identity across scanner stat/open race",
+      "status": "ACTIVE",
+      "prs": [
+        142
+      ],
+      "summary": "PR #142 OPEN: compare fstatat directory identity against opened descriptor before descent; positive nested-directory disposable scanner regression. Local tests and exact-head CI NOT RUN. This does not repair path-based post-scan TOCTOU, FS-01B source retirement or release."
     }
   ]
 }

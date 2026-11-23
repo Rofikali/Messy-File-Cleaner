@@ -4,7 +4,7 @@
   "policy_effective_date": "2026-11-21",
   "snapshot_main_sha": "5b858c90c4c63b4a978f6fcaf9e159de5c4e02a1",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-READ-ERROR-01",
+  "active_feature_id": "CONFIG-ATOMIC-LOAD-01",
   "features": [
     {
       "id": "PERF-01",

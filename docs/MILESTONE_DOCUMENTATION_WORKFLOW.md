@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Milestone Documentation Transaction
 
+> **23 November 2026 amendment:** [Owner's zero-human-review PR governance and factual post-merge reconciliation](AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) supersedes any mandatory-independent-approval claim for ordinary safe PRs. A false PR_OPEN in `next.md` or the ledger is a *material* defect, repairable in a bounded governance reconciliation PR when deferring would mislead task selection; don't repeat cosmetic dates. GitHub ruleset import remains a separate settings action.
+
 **Status:** Binding repository execution and PR-review procedure adapted from [IMGENGINE's milestone continuation runbook](https://github.com/Rofikali/imgengine/blob/main/docs/AGENT_MILESTONE_CONTINUATION_RUNBOOK.md) and compact [live queue](https://github.com/Rofikali/imgengine/blob/main/next.md). This is a C17/Linux/POSIX file-preservation project, **not** IMGENGINE's C ABI/SaaS/desktop platform and **not** Design Platform's Nuxt/Rust/WASM editor.
 
 ## Why documentation became stale

@@ -1,5 +1,7 @@
 # GOV-02 — Owner-Authorized PR Review and Merge Autopilot
 
+> **SUPERSEDING OWNER DIRECTIVE (23 Nov 2026):** [Zero-human-review autopilot policy](AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) authorizes eligible safe PR merging with required approving reviews **set to zero**. All requirements below for external approving review of an ordinary PR are superseded, but exact-head checks, non-destructive file safety, review threads and any other GitHub protection remain binding. An agent review is self-review, never a false independent approval. Import [ruleset JSON](../.github/rulesets/autopilot-main-no-human-review.json) separately.
+
 **Status: ACTIVE owner workflow authorization (2026-11-17), bounded to `Rofikali/Messy-File-Cleaner`.** The owner expressly asked the existing hourly autopilot to perform PR creation, review, correction and merging when appropriate. This is an **external owner instruction** recorded here for continuity; this Markdown file by itself does not confer GitHub permissions, bypass protections or authorize an unrelated agent. The recurring schedule belongs to ChatGPT Automations and can be paused by the owner.
 
 ## Owner amendment — five-PR feature progression (2026-11-21)

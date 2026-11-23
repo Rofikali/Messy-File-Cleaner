@@ -1,5 +1,7 @@
 # Engineering Skills Catalogue
 
+> **Autopilot owner scope:** [zero required human approvals and gated full PR lifecycle](docs/AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md). Require real CI, honest self-review and source-preservation restrictions. Uppercase SKILLS remains the knowledge catalogue; lowercase skills.md remains procedural.
+
 This catalogue describes knowledge useful for building, reviewing, securing, operating, and evolving the project. It is **not** a second set of agent instructions, a mandate to introduce every technology, or an authorization to ship them. For binding rules use [AGENTS.md](AGENTS.md); for execution recipes use [skills.md](skills.md); for task status use [next.md](next.md); for approved language scope use the [Rust adoption ADR](docs/architecture/ADR_RUST_ADOPTION_STRATEGY.md).
 
 ## Feature budget and evidence classification

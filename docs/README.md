@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Documentation Map and Authority
 
+> **Current owner governance (23 November 2026):** [Zero-human-review autopilot PR workflow, branch ruleset, and documentation reconciliation](AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) defines the ordinary PR-review and merge policy. [Importable main ruleset JSON](../.github/rulesets/autopilot-main-no-human-review.json) does not become active simply by committing it.
+
 **Read this before starting a milestone.** This index borrows IMGENGINE's living documentation *structure*, not its stack, product or operational assumptions. Sources, actual behavior, versioned protocol contracts and exact-SHA CI evidence outrank historical notes.
 
 **Feature delivery change (2026-11-21):** [Five-PR feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md) and [machine-checked ledger](feature-budget.json) govern post-policy opened feature PR attempts. PERF-01 is closed as historical; PR #143 autopilot handoff was merged and PLAN-REPORT-01 is the selected, not-yet-implemented read-only preview candidate (0/5). The live `next.md` remains the sole task selector, `next-history.md` the immutable chronology, and the completion inventory the evidence register. Test-only Rust/FCJ3/FCJ4, FS-01B P0 and release boundaries are unchanged.

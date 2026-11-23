@@ -1,5 +1,7 @@
 # Engineering Skills and Contributor Workflow
 
+> **Current PR workflow:** the [zero-human-review owner policy](docs/AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) authorizes autopilot self-review and gated merges without human approval; never present the self-review as external. Inspect current GitHub and PR #148 before using dated NOW references below. Import [ruleset JSON](.github/rulesets/autopilot-main-no-human-review.json) separately.
+
 This file is an operational companion to [AGENTS.md](AGENTS.md). It tells humans and coding agents how to work in this repository. The architecture and security rationale is in [the Engineering Playbook](docs/architecture/ENGINEERING_PLAYBOOK.md) and [Threat Model](docs/security/THREAT_MODEL.md).
 
 ## Five-PR execution and handoff recipe

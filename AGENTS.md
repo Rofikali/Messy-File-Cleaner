@@ -242,3 +242,6 @@ CONFIG-EXT-MISSING-01: bare or empty ext.* destination mappings are rejected; PR
 ## 23 Nov 2026 bounded config-read handoff
 
 CONFIG-READ-ERROR-01: fail closed on `ferror`/`fclose` in configuration parsing; disposable Linux directory-read negative regression. PR exact-head CI and merge are pending. No customer files, source retirement, release, production Rust, or deployment authorized. CONFIG-EXT-KEY-01 #154 merged at `5b858c90c4c63b4a978f6fcaf9e159de5c4e02a1`; manual acceptance NOT RUN. Other architecture/ABI/FCJ/security/Docker/performance/business documents N/A: no interfaces, filesystem mutation, operational or financial behavior changed.
+
+
+> **CONFIG-ATOMIC-LOAD-01 (23 Nov 2026, proposed PR):** C17 configuration loading now stages scalar settings and caller-owned extension map entries, committing only after successful parse/read/close. Failed loads retain prior caller state; disposable late-failure regression added. This is not a release or filesystem-retirement safety approval. Exact-head CI and manual acceptance remain NOT RUN pending PR verification. FS-01B and REL-01 remain BLOCKED.

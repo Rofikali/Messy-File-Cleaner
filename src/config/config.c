@@ -4,6 +4,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdint.h>
 
 #include "config/config.h"
 
@@ -78,7 +79,7 @@ static void config_normalize(Config *cfg)
         cfg->idle_sleep_ms = 0;
 }
 
-int load_config(const char *path, Config *cfg)
+static int load_config_into(const char *path, Config *cfg)
 {
     FILE *f = fopen(path, "r");
     if (!f)
@@ -263,4 +264,32 @@ void init_config(Config *cfg)
 void free_config(Config *cfg)
 {
     (void)cfg;
+}
+
+/* Stage both scalar settings and caller-owned hash entries.  A failed parse,
+   read or close must never expose a partial routing configuration. */
+int load_config(const char *path, Config *cfg)
+{
+    if (!cfg || !cfg->ext_map.entries || cfg->ext_map.capacity == 0 ||
+        cfg->ext_map.capacity > SIZE_MAX / sizeof(HashEntry))
+        return -1;
+
+    size_t bytes = cfg->ext_map.capacity * sizeof(HashEntry);
+    HashEntry *staged_entries = malloc(bytes);
+    if (!staged_entries)
+        return -1;
+
+    memcpy(staged_entries, cfg->ext_map.entries, bytes);
+    Config staged = *cfg;
+    staged.ext_map.entries = staged_entries;
+    int result = load_config_into(path, &staged);
+    if (result == 0)
+    {
+        memcpy(cfg->ext_map.entries, staged_entries, bytes);
+        HashEntry *original_entries = cfg->ext_map.entries;
+        *cfg = staged;
+        cfg->ext_map.entries = original_entries;
+    }
+    free(staged_entries);
+    return result;
 }

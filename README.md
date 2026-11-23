@@ -276,3 +276,6 @@ Configuration validation milestone: `CONFIG-MODE-MISSING-01` rejects a bare `mod
 
 
 Configuration validation: `CONFIG-EXT-MISSING-01` rejects missing extension destination mappings rather than silently ignoring routing configuration. No filesystem retirement or release authorization is implied.
+
+
+> **CONFIG-ATOMIC-LOAD-01 (23 Nov 2026, proposed PR):** C17 configuration loading now stages scalar settings and caller-owned extension map entries, committing only after successful parse/read/close. Failed loads retain prior caller state; disposable late-failure regression added. This is not a release or filesystem-retirement safety approval. Exact-head CI and manual acceptance remain NOT RUN pending PR verification. FS-01B and REL-01 remain BLOCKED.

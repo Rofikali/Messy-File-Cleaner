@@ -82,6 +82,78 @@ int main(void)
         assert(load_config(path, &cfg) != 0);
     }
 
+    /* Reject numeric typos, overflow and trailing tokens instead of atoi() fallback. */
+    const char *numeric_keys[] = {"batch_size", "worker_threads", "idle_sleep_ms", NULL};
+    const char *invalid_numbers[] = {"abc", "12junk", "999999999999999999999", "1 2", "", NULL};
+    for (size_t k = 0; numeric_keys[k]; ++k)
+        for (size_t i = 0; invalid_numbers[i]; ++i)
+        {
+            FILE *file = fopen(path, "w");
+            assert(file != NULL);
+            assert(fprintf(file, "%s=%s\n", numeric_keys[k], invalid_numbers[i]) > 0);
+            assert(fclose(file) == 0);
+            static HashEntry entries[64];
+            Config cfg;
+            hashmap_init(&cfg.ext_map, entries, 64);
+            init_config(&cfg);
+            assert(load_config(path, &cfg) != 0);
+        }
+    /* Whitespace before '=' must not bypass validation of recognized numeric keys. */
+    for (size_t k = 0; numeric_keys[k]; ++k)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fprintf(file, "%s =12junk\n", numeric_keys[k]) > 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
+    /* Leading indentation must not hide malformed numeric values. */
+    for (size_t k = 0; numeric_keys[k]; ++k)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fprintf(file, "  %s=12junk\n", numeric_keys[k]) > 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
+    /* Bare recognized numeric keys must not silently retain defaults. */
+    for (size_t k = 0; numeric_keys[k]; ++k)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fprintf(file, "%s\n", numeric_keys[k]) > 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
+    /* Valid signed values retain the existing normalize/clamp behavior. */
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fputs("batch_size=128\nworker_threads=99\nidle_sleep_ms=-1\n", file) >= 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) == 0);
+        assert(cfg.batch_size == 128 && cfg.worker_threads == 16 && cfg.idle_sleep_ms == 0);
+    }
+
     assert(unlink(path) == 0);
     puts("config destination security tests passed");
     return 0;

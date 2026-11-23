@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 
 #include "config/config.h"
 
@@ -39,6 +41,19 @@ static int valid_destination_folder(const char *value)
         return 0;
 
     return 1;
+}
+
+/* Reject malformed or overflowing numeric settings; preserve existing normalization of valid signed values. */
+static int parse_config_int(const char *value, int *out)
+{
+    char *end = NULL;
+    errno = 0;
+    long parsed = strtol(value, &end, 10);
+    if (value == end || *end != '\0' || errno == ERANGE ||
+        parsed < INT_MIN || parsed > INT_MAX)
+        return -1;
+    *out = (int)parsed;
+    return 0;
 }
 
 static void config_apply_defaults(Config *cfg)
@@ -82,8 +97,38 @@ int load_config(const char *path, Config *cfg)
         char key[64], value[128], trailing;
 
         int fields = sscanf(line, "%63[^=]=%127s %c", key, value, &trailing);
+        /* Normalize trailing key whitespace so malformed numeric settings cannot bypass validation. */
+        if (fields >= 1)
+        {
+            size_t key_len = strlen(key);
+            while (key_len > 0 && isspace((unsigned char)key[key_len - 1]))
+                key[--key_len] = '\0';
+        }
+        /* Leading indentation must not bypass recognized-key validation. */
+        if (fields >= 1)
+        {
+            size_t leading = 0;
+            while (isspace((unsigned char)key[leading]))
+                leading++;
+            if (leading > 0)
+                memmove(key, key + leading, strlen(key + leading) + 1);
+        }
         if (fields < 2)
+        {
+            /* sscanf can include a newline in a bare key without '='. */
+            if (fields == 1)
+                key[strcspn(key, " \t\r\n")] = '\0';
+            /* A recognized numeric key without a value must not be ignored. */
+            if (fields == 1 && (strcmp(key, "batch_size") == 0 ||
+                                strcmp(key, "worker_threads") == 0 ||
+                                strcmp(key, "idle_sleep_ms") == 0))
+            {
+                fprintf(stderr, "config: missing integer value\n");
+                fclose(f);
+                return -1;
+            }
             continue;
+        }
         if (strcmp(key, "mode") == 0 && fields != 2)
         {
             fprintf(stderr, "config: invalid mode (unexpected trailing input)\n");
@@ -132,14 +177,24 @@ int load_config(const char *path, Config *cfg)
                 return -1;
             }
         }
-        else if (strcmp(key, "batch_size") == 0)
-            cfg->batch_size = atoi(value);
-
-        else if (strcmp(key, "worker_threads") == 0)
-            cfg->worker_threads = atoi(value);
-
-        else if (strcmp(key, "idle_sleep_ms") == 0)
-            cfg->idle_sleep_ms = atoi(value);
+        else if (strcmp(key, "batch_size") == 0 ||
+                 strcmp(key, "worker_threads") == 0 ||
+                 strcmp(key, "idle_sleep_ms") == 0)
+        {
+            int parsed;
+            if (fields != 2 || parse_config_int(value, &parsed) != 0)
+            {
+                fprintf(stderr, "config: invalid integer for %s\n", key);
+                fclose(f);
+                return -1;
+            }
+            if (strcmp(key, "batch_size") == 0)
+                cfg->batch_size = parsed;
+            else if (strcmp(key, "worker_threads") == 0)
+                cfg->worker_threads = parsed;
+            else
+                cfg->idle_sleep_ms = parsed;
+        }
 
         else if (strcmp(key, "mode") == 0)
         {

@@ -4,7 +4,7 @@
   "policy_effective_date": "2026-11-21",
   "snapshot_main_sha": "80de73b465ede49eec0882846c50efc0cbdee254",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-MODE-01",
+  "active_feature_id": "CONFIG-NUMERIC-01",
   "features": [
     {
       "id": "PERF-01",
@@ -186,11 +186,23 @@
     {
       "id": "CONFIG-MODE-01",
       "title": "Reject invalid configured execution mode instead of silently starting daemon",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         146
       ],
-      "summary": "PR #146 registered (1/5). Scoped C17 config parser rejects unknown mode values and ambiguous trailing mode tokens; disposable positive/negative config tests added. Exact-head CI must be reverified after latest changes; independent review/protection eligibility unverified. Manual OS/Docker/Compose/real-filesystem/backup/crash NOT RUN; FS-01B P0 and REL-01 BLOCKED."
+      "summary": "PR #146 merged at d7adc17afa4c015f95ad016bb3817c133a682435, tested head 43dafa1eb0699d38f0825a0423fc73b88372df6d; CMake, Docker, Makefile, Ubuntu 24.04 workflow families PASS. Independent approval not verified; manual OS/Compose/filesystem/backup/crash NOT RUN. FS-01B P0 and REL-01 blocked.",
+      "last_merged_pr": 146,
+      "merge_sha": "d7adc17afa4c015f95ad016bb3817c133a682435",
+      "tested_head_sha": "43dafa1eb0699d38f0825a0423fc73b88372df6d"
+    },
+    {
+      "id": "CONFIG-NUMERIC-01",
+      "title": "Reject malformed numeric configuration values without atoi fallback",
+      "status": "ACTIVE",
+      "prs": [
+        147
+      ],
+      "summary": "PR #147 OPEN (1/5); strict numeric lexical/range validation with disposable positive/negative tests. No destructive filesystem changes. CI and independent review pending; manual OS/Compose/filesystem/backup/crash NOT RUN; FS-01B P0/REL-01 BLOCKED."
     }
   ]
 }

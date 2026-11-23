@@ -237,3 +237,8 @@ These documents are normative together with this file. If guidance conflicts, ap
 
 
 CONFIG-EXT-MISSING-01: bare or empty ext.* destination mappings are rejected; PR pending CI. CONFIG-MODE-MISSING-01 merged in #152 at `aba6200dd4d6ecaa6306d720e81e733c6e6e5af3`. Manual acceptance NOT RUN; FS-01B/REL-01 blocked.
+
+
+## 23 Nov 2026 bounded config-read handoff
+
+CONFIG-READ-ERROR-01: fail closed on `ferror`/`fclose` in configuration parsing; disposable Linux directory-read negative regression. PR exact-head CI and merge are pending. No customer files, source retirement, release, production Rust, or deployment authorized. CONFIG-EXT-KEY-01 #154 merged at `5b858c90c4c63b4a978f6fcaf9e159de5c4e02a1`; manual acceptance NOT RUN. Other architecture/ABI/FCJ/security/Docker/performance/business documents N/A: no interfaces, filesystem mutation, operational or financial behavior changed.

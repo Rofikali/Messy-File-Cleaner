@@ -223,8 +223,10 @@
       "id": "CONFIG-EXT-TRAIL-01",
       "title": "Reject trailing operands in extension destination mapping configuration",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "One bounded C17 parser and disposable negative-test PR. Acceptance: reject extra tokens for ext.* mappings; retain valid destinations and prior normalization; verify exact-head C11/C17/C23 and Docker/Ubuntu/Makefile workflows. Manual acceptance NOT RUN; FS-01B/REL-01 BLOCKED."
+      "prs": [
+        150
+      ],
+      "summary": "PR #150 OPEN (1/5); C17 extension-mapping trailing-token rejection and disposable negative tests. Exact-head CI pending; manual acceptance NOT RUN; FS-01B/REL-01 BLOCKED."
     }
   ]
 }

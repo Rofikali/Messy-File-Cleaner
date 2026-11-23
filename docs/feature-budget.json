@@ -283,7 +283,9 @@
       "id": "CONFIG-ATOMIC-LOAD-01",
       "title": "Preserve caller configuration on failed load",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        156
+      ],
       "summary": "Stage scalar settings and caller-owned hash entries; negative late-failure regression. PR and exact-head CI pending; manual acceptance NOT RUN."
     }
   ]

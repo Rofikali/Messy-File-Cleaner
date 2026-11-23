@@ -266,3 +266,6 @@ Keep changes small enough to review. Never weaken a safety invariant to make a b
 ## License
 
 No license is declared in this README. Check the repository's license file and ownership terms before redistributing or incorporating this project.
+
+
+Configuration validation milestone: `CONFIG-MODE-MISSING-01` rejects a bare `mode` key rather than silently accepting the batch default. This does not change valid mode values, filesystem preservation guarantees, or release readiness. FS-01B and REL-01 remain blocked.

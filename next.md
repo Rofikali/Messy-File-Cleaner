@@ -10,7 +10,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-EXT-TRAIL-01 (1/5; PR #150 OPEN)** | Reject extra operands in `ext.*` mappings instead of accepting truncated destinations; disposable negative regression | Exact-head CI pending; manual OS/Compose/filesystem/backup/crash NOT RUN; P0/release blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-MODE-MISSING-01 (1/5; PR #152 OPEN)** | Reject bare `mode` config key rather than silently accepting default; disposable negative regression | Exact-head CI pending; manual OS/Compose/filesystem/backup/crash NOT RUN; P0/release blocked |
+| **DONE** | **CONFIG-EXT-TRAIL-01 (1/5; #150 merged)** | Reject trailing `ext.*` mapping operands; merge `74c0639e9656eb37339e96cdc9ed7d312682b3f0`, tested head `275a1b22a1ae6d1f6d433ee0bc5b36ffb125ce44` | Exact-head and integrated-main CI NOT VERIFIED in this run; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-LINE-01 (1/5; #148 merged)** | Reject overlong config lines; merge `3b32efbe8fad2047f3588fa51c907525a4e4dca4`, tested head `36383fd2ca31cba9489a7e88b530b29b1fd6298d`; four PR workflow families PASS | Manual acceptance NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-NUMERIC-01 (1/5; #147 merged)** | Strict numeric settings; merge `d839ad608c554d0c7715dc6264be6952ef07eccf`, tested head `03956c1828a31e375fe9971e65662b58c291d6a6`; four workflow families PASS | Independent approval not verified; manual acceptance NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-MODE-01 (1/5; #146 merged)** | Reject unknown/ambiguous execution mode; merge `d7adc17afa4c015f95ad016bb3817c133a682435`, tested head `43dafa1eb0699d38f0825a0423fc73b88372df6d`, four workflow families PASS | Independent approval not verified; manual acceptance NOT RUN; FS-01B P0/REL-01 blocked |

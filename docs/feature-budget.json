@@ -270,11 +270,21 @@
     {
       "id": "CONFIG-READ-ERROR-01",
       "title": "Reject configuration stream read errors instead of accepting partial input",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         155
       ],
-      "summary": "C17 ferror/fclose fail-closed handling and Linux disposable directory read-error regression. Exact-head CI pending, manual acceptance NOT RUN; no customer files or release."
+      "summary": "PR #155 merged at 80da9494bf970a8683f0365e9a3194c21bde9a73; exact-head and integrated-main four workflow families PASS; manual acceptance NOT RUN. Partial-state mutation tracked separately.",
+      "merge_sha": "80da9494bf970a8683f0365e9a3194c21bde9a73",
+      "tested_head_sha": "62d8feca35680a86403505ce3ac16b4137add4f0",
+      "last_merged_pr": 155
+    },
+    {
+      "id": "CONFIG-ATOMIC-LOAD-01",
+      "title": "Preserve caller configuration on failed load",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Stage scalar settings and caller-owned hash entries; negative late-failure regression. PR and exact-head CI pending; manual acceptance NOT RUN."
     }
   ]
 }

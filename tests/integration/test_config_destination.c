@@ -89,7 +89,7 @@ int main(void)
     }
 
     /* A missing extension name must not register a meaningless '.' mapping. */
-    const char *empty_extension_lines[] = {"ext.=Jpeg\\n", "ext..=Jpeg\\n", "  ext. = Jpeg\\n", NULL};
+    const char *empty_extension_lines[] = {"ext.=Jpeg\n", "ext..=Jpeg\n", "  ext. = Jpeg\n", NULL};
     for (size_t i = 0; empty_extension_lines[i]; ++i)
     {
         FILE *file = fopen(path, "w");

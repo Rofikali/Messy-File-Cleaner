@@ -211,8 +211,10 @@
       "id": "CONFIG-LINE-01",
       "title": "Reject overlong physical configuration lines before truncated-prefix interpretation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Implementation PR pending number registration. C17 bounded line-length rejection and disposable negative test; CI/review NOT RUN; manual acceptance NOT RUN; FS-01B/REL-01 BLOCKED."
+      "prs": [
+        148
+      ],
+      "summary": "PR #148 OPEN (1/5). C17 bounded line-length rejection and disposable negative test; CI/review NOT RUN; manual acceptance NOT RUN; FS-01B/REL-01 BLOCKED."
     }
   ]
 }

@@ -1,6 +1,8 @@
 # Coding Agent Continuation, Task Selection and Milestone Handoff
 
-**Standing process, not autonomous execution.** Applies to Codex, Astra, GitHub-connected agent or a human reviewer. Reading this runbook cannot wake a stopped chat, provision a coding agent, change branch protections or grant merge/deploy permission. The owner's **independent standing PR review/merge authorization** for the existing hourly autopilot is documented in [GOV-02](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md); only authorized agents with current GitHub access may exercise it.
+**Standing process, not autonomous execution.** Applies to Codex, Astra, GitHub-connected agent or a human reviewer. Reading this runbook cannot wake a stopped chat, provision a coding agent, change branch protections or grant merge/deploy permission. The owner's **standing zero-human-approval, CI-gated PR review/merge authorization** for the existing hourly autopilot is documented in [GOV-02](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md); only authorized agents with current GitHub access may exercise it.
+
+Follow the [hourly execution continuation and stall-recovery contract](AUTOPILOT_EXECUTION_CONTINUATION.md) to record a compact last-action checkpoint and resume the precise unfinished step. Two same-blocker NO CODE CHANGED executions must trigger a distinct safe candidate or an explicit blocker escalation, never repeated ceremony. This procedure does not activate the external ChatGPT schedule.
 
 ## Five-PR handoff (current owner rule)
 
@@ -27,7 +29,7 @@ The shorthand is a **workflow selector**, not an autonomous service, a blanket a
 
 ## First command for a new session
 
-> Read `AGENTS.md`, `next.md`, `docs/README.md`, `skills.md`, [GOV-02 autopilot merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md), current `main`, relevant security/architecture docs and exact PR/CI state. Choose the next dependency-unblocked READY milestone, make one bounded change/PR with focused tests and required CI, checkpoint exact results. Under active standing owner authorization, **independently review and merge only eligible PRs with exact SHA and mandatory protections**. Never deploy, delete real files/history, spend money, bypass security or implement a blocked P0/destructive change without a separate authorized decision.
+> Read `AGENTS.md`, `next.md`, `docs/README.md`, `skills.md`, [GOV-02 autopilot merge policy](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md), current `main`, relevant security/architecture docs and exact PR/CI state. Choose the next dependency-unblocked READY milestone, make one bounded change/PR with focused tests and required CI, checkpoint exact results. Under active standing owner authorization, **self-review truthfully and merge only eligible PRs with exact SHA and mandatory protections**. Never deploy, delete real files/history, spend money, bypass security or implement a blocked P0/destructive change without a separate authorized decision.
 
 ## Latest TOOL-01 rust-check merge checkpoint (2026-11-18)
 

@@ -247,7 +247,9 @@
       "id": "CONFIG-EXT-MISSING-01",
       "title": "Reject extension mapping keys without destination",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        153
+      ],
       "summary": "Reproducible C17 parser omission: bare ext.jpg or ext.jpg= silently ignored. Reject missing destination; negative disposable tests. CI pending; FS-01B/REL-01 blocked."
     }
   ]

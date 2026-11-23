@@ -152,7 +152,7 @@ int load_config(const char *path, Config *cfg)
             /* Never accept a valid destination while silently discarding trailing tokens. */
             if (fields != 2)
             {
-                fprintf(stderr, "config: invalid extension mapping (unexpected trailing input)\\n");
+                fprintf(stderr, "config: invalid extension mapping (unexpected trailing input)\n");
                 fclose(f);
                 return -1;
             }

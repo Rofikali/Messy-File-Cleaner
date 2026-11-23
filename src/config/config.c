@@ -111,7 +111,7 @@ static int load_config_into(const char *path, Config *cfg)
         const char *equals = strchr(line, '=');
         if (equals && (size_t)(equals - line) >= 64)
         {
-            fprintf(stderr, "config: key exceeds maximum length\\n");
+            fprintf(stderr, "config: key exceeds maximum length\n");
             fclose(f);
             return -1;
         }

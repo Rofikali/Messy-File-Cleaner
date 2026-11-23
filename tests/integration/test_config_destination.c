@@ -103,7 +103,7 @@ int main(void)
     {
         FILE *file = fopen(path, "w");
         assert(file != NULL);
-        assert(fprintf(file, "%s =12junk\\n", numeric_keys[k]) > 0);
+        assert(fprintf(file, "%s =12junk\n", numeric_keys[k]) > 0);
         assert(fclose(file) == 0);
         static HashEntry entries[64];
         Config cfg;

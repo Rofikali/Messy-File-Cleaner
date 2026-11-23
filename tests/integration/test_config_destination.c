@@ -88,6 +88,21 @@ int main(void)
         assert(load_config(path, &cfg) != 0);
     }
 
+    /* A missing extension name must not register a meaningless '.' mapping. */
+    const char *empty_extension_lines[] = {"ext.=Jpeg\\n", "ext..=Jpeg\\n", "  ext. = Jpeg\\n", NULL};
+    for (size_t i = 0; empty_extension_lines[i]; ++i)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fputs(empty_extension_lines[i], file) >= 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
     /* Bare mode must fail rather than silently selecting the default execution mode. */
     {
         FILE *file = fopen(path, "w");

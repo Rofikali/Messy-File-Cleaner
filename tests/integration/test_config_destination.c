@@ -154,6 +154,22 @@ int main(void)
         assert(cfg.batch_size == 128 && cfg.worker_threads == 16 && cfg.idle_sleep_ms == 0);
     }
 
+    /* A long physical config line must fail, not parse a valid truncated prefix. */
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fputs("mode=batch", file) >= 0);
+        for (int i = 0; i < 300; ++i)
+            assert(fputc(' ', file) != EOF);
+        assert(fputs("daemon\n", file) >= 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
     assert(unlink(path) == 0);
     puts("config destination security tests passed");
     return 0;

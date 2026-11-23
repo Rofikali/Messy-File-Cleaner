@@ -91,6 +91,17 @@ int load_config(const char *path, Config *cfg)
 
     while (fgets(line, sizeof(line), f))
     {
+        /* A truncated physical line must never be interpreted as valid configuration. */
+        if (strchr(line, '\n') == NULL && !feof(f))
+        {
+            int next = fgetc(f);
+            if (next != EOF)
+            {
+                fprintf(stderr, "config: line exceeds maximum length\n");
+                fclose(f);
+                return -1;
+            }
+        }
         if (line[0] == '#' || line[0] == '\n')
             continue;
 

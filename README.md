@@ -4,7 +4,9 @@
 
 > **Autopilot governance (23 Nov 2026):** owner allows safe reviewed-by-agent PR merges with **zero mandatory human approvals**, but not bypassing CI, protection or FS-01B/release restrictions. [Policy and post-merge docs workflow](docs/AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) · [GitHub importable main ruleset](.github/rulesets/autopilot-main-no-human-review.json). Committing JSON does not activate the ruleset.
 
-> **Configuration read-error safety (23 Nov 2026):** CONFIG-READ-ERROR-01 rejects stream read/close failures instead of accepting partial configuration; disposable Linux regression, pending exact-head CI. No destructive operations or release.\n\n> **Configuration validation (23 Nov 2026):** scoped CONFIG-EXT-KEY-01 work rejects missing extension names (`ext.=` / `ext..=`), with disposable negative tests. PR-head CI and merge status must be checked live; this does not authorize destructive source retirement or release.
+> **Configuration read-error safety (23 Nov 2026):** CONFIG-READ-ERROR-01 rejects stream read/close failures instead of accepting partial configuration; disposable Linux regression, pending exact-head CI. No destructive operations or release.
+
+> **Configuration validation (23 Nov 2026):** scoped CONFIG-EXT-KEY-01 work rejects missing extension names (`ext.=` / `ext..=`), with disposable negative tests. PR-head CI and merge status must be checked live; this does not authorize destructive source retirement or release.
 
 A Linux/POSIX file-organization tool with a **pure-C production engine** and isolated Rust **test-support** tooling. It scans a directory, classifies files using configurable extension rules, and processes work through a bounded worker pipeline. File moves are protected by a journal-backed transaction flow so interrupted operations can be examined and recovered conservatively.
 

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "b1ffd35d1dc2593f73092142ce1c927d8d9f1901",
+  "snapshot_main_sha": "aba6200dd4d6ecaa6306d720e81e733c6e6e5af3",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-MODE-MISSING-01",
+  "active_feature_id": "CONFIG-EXT-MISSING-01",
   "features": [
     {
       "id": "PERF-01",
@@ -234,11 +234,21 @@
     {
       "id": "CONFIG-MODE-MISSING-01",
       "title": "Reject missing configured execution mode value",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         152
       ],
-      "summary": "Bare mode key silently retains default; negative test and parser rejection proposed. Exact-head CI NOT RUN; manual acceptance NOT RUN; FS-01B/REL-01 BLOCKED."
+      "summary": "PR #152 merged; bare mode rejected. Exact-head four workflow families previously PASS; integrated-main and manual acceptance NOT VERIFIED.",
+      "last_merged_pr": 152,
+      "merge_sha": "aba6200dd4d6ecaa6306d720e81e733c6e6e5af3",
+      "tested_head_sha": "241c2ec44af6890719e23421e861ea69361f08ae"
+    },
+    {
+      "id": "CONFIG-EXT-MISSING-01",
+      "title": "Reject extension mapping keys without destination",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Reproducible C17 parser omission: bare ext.jpg or ext.jpg= silently ignored. Reject missing destination; negative disposable tests. CI pending; FS-01B/REL-01 blocked."
     }
   ]
 }

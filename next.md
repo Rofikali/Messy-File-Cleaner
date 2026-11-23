@@ -8,7 +8,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-LINE-01 (0/5; PR pending)** | Reject overlong physical config lines rather than interpreting a truncated prefix; disposable regression | Exact-head CI/review pending; manual OS/Compose/filesystem/backup/crash NOT RUN; P0/release blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-LINE-01 (1/5; PR #148 OPEN)** | Reject overlong physical config lines rather than interpreting a truncated prefix; disposable regression | Exact-head CI/review pending; manual OS/Compose/filesystem/backup/crash NOT RUN; P0/release blocked |
 | **DONE** | **CONFIG-NUMERIC-01 (1/5; #147 merged)** | Strict numeric settings; merge \`d839ad608c554d0c7715dc6264be6952ef07eccf\`, tested head \`03956c1828a31e375fe9971e65662b58c291d6a6\`; four workflow families PASS | Independent approval not verified; manual acceptance NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-MODE-01 (1/5; #146 merged)** | Reject unknown/ambiguous execution mode; merge `d7adc17afa4c015f95ad016bb3817c133a682435`, tested head `43dafa1eb0699d38f0825a0423fc73b88372df6d`, four workflow families PASS | Independent approval not verified; manual acceptance NOT RUN; FS-01B P0/REL-01 blocked |
 | **PARTIAL** | **PLAN-REPORT-01 (1/5; #145 merged)** | Aggregate-only JSON summary; merge `ac9fc87a91a665e2d0f09a3af79ee7f7ca310139`, tested head `4674ee4293c9c97c0c871fe6601b5aa33908119c`, five CI workflow families PASS | Per-file plan/conflict inventory absent; independent approval not verified; manual acceptance NOT RUN |

@@ -97,6 +97,13 @@ int load_config(const char *path, Config *cfg)
         char key[64], value[128], trailing;
 
         int fields = sscanf(line, "%63[^=]=%127s %c", key, value, &trailing);
+        /* Normalize trailing key whitespace so malformed numeric settings cannot bypass validation. */
+        if (fields >= 1)
+        {
+            size_t key_len = strlen(key);
+            while (key_len > 0 && isspace((unsigned char)key[key_len - 1]))
+                key[--key_len] = '\0';
+        }
         if (fields < 2)
         {
             /* sscanf can include a newline in a bare key without '='. */

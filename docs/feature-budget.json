@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "5b858c90c4c63b4a978f6fcaf9e159de5c4e02a1",
+  "snapshot_main_sha": "47f09e7cce005e0338ac24995c89749f61655994",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-ATOMIC-LOAD-01",
+  "active_feature_id": "CONFIG-KEY-WIDTH-01",
   "features": [
     {
       "id": "PERF-01",
@@ -282,11 +282,21 @@
     {
       "id": "CONFIG-ATOMIC-LOAD-01",
       "title": "Preserve caller configuration on failed load",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         156
       ],
-      "summary": "Stage scalar settings and caller-owned hash entries; negative late-failure regression. PR and exact-head CI pending; manual acceptance NOT RUN."
+      "summary": "PR #156 merged at 47f09e7cce005e0338ac24995c89749f61655994; exact-head four workflow families PASS; integrated-main CI NOT VERIFIED; manual acceptance NOT RUN.",
+      "merge_sha": "47f09e7cce005e0338ac24995c89749f61655994",
+      "tested_head_sha": "011524b8a4cd52729445f8b8cbd8f82450ae153d",
+      "last_merged_pr": 156
+    },
+    {
+      "id": "CONFIG-KEY-WIDTH-01",
+      "title": "Reject oversized configuration keys before bounded sscanf parsing",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "C17 rejects keys at or above 64 bytes before sscanf; disposable negative regression. Exact-head CI and manual acceptance NOT RUN; FS-01B and REL-01 BLOCKED."
     }
   ]
 }

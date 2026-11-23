@@ -259,7 +259,9 @@
       "id": "CONFIG-EXT-KEY-01",
       "title": "Reject empty extension names in routing configuration",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        154
+      ],
       "summary": "Reject ext.=Jpeg, ext..=Jpeg and whitespace-padded empty extension names; disposable negative tests; exact-head CI pending. No filesystem operations; FS-01B/REL-01 blocked."
     }
   ]

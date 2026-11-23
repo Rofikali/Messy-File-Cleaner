@@ -245,7 +245,7 @@ int main(void)
         assert(file != NULL);
         for (int i = 0; i < 64; ++i)
             assert(fputc('k', file) != EOF);
-        assert(fputs("=batch\\n", file) >= 0);
+        assert(fputs("=batch\n", file) >= 0);
         assert(fclose(file) == 0);
         HashEntry entries[64];
         Config cfg;

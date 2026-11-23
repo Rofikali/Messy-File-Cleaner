@@ -104,6 +104,15 @@ int load_config(const char *path, Config *cfg)
             while (key_len > 0 && isspace((unsigned char)key[key_len - 1]))
                 key[--key_len] = '\0';
         }
+        /* Leading indentation must not bypass recognized-key validation. */
+        if (fields >= 1)
+        {
+            size_t leading = 0;
+            while (isspace((unsigned char)key[leading]))
+                leading++;
+            if (leading > 0)
+                memmove(key, key + leading, strlen(key + leading) + 1);
+        }
         if (fields < 2)
         {
             /* sscanf can include a newline in a bare key without '='. */

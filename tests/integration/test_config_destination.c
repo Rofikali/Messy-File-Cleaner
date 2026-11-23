@@ -74,7 +74,7 @@ int main(void)
     }
 
     /* Missing extension destination must not silently omit a routing rule. */
-    const char *missing_extension_lines[] = {"ext.jpg\\n", "ext.jpg=\\n", "  ext.png = \\n", NULL};
+    const char *missing_extension_lines[] = {"ext.jpg\n", "ext.jpg=\n", "  ext.png = \n", NULL};
     for (size_t i = 0; missing_extension_lines[i]; ++i)
     {
         FILE *file = fopen(path, "w");

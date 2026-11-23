@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+> Owner directive (23 Nov 2026): **no required human approving review** for routine eligible autopilot PRs. Conduct documented agent self-review; enforce current-head CI, thread resolution, main rules and FS-01B P0 boundaries. [Authoritative policy](docs/AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) replaces contrary older independent-approval requirements; [ruleset JSON](.github/rulesets/autopilot-main-no-human-review.json) must be imported separately.
+
 This file is the working contract for every human and automated contributor.
 
 ## Owner feature-budget directive (2026-11-21)

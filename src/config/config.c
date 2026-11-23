@@ -106,6 +106,15 @@ static int load_config_into(const char *path, Config *cfg)
         if (line[0] == '#' || line[0] == '\n')
             continue;
 
+        /* Do not let sscanf's bounded key field silently discard a long
+           recognized-looking key (or an unknown key). Reject it explicitly. */
+        const char *equals = strchr(line, '=');
+        if (equals && (size_t)(equals - line) >= 64)
+        {
+            fprintf(stderr, "config: key exceeds maximum length\n");
+            fclose(f);
+            return -1;
+        }
         char key[64], value[128], trailing;
 
         int fields = sscanf(line, "%63[^=]=%127s %c", key, value, &trailing);

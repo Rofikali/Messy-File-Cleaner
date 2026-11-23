@@ -279,3 +279,5 @@ Configuration validation: `CONFIG-EXT-MISSING-01` rejects missing extension dest
 
 
 > **CONFIG-ATOMIC-LOAD-01 (23 Nov 2026, proposed PR):** C17 configuration loading now stages scalar settings and caller-owned extension map entries, committing only after successful parse/read/close. Failed loads retain prior caller state; disposable late-failure regression added. This is not a release or filesystem-retirement safety approval. Exact-head CI and manual acceptance remain NOT RUN pending PR verification. FS-01B and REL-01 remain BLOCKED.
+
+> **CONFIG-KEY-WIDTH-01 (24 Nov 2026, proposed PR):** Configuration parsing rejects keys of 64 bytes or more instead of silently ignoring a truncated key. This is a validation hardening change, not release approval; see `next.md` and `docs/feature-budget.json` for CI and milestone status.

@@ -238,6 +238,22 @@ int main(void)
         assert(cfg.batch_size == 128 && cfg.worker_threads == 16 && cfg.idle_sleep_ms == 0);
     }
 
+    /* A key wider than sscanf's 63-character field must be rejected,
+       including a long unrecognized key with an otherwise valid value. */
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        for (int i = 0; i < 64; ++i)
+            assert(fputc('k', file) != EOF);
+        assert(fputs("=batch\n", file) >= 0);
+        assert(fclose(file) == 0);
+        HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
     /* A long physical config line must fail, not parse a valid truncated prefix. */
     {
         FILE *file = fopen(path, "w");

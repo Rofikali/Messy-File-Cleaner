@@ -4,7 +4,7 @@
   "policy_effective_date": "2026-11-21",
   "snapshot_main_sha": "aba6200dd4d6ecaa6306d720e81e733c6e6e5af3",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-EXT-MISSING-01",
+  "active_feature_id": "CONFIG-EXT-KEY-01",
   "features": [
     {
       "id": "PERF-01",
@@ -246,11 +246,21 @@
     {
       "id": "CONFIG-EXT-MISSING-01",
       "title": "Reject extension mapping keys without destination",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         153
       ],
-      "summary": "Reproducible C17 parser omission: bare ext.jpg or ext.jpg= silently ignored. Reject missing destination; negative disposable tests. CI pending; FS-01B/REL-01 blocked."
+      "summary": "PR #153 merged at 49d413ab6a5b97ada94e77959fd78988b75c4f0b; four exact-head workflow families previously verified PASS. Manual Ubuntu/Compose/real-filesystem/backup/power-loss NOT RUN; FS-01B/REL-01 BLOCKED.",
+      "last_merged_pr": 153,
+      "merge_sha": "49d413ab6a5b97ada94e77959fd78988b75c4f0b",
+      "tested_head_sha": "e417a9ebb74925f15f4b62793387c39e5fec3d07"
+    },
+    {
+      "id": "CONFIG-EXT-KEY-01",
+      "title": "Reject empty extension names in routing configuration",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Reject ext.=Jpeg, ext..=Jpeg and whitespace-padded empty extension names; disposable negative tests; exact-head CI pending. No filesystem operations; FS-01B/REL-01 blocked."
     }
   ]
 }

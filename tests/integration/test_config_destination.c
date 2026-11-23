@@ -43,7 +43,7 @@ int main(void)
     {
         FILE *file = fopen(path, "w");
         assert(file != NULL);
-        assert(fputs("batch_size=123\\next.jpg=NewFolder\\nmode=invalid\\n", file) >= 0);
+        assert(fputs("batch_size=123\next.jpg=NewFolder\nmode=invalid\n", file) >= 0);
         assert(fclose(file) == 0);
         HashEntry entries[64];
         Config cfg;

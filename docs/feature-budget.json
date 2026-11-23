@@ -271,7 +271,9 @@
       "id": "CONFIG-READ-ERROR-01",
       "title": "Reject configuration stream read errors instead of accepting partial input",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        155
+      ],
       "summary": "C17 ferror/fclose fail-closed handling and Linux disposable directory read-error regression. Exact-head CI pending, manual acceptance NOT RUN; no customer files or release."
     }
   ]

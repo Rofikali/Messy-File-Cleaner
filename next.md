@@ -10,7 +10,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-EXT-MISSING-01 (1/5; PR #153 OPEN)** | Reject bare and empty `ext.*` mapping keys; disposable negative regression | Exact-head CI pending; manual acceptance NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-EXT-KEY-01 (1/5; PR #154 OPEN)** | Reject empty extension names (`ext.=` / `ext..=`); disposable negative regression | Exact-head CI pending; manual acceptance NOT RUN; FS-01B/REL-01 blocked |
+| **DONE** | **CONFIG-EXT-MISSING-01 (1/5; #153 merged)** | Reject missing `ext.*` destinations; merge `49d413ab6a5b97ada94e77959fd78988b75c4f0b`, tested head `e417a9ebb74925f15f4b62793387c39e5fec3d07`; four PR workflow families PASS | Manual acceptance NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-MODE-MISSING-01 (1/5; #152 merged)** | Reject bare `mode`; merge `aba6200dd4d6ecaa6306d720e81e733c6e6e5af3`, tested head `241c2ec44af6890719e23421e861ea69361f08ae` | Integrated-main CI and manual acceptance NOT VERIFIED |
 | **DONE** | **CONFIG-EXT-TRAIL-01 (1/5; #150 merged)** | Reject trailing `ext.*` mapping operands; merge `74c0639e9656eb37339e96cdc9ed7d312682b3f0`, tested head `275a1b22a1ae6d1f6d433ee0bc5b36ffb125ce44` | Exact-head and integrated-main CI NOT VERIFIED in this run; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-LINE-01 (1/5; #148 merged)** | Reject overlong config lines; merge `3b32efbe8fad2047f3588fa51c907525a4e4dca4`, tested head `36383fd2ca31cba9489a7e88b530b29b1fd6298d`; four PR workflow families PASS | Manual acceptance NOT RUN; FS-01B/REL-01 blocked |

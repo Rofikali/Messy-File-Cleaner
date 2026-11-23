@@ -159,6 +159,13 @@ int load_config(const char *path, Config *cfg)
                 return -1;
             }
             const char *ext = key + 4;
+            /* An empty extension would create a catch-all-looking '.' key. */
+            if (ext[0] == '\0' || (ext[0] == '.' && ext[1] == '\0'))
+            {
+                fprintf(stderr, "config: empty extension key\n");
+                fclose(f);
+                return -1;
+            }
             char normalized_key[64];
 
             if (!valid_destination_folder(value))

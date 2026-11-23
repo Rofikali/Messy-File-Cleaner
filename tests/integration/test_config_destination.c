@@ -161,7 +161,7 @@ int main(void)
         assert(fputs("mode=batch", file) >= 0);
         for (int i = 0; i < 300; ++i)
             assert(fputc(' ', file) != EOF);
-        assert(fputs("daemon\\n", file) >= 0);
+        assert(fputs("daemon\n", file) >= 0);
         assert(fclose(file) == 0);
         static HashEntry entries[64];
         Config cfg;

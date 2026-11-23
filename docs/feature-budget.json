@@ -295,8 +295,10 @@
       "id": "CONFIG-KEY-WIDTH-01",
       "title": "Reject oversized configuration keys before bounded sscanf parsing",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 rejects keys at or above 64 bytes before sscanf; disposable negative regression. Exact-head CI and manual acceptance NOT RUN; FS-01B and REL-01 BLOCKED."
+      "prs": [
+        157
+      ],
+      "summary": "C17 rejects keys at or above 64 bytes before sscanf; disposable negative regression. PR #157 OPEN; exact-head CI and manual acceptance NOT RUN; FS-01B and REL-01 BLOCKED."
     }
   ]
 }

@@ -38,6 +38,27 @@ int main(void)
     assert(load_with_destination(path, "Png") == 0);
     assert(load_with_destination(path, "Others/") == 0);
 
+
+    /* Late invalid input must preserve both scalar and routing state. */
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fputs("batch_size=123\\next.jpg=NewFolder\\nmode=invalid\\n", file) >= 0);
+        assert(fclose(file) == 0);
+        HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(hashmap_put(&cfg.ext_map, ".png", "Existing") == 0);
+        cfg.batch_size = 77;
+        assert(load_config(path, &cfg) != 0);
+        assert(cfg.batch_size == 77);
+        assert(cfg.ext_map.size == 1);
+        assert(strcmp(hashmap_get(&cfg.ext_map, ".png"), "Existing") == 0);
+        assert(hashmap_get(&cfg.ext_map, ".jpg") == NULL);
+        assert(cfg.ext_map.entries == entries);
+    }
+
     const char *unsafe[] = {
         "../outside",
         "/tmp/outside",

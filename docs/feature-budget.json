@@ -235,7 +235,9 @@
       "id": "CONFIG-MODE-MISSING-01",
       "title": "Reject missing configured execution mode value",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        152
+      ],
       "summary": "Bare mode key silently retains default; negative test and parser rejection proposed. Exact-head CI NOT RUN; manual acceptance NOT RUN; FS-01B/REL-01 BLOCKED."
     }
   ]

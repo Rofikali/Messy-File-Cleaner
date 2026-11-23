@@ -6,6 +6,8 @@
 
 Import [main protection JSON](../.github/rulesets/autopilot-main-no-human-review.json) via GitHub **Settings > Rules > Rulesets > Import**. Protect `main` from deletion and non-fast-forward pushes, require PRs (zero approving reviews), resolved review threads, strict up-to-date required CI, and no bypass actors. Current required contexts are feature-budget validation, C11/C17/C23 matrix checks and Docker smoke. Verify actual context names against Actions before enabling. Path-filtered Ubuntu/TSan/specialty jobs remain *conditional* and are not mandatory for every docs PR. A checked-in JSON file does NOT install the ruleset; only GitHub admin settings can.
 
+**For the runnable continuation checklist and cross-discipline acceptance:** [Hourly Autopilot — Continuation and Recovery Contract](AUTOPILOT_EXECUTION_CONTINUATION.md). It defines how to resume unfinished work, distinguish scheduled execution from delivered code, and avoid repeated no-change audits.
+
 ## Complete bounded engineering lifecycle
 
 1. **Observe:** query live GitHub main SHA, current open/merged PRs, exact head/base, CI jobs/checks, review comments/threads, applicable rulesets, open security issues and the current milestone. Never follow a stale OPEN label as live fact.

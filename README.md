@@ -1,5 +1,7 @@
 # Messy File Cleaner
 
+> **Execution recovery (23 Nov 2026):** use the [hourly continuation and stall recovery](docs/AUTOPILOT_EXECUTION_CONTINUATION.md) for checkpoints, resume-first task selection, two-no-change escalation, and proportional L1–L7/CISSP/CCIE/Linux/SRE/CA-MBA review. This is a repository procedure, **not a running scheduler**; current GitHub and actual ChatGPT task history supersede dated snapshots.
+
 > **Autopilot governance (23 Nov 2026):** owner allows safe reviewed-by-agent PR merges with **zero mandatory human approvals**, but not bypassing CI, protection or FS-01B/release restrictions. [Policy and post-merge docs workflow](docs/AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) · [GitHub importable main ruleset](.github/rulesets/autopilot-main-no-human-review.json). Committing JSON does not activate the ruleset.
 
 A Linux/POSIX file-organization tool with a **pure-C production engine** and isolated Rust **test-support** tooling. It scans a directory, classifies files using configurable extension rules, and processes work through a bounded worker pipeline. File moves are protected by a journal-backed transaction flow so interrupted operations can be examined and recovered conservatively.
@@ -8,7 +10,7 @@ A Linux/POSIX file-organization tool with a **pure-C production engine** and iso
 
 ## Feature progression and verification (23 November 2026)
 
-[PR #148](https://github.com/Rofikali/Messy-File-Cleaner/pull/148) merged at `3b32efbe8fad2047f3588fa51c907525a4e4dca4`, rejecting overlong physical configuration lines. Its tested PR head `36383fd2ca31cba9489a7e88b530b29b1fd6298d` passed CMake, Docker, Makefile and Ubuntu 24.04 workflow families. The next bounded parser validation addresses unexpected trailing operands in `ext.*` destination mappings; see [live board](next.md) and [feature budget](docs/feature-budget.json). These CI results do not establish manual Ubuntu/Docker Desktop/Compose, real-filesystem, backup or power-loss acceptance. FS-01B P0 and REL-01 remain blocked; no release is authorized.
+[PR #148](https://github.com/Rofikali/Messy-File-Cleaner/pull/148) merged at `3b32efbe8fad2047f3588fa51c907525a4e4dca4`, rejecting overlong physical configuration lines. Its tested PR head `36383fd2ca31cba9489a7e88b530b29b1fd6298d` passed CMake, Docker, Makefile and Ubuntu 24.04 workflow families. PR #150 subsequently merged trailing-operand rejection for `ext.*` mappings at `74c0639e9656eb37339e96cdc9ed7d312682b3f0`; a new safe feature requires live selection and ledger reconciliation; see [live board](next.md) and [feature budget](docs/feature-budget.json). These CI results do not establish manual Ubuntu/Docker Desktop/Compose, real-filesystem, backup or power-loss acceptance. FS-01B P0 and REL-01 remain blocked; no release is authorized.
 
 ## Opt-in dry-run JSON summary (PR #145, merged; aggregate-only)
 

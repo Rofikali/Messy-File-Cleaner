@@ -239,7 +239,18 @@ int load_config(const char *path, Config *cfg)
         }
     }
 
-    fclose(f);
+    /* A read failure is not EOF: never accept a partially loaded configuration. */
+    if (ferror(f))
+    {
+        fprintf(stderr, "config: read failed\n");
+        fclose(f);
+        return -1;
+    }
+    if (fclose(f) != 0)
+    {
+        fprintf(stderr, "config: close failed\n");
+        return -1;
+    }
     config_normalize(cfg);
     return 0;
 }

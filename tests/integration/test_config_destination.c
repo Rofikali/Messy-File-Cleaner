@@ -233,6 +233,22 @@ int main(void)
         assert(load_config(path, &cfg) != 0);
     }
 
+#ifdef __linux__
+    /* On Linux fopen(directory) may succeed, but fgets fails with EISDIR.
+       This disposable fixture exercises the stream-error path without
+       touching customer data or requiring injected production hooks. */
+    {
+        char dir[] = "/tmp/fc-config-read-error-XXXXXX";
+        assert(mkdtemp(dir) != NULL);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(dir, &cfg) != 0);
+        assert(rmdir(dir) == 0);
+    }
+#endif
+
     assert(unlink(path) == 0);
     puts("config destination security tests passed");
     return 0;

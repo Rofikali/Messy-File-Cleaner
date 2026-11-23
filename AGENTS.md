@@ -245,3 +245,5 @@ CONFIG-READ-ERROR-01: fail closed on `ferror`/`fclose` in configuration parsing;
 
 
 > **CONFIG-ATOMIC-LOAD-01 (23 Nov 2026, proposed PR):** C17 configuration loading now stages scalar settings and caller-owned extension map entries, committing only after successful parse/read/close. Failed loads retain prior caller state; disposable late-failure regression added. This is not a release or filesystem-retirement safety approval. Exact-head CI and manual acceptance remain NOT RUN pending PR verification. FS-01B and REL-01 remain BLOCKED.
+
+> **CONFIG-KEY-WIDTH-01 (24 Nov 2026, proposed PR):** Reject overlong config keys before bounded sscanf parsing; disposable regression and same-PR feature-ledger reconciliation. C17 production; C11/C23 compatibility requires CI verification. No source retirement, deployment, release or ABI change. FS-01B/REL-01 BLOCKED; manual acceptance NOT RUN.

@@ -129,7 +129,7 @@ int load_config(const char *path, Config *cfg)
             /* sscanf can include a newline in a bare key without '='. */
             if (fields == 1)
                 key[strcspn(key, " \t\r\n")] = '\0';
-            /* A recognized numeric key without a value must not be ignored. */
+            /* A recognized required setting without a value must not be ignored. */
             if (fields == 1 && (strcmp(key, "batch_size") == 0 ||
                                 strcmp(key, "worker_threads") == 0 ||
                                 strcmp(key, "idle_sleep_ms") == 0 ||

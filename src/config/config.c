@@ -149,6 +149,13 @@ int load_config(const char *path, Config *cfg)
 
         if (strncmp(key, "ext.", 4) == 0)
         {
+            /* Never accept a valid destination while silently discarding trailing tokens. */
+            if (fields != 2)
+            {
+                fprintf(stderr, "config: invalid extension mapping (unexpected trailing input)\\n");
+                fclose(f);
+                return -1;
+            }
             const char *ext = key + 4;
             char normalized_key[64];
 

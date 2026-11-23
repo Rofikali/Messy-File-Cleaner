@@ -269,3 +269,6 @@ No license is declared in this README. Check the repository's license file and o
 
 
 Configuration validation milestone: `CONFIG-MODE-MISSING-01` rejects a bare `mode` key rather than silently accepting the batch default. This does not change valid mode values, filesystem preservation guarantees, or release readiness. FS-01B and REL-01 remain blocked.
+
+
+Configuration validation: `CONFIG-EXT-MISSING-01` rejects missing extension destination mappings rather than silently ignoring routing configuration. No filesystem retirement or release authorization is implied.

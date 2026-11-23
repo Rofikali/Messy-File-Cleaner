@@ -232,3 +232,6 @@ These documents are normative together with this file. If guidance conflicts, ap
 - Report exact commands and observed results. Separate tests passed, tests not run, known limitations, and inferred risks.
 - A benchmark is evidence only for the measured workload and environment. Never generalize one filesystem, one machine, or one run into a universal performance claim.
 - Do not modify or delete user data during development. Destructive tests must create and verify disposable fixtures.
+
+
+CONFIG-EXT-MISSING-01: bare or empty ext.* destination mappings are rejected; PR pending CI. CONFIG-MODE-MISSING-01 merged in #152 at `aba6200dd4d6ecaa6306d720e81e733c6e6e5af3`. Manual acceptance NOT RUN; FS-01B/REL-01 blocked.

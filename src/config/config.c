@@ -133,7 +133,8 @@ int load_config(const char *path, Config *cfg)
             if (fields == 1 && (strcmp(key, "batch_size") == 0 ||
                                 strcmp(key, "worker_threads") == 0 ||
                                 strcmp(key, "idle_sleep_ms") == 0 ||
-                                strcmp(key, "mode") == 0))
+                                strcmp(key, "mode") == 0 ||
+                                strncmp(key, "ext.", 4) == 0))
             {
                 fprintf(stderr, "config: missing required value\n");
                 fclose(f);

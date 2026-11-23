@@ -73,6 +73,21 @@ int main(void)
         assert(load_config(path, &cfg) != 0);
     }
 
+    /* Missing extension destination must not silently omit a routing rule. */
+    const char *missing_extension_lines[] = {"ext.jpg\n", "ext.jpg=\n", "  ext.png = \n", NULL};
+    for (size_t i = 0; missing_extension_lines[i]; ++i)
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fputs(missing_extension_lines[i], file) >= 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
     /* Bare mode must fail rather than silently selecting the default execution mode. */
     {
         FILE *file = fopen(path, "w");

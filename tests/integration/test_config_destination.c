@@ -73,6 +73,19 @@ int main(void)
         assert(load_config(path, &cfg) != 0);
     }
 
+    /* Bare mode must fail rather than silently selecting the default execution mode. */
+    {
+        FILE *file = fopen(path, "w");
+        assert(file != NULL);
+        assert(fputs("mode\n", file) >= 0);
+        assert(fclose(file) == 0);
+        static HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) != 0);
+    }
+
     /* A typo must not silently select daemon mode. */
     const char *valid_modes[] = {"batch", "daemon", NULL};
     const char *invalid_modes[] = {"batc", "DAEMON", "watch", "batchx", "batch daemon", "daemon batch", "batch #unexpected", NULL};

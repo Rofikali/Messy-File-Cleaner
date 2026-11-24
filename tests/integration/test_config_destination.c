@@ -27,12 +27,56 @@ static int load_with_destination(const char *path, const char *destination)
     return load_config(path, &config);
 }
 
+/* Capture exact diagnostic bytes using disposable POSIX file descriptors. */
+static void assert_safe_diagnostic(const char *path, const char *input,
+                                   const char *expected)
+{
+    FILE *file = fopen(path, "wb");
+    assert(file != NULL);
+    assert(fputs(input, file) >= 0);
+    assert(fclose(file) == 0);
+
+    HashEntry entries[64];
+    Config cfg;
+    hashmap_init(&cfg.ext_map, entries, 64);
+    init_config(&cfg);
+    assert(fflush(stderr) == 0);
+    FILE *capture = tmpfile();
+    assert(capture != NULL);
+    int saved = dup(STDERR_FILENO);
+    assert(saved >= 0);
+    assert(dup2(fileno(capture), STDERR_FILENO) >= 0);
+    int result = load_config(path, &cfg);
+    int flushed = fflush(stderr);
+    int restored = dup2(saved, STDERR_FILENO);
+    assert(close(saved) == 0);
+    assert(restored >= 0 && flushed == 0);
+    assert(result != 0);
+    assert(cfg.ext_map.size == 0);
+    assert(fseek(capture, 0, SEEK_SET) == 0);
+    char bytes[256];
+    size_t count = fread(bytes, 1, sizeof(bytes), capture);
+    assert(!ferror(capture));
+    assert(count == strlen(expected));
+    assert(memcmp(bytes, expected, count) == 0);
+    assert(fclose(capture) == 0);
+}
+
 int main(void)
 {
     char path[] = "/tmp/fc-config-test-XXXXXX";
     int fd = mkstemp(path);
     assert(fd >= 0);
     assert(close(fd) == 0);
+
+    /* Neither invalid destination nor oversized mapping key may echo
+       terminal control bytes or untrusted strings into stderr. */
+    assert_safe_diagnostic(path, "ext.jpg=Bad\033[31mFolder\n",
+                           "config: unsafe extension destination\n");
+    assert_safe_diagnostic(path, "ext.bad\033[31mkey=../outside\n",
+                           "config: unsafe extension destination\n");
+    assert_safe_diagnostic(path, "ext.long\033[31mextensionname=Safe\n",
+                           "config: extension mapping rejected (capacity or length)\n");
 
     assert(load_with_destination(path, "Jpeg/") == 0);
     assert(load_with_destination(path, "Png") == 0);

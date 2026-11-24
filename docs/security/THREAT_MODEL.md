@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Configuration diagnostic trust boundary
+
+Extension keys and destination values are untrusted input. Rejection messages must not echo their raw bytes into stderr; fixed diagnostics preserve the reason category without terminal escape injection or disclosure of rejected values. Numeric setting names may be emitted only after matching a fixed allowlist. Regression tests capture exact stderr bytes from disposable inputs. This scope does not certify all CLI logging, filesystem safety or release readiness. See [live board](../../next.md) for verification.
+
 ## 1. Status and scope
 
 This is the baseline threat model for Messy File Cleaner, a local Linux/POSIX file-management application written in pure C. It describes required security properties and residual risks. It does not certify the implementation as secure or production-ready.

@@ -292,7 +292,10 @@ void free_config(Config *cfg)
    read or close must never expose a partial routing configuration. */
 int load_config(const char *path, Config *cfg)
 {
-    if (!cfg || !cfg->ext_map.entries || cfg->ext_map.capacity == 0 ||
+    if (!path || path[0] == '\0' || !cfg || !cfg->ext_map.entries ||
+        cfg->ext_map.capacity == 0 ||
+        (cfg->ext_map.capacity & (cfg->ext_map.capacity - 1)) != 0 ||
+        cfg->ext_map.size > cfg->ext_map.capacity ||
         cfg->ext_map.capacity > SIZE_MAX / sizeof(HashEntry))
         return -1;
 

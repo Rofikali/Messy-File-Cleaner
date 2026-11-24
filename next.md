@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-NUL-INPUT-01 (0/5; staged)** | Reject embedded NUL before parsing; atomicity regression tests | CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-NUL-INPUT-01 (1/5; PR #159 OPEN)** | Reject embedded NUL before parsing; atomicity regression tests | CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **GOV-CROSS-CONTRIBUTOR-HANDOFF-01 (1/5; #158 merged)** | All 13 PR and integrated-main checks passed; merge `5295a0cc6f5bd085baf22c0119efebca154e483d` | Scheduler reliability not established by CI |
 | **DONE** | **CONFIG-KEY-WIDTH-01 (1/5; #157 merged)** | Reject oversized configuration keys; merge `84f646759c0ab5f1c81fe938814b2f058022dfa0` | Exact-head and integrated-main CI NOT VERIFIED; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-ATOMIC-LOAD-01 (1/5; #156 merged)** | Transactional C17 config load; merge `47f09e7cce005e0338ac24995c89749f61655994`, tested head `011524b8a4cd52729445f8b8cbd8f82450ae153d` | Integrated-main CI NOT VERIFIED; manual acceptance NOT RUN |

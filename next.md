@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-API-PRECONDITIONS-01 (0/5; staged)** | Validate path and map metadata before config staging; disposable tests | CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-API-PRECONDITIONS-01 (1/5; PR #161 OPEN)** | Validate path and map metadata before config staging; disposable tests | CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-DIAGNOSTIC-01 (1/5; #160 merged)** | All 13 PR and integrated-main checks passed; merge `fdf97648157fda6cb59d026bac25d1ea94dc4b49` | Manual acceptance NOT RUN |
 | **DONE** | **CONFIG-NUL-INPUT-01 (1/5; #159 merged)** | All 13 PR and integrated-main checks passed; merge `9df0278e237a070a1a18c8296c0edafe072c3ca0` | Manual acceptance NOT RUN |
 | **DONE** | **GOV-CROSS-CONTRIBUTOR-HANDOFF-01 (1/5; #158 merged)** | All 13 PR and integrated-main checks passed; merge `5295a0cc6f5bd085baf22c0119efebca154e483d` | Scheduler reliability not established by CI |

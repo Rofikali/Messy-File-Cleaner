@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **GOV-CROSS-CONTRIBUTOR-HANDOFF-01 (0/5; staged)** | Cross-contributor handoff, canonical documentation and ledger reconciliation | Required CI pending; no scheduler reliability claim |
+| **NOW — SAFE FEATURE SELECTION** | **GOV-CROSS-CONTRIBUTOR-HANDOFF-01 (1/5; PR #158 OPEN)** | Cross-contributor handoff, canonical documentation and ledger reconciliation | Required CI pending; no scheduler reliability claim |
 | **DONE** | **CONFIG-KEY-WIDTH-01 (1/5; #157 merged)** | Reject oversized configuration keys; merge `84f646759c0ab5f1c81fe938814b2f058022dfa0` | Exact-head and integrated-main CI NOT VERIFIED; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-ATOMIC-LOAD-01 (1/5; #156 merged)** | Transactional C17 config load; merge `47f09e7cce005e0338ac24995c89749f61655994`, tested head `011524b8a4cd52729445f8b8cbd8f82450ae153d` | Integrated-main CI NOT VERIFIED; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-READ-ERROR-01 (1/5; #155 merged)** | Read/close errors rejected; merge `80da9494bf970a8683f0365e9a3194c21bde9a73`, tested head `62d8feca35680a86403505ce3ac16b4137add4f0`; exact-head and integrated-main workflow families PASS | Manual acceptance NOT RUN; prior partial mutation addressed by CONFIG-ATOMIC-LOAD-01 |

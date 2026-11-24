@@ -1,5 +1,9 @@
 # Hourly Engineering Autopilot — Continuation and Recovery Contract
 
+## Cross-contributor execution contract (24 November 2026)
+
+Every authorized human or agent must reconcile live GitHub main, all open and recently merged/closed PRs regardless of author, existing branches, exact-head/base CI and the feature ledger before selecting work. Resume existing eligible work instead of duplicating it. Manual `go ahead` and hourly execution coexist; changes by other contributors are discovered on the next hourly poll, not an instant webhook. Five opened PRs per stable feature ID across all authors; same-PR fixes do not consume a slot. Update AGENTS, skills/SKILLS, README, next and affected architecture/security/CI/SRE docs in the same PR; mark unchanged families N/A. Review honestly and merge only with real gates satisfied. If checkout fails, attempt concrete GitHub connector operations; report the actual failed operation/error if blocked. A completed scheduled invocation is not evidence of engineering progress. Preserve filesystem safety and release blocks.
+
 **Status:** repository operating procedure, 23 November 2026. **Scope:** `Rofikali/Messy-File-Cleaner` only. This document does not schedule an agent: the separately enabled ChatGPT task owns its hourly recurrence, execution environment and run history. A run can fail or be delayed; neither a Markdown edit nor a successful GitHub Actions workflow proves that a scheduled coding invocation occurred. Manual **go ahead** is an additional immediate request, never a replacement for the hourly task. Follow [binding AGENTS rules](../AGENTS.md), [GOV-02](AGENT_AUTOPILOT_PR_REVIEW_MERGE_POLICY.md), [no-human-approval governance](AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md), [live board](../next.md), and [feature ledger](feature-budget.json).
 
 ## Outcome invariant

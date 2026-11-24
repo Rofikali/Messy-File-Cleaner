@@ -342,7 +342,9 @@
       "id": "CONFIG-API-PRECONDITIONS-01",
       "title": "Validate configuration loader API preconditions before staging",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        161
+      ],
       "summary": "Reject null/empty path and invalid hash map metadata before file open or staging; preserve valid caller state. No ABI signature change."
     }
   ]

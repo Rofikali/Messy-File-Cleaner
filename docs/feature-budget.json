@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "47f09e7cce005e0338ac24995c89749f61655994",
+  "snapshot_main_sha": "84f646759c0ab5f1c81fe938814b2f058022dfa0",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-KEY-WIDTH-01",
+  "active_feature_id": "GOV-CROSS-CONTRIBUTOR-HANDOFF-01",
   "features": [
     {
       "id": "PERF-01",
@@ -294,11 +294,20 @@
     {
       "id": "CONFIG-KEY-WIDTH-01",
       "title": "Reject oversized configuration keys before bounded sscanf parsing",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         157
       ],
-      "summary": "C17 rejects keys at or above 64 bytes before sscanf; disposable negative regression. PR #157 OPEN; exact-head CI and manual acceptance NOT RUN; FS-01B and REL-01 BLOCKED."
+      "summary": "PR #157 merged; oversized configuration keys rejected. Exact-head and integrated-main CI not freshly verified; manual acceptance NOT RUN; FS-01B/REL-01 BLOCKED.",
+      "last_merged_pr": 157,
+      "merge_sha": "84f646759c0ab5f1c81fe938814b2f058022dfa0"
+    },
+    {
+      "id": "GOV-CROSS-CONTRIBUTOR-HANDOFF-01",
+      "title": "Cross-contributor autopilot handoff and execution recovery",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Reconcile merged PR #157 and synchronize contributor handoff policy across canonical documentation; verify feature ledger/board consistency and required CI. No production code change."
     }
   ]
 }

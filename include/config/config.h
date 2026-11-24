@@ -21,5 +21,9 @@ typedef struct
 } Config;
 
 void init_config(Config *cfg);
+/* Requires a nonempty path and initialized, caller-owned hash storage
+   with power-of-two capacity and size <= capacity. Returns -1 on invalid
+   arguments or load failure, preserving caller state. The caller must
+   supply storage for the declared capacity and valid initialized entries. */
 int load_config(const char *path, Config *cfg);
 void free_config(Config *cfg);

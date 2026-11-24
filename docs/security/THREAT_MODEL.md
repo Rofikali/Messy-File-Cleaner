@@ -2,6 +2,8 @@
 
 ## Configuration diagnostic trust boundary
 
+The configuration loader rejects null/empty paths and invalid hash-map capacity/size metadata before staging. Callers remain responsible for actual backing-storage extent and initialized entries; metadata validation is not proof of memory ownership.
+
 Extension keys and destination values are untrusted input. Rejection messages must not echo their raw bytes into stderr; fixed diagnostics preserve the reason category without terminal escape injection or disclosure of rejected values. Numeric setting names may be emitted only after matching a fixed allowlist. Regression tests capture exact stderr bytes from disposable inputs. This scope does not certify all CLI logging, filesystem safety or release readiness. See [live board](../../next.md) for verification.
 
 ## 1. Status and scope

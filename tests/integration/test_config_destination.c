@@ -78,6 +78,42 @@ int main(void)
     assert_safe_diagnostic(path, "ext.long\033[31mextensionname=Safe\n",
                            "config: extension mapping rejected (capacity or length)\n");
 
+    /* Reject invalid API arguments before opening the file or copying storage. */
+    {
+        HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        cfg.batch_size = 77;
+        assert(hashmap_put(&cfg.ext_map, ".png", "Existing") == 0);
+        assert(load_config(NULL, &cfg) != 0);
+        assert(load_config("", &cfg) != 0);
+        assert(load_config(path, NULL) != 0);
+        assert(cfg.batch_size == 77 && cfg.ext_map.size == 1);
+        assert(strcmp(hashmap_get(&cfg.ext_map, ".png"), "Existing") == 0);
+
+        FILE *empty = fopen(path, "w");
+        assert(empty != NULL);
+        assert(fclose(empty) == 0);
+        /* Empty config previously reached normalization despite invalid map metadata. */
+        Config invalid = cfg;
+        invalid.ext_map.capacity = 3;
+        assert(load_config(path, &invalid) != 0);
+        assert(invalid.ext_map.capacity == 3 && invalid.batch_size == 77);
+        invalid = cfg;
+        invalid.ext_map.size = 65;
+        assert(load_config(path, &invalid) != 0);
+        assert(invalid.ext_map.size == 65 && invalid.batch_size == 77);
+        invalid = cfg;
+        invalid.ext_map.entries = NULL;
+        assert(load_config(path, &invalid) != 0);
+        invalid = cfg;
+        invalid.ext_map.capacity = 0;
+        assert(load_config(path, &invalid) != 0);
+        assert(cfg.ext_map.entries == entries && cfg.ext_map.size == 1);
+        assert(strcmp(hashmap_get(&cfg.ext_map, ".png"), "Existing") == 0);
+    }
+
     assert(load_with_destination(path, "Jpeg/") == 0);
     assert(load_with_destination(path, "Png") == 0);
     assert(load_with_destination(path, "Others/") == 0);

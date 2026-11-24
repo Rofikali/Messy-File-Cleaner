@@ -194,8 +194,7 @@ static int load_config_into(const char *path, Config *cfg)
 
             if (!valid_destination_folder(value))
             {
-                fprintf(stderr, "config: unsafe destination folder '%s' for key '%s'\n",
-                        value, key);
+                fputs("config: unsafe extension destination\n", stderr);
                 fclose(f);
                 return -1;
             }
@@ -205,7 +204,7 @@ static int load_config_into(const char *path, Config *cfg)
                 int written = snprintf(normalized_key, sizeof(normalized_key), "%s", ext);
                 if (written < 0 || (size_t)written >= sizeof(normalized_key))
                 {
-                    fprintf(stderr, "config: extension key too long '%s'\n", key);
+                    fputs("config: extension key too long\n", stderr);
                     fclose(f);
                     return -1;
                 }
@@ -215,7 +214,7 @@ static int load_config_into(const char *path, Config *cfg)
                 int written = snprintf(normalized_key, sizeof(normalized_key), ".%s", ext);
                 if (written < 0 || (size_t)written >= sizeof(normalized_key))
                 {
-                    fprintf(stderr, "config: extension key too long '%s'\n", key);
+                    fputs("config: extension key too long\n", stderr);
                     fclose(f);
                     return -1;
                 }
@@ -223,7 +222,7 @@ static int load_config_into(const char *path, Config *cfg)
 
             if (hashmap_put(&cfg->ext_map, normalized_key, value) != 0)
             {
-                fprintf(stderr, "config: extension map full for key '%s'\n", key);
+                fputs("config: extension mapping rejected (capacity or length)\n", stderr);
                 fclose(f);
                 return -1;
             }

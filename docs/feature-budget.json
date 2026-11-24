@@ -330,7 +330,9 @@
       "id": "CONFIG-DIAGNOSTIC-01",
       "title": "Prevent untrusted configuration input from entering diagnostics",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        160
+      ],
       "summary": "Fixed extension diagnostics omit raw keys and values; disposable stderr capture validates exact bytes. No routing semantics change."
     }
   ]

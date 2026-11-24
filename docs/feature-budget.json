@@ -318,7 +318,9 @@
       "id": "CONFIG-NUL-INPUT-01",
       "title": "Reject embedded NUL bytes in physical configuration lines",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        159
+      ],
       "summary": "Reject binary NUL before C-string parsing, preserve bounded physical lines and atomic caller state; regression fixtures cover comments, final lines, routing and scalar settings."
     }
   ]

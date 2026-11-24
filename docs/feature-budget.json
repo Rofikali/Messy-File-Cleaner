@@ -306,7 +306,9 @@
       "id": "GOV-CROSS-CONTRIBUTOR-HANDOFF-01",
       "title": "Cross-contributor autopilot handoff and execution recovery",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        158
+      ],
       "summary": "Reconcile merged PR #157 and synchronize contributor handoff policy across canonical documentation; verify feature ledger/board consistency and required CI. No production code change."
     }
   ]

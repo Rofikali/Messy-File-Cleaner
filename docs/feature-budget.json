@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "84f646759c0ab5f1c81fe938814b2f058022dfa0",
+  "snapshot_main_sha": "5295a0cc6f5bd085baf22c0119efebca154e483d",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "GOV-CROSS-CONTRIBUTOR-HANDOFF-01",
+  "active_feature_id": "CONFIG-NUL-INPUT-01",
   "features": [
     {
       "id": "PERF-01",
@@ -305,11 +305,23 @@
     {
       "id": "GOV-CROSS-CONTRIBUTOR-HANDOFF-01",
       "title": "Cross-contributor autopilot handoff and execution recovery",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         158
       ],
-      "summary": "Reconcile merged PR #157 and synchronize contributor handoff policy across canonical documentation; verify feature ledger/board consistency and required CI. No production code change."
+      "summary": "PR #158 merged; all 13 exact-head and integrated-main checks passed. Scheduler reliability not proven by CI.",
+      "last_merged_pr": 158,
+      "merge_sha": "5295a0cc6f5bd085baf22c0119efebca154e483d",
+      "tested_head_sha": "462937387cffb7a14f7fe368ec5dac190364d97f"
+    },
+    {
+      "id": "CONFIG-NUL-INPUT-01",
+      "title": "Reject embedded NUL bytes in physical configuration lines",
+      "status": "ACTIVE",
+      "prs": [
+        159
+      ],
+      "summary": "Reject binary NUL before C-string parsing, preserve bounded physical lines and atomic caller state; regression fixtures cover comments, final lines, routing and scalar settings."
     }
   ]
 }

@@ -90,19 +90,33 @@ static int load_config_into(const char *path, Config *cfg)
 
     char line[LINE_MAX];
 
-    while (fgets(line, sizeof(line), f))
+    /* Read physical bytes, not C strings: embedded NUL must never hide
+       trailing settings or make a malformed final line look valid. */
+    for (;;)
     {
-        /* A truncated physical line must never be interpreted as valid configuration. */
-        if (strchr(line, '\n') == NULL && !feof(f))
+        size_t length = 0;
+        int ch;
+        while ((ch = fgetc(f)) != EOF)
         {
-            int next = fgetc(f);
-            if (next != EOF)
+            if (ch == 0)
+            {
+                fprintf(stderr, "config: embedded NUL byte\n");
+                fclose(f);
+                return -1;
+            }
+            if (length == sizeof(line) - 1)
             {
                 fprintf(stderr, "config: line exceeds maximum length\n");
                 fclose(f);
                 return -1;
             }
+            line[length++] = (char)ch;
+            if (ch == '\n')
+                break;
         }
+        if (ferror(f) || length == 0)
+            break;
+        line[length] = '\0';
         if (line[0] == '#' || line[0] == '\n')
             continue;
 

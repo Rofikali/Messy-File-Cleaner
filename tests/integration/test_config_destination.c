@@ -254,6 +254,44 @@ int main(void)
         assert(load_config(path, &cfg) != 0);
     }
 
+    /* A NUL in a physical line (including comments and final lines) must
+       fail atomically, rather than hide a suffix from C-string parsing. */
+    {
+        static const char *const prefixes[] = {"mode=batch", "# comment", "ext.jpg=Jpeg", ""};
+        static const char *const suffixes[] = {"", "daemon\n", "\n"};
+        for (size_t i = 0; i < sizeof(prefixes) / sizeof(prefixes[0]); ++i)
+            for (size_t j = 0; j < sizeof(suffixes) / sizeof(suffixes[0]); ++j)
+            {
+                FILE *file = fopen(path, "wb");
+                assert(file != NULL);
+                assert(fputs("batch_size=123\n", file) >= 0);
+                assert(fputs(prefixes[i], file) >= 0);
+                assert(fputc(0, file) != EOF);
+                assert(fputs(suffixes[j], file) >= 0);
+                assert(fclose(file) == 0);
+                HashEntry entries[64];
+                Config cfg;
+                hashmap_init(&cfg.ext_map, entries, 64);
+                init_config(&cfg);
+                cfg.batch_size = 77;
+                assert(hashmap_put(&cfg.ext_map, ".png", "Existing") == 0);
+                assert(load_config(path, &cfg) != 0);
+                assert(cfg.batch_size == 77 && cfg.ext_map.size == 1);
+                assert(strcmp(hashmap_get(&cfg.ext_map, ".png"), "Existing") == 0);
+                assert(cfg.ext_map.entries == entries);
+            }
+        FILE *file = fopen(path, "wb");
+        assert(file != NULL);
+        assert(fputs("mode=batch", file) >= 0);
+        assert(fclose(file) == 0);
+        HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        init_config(&cfg);
+        assert(load_config(path, &cfg) == 0);
+        assert(cfg.mode == MODE_BATCH);
+    }
+
     /* A long physical config line must fail, not parse a valid truncated prefix. */
     {
         FILE *file = fopen(path, "w");

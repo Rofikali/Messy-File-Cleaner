@@ -58,7 +58,11 @@ if "$BIN" "$ROOT/input" --config "$ROOT/unsafe.conf" --dry-run --once >unsafe.st
   echo "Expected unsafe config to fail" >&2
   exit 1
 fi
-grep -q 'unsafe destination folder' unsafe.stderr
+grep -Fxq 'config: unsafe extension destination' unsafe.stderr
+if grep -Fq '../escape' unsafe.stderr; then
+  echo "Unsafe configuration diagnostic echoed rejected input" >&2
+  exit 1
+fi
 
 # The input root must not contain the current working directory's outputs.
 if "$BIN" "$ROOT" --config "$CONFIG" --dry-run --once >overlap.stdout 2>overlap.stderr; then

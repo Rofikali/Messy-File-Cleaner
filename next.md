@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **BENCH-SCALE-01 (3/5; PR assignment pending)** | Native C scanner manual-only provenance workflow and matching Release hardening; #184 merged | Local tests NOT RUN; workflow NOT DISPATCHED; no large-scale measurement; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **BENCH-SCALE-01 (4/5; PR #185 OPEN)** | Native C scanner manual-only provenance workflow and matching Release hardening; #184 merged | Local tests NOT RUN; workflow NOT DISPATCHED; no large-scale measurement; FS-01B/REL-01 blocked |
 | **DONE** | **SCANNER-RESOURCE-REGRESSION-01 (1/5; #183 merged)** | 13/13 PR checks; merge `9766abd3e86bc8030416399a3db6e5d620efd1cf` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-FD-EXHAUSTION-01 (1/5; #182 merged)** | 13/13 PR checks; merge `097e5df774f903a165d29a9c99aa464346175977` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-ALLOCATION-FAILURE-01 (1/5; #181 merged)** | 13/13 PR checks; merge `d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

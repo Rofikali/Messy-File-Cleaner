@@ -45,7 +45,8 @@
       "prs": [
         132,
         133,
-        184
+        184,
+        185
       ],
       "summary": "PR #184 merged; 14/14 exact-head checks passed; 7/14 integrated-main checks passed, seven pending at inspection. Fourth PR slot for bounded manual-only native scanner provenance and matching Release hardening. Local tests NOT RUN; workflow NOT DISPATCHED; target-host and million-file evidence NOT RUN.",
       "last_merged_pr": 184,

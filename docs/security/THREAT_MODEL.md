@@ -1,5 +1,7 @@
 # Security Threat Model
 
+**Scanner special-file boundary:** independent Linux FIFO/socket regression exercises scanner callback exclusion only, with no writer/connection or privileged device creation. No claim about later pathname substitution, mover behavior or device-node coverage. See [scanner security](FILESYSTEM-SCANNER-SECURITY.md).
+
 **Upstream audit scope:** [Reference-only assessment](../upstream/UPSTREAM_MODULE_AUDIT.md) retains C atomics and adds a deterministic full-ring recycling test. It checks payload preservation, not proof of weak-memory correctness or data-loss prevention. No production behavior, import lock or FS-01B changes.
 
 **Owner-approved upstream-first policy (2026-11-25):** Follow [reuse policy](../upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](../upstream/UPSTREAM_MASTER_PLAN.md). Prefer supported Linux/POSIX APIs and mature compatible components; retain working code unless comparative evidence justifies change. External source imports and new third-party dependencies are BLOCKED pending explicit owner license decision and component acceptance. C17, C11/C23 CI, FS-01B/REL-01, no-spend and five-PR constraints remain binding.

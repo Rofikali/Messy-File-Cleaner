@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -211,10 +213,63 @@ static void test_path_join(void)
     assert(fc_join_path("parent", "") == NULL && errno == EINVAL);
 }
 
+/* Verify the existing regular-file-only scanner contract against actual
+ * Linux inode types. No device nodes, privileged operations or live data. */
+static void test_special_file_boundary(void)
+{
+    char root[] = "/tmp/fc-scan-special-XXXXXX";
+    assert(mkdtemp(root) != NULL);
+    size_t before = count_open_fds();
+    char regular[PATH_MAX], fifo[PATH_MAX];
+    int n = snprintf(regular, sizeof(regular), "%s/regular.txt", root);
+    assert(n > 0 && (size_t)n < sizeof(regular));
+    n = snprintf(fifo, sizeof(fifo), "%s/pipe.txt", root);
+    assert(n > 0 && (size_t)n < sizeof(fifo));
+    write_file(regular);
+    assert(mkfifo(fifo, 0600) == 0);
+
+    struct sockaddr_un address = {0};
+    address.sun_family = AF_UNIX;
+    n = snprintf(address.sun_path, sizeof(address.sun_path), "%s/socket.txt", root);
+    assert(n > 0 && (size_t)n < sizeof(address.sun_path));
+    int socket_fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
+    assert(socket_fd >= 0);
+    assert(bind(socket_fd, (const struct sockaddr *)&address, sizeof(address)) == 0);
+    struct stat metadata;
+    assert(lstat(fifo, &metadata) == 0 && S_ISFIFO(metadata.st_mode));
+    assert(lstat(address.sun_path, &metadata) == 0 && S_ISSOCK(metadata.st_mode));
+    size_t with_socket = count_open_fds();
+
+    for (int i = 0; i < 2; ++i)
+    {
+        found_count = 0;
+        assert(scan_directory(root, collect, NULL) == 0);
+        assert(found_count == 1 && strcmp(found[0], regular) == 0);
+        assert(count_open_fds() == with_socket);
+        assert(lstat(fifo, &metadata) == 0 && S_ISFIFO(metadata.st_mode));
+        assert(lstat(address.sun_path, &metadata) == 0 && S_ISSOCK(metadata.st_mode));
+        FILE *file = fopen(regular, "r");
+        assert(file != NULL);
+        char content[16];
+        assert(fgets(content, sizeof(content), file) != NULL);
+        assert(strcmp(content, "fixture\n") == 0);
+        assert(fgetc(file) == EOF && !ferror(file));
+        assert(fclose(file) == 0);
+    }
+
+    assert(close(socket_fd) == 0);
+    assert(unlink(address.sun_path) == 0);
+    assert(unlink(fifo) == 0);
+    assert(unlink(regular) == 0);
+    assert(rmdir(root) == 0);
+    assert(count_open_fds() == before);
+}
+
 int main(void)
 {
     test_root_path_copy();
     test_path_join();
+    test_special_file_boundary();
     char root_template[] = "/tmp/fc-scan-root-XXXXXX";
     char outside_template[] = "/tmp/fc-scan-outside-XXXXXX";
     char *root = mkdtemp(root_template);

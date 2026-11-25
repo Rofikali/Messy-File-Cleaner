@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Follow-up — SCANNER-SPECIAL-FILE-01:** [Linux inode(7)](https://man7.org/linux/man-pages/man7/inode.7.html) and [stat(2)](https://man7.org/linux/man-pages/man2/fstatat.2.html) describe inode type classification and descriptor-relative metadata. Retain the scanner's existing fstatat/no-follow and S_ISREG/S_ISDIR policy; add independent FIFO/no-writer and bound AF_UNIX pathname-socket regression. No need for a copied VFS implementation, d_type shortcut or new dependency. No device-node or speed testing; no source-retirement guarantee.
+
 Baseline main: 53c2d28c7126e81ddc3a201bc334d6851b5d3b71 (PR #203). Production source inventory from CMakeLists.txt; source reviewed selectively, not a complete code/security audit. No new external dependency, source text, license grant, benchmark or release. Registry remains locked. This assessment is an initial triage; detailed upstream source comparisons and pinned candidate commits remain separate gated evaluations.
 
 ## Verified references, 25 November 2026

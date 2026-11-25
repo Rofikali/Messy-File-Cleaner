@@ -1,5 +1,7 @@
 # Filesystem security: scanner boundary
 
+**Special-file acceptance:** [inode(7)](https://man7.org/linux/man-pages/man7/inode.7.html) distinguishes regular files, FIFOs and sockets. New independent scanner integration fixture contains a regular file, named pipe with no writer, and bound pathname AF_UNIX socket. Two scans must report only the regular file, preserve its content and special inode types, and balance file descriptors; cleanup removes only disposable fixtures. No production change. Device nodes, concurrent inode substitution and end-to-end worker/mover safety are outside this test. Exact-head CI required.
+
 ## Implemented scanner guarantees
 
 The scanner now uses descriptor-relative traversal rather than building a path and calling stat() on it:

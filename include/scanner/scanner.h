@@ -15,8 +15,9 @@ typedef int (*event_handler_fn)(const char *path);
  * and before callback handoff. It cannot interrupt a running syscall/callback.
  * The first traversal/callback/cancellation failure is retained in errno;
  * a later cancellation or callback failure still stops traversal.
- * Path construction or frame growth failure, or directory acquisition failure
- * with EMFILE, ENFILE or ENOMEM, aborts discovery and unwinds frames.
+ * Path construction or frame growth failure, or directory acquisition or
+ * metadata lookup failure with EMFILE, ENFILE or ENOMEM, aborts discovery
+ * and unwinds frames.
  */
 int scan_directory(const char *path, event_handler_fn handler,
                    const atomic_int *stop_signal);

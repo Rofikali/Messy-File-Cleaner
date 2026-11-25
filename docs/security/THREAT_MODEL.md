@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Scanner metadata resource exhaustion
+
+Entry metadata lookup or opened-directory identity lookup returning EMFILE, ENFILE or ENOMEM stops discovery, preserves the first recorded error and unwinds owned frames. Ordinary ENOENT and non-resource entry failures retain their previous behavior. Disposable entry-lookup injections check zero callbacks, descriptor balance, fixture preservation and successful rescan; opened-directory metadata failure is not separately fault-injected. No source-retirement guarantee or mover change.
+
 ## Worker event validation boundary
 
 Workers reject empty or non-NUL-terminated fixed-buffer event paths before classification, and reject NULL/empty routing results before diagnostics or move handling. A fixed diagnostic avoids echoing malformed bytes; rejection increments move failures, sets worker_error and stops intake while existing queued work follows the existing drain policy. Dry-run disposable unit/integration inputs exercise both malformed path cases and missing/empty classification, including queued valid-event drain. This does not validate arbitrary pointers or filesystem containment, nor change mover or source-retirement semantics.

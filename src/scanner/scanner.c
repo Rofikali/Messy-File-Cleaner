@@ -257,8 +257,11 @@ int scan_directory(const char *path, event_handler_fn handler,
         if (inspect_entry(dirfd(frame->directory), entry->d_name, &metadata) != 0)
         {
             /* A file disappearing during a scan is a normal race. */
-            if (errno != ENOENT)
+            int stat_errno = errno;
+            if (stat_errno != ENOENT)
                 record_failure(&status, &saved_errno);
+            if (is_resource_exhaustion(stat_errno))
+                break;
             continue;
         }
 
@@ -309,6 +312,8 @@ int scan_directory(const char *path, event_handler_fn handler,
                 free(child_path);
                 errno = identity_errno ? identity_errno : ESTALE;
                 record_failure(&status, &saved_errno);
+                if (is_resource_exhaustion(identity_errno))
+                    break;
                 continue;
             }
 

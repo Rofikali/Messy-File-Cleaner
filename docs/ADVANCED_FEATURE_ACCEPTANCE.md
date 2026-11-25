@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**String acceptance:** [extension baseline](performance/STRING_EXTENSION_BASELINE.md) requires null/empty, hidden, trailing-dot, dotted-directory, unknown, uppercase and multi-extension semantics unchanged, exact results and unchanged map size. No new production algorithm.
+
 **Memory unwind acceptance:** [path allocation](performance/PATH_ALLOCATION_BASELINE.md) requires all 66 modeled cases, rejection without arena byte/offset mutation, intact ancestors, release balance and reuse. Actual scanner lifetime and system allocator failure remain separate.
 
 **Nested arena acceptance:** [path allocation](performance/PATH_ALLOCATION_BASELINE.md) requires verified path contents, preserved ancestors after sibling release and frame unwind, balanced heap requests, zero live state at round end, and bounded smoke. No production ownership change.

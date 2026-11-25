@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**String candidate:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) compares libc strrchr-based production classification with independent test-only reverse scanning after strlen. No libc source copied or replacement justified.
+
 **Arena unwind candidate:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) adds bounded-capacity and simulated interruption cleanup checks; no upstream imports, scanner or production allocator changes.
 
 **Nested arena evaluation:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) models strict LIFO directory paths and transient siblings, not actual scanner callbacks or file I/O. Existing libc allocation retained; no imports.

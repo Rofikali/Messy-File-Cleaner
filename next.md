@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCHER-CANCEL-BOUNDARY-01 (0/5; pending PR registration)** | Cooperative watcher cancellation before buffered record decode/path construction and regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WATCHER-CANCEL-BOUNDARY-01 (1/5; PR #196 OPEN)** | Cooperative watcher cancellation before buffered record decode/path construction and regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-INIT-NULL-01 (1/5; #195 merged)** | 13/13 PR checks; merge `2e6d588079fa0712dbf89dfbca1dc77b526bfd63` | 13/13 integrated-main checks passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **HASHMAP-CAPACITY-CONSISTENCY-01 (1/5; #194 merged)** | 13/13 PR checks; merge `c616e54e4f2df036b2ef94dd6d073c877298082c` | 13/13 integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-METADATA-EXHAUSTION-01 (2/5; #192 and #193 merged)** | 13/13 PR checks; final merge `a64bd7ef3207f5684cd66f5c492fa3d060f1baa5` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |

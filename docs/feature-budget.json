@@ -717,8 +717,10 @@
       "id": "WATCHER-CANCEL-BOUNDARY-01",
       "title": "Honor pending cancellation between buffered watcher records",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 cooperative stop checks and pending-record regression; local tests NOT RUN; CI pending."
+      "prs": [
+        196
+      ],
+      "summary": "PR #196 registered (1/5); buffered watcher stop checks and regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

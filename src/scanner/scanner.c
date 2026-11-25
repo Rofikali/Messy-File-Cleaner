@@ -35,6 +35,14 @@ static int test_frame_growths_before_failure = -1;
 static int test_child_open_error;
 static int test_child_opens_before_failure;
 static unsigned int test_child_open_attempts;
+static int test_stream_error;
+static int test_streams_before_failure;
+
+void fc_test_fail_scanner_stream_after(int successful_streams, int error)
+{
+    test_stream_error = error;
+    test_streams_before_failure = successful_streams;
+}
 
 void fc_test_fail_scanner_child_open_after(int successful_opens, int error)
 {
@@ -140,6 +148,25 @@ static int open_child_directory(int parent_fd, const char *name)
     return fd;
 }
 
+/* On failure the caller still owns the raw descriptor. */
+static DIR *acquire_directory_stream(int fd)
+{
+#ifdef FC_SCANNER_TESTING
+    if (test_stream_error != 0 && test_streams_before_failure == 0)
+    {
+        errno = test_stream_error;
+        test_stream_error = 0;
+        return NULL;
+    }
+#endif
+    DIR *directory = fdopendir(fd);
+#ifdef FC_SCANNER_TESTING
+    if (directory && test_stream_error != 0 && test_streams_before_failure > 0)
+        --test_streams_before_failure;
+#endif
+    return directory;
+}
+
 int scan_directory(const char *path, event_handler_fn handler,
                    const atomic_int *stop_signal)
 {
@@ -169,7 +196,7 @@ int scan_directory(const char *path, event_handler_fn handler,
         return -1;
     }
 
-    DIR *root_directory = fdopendir(root_fd);
+    DIR *root_directory = acquire_directory_stream(root_fd);
     if (!root_directory)
     {
         int saved_errno = errno;
@@ -285,7 +312,7 @@ int scan_directory(const char *path, event_handler_fn handler,
                 continue;
             }
 
-            DIR *child_directory = fdopendir(child_fd);
+            DIR *child_directory = acquire_directory_stream(child_fd);
             if (!child_directory)
             {
                 int open_errno = errno;

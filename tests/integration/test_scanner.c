@@ -2,12 +2,15 @@
 #include <assert.h>
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/resource.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include "scanner/scanner.h"
 #include "utils/root_path.h"
@@ -82,6 +85,66 @@ static size_t count_open_fds(void)
     assert(errno == 0);
     assert(closedir(directory) == 0);
     return count;
+}
+
+/* Exercise a real per-process descriptor limit without changing the parent
+ * or system limit. Fill at most 32 slots in a disposable child process. */
+static void test_real_descriptor_limit(const char *root)
+{
+    pid_t child = fork();
+    assert(child >= 0);
+    if (child == 0)
+    {
+        size_t before = count_open_fds();
+        struct rlimit original;
+        assert(getrlimit(RLIMIT_NOFILE, &original) == 0);
+        struct rlimit limited = original;
+        if (limited.rlim_cur > 32)
+            limited.rlim_cur = 32;
+        assert(setrlimit(RLIMIT_NOFILE, &limited) == 0);
+
+        int held[32];
+        size_t count = 0;
+        while (count < sizeof(held) / sizeof(held[0]))
+        {
+            int fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
+            if (fd < 0)
+            {
+                assert(errno == EMFILE);
+                break;
+            }
+            held[count++] = fd;
+        }
+        assert(count >= 4);
+        /* Free exactly four slots; the deep tree needs more than four
+         * simultaneous directory descriptors. */
+        for (int i = 0; i < 4; ++i)
+            assert(close(held[--count]) == 0);
+
+        found_count = 0;
+        errno = 0;
+        assert(scan_directory(root, collect, NULL) == -1);
+        assert(errno == EMFILE);
+        while (count > 0)
+            assert(close(held[--count]) == 0);
+        assert(setrlimit(RLIMIT_NOFILE, &original) == 0);
+        assert(count_open_fds() == before);
+
+        found_count = 0;
+        assert(scan_directory(root, collect, NULL) == 0);
+        assert(found_count == 3);
+        assert(count_open_fds() == before);
+        _exit(0);
+    }
+
+    int status;
+    pid_t waited;
+    do
+    {
+        waited = waitpid(child, &status, 0);
+    } while (waited < 0 && errno == EINTR);
+    assert(waited == child);
+    assert(WIFEXITED(status) && WEXITSTATUS(status) == 0);
 }
 
 static void test_root_path_copy(void)
@@ -409,6 +472,38 @@ int main(void)
     assert(found_count == 3);
     assert(count_open_fds() == descriptors);
     assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
+
+    /* Stream acquisition fails after open: the raw descriptor remains
+     * caller-owned. Check root failure and a nested acquisition failure. */
+    found_count = 0;
+    fc_test_fail_scanner_stream_after(0, ENOMEM);
+    errno = 0;
+    assert(scan_directory(root, collect, NULL) == -1);
+    assert(errno == ENOMEM && found_count == 0);
+    assert(count_open_fds() == descriptors);
+
+    found_count = 0;
+    fc_test_fail_scanner_child_open_after(0, 0);
+    fc_test_fail_scanner_stream_after(1, ENOMEM);
+    errno = 0;
+    assert(scan_directory(root, collect, NULL) == -1);
+    assert(errno == ENOMEM);
+    assert(fc_test_scanner_child_open_attempts() == 1);
+    assert(count_open_fds() == descriptors);
+
+    found_count = 0;
+    fc_test_fail_scanner_stream_after(4, ENOMEM);
+    errno = 0;
+    assert(scan_directory(root, collect, NULL) == -1);
+    assert(errno == ENOMEM);
+    assert(count_open_fds() == descriptors);
+
+    test_real_descriptor_limit(root);
+    assert(count_open_fds() == descriptors);
+    found_count = 0;
+    assert(scan_directory(root, collect, NULL) == 0);
+    assert(found_count == 3);
+    assert(count_open_fds() == descriptors);
 
     /* Remove only the known disposable fixtures on successful completion. */
     assert(unlink(root_link) == 0);

@@ -29,6 +29,8 @@ void fc_test_fail_scanner_frame_growth_after(int successful_growths);
 /* Single-threaded child-open fault injection and attempt counter. */
 void fc_test_fail_scanner_child_open_after(int successful_opens, int error);
 unsigned int fc_test_scanner_child_open_attempts(void);
+/* Inject a directory-stream failure before fdopendir takes ownership. */
+void fc_test_fail_scanner_stream_after(int successful_streams, int error);
 #endif
 
 #endif

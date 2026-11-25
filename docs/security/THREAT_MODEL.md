@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Hash-map insertion capacity consistency
+
+An unused slot encountered with size equal to capacity is rejected before mutation, preventing the size count from exceeding capacity. Unit tests compare the unchanged backing-storage bytes on contradictory metadata and verify normal full-map rejection and existing-key replacement. This does not establish that arbitrary caller-owned metadata, pointer lifetime or storage extent is valid; no ABI or filesystem-policy change.
+
 ## Scanner metadata resource exhaustion
 
 Entry metadata lookup or opened-directory identity lookup returning EMFILE, ENFILE or ENOMEM stops discovery, preserves the first recorded error and unwinds owned frames. Ordinary ENOENT and non-resource entry failures retain their previous behavior. Disposable entry-lookup injections check zero callbacks, descriptor balance, fixture preservation and successful rescan. Opened-directory fstat faults are injected after zero or three successful identity lookups for each resource errno; exact child-open attempts, raw descriptor/frame cleanup, absence of deep-file callbacks and subsequent successful rescans are asserted. The injection is compiled only in scanner tests. No source-retirement guarantee or mover change.

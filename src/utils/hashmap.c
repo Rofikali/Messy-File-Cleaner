@@ -70,6 +70,9 @@ int hashmap_put(HashMap *map, const char *key, const char *value)
 
         if (!entry->used)
         {
+            /* A contradictory full-size count must not permit insertion. */
+            if (map->size == map->capacity)
+                return -1;
             memcpy(entry->key, key, key_len + 1);
             memcpy(entry->value, value, value_len + 1);
             entry->used = 1;

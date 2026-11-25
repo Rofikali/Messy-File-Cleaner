@@ -853,9 +853,10 @@
       "title": "Bounded in-memory hash-map lookup evaluation",
       "status": "ACTIVE",
       "prs": [
-        210
+        210,
+        211
       ],
-      "summary": "PR #210 merged; 14/14 exact-head and integrated-main checks. Second PR controlled capacity comparison, no production change.",
+      "summary": "PR #211 registered (2/5); #210 merged 14/14 exact-head/main; fixed-key capacity comparison; local execution NOT RUN; exact-head CI pending.",
       "last_merged_pr": 210,
       "merge_sha": "74f49415855e29826249ab96d23ad80c22745bac",
       "tested_head_sha": "dbd791324fa1de5d21a7d88797284b3b25a2eb6f"

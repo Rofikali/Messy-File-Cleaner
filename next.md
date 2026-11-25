@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-BARE-WHITESPACE-01 (0/5; pending PR registration)** | Consistent bare-token whitespace recognition and atomic negative C regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-BARE-WHITESPACE-01 (1/5; PR #187 OPEN)** | Consistent bare-token whitespace recognition and atomic negative C regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **PARTIAL** | **BENCH-SCALE-01 (5/5; #186 merged)** | Report acceptance and compiler provenance integrated; exhausted budget | Manual workflow NOT DISPATCHED; target-host and million-file acceptance NOT RUN; no sixth PR |
 | **DONE** | **SCANNER-RESOURCE-REGRESSION-01 (1/5; #183 merged)** | 13/13 PR checks; merge `9766abd3e86bc8030416399a3db6e5d620efd1cf` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-FD-EXHAUSTION-01 (1/5; #182 merged)** | 13/13 PR checks; merge `097e5df774f903a165d29a9c99aa464346175977` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

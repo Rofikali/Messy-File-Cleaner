@@ -620,7 +620,9 @@
       "id": "CONFIG-BARE-WHITESPACE-01",
       "title": "Reject malformed bare configuration tokens separated by C whitespace",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        187
+      ],
       "summary": "C17 parser consistency, atomic negative regression; local tests NOT RUN; pending PR registration and exact-head CI."
     }
   ]

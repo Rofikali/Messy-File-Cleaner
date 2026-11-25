@@ -869,9 +869,10 @@
       "status": "ACTIVE",
       "prs": [
         214,
-        215
+        215,
+        216
       ],
-      "summary": "PR #215 merged, 14/14 exact-head jobs; C17 Release arena smoke and 60/60 tests passed; integrated-main CI NOT VERIFIED. Third nested lifetime comparison candidate; local tests NOT RUN, CI pending; production allocator retained.",
+      "summary": "PR #216 registered (3/5); #215 merged, 14/14 exact-head jobs; C17 Release arena smoke and 60/60 tests passed; integrated-main CI NOT VERIFIED. Nested variable-length arena comparison; local tests NOT RUN at creation; CI pending; production allocator retained.",
       "last_merged_pr": 215,
       "merge_sha": "e54ca2c2900c2c64839736f0b80147e0930c2e1f",
       "tested_head_sha": "e8d09027904f164b63ffc212911a724bbbd26f14"

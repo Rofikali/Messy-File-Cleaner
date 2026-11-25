@@ -46,7 +46,8 @@
         132,
         133,
         184,
-        185
+        185,
+        186
       ],
       "summary": "PR #185 merged; 14/14 exact-head checks passed; 7/14 integrated-main checks passed, seven pending at inspection. Final PR slot for report acceptance and compiler provenance. Local tests NOT RUN; workflow NOT DISPATCHED; measured target-host and million-file acceptance pending.",
       "last_merged_pr": 185,

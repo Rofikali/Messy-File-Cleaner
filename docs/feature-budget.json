@@ -840,9 +840,10 @@
       "prs": [
         206,
         207,
-        208
+        208,
+        209
       ],
-      "summary": "PR #208 merged; 14/14 exact-head; 13/14 integrated-main checks passed at inspection; padding inconclusive, original retained. Fourth PR controlled test affinity.",
+      "summary": "PR #209 registered (4/5); #208 merged with 14/14 exact-head checks; optional affinity and negative CTest cases; local tests NOT RUN; exact-head CI pending.",
       "last_merged_pr": 208,
       "merge_sha": "742e33710b0a9d6eabbb9f699d83125808a60602",
       "tested_head_sha": "9d5b8ac722423e5d8cb52f24985c4e8aabecdc84"

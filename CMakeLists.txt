@@ -608,6 +608,17 @@ if(BUILD_TESTING)
   )
   set_tests_properties(bench_scale_baseline_unit PROPERTIES TIMEOUT 30)
 
+  # BENCH-SCALE-01: real C scanner, no production test hooks or worker/mover.
+  add_executable(scanner-benchmark
+    tests/performance/scanner_benchmark.c src/scanner/scanner.c)
+  target_include_directories(scanner-benchmark PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(scanner-benchmark PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes)
+  add_test(NAME native_scanner_benchmark_smoke
+    COMMAND ${Python3_EXECUTABLE}
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_scanner.py"
+            --binary "$<TARGET_FILE:scanner-benchmark>" --files 30 --runs 2)
+  set_tests_properties(native_scanner_benchmark_smoke PROPERTIES TIMEOUT 30)
+
   add_test(NAME cli_move_benchmark_smoke
     COMMAND ${Python3_EXECUTABLE}
             "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_moves.py"

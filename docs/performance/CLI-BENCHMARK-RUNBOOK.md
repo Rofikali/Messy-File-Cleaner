@@ -84,4 +84,16 @@ Recommended scale tiers:
 
 For a million-file run, use a manual workflow dispatch, 3–5 measured repetitions, and a single selected worker count. Compare worker counts with separate runs on the same runner image. Fixture creation time is not included in scan elapsed time, but should be retained as operational context. A million-file fixture can fail due to runner disk/inode limits; such a run should be marked resource-limited, not treated as a scanner failure or performance result.
 
-The benchmark measures end-to-end dry-run process time including startup and scan/classification, not pure traversal syscall latency. It does not report memory yet; use a separate profiler/measurement step before drawing conclusions about peak RSS.
+The benchmark measures end-to-end dry-run process time including startup and scan/classification, not pure traversal syscall latency. The CLI harness now records Linux per-child peak RSS; it is process-wide, not a scanner allocation measurement.
+
+## Native C scanner isolation (BENCH-SCALE-01)
+
+The non-installed `scanner-benchmark` target links the real scanner without test hooks, workers, classifier, journal or mover. The existing Python test harness creates and verifies disposable fixtures outside the timed C interval. It checks callback counts and binary SHA-256 before accepting each sample. One warmup precedes 1–10 measured runs, with 1–10,000 files per case. Output is JSON on stdout with raw timings, CPU seconds, Linux process-lifetime peak RSS, environment and filesystem context. It is not a cold-cache or per-file latency measurement.
+
+~~~bash
+cmake -S . -B build/native-bench -DCMAKE_BUILD_TYPE=Release -DFC_C_STANDARD=17 -DBUILD_TESTING=ON
+cmake --build build/native-bench --target scanner-benchmark
+python3 tests/performance/benchmark_scanner.py --binary build/native-bench/scanner-benchmark --files 5000 --runs 5
+~~~
+
+Record exact source SHA, build flags and host separately for comparison. The 30-file CTest smoke checks harness integrity only. No million-file execution, host acceptance or performance target is claimed. The existing manual million-file CLI workflow remains unchanged.

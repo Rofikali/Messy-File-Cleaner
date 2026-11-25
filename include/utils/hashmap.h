@@ -24,6 +24,7 @@ typedef struct
 // API: caller owns initialized backing storage of at least capacity entries.
 // Invalid capacity or size metadata is rejected; this cannot prove buffer extent.
 void hashmap_init(HashMap *map, HashEntry *buffer, size_t capacity);
+// Updating an existing key accepts its borrowed value or a NUL-terminated suffix.
 int hashmap_put(HashMap *map, const char *key, const char *value);
 const char *hashmap_get(HashMap *map, const char *key);
 

@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Hash-map borrowed-value update
+
+Existing-key replacement uses `memmove` for potentially overlapping borrowed value strings from `hashmap_get`. The unit test checks identical and suffix aliases, preserved map size and subsequent independent replacement. This does not relax backing-storage ownership, require a new ABI, or provide concurrent access synchronization.
+
 ## Bare configuration token boundary
 
 Malformed bare recognized settings separated by vertical tab or form feed must fail rather than silently retain defaults. Token recognition uses `isspace` with unsigned-char input consistently with key normalization. Disposable regression checks late failure preserves scalar and routing state. No filesystem retirement, ABI, or release change.

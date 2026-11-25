@@ -801,8 +801,10 @@
       "id": "UPSTREAM-GOVERNANCE-01",
       "title": "Establish upstream-first policy and enforce pending-license import lock",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Owner-approved roadmap, canonical docs, locked registry and CI guard/tests; local tests NOT RUN; CI pending."
+      "prs": [
+        203
+      ],
+      "summary": "PR #203 registered (1/5); owner-approved upstream governance, import lock and CI tests; local tests NOT RUN; CI pending."
     }
   ]
 }

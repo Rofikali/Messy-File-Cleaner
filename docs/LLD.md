@@ -1,5 +1,7 @@
 # File Cleaner System — Low-Level Design (LLD) (Performance + DSA Integrated)
 
+**Future adapter contract:** [Reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) requires explicit allocation/free ownership, lifetimes, errno/cancellation, resource bounds, fallback, concurrency semantics and isolated fault tests. No production module replacement without measured or verified advantage.
+
 ---
 
 # 1. Overview

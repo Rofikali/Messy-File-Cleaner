@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Upstream evaluation:** [Master plan](../upstream/UPSTREAM_MASTER_PLAN.md) requires comparable compiler, kernel, hardware, filesystem, cache, workload and worker count; repeat and report latency/tails, CPU/RSS, descriptors and integrity. Proposed 1k–10m file workloads are not achieved results. BENCH-SCALE-01 remains exhausted; no benchmark dispatch or spending.
+
 ## Feature exit and measurement boundary (2026-11-21)
 
 PERF-01 historical disposable benchmark fixture/evidence improvements are **merged through PR #128** and the feature lane is closed to repeated same-feature micro-PRs under the new five-PR policy. Measured capacity, filesystem-specific worst cases, host benchmarks and power-loss behavior are **not inferred** from regression count. Future independent BENCH-SCALE-01 may measure representative workloads only with a bounded, non-destructive plan and reproducible cost/provenance; it receives its own maximum five opened PRs. BENCH-SCALE-01 uses its fifth and final PR slot for report acceptance checks, independent saved-report validation before upload, and compiler version provenance. After the slot is consumed the feature must be reconciled as measured or partial without resetting its ID; new performance claims require actual evidence. No dispatch or performance claim is authorized by the workflow definition. The live selector remains next.md; no new PERF-01-only PRs.

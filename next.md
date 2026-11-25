@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-GOVERNANCE-01 (0/5; pending PR registration)** | Adopt upstream policy, roadmap, locked registry and required CI guard | Local tests NOT RUN; CI pending; imports/license decision, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-GOVERNANCE-01 (1/5; PR #203 OPEN)** | Adopt upstream policy, roadmap, locked registry and required CI guard | Local tests NOT RUN; CI pending; imports/license decision, FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-REGULAR-FILE-01 (1/5; #202 merged)** | 13/13 exact-head and integrated-main CI; merge `26bb5544a651a53c8245d49d89a7be25f64e787a` | Post-open read fault and manual acceptance NOT RUN |
 | **DONE** | **WORKER-JOIN-NOTIFY-REGRESSION-01 (1/5; #201 merged)** | 13/13 PR checks; merge `15da8199fdefc042334c80c17a359bbb780ab281` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **WORKER-LIVE-COUNT-01 (1/5; #200 merged)** | 13/13 exact-head checks; merge `2084cf9b53964475b65a9fcdb35ba636e1531a43` | 13/13 integrated-main checks; manual acceptance NOT RUN |

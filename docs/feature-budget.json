@@ -870,9 +870,10 @@
       "prs": [
         214,
         215,
-        216
+        216,
+        217
       ],
-      "summary": "PR #216 merged, 13/13 returned exact-head jobs; C17 Release 60/60 tests passed; FCJ4 TSan and integrated-main CI NOT VERIFIED. Fourth deterministic unwind candidate; local tests NOT RUN, CI pending; production allocator retained.",
+      "summary": "PR #217 registered (4/5); #216 merged, 13/13 returned exact-head jobs; C17 Release 60/60 tests passed; FCJ4 TSan and integrated-main CI NOT VERIFIED. Deterministic exhaustion/interruption unwind; local tests NOT RUN at creation; CI pending; production allocator retained.",
       "last_merged_pr": 216,
       "merge_sha": "3dcc4b4103225c7dbf29ac09aaa04416c656a61a",
       "tested_head_sha": "72ca2dc73ae86421d5d9a00d34d6b20e543fdc5d"

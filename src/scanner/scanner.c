@@ -31,6 +31,12 @@ static void record_failure(int *status, int *saved_errno)
 #ifdef FC_SCANNER_TESTING
 /* Single-threaded test hook; absent from production builds. */
 static int test_next_stat_error;
+static int test_frame_growths_before_failure = -1;
+
+void fc_test_fail_scanner_frame_growth_after(int successful_growths)
+{
+    test_frame_growths_before_failure = successful_growths;
+}
 
 void fc_test_fail_next_scanner_stat(int error)
 {
@@ -67,11 +73,23 @@ static int push_frame(ScanFrame **frames,
             return -1;
         }
 
+#ifdef FC_SCANNER_TESTING
+        if (test_frame_growths_before_failure == 0)
+        {
+            test_frame_growths_before_failure = -1;
+            errno = ENOMEM;
+            return -1;
+        }
+#endif
         ScanFrame *next_frames =
             realloc(*frames, next_capacity * sizeof(**frames));
         if (!next_frames)
             return -1;
 
+#ifdef FC_SCANNER_TESTING
+        if (test_frame_growths_before_failure > 0)
+            --test_frame_growths_before_failure;
+#endif
         *frames = next_frames;
         *capacity = next_capacity;
     }
@@ -193,7 +211,7 @@ int scan_directory(const char *path, event_handler_fn handler,
         if (!child_path)
         {
             record_failure(&status, &saved_errno);
-            continue;
+            break;
         }
 
         if (S_ISDIR(metadata.st_mode))
@@ -251,6 +269,7 @@ int scan_directory(const char *path, event_handler_fn handler,
                 free(child_path);
                 errno = push_errno;
                 record_failure(&status, &saved_errno);
+                break;
             }
 
             continue;

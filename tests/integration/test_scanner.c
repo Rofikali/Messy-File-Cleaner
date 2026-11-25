@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <limits.h>
 #include <signal.h>
@@ -62,6 +63,25 @@ static void write_file(const char *path)
     assert(fp != NULL);
     assert(fputs("fixture\n", fp) >= 0);
     assert(fclose(fp) == 0);
+}
+
+/* Linux test-only descriptor inventory; includes the inventory's own fd
+ * consistently before and after each synchronous scan. */
+static size_t count_open_fds(void)
+{
+    DIR *directory = opendir("/proc/self/fd");
+    assert(directory != NULL);
+    size_t count = 0;
+    struct dirent *entry;
+    errno = 0;
+    while ((entry = readdir(directory)) != NULL)
+    {
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
+            ++count;
+    }
+    assert(errno == 0);
+    assert(closedir(directory) == 0);
+    return count;
 }
 
 static void test_root_path_copy(void)
@@ -162,9 +182,11 @@ int main(void)
     memset(component, 'd', sizeof(component) - 1);
     component[sizeof(component) - 1] = '\0';
 
-    for (int i = 0; i < 7; i++) {
+    enum { DEPTH = 20 };
+    for (int i = 0; i < DEPTH; i++) {
         size_t used = strlen(nested);
-        n = snprintf(nested + used, sizeof(nested) - used, "/%s", component);
+        n = snprintf(nested + used, sizeof(nested) - used, "/%s",
+                     i < 7 ? component : "d");
         assert(n > 0 && (size_t)n < sizeof(nested) - used);
         assert(mkdir(nested, 0700) == 0);
     }
@@ -333,6 +355,32 @@ int main(void)
     assert(unlink(error_a) == 0 && unlink(error_b) == 0);
     assert(rmdir(errors_dir) == 0);
 
+    /* Initial allocation and later growth (depth > 16) must unwind all
+     * descriptors; no subsequent callbacks after the injected growth error. */
+    size_t descriptors = count_open_fds();
+    found_count = 0;
+    fc_test_fail_scanner_frame_growth_after(0);
+    errno = 0;
+    assert(scan_directory(root, collect, NULL) == -1);
+    assert(errno == ENOMEM && found_count == 0);
+    assert(count_open_fds() == descriptors);
+
+    found_count = 0;
+    fc_test_fail_scanner_frame_growth_after(1);
+    errno = 0;
+    assert(scan_directory(root, collect, NULL) == -1);
+    assert(errno == ENOMEM);
+    assert(found_count <= 2);
+    for (size_t i = 0; i < found_count; ++i)
+        assert(strcmp(found[i], deep_file) != 0);
+    assert(count_open_fds() == descriptors);
+
+    found_count = 0;
+    assert(scan_directory(root, collect, NULL) == 0);
+    assert(found_count == 3);
+    assert(count_open_fds() == descriptors);
+    assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
+
     /* Remove only the known disposable fixtures on successful completion. */
     assert(unlink(root_link) == 0);
     assert(unlink(link_path) == 0); /* dir-link */
@@ -341,7 +389,7 @@ int main(void)
     assert(unlink(link_path) == 0);
     assert(unlink(path) == 0);
     assert(unlink(deep_file) == 0);
-    for (int i = 0; i < 7; ++i)
+    for (int i = 0; i < DEPTH; ++i)
     {
         assert(rmdir(nested) == 0);
         char *slash = strrchr(nested, '/');

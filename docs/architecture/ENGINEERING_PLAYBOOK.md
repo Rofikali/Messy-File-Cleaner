@@ -34,7 +34,7 @@ The application:
 |---|---|---|
 | CLI/application | Process lifecycle, option parsing, orchestration | Filesystem mutation policy hidden in argument parsing |
 | Configuration | Validated configuration values and rules | Arbitrary filesystem traversal |
-| Scanner | Discovery, final-root no-follow with trailing-separator normalization, cooperative cancellation and first-failure errno reporting | Destination publication |
+| Scanner | Discovery, final-root no-follow, cooperative cancellation, first-failure errno reporting and allocation-failure unwind | Destination publication |
 | Classifier | Deterministic file-to-category policy | Syscalls and journal writes |
 | Queue/worker pool | Bounded dispatch, worker lifecycle, ownership transfer | Domain path policy |
 | Mover | Copy, verification, publication, source retirement | Parsing CLI configuration |

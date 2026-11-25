@@ -137,6 +137,11 @@ if(BUILD_TESTING)
   target_compile_options(test_hashmap PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME hashmap_unit COMMAND test_hashmap)
 
+  add_executable(test_classifier tests/unit/test_classifier.c src/classifier/classifier.c src/utils/hashmap.c)
+  target_include_directories(test_classifier PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(test_classifier PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
+  add_test(NAME classifier_unit COMMAND test_classifier)
+
   add_executable(test_config_destination
     tests/integration/test_config_destination.c
     src/config/config.c

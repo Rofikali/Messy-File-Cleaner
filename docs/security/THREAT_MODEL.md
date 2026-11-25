@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Classifier routing boundary
+
+Extension extraction examines the final POSIX path component only; parent-directory dots do not determine routing. A leading dot alone and trailing dots use the default route; multi-extension names retain the final suffix and matching remains case-sensitive. Disposable C unit tests exercise these cases. This corrects classification semantics, not filesystem identity, move safety or release approval.
+
 ## Hash-map metadata trust boundary
 
 The C hash map rejects capacity whose entry-byte extent exceeds SIZE_MAX and rejects size greater than capacity before lookup or insertion. Invalid initialization resets map metadata without touching backing entries. This validates representability, not actual caller-owned buffer extent or entry integrity; no ABI or filesystem mutation contract changes. Unit regressions exercise malformed metadata and preserve valid routing entries.

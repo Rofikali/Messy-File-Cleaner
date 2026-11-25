@@ -473,7 +473,9 @@
       "id": "WORKER-POOL-OWNER-01",
       "title": "Enforce single owning context for process-wide worker storage",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        172
+      ],
       "summary": "Reject duplicate starts and non-owner lifecycle calls under caller serialization; verify ownership transfer after join. Local tests NOT RUN."
     }
   ]

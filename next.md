@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WORKER-POOL-OWNER-01 (0/5; PR assignment pending)** | Single owner for process-wide thread storage; reject duplicate start and wrong-context lifecycle calls | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WORKER-POOL-OWNER-01 (1/5; PR #172 OPEN)** | Single owner for process-wide thread storage; reject duplicate start and wrong-context lifecycle calls | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **WORKER-LIFECYCLE-BOUNDS-01 (1/5; #171 merged)** | 14/14 PR checks; merge `ade0c7707d5417717cc8914faead547cd91deb4b` | 2/14 integrated checks passed, 12 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **WATCHER-RECORD-GUARD-01 (1/5; #170 merged)** | 14/14 PR checks; merge `7a7913526e50a99b669f7cca7fb26d4cdf63fd1d` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **DISPATCH-BOUNDS-01 (1/5; #169 merged)** | 13/13 PR checks; merge `1f197e88832ffd0ddd67d911c81852c2f2fe289f` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

@@ -206,6 +206,17 @@ if(BUILD_TESTING)
   add_test(NAME queue_padded_benchmark_smoke COMMAND queue-padded-benchmark)
   set_tests_properties(queue_padded_benchmark_smoke PROPERTIES TIMEOUT 25)
 
+  # Invalid affinity input must fail before any transfer or affinity change.
+  foreach(queue_target queue-concurrent-benchmark queue-padded-benchmark)
+    add_test(NAME ${queue_target}_bad_cpu COMMAND ${queue_target} -1 0)
+    add_test(NAME ${queue_target}_duplicate_cpu COMMAND ${queue_target} 0 0)
+    add_test(NAME ${queue_target}_missing_cpu COMMAND ${queue_target} 0)
+    add_test(NAME ${queue_target}_overflow_cpu COMMAND ${queue_target} 9999999999999999999999 0)
+    set_tests_properties(${queue_target}_bad_cpu ${queue_target}_duplicate_cpu
+      ${queue_target}_missing_cpu ${queue_target}_overflow_cpu
+      PROPERTIES WILL_FAIL TRUE TIMEOUT 5)
+  endforeach()
+
   add_executable(test_scanner tests/integration/test_scanner.c src/scanner/scanner.c)
   target_include_directories(test_scanner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_definitions(test_scanner PRIVATE FC_SCANNER_TESTING)

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Queue cache-layout comparison:** [Linux 6.11 false-sharing documentation](https://docs.kernel.org/6.11/kernel-hacking/false-sharing.html) informs an isolated 64-byte index-alignment experiment, not a copied implementation. [Evidence and constraints](../performance/QUEUE_BASELINE.md); no production or ABI change.
+
 **Queue evaluation continuation:** [Queue baseline](../performance/QUEUE_BASELINE.md) includes separate sequential and concurrent test-only workloads; the latter uses one producer and one consumer, unique sequence bytes and full payload checks. Retain existing ring and C memory ordering. No cache-line padding or kernel import without comparative evidence.
 
 **QUEUE-UPSTREAM-EVAL-01:** [Queue baseline](../performance/QUEUE_BASELINE.md) adds bounded measurements of existing queue operations with payload checking. Linux 6.12 circular-buffer reference already reviewed; no kernel code copied. Measure before changing modulo, cache layout or synchronization.

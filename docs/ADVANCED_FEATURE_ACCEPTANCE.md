@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Cache-layout acceptance:** original and generated candidate compile the same concurrent benchmark and queue implementation; candidate verifies index alignment and separation, both verify full FIFO payload and bounded retry. No speed threshold or promotion based solely on smoke; [record evidence](performance/QUEUE_BASELINE.md).
+
 **Concurrent queue baseline acceptance:** unique full payload per transfer, exactly one producer/consumer, three fixed samples, peer failure signal, monotonic retry deadline and external CTest timeout; no timing threshold, production change or weak-memory proof. See [queue baseline](performance/QUEUE_BASELINE.md).
 
 **Queue evaluation acceptance:** [bounded baseline](performance/QUEUE_BASELINE.md) records three samples, each 65,536 verified event pairs, monotonic duration, no threshold and no production change. Smoke success is correctness evidence, not optimization evidence.

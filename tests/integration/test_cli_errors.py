@@ -37,5 +37,52 @@ def main():
         assert "\x1b" not in result.stderr
         assert not (pathlib.Path(tmp) / "journal").exists()
 
+    # Root/output validation runs after config loading; rejected paths must not
+    # appear in terminal diagnostics, including names containing control bytes.
+    with tempfile.TemporaryDirectory(prefix="fc-root-output-error-") as tmp:
+        base = pathlib.Path(tmp)
+        work = base / "work"
+        work.mkdir()
+        config = base / "config.conf"
+        config.write_text("mode=batch\nworker_threads=1\next.jpg=Jpeg/\n")
+        marker = "private-root\n\x1b[31m"
+        missing = base / (marker + "-missing")
+        regular = base / (marker + "-file")
+        regular.write_bytes(b"preserve-file")
+        source = base / "source"
+        source.mkdir()
+        sample = source / "sample.jpg"
+        sample.write_bytes(b"preserve-source")
+        link = base / (marker + "-link")
+        link.symlink_to(source, target_is_directory=True)
+        overlap = base / (marker + "-overlap")
+        overlap.mkdir()
+        nested_work = overlap / "work"
+        nested_work.mkdir()
+
+        def reject(root, cwd, expected):
+            result = subprocess.run([binary, "--root", str(root), "--config",
+                                     str(config), "--dry-run", "--once"],
+                                    cwd=cwd, capture_output=True, text=True,
+                                    timeout=5, check=False)
+            assert result.returncode != 0, result
+            assert expected in result.stderr, result.stderr
+            assert "\x1b" not in result.stderr, result.stderr
+            assert "private-root" not in result.stderr, result.stderr
+            assert not (cwd / "journal").exists()
+            assert sample.read_bytes() == b"preserve-source"
+            assert regular.read_bytes() == b"preserve-file"
+
+        reject(missing, work, "not accessible")
+        reject(regular, work, "must be a directory")
+        reject(link, work, "symlink input root")
+        reject(overlap, nested_work, "overlaps output directory")
+        hostile_work = base / (marker + "-work")
+        hostile_work.mkdir()
+        (hostile_work / "Jpeg").symlink_to(source, target_is_directory=True)
+        reject(source, hostile_work, "real directory")
+        assert (hostile_work / "Jpeg").is_symlink()
+        assert link.is_symlink()
+
 if __name__ == "__main__":
     main()

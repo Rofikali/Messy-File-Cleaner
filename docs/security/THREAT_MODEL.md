@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Root/output validation diagnostic boundary
+
+Root and output preflight rejection messages omit raw input paths and canonical output paths, retaining the reason and existing errno behavior. Disposable CLI tests exercise inaccessible roots, regular-file roots, symlinks, root/output overlap and output symlinks with control-containing path components, preserving source content. This is diagnostic hardening only; root validation policy and filesystem mutation behavior are unchanged. Other log sites remain outside this scope.
+
 ## Worker diagnostic output boundary
 
 Worker preview, move-success and move-failure messages encode nonprintable and non-ASCII path bytes and literal backslashes as printable ASCII hex escapes. A stderr stream lock keeps each worker record together. This is presentation only; paths passed to classification and filesystem operations are unchanged. Disposable read-only preview regression covers newline, ESC and backslash and verifies source preservation. Other logging sites and actual execution-mode output are not covered by this regression; this does not resolve FS-01B or authorize release.

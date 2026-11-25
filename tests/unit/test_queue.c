@@ -1,6 +1,8 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <pthread.h>
+#include <sched.h>
 
 #include "core/lf_queue.h"
 
@@ -11,6 +13,40 @@ static FileEvent make_event(int index)
     (void)snprintf(event.path, sizeof(event.path), "fixture-%d.dat", index);
     event.type = FILE_CREATED;
     return event;
+}
+
+enum { CONCURRENT_EVENTS = QUEUE_SIZE * 8 + 37 };
+
+static void *consume_events(void *arg)
+{
+    LFQueue *queue = arg;
+    for (int i = 0; i < CONCURRENT_EVENTS; ++i)
+    {
+        FileEvent event;
+        while (!lf_dequeue(queue, &event))
+            (void)sched_yield();
+        FileEvent expected = make_event(i);
+        assert(strcmp(event.path, expected.path) == 0);
+        assert(event.type == expected.type);
+    }
+    return NULL;
+}
+
+static void test_concurrent_fifo(LFQueue *queue)
+{
+    lf_init(queue);
+    pthread_t consumer;
+    assert(pthread_create(&consumer, NULL, consume_events, queue) == 0);
+    for (int i = 0; i < CONCURRENT_EVENTS; ++i)
+    {
+        FileEvent input = make_event(i);
+        while (!lf_enqueue(queue, &input))
+            (void)sched_yield();
+    }
+    assert(pthread_join(consumer, NULL) == 0);
+    assert(lf_is_empty(queue));
+    FileEvent unused;
+    assert(!lf_dequeue(queue, &unused));
 }
 
 int main(void)
@@ -51,6 +87,7 @@ int main(void)
         assert(strcmp(event.path, input.path) == 0);
     }
 
+    test_concurrent_fifo(&queue);
     puts("queue tests passed (single producer / single consumer)");
     return 0;
 }

@@ -656,8 +656,10 @@
       "id": "SPSC-NULL-ARGUMENTS-01",
       "title": "Reject invalid SPSC queue API arguments before atomic access",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 null argument guards and non-transfer regression; local tests NOT RUN; CI pending."
+      "prs": [
+        190
+      ],
+      "summary": "PR #190 registered (1/5); C17 null guards and event-preservation regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

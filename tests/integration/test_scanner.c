@@ -415,6 +415,25 @@ int main(void)
     assert(scan_directory(errors_dir, collect, NULL) == -1);
     assert(errno == EACCES && found_count == 1);
     assert(access(error_a, F_OK) == 0 && access(error_b, F_OK) == 0);
+
+    /* Resource exhaustion during entry metadata lookup stops discovery,
+     * rather than visiting the remaining file. Ordinary EACCES above
+     * still permits the other entry to be examined. */
+    size_t metadata_fds = count_open_fds();
+    const int metadata_errors[] = {ENOMEM, EMFILE, ENFILE};
+    for (size_t i = 0; i < sizeof(metadata_errors) / sizeof(metadata_errors[0]); ++i)
+    {
+        found_count = 0;
+        fc_test_fail_next_scanner_stat(metadata_errors[i]);
+        errno = 0;
+        assert(scan_directory(errors_dir, collect, NULL) == -1);
+        assert(errno == metadata_errors[i] && found_count == 0);
+        assert(count_open_fds() == metadata_fds);
+        assert(access(error_a, F_OK) == 0 && access(error_b, F_OK) == 0);
+    }
+    found_count = 0;
+    assert(scan_directory(errors_dir, collect, NULL) == 0);
+    assert(found_count == 2 && count_open_fds() == metadata_fds);
     assert(unlink(error_a) == 0 && unlink(error_b) == 0);
     assert(rmdir(errors_dir) == 0);
 

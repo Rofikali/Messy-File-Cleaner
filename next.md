@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WORKER-LIVE-COUNT-01 (0/5; pending PR registration)** | Track actual started count; reject inconsistent live notification and join | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WORKER-LIVE-COUNT-01 (1/5; PR #200 OPEN)** | Track actual started count; reject inconsistent live notification and join | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **SCANNER-READDIR-EXHAUSTION-01 (1/5; #199 merged)** | 13/13 PR checks; merge `251127089da34412f3611a488e40ef87996ad534` | 11/13 integrated-main checks passed at inspection; 2 not passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **CLI-WORKER-DUPLICATES-01 (1/5; #198 merged)** | 13/13 PR checks; merge `ddc0390628fe186b99fbf1982b9b0cef369a7c65` | 13/13 integrated-main checks passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **WATCHER-TERMINAL-RECORD-01 (1/5; #197 merged)** | 13/13 PR checks; merge `38d8f0615484b0236c7da22e517a1cf841c97d31` | 13/13 integrated-main checks passed (verified previous invocation); real kernel overflow recovery and manual acceptance NOT RUN |

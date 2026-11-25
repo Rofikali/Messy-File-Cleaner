@@ -765,8 +765,10 @@
       "id": "WORKER-LIVE-COUNT-01",
       "title": "Reject worker lifecycle operations with inconsistent live counts",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 authoritative live-count guard and under/over-count lifecycle regression; local tests NOT RUN; CI pending."
+      "prs": [
+        200
+      ],
+      "summary": "PR #200 registered (1/5); authoritative live-count guard and regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

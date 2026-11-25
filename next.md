@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SCANNER-FIRST-ERROR-01 (0/5; PR assignment pending)** | Preserve first scanner failure across later callback failure and cancellation; deterministic fault regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SCANNER-FIRST-ERROR-01 (1/5; PR #175 OPEN)** | Preserve first scanner failure across later callback failure and cancellation; deterministic fault regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **SCANNER-CANCEL-BOUNDARY-01 (1/5; #174 merged)** | 14/14 PR checks; merge `ffe00336abe8b77b9cf9790012705ab17df1fdde` | 1/14 integrated checks passed, 13 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **WATCHER-IDLE-METRICS-01 (1/5; #173 merged)** | 13/13 PR checks; merge `8e243eb9a9aa52c2927b0d9fdf5fee9c0191487a` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **WORKER-POOL-OWNER-01 (1/5; #172 merged)** | 13/13 PR checks; merge `f51005e48ee81edfc18808003691236d5bd328e2` | 13/13 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |

@@ -509,7 +509,9 @@
       "id": "SCANNER-FIRST-ERROR-01",
       "title": "Preserve first scanner failure across later termination",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        175
+      ],
       "summary": "First-failure errno retained; test-only metadata error injection covers callback and cancellation precedence. Local tests NOT RUN."
     }
   ]

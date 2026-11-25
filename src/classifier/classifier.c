@@ -15,12 +15,17 @@ static const char *extract_ext(const char *filename)
 
 void classifier_init(Classifier *c, HashMap *map, const char *def)
 {
+    if (!c)
+        return;
     c->map = map;
     c->default_folder = def;
 }
 
 const char *classify(Classifier *c, const char *filename)
 {
+    if (!c || !filename || filename[0] == '\0')
+        return NULL;
+
     const char *ext = extract_ext(filename);
 
     if (!ext)

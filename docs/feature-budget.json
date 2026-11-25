@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "de5baf9d09d4de48705d9f58d69cf1a9865ecd4f",
+  "snapshot_main_sha": "e54ca2c2900c2c64839736f0b80147e0930c2e1f",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "MEMORY-POOL-EVAL-01",
   "features": [
@@ -871,10 +871,10 @@
         214,
         215
       ],
-      "summary": "PR #215 registered (2/5); #214 merged, 14/14 exact-head jobs; C17 Release path smoke and 59/59 tests passed; integrated-main CI NOT VERIFIED. Bounded arena comparison; local tests NOT RUN at creation; CI pending; production allocator retained.",
-      "last_merged_pr": 214,
-      "merge_sha": "de5baf9d09d4de48705d9f58d69cf1a9865ecd4f",
-      "tested_head_sha": "9e79f75109674c2eb9c2a438d60852d96d91c370"
+      "summary": "PR #215 merged, 14/14 exact-head jobs; C17 Release arena smoke and 60/60 tests passed; integrated-main CI NOT VERIFIED. Third nested lifetime comparison candidate; local tests NOT RUN, CI pending; production allocator retained.",
+      "last_merged_pr": 215,
+      "merge_sha": "e54ca2c2900c2c64839736f0b80147e0930c2e1f",
+      "tested_head_sha": "e8d09027904f164b63ffc212911a724bbbd26f14"
     }
   ]
 }

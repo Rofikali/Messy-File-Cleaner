@@ -11,6 +11,7 @@
 #include <unistd.h>
 
 #include "scanner/scanner.h"
+#include "utils/root_path.h"
 
 typedef struct
 {
@@ -134,15 +135,9 @@ int scan_directory(const char *path, event_handler_fn handler,
         return -1;
     }
 
-    /* A trailing slash can turn the final symlink into an intermediate
-     * component on Linux. Strip trailing separators before O_NOFOLLOW,
-     * preserving the filesystem root. Do not resolve ancestor components. */
-    char *root_path = strdup(path);
+    char *root_path = fc_copy_root_path(path);
     if (!root_path)
         return -1;
-    size_t root_length = strlen(root_path);
-    while (root_length > 1 && root_path[root_length - 1] == '/')
-        root_path[--root_length] = '\0';
 
     int root_fd = open(root_path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
     if (root_fd < 0)

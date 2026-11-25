@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "93e064833433e11aa6c61541aefcdbce54392ffa",
+  "snapshot_main_sha": "8f1c9b1676dfa3754cb65be955888d16d34e6e64",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "WATCHER-ROOT-SEPARATOR-01",
+  "active_feature_id": "ROOT-PATH-SHARED-01",
   "features": [
     {
       "id": "PERF-01",
@@ -524,7 +524,7 @@
       "prs": [
         176
       ],
-      "summary": "PR #176 merged; 13/13 exact-head checks passed; 2/13 integrated-main checks passed, eleven pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #176 merged; 13/13 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 176,
       "merge_sha": "93e064833433e11aa6c61541aefcdbce54392ffa",
       "tested_head_sha": "beb9977d124fee517cca3b441a56faf768598ad4"
@@ -532,11 +532,21 @@
     {
       "id": "WATCHER-ROOT-SEPARATOR-01",
       "title": "Normalize Linux watcher root trailing separators before no-follow registration",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         177
       ],
-      "summary": "Trim trailing root separators and use normalized root for events; reject symlink roots with suffixes, verify live real-directory dry run. Local tests NOT RUN."
+      "summary": "PR #177 merged; 13/13 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
+      "last_merged_pr": 177,
+      "merge_sha": "8f1c9b1676dfa3754cb65be955888d16d34e6e64",
+      "tested_head_sha": "6bfda9b6db7ad84865492bb8ed967ead225bfb8c"
+    },
+    {
+      "id": "ROOT-PATH-SHARED-01",
+      "title": "Share scanner and watcher lexical root path normalization",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Internal static-inline owned root copy; direct lexical, invalid-input and ownership regression; existing symlink tests retained. Local tests NOT RUN."
     }
   ]
 }

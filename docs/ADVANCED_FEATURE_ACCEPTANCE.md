@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Concurrent queue baseline acceptance:** unique full payload per transfer, exactly one producer/consumer, three fixed samples, peer failure signal, monotonic retry deadline and external CTest timeout; no timing threshold, production change or weak-memory proof. See [queue baseline](performance/QUEUE_BASELINE.md).
+
 **Queue evaluation acceptance:** [bounded baseline](performance/QUEUE_BASELINE.md) records three samples, each 65,536 verified event pairs, monotonic duration, no threshold and no production change. Smoke success is correctness evidence, not optimization evidence.
 
 **Upstream audit evidence:** [Module assessment](upstream/UPSTREAM_MODULE_AUDIT.md) records inspected baseline, verified references, rejected replacements and remaining test/measurement gaps. Existing C queue is retained; full-ring recycle regression is distinct from concurrent FIFO stress. No upstream code or dependency adoption.

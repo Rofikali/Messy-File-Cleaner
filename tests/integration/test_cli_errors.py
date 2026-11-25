@@ -76,6 +76,18 @@ def main():
         reject(missing, work, "not accessible")
         reject(regular, work, "must be a directory")
         reject(link, work, "symlink input root")
+        for suffix in ("/", "//", "///"):
+            reject(str(link) + suffix, work, "symlink input root")
+            reject(str(regular) + suffix, work, "must be a directory")
+            valid = subprocess.run([binary, "--root", str(source) + suffix,
+                                    "--config", str(config), "--dry-run", "--once"],
+                                   cwd=work, capture_output=True, text=True,
+                                   timeout=5, check=False)
+            assert valid.returncode == 0, (valid.stdout, valid.stderr)
+            assert sample.read_bytes() == b"preserve-source"
+            assert not (work / "journal").exists()
+            assert not (work / "Jpeg").exists()
+            assert not (work / "Others").exists()
         reject(overlap, nested_work, "overlaps output directory")
         hostile_work = base / (marker + "-work")
         hostile_work.mkdir()

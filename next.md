@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SCANNER-SPECIAL-FILE-01 (0/5; pending PR registration)** | FIFO/socket callback exclusion, preservation, repeated scan and descriptor regression | Local tests NOT RUN; CI pending; device nodes and later substitution NOT RUN; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SCANNER-SPECIAL-FILE-01 (1/5; PR #205 OPEN)** | FIFO/socket callback exclusion, preservation, repeated scan and descriptor regression | Local tests NOT RUN; CI pending; device nodes and later substitution NOT RUN; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **UPSTREAM-AUDIT-01 (1/5; #204 merged)** | 13/13 exact-head checks; merge `a8685a7f9e1f5ced87eefd4a22dfbb5c908707a2` | 13/13 integrated-main checks passed at inspection; initial triage only; manual acceptance NOT RUN |
 | **DONE** | **UPSTREAM-GOVERNANCE-01 (1/5; #203 merged)** | 13/13 exact-head checks; merge `53c2d28c7126e81ddc3a201bc334d6851b5d3b71` | 14/14 integrated-main checks passed at inspection; imports locked; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-REGULAR-FILE-01 (1/5; #202 merged)** | 13/13 exact-head and integrated-main CI; merge `26bb5544a651a53c8245d49d89a7be25f64e787a` | Post-open read fault and manual acceptance NOT RUN |

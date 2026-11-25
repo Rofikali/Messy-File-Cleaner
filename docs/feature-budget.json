@@ -825,8 +825,10 @@
       "id": "SCANNER-SPECIAL-FILE-01",
       "title": "Verify scanner excludes FIFO and Unix socket inodes",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Independent Linux inode-type regression, no production change; local tests NOT RUN; CI pending."
+      "prs": [
+        205
+      ],
+      "summary": "PR #205 registered (1/5); FIFO/socket exclusion regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

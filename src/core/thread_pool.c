@@ -20,6 +20,8 @@ static WorkerArgs args_storage[MAX_WORKERS];
 static pthread_t threads_storage[MAX_WORKERS];
 /* Lifecycle is caller-serialized; producers stop before join. */
 static AppContext *pool_owner;
+/* Track the actual started count independently of caller metadata. */
+static int pool_live_count;
 
 #ifdef FC_TESTING
 static int test_eventfd_fail_after = -1;
@@ -137,6 +139,7 @@ int notify_worker(AppContext *ctx, int worker_index)
 {
     if (!ctx || ctx != pool_owner ||
         ctx->num_workers < 1 || ctx->num_workers > MAX_WORKERS ||
+        ctx->num_workers != pool_live_count ||
         worker_index < 0 || worker_index >= ctx->num_workers ||
         ctx->efd[worker_index] < 0)
     {
@@ -333,6 +336,7 @@ static void cleanup_started_workers(AppContext *ctx, int started)
 {
     atomic_store(&ctx->running, 0);
     ctx->num_workers = started;
+    pool_live_count = started;
 
     for (int i = 0; i < started; i++)
         (void)notify_worker(ctx, i);
@@ -345,6 +349,7 @@ static void cleanup_started_workers(AppContext *ctx, int started)
     }
 
     ctx->num_workers = 0;
+    pool_live_count = 0;
     pool_owner = NULL;
 }
 
@@ -362,6 +367,7 @@ int start_workers(AppContext *ctx, int num_threads)
         return -1;
     }
     pool_owner = ctx;
+    pool_live_count = 0;
     atomic_store(&ctx->active_workers, 0);
     atomic_store(&ctx->worker_error, 0);
     ctx->num_workers = 0;
@@ -396,6 +402,7 @@ int start_workers(AppContext *ctx, int num_threads)
         }
 
         ctx->num_workers = i + 1;
+        pool_live_count = i + 1;
     }
 
     return 0;
@@ -411,7 +418,8 @@ int join_workers(AppContext *ctx)
 
     if ((pool_owner != NULL && pool_owner != ctx) ||
         (pool_owner == NULL && ctx->num_workers != 0) ||
-        (pool_owner == ctx && ctx->num_workers == 0))
+        (pool_owner == ctx && (ctx->num_workers == 0 ||
+                               ctx->num_workers != pool_live_count)))
     {
         errno = EBUSY;
         return -1;
@@ -448,6 +456,7 @@ int join_workers(AppContext *ctx)
     }
 
     ctx->num_workers = 0;
+    pool_live_count = 0;
     pool_owner = NULL;
     if (atomic_load(&ctx->worker_error) != 0 && status == 0)
     {

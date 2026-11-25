@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Worker live-count consistency
+
+The serialized worker lifecycle tracks the actual started count independently of the caller context. A live in-range count mismatch rejects notification (EINVAL) and join (EBUSY) before changing running state, indexing worker storage or closing descriptors. Tests temporarily understate and overstate the count of a two-worker dry-run pool, verify unchanged ownership/descriptor metadata and restore the actual count before existing drain/join tests. Partial-start cleanup and successful join reset the authoritative count. This is not synchronization for concurrent lifecycle mutation or validation of arbitrary descriptors; no mover or retirement change.
+
 ## Scanner directory-read resource exhaustion
 
 A readdir failure with EMFILE, ENFILE or ENOMEM records the first error and stops discovery before subsequent frames or sibling entries are visited. Owned streams and paths unwind through the existing cleanup loop. Test-only depth-targeted faults cover root, first child and deeper frames for all three errors, with child-open counts at root/first-child boundaries, descriptor balance, fixture existence and successful rescan. Normal EOF and other directory-read errors retain existing behavior. No real system-wide exhaustion, source-retirement guarantee or mover change.

@@ -16,10 +16,15 @@ typedef struct
  */
 int start_workers(AppContext *ctx, int num_threads);
 
-/* Stops intake, wakes workers, drains queued work, joins threads, and closes fds. */
+/* Stops intake, wakes workers, drains queued work, joins threads, and closes fds.
+ * Requires an exclusively managed pool and a stable count in [0, MAX_WORKERS].
+ * Invalid count fails with EINVAL before changing state; caller retains ownership.
+ */
 int join_workers(AppContext *ctx);
 
-/* Wake the single consumer assigned to a queue after a successful enqueue. */
+/* Wake the single consumer assigned to a queue after a successful enqueue.
+ * Requires a live pool with a stable count in [1, MAX_WORKERS].
+ */
 int notify_worker(AppContext *ctx, int worker_index);
 
 #ifdef FC_TESTING

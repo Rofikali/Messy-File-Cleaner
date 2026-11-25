@@ -148,6 +148,169 @@ cleanup:
     return result;
 }
 
+
+/* Model nested directory paths and transient sibling paths, not filesystem I/O.
+ * Borrowed arena pointers are released in strict LIFO order. */
+enum { DEPTH = 16, SIBLINGS = 8, NEST_ROUNDS = 64, NEST_CAP = 32768,
+       COMPONENT_CAP = 48, EXPECTED_CAP = 1024 };
+
+static char *nested_join(Arena *a, int arena, const char *parent, const char *child)
+{
+    return arena ? arena_join(a, parent, child) : fc_join_path(parent, child);
+}
+
+static int nested_sample(int use_arena, int run)
+{
+    char components[DEPTH][COMPONENT_CAP];
+    char leaves[DEPTH][SIBLINGS][COMPONENT_CAP];
+    char expected[DEPTH + 1][EXPECTED_CAP];
+    char leaf_expected[DEPTH][SIBLINGS][EXPECTED_CAP];
+    char *frames[DEPTH] = {0};
+    size_t marks[DEPTH] = {0}, frame_bytes[DEPTH] = {0};
+    char *leaf = NULL;
+    size_t live = 0, peak = 0, joins = 0, releases = 0;
+    size_t allocations = 0, frees = 0;
+    Arena a = {NULL, NEST_CAP, 0};
+    memcpy(expected[0], "/fixture", sizeof "/fixture");
+    for (size_t depth = 0; depth < DEPTH; ++depth)
+    {
+        int n = snprintf(components[depth], COMPONENT_CAP, "dir%02zu_%0*zu",
+                         depth, (int)(depth % 24 + 1), depth);
+        if (n < 0 || n >= COMPONENT_CAP)
+            return -1;
+        n = snprintf(expected[depth + 1], EXPECTED_CAP, "%s/%s",
+                     expected[depth], components[depth]);
+        if (n < 0 || n >= EXPECTED_CAP)
+            return -1;
+        for (size_t j = 0; j < SIBLINGS; ++j)
+        {
+            n = snprintf(leaves[depth][j], COMPONENT_CAP, "file%zu_%0*zu.jpg",
+                         j, (int)((depth + j) % 30 + 1), j);
+            if (n < 0 || n >= COMPONENT_CAP)
+                return -1;
+            n = snprintf(leaf_expected[depth][j], EXPECTED_CAP, "%s/%s",
+                         expected[depth], leaves[depth][j]);
+            if (n < 0 || n >= EXPECTED_CAP)
+                return -1;
+        }
+    }
+    struct timespec start, end;
+    int result = -1;
+    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+        return -1;
+    if (use_arena)
+    {
+        a.data = malloc(a.capacity);
+        if (!a.data)
+            goto cleanup;
+        ++allocations;
+    }
+    for (size_t round = 0; round < NEST_ROUNDS; ++round)
+    {
+        for (size_t depth = 0; depth < DEPTH; ++depth)
+        {
+            const char *parent = depth ? frames[depth - 1] : expected[0];
+            for (size_t j = 0; j < SIBLINGS; ++j)
+            {
+                size_t mark = a.used;
+                leaf = nested_join(&a, use_arena, parent, leaves[depth][j]);
+                if (!leaf || strcmp(leaf, leaf_expected[depth][j]))
+                    goto cleanup;
+                ++joins;
+                if (!use_arena)
+                    ++allocations;
+                size_t bytes = strlen(leaf_expected[depth][j]) + 1;
+                if (live + bytes > peak)
+                    peak = live + bytes;
+                if (use_arena)
+                {
+                    if (a.used != mark + bytes)
+                        goto cleanup;
+                    leaf = NULL;
+                    a.used = mark;
+                }
+                else
+                {
+                    free(leaf);
+                    leaf = NULL;
+                    ++frees;
+                }
+                ++releases;
+                for (size_t k = 0; k < depth; ++k)
+                    if (strcmp(frames[k], expected[k + 1]))
+                        goto cleanup;
+            }
+            marks[depth] = a.used;
+            frames[depth] = nested_join(&a, use_arena, parent, components[depth]);
+            if (!frames[depth] || strcmp(frames[depth], expected[depth + 1]))
+                goto cleanup;
+            ++joins;
+            if (!use_arena)
+                ++allocations;
+            frame_bytes[depth] = strlen(expected[depth + 1]) + 1;
+            live += frame_bytes[depth];
+            if (live > peak)
+                peak = live;
+            if (use_arena && a.used != live)
+                goto cleanup;
+        }
+        for (size_t depth = DEPTH; depth > 0; --depth)
+        {
+            size_t i = depth - 1;
+            if (strcmp(frames[i], expected[depth]))
+                goto cleanup;
+            live -= frame_bytes[i];
+            if (use_arena)
+            {
+                frames[i] = NULL;
+                a.used = marks[i];
+                if (a.used != live)
+                    goto cleanup;
+            }
+            else
+            {
+                free(frames[i]);
+                frames[i] = NULL;
+                ++frees;
+            }
+            ++releases;
+            for (size_t k = 0; k < i; ++k)
+                if (strcmp(frames[k], expected[k + 1]))
+                    goto cleanup;
+        }
+        if (live != 0 || a.used != 0)
+            goto cleanup;
+    }
+    if (use_arena)
+    {
+        free(a.data);
+        a.data = NULL;
+        ++frees;
+    }
+    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0 ||
+        joins != NEST_ROUNDS * DEPTH * (SIBLINGS + 1) ||
+        joins != releases || allocations != frees ||
+        allocations != (use_arena ? 1U : joins))
+        goto cleanup;
+    double ns = ((double)end.tv_sec - (double)start.tv_sec) * 1e9 +
+                ((double)end.tv_nsec - (double)start.tv_nsec);
+    if (ns <= 0)
+        goto cleanup;
+    printf("nested mode=%s run=%d joins=%zu allocations=%zu frees=%zu peak_live_payload_bytes=%zu reserved_arena_bytes=%zu elapsed_ns=%.0f ns_per_join=%.3f\n",
+           use_arena ? "arena" : "owned", run, joins, allocations, frees,
+           peak, use_arena ? a.capacity : 0U, ns, ns / joins);
+    result = 0;
+cleanup:
+    if (!use_arena)
+    {
+        free(leaf);
+        for (size_t i = 0; i < DEPTH; ++i)
+            free(frames[i]);
+    }
+    free(a.data);
+    return result;
+}
+
 int main(void)
 {
     const size_t lengths[] = {32, 256, MAX_PARENT};
@@ -163,5 +326,9 @@ int main(void)
                     sample(length, slash, !first, r) != 0)
                     return 1;
             }
+    for (int r = 1; r <= RUNS; ++r)
+        if (nested_sample(r % 2, r) != 0 ||
+            nested_sample(!(r % 2), r) != 0)
+            return 1;
     return 0;
 }

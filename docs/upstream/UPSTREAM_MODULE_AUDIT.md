@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Nested arena evaluation:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) models strict LIFO directory paths and transient siblings, not actual scanner callbacks or file I/O. Existing libc allocation retained; no imports.
+
 **Arena candidate:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) compares existing libc-backed path joins with independent test-only bounded batch storage. No imported allocator, dependency, filesystem or ABI change; scanner lifetimes not established.
 
 **Memory baseline:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) starts with actual libc-backed lexical helper; compare ownership and requested bytes before considering arenas, alternate allocators or external source. Hash-map evaluation closed at 4/5; original capacity retained.

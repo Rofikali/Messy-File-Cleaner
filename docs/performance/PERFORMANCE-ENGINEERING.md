@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Nested lifetime workload:** [path allocation](PATH_ALLOCATION_BASELINE.md) compares variable-length nested paths with transient sibling lifetimes; report peak live payload and separately reserved arena bytes, not RSS or scanner throughput.
+
 **Arena comparison:** [measurement](PATH_ALLOCATION_BASELINE.md) includes backing allocation/free in timed samples and reports logical requested bytes, not RSS. Identical bounded batches and verification; alternating order, no threshold or production promotion.
 
 **Path allocation baseline:** [measurement](PATH_ALLOCATION_BASELINE.md) distinguishes requested bytes and live payload from actual allocator overhead/RSS, with bounded owned copies of real lexical path helper outputs. No timing threshold or allocator promotion.

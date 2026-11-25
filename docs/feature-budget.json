@@ -705,8 +705,10 @@
       "id": "CONFIG-INIT-NULL-01",
       "title": "Guard configuration initialization and verify scalar reset preserves routes",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 null initialization guard and scalar reset regression; local tests NOT RUN; CI pending."
+      "prs": [
+        195
+      ],
+      "summary": "PR #195 registered (1/5); null initialization guard and scalar reset regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

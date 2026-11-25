@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-INIT-NULL-01 (0/5; pending PR registration)** | Null-safe configuration initialization and scalar reset routing preservation regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-INIT-NULL-01 (1/5; PR #195 OPEN)** | Null-safe configuration initialization and scalar reset routing preservation regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **HASHMAP-CAPACITY-CONSISTENCY-01 (1/5; #194 merged)** | 13/13 PR checks; merge `c616e54e4f2df036b2ef94dd6d073c877298082c` | 12/13 integrated-main checks passed at inspection; 1 not passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **SCANNER-METADATA-EXHAUSTION-01 (2/5; #192 and #193 merged)** | 13/13 PR checks; final merge `a64bd7ef3207f5684cd66f5c492fa3d060f1baa5` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **WORKER-EVENT-VALIDATION-01 (1/5; #191 merged)** | 13/13 PR checks; merge `38258744768bcb0eef9f9ed8b969d6618297555e` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |

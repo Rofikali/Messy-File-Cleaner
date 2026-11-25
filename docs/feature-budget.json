@@ -521,7 +521,9 @@
       "id": "SCANNER-ROOT-SEPARATOR-01",
       "title": "Normalize scanner root trailing separators before no-follow open",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        176
+      ],
       "summary": "Linux trailing separators trimmed; reject root symlink with suffix, verify real directory callbacks. No ancestor identity guarantee. Local tests NOT RUN."
     }
   ]

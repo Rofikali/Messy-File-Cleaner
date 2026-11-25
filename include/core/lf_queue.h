@@ -18,10 +18,14 @@ typedef struct
     atomic_int tail;
 } LFQueue;
 
-/* Initialize only before publication, or after all concurrent users stop. */
+/* Initialize only before publication, or after all concurrent users stop.
+ * A NULL queue is ignored. Non-NULL queues must be initialized before use.
+ */
 void lf_init(LFQueue *q);
+/* Return 0 for a NULL queue/event or full/empty queue; no event is transferred. */
 int lf_enqueue(LFQueue *q, const FileEvent *e);
 int lf_dequeue(LFQueue *q, FileEvent *e);
+/* A NULL queue is treated as empty for this predicate only. */
 int lf_is_empty(LFQueue *q);
 
 #endif

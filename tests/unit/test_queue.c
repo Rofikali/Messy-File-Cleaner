@@ -55,6 +55,24 @@ int main(void)
     FileEvent event;
     lf_init(&queue);
 
+    /* Invalid arguments must not consume or publish an event. */
+    lf_init(NULL);
+    assert(lf_is_empty(NULL));
+    FileEvent input = make_event(42);
+    FileEvent output = make_event(99);
+    assert(!lf_enqueue(NULL, &input));
+    assert(!lf_enqueue(&queue, NULL));
+    assert(!lf_dequeue(NULL, &output));
+    assert(strcmp(output.path, "fixture-99.dat") == 0);
+    assert(lf_is_empty(&queue));
+    assert(lf_enqueue(&queue, &input));
+    assert(!lf_dequeue(&queue, NULL));
+    assert(!lf_enqueue(&queue, NULL));
+    assert(!lf_is_empty(&queue));
+    assert(lf_dequeue(&queue, &output));
+    assert(strcmp(output.path, input.path) == 0);
+    assert(output.type == input.type);
+
     assert(lf_is_empty(&queue));
     assert(!lf_dequeue(&queue, &event));
 

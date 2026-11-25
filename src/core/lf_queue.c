@@ -3,6 +3,8 @@
 
 void lf_init(LFQueue *q)
 {
+    if (!q)
+        return;
     /* Initialization is exclusive: no producer or consumer may access q. */
     atomic_init(&q->head, 0);
     atomic_init(&q->tail, 0);
@@ -10,6 +12,9 @@ void lf_init(LFQueue *q)
 
 int lf_enqueue(LFQueue *q, const FileEvent *e)
 {
+    if (!q || !e)
+        return 0;
+
     int tail = atomic_load_explicit(&q->tail, memory_order_relaxed);
     int next = (tail + 1) % QUEUE_SIZE;
     int head = atomic_load_explicit(&q->head, memory_order_acquire);
@@ -24,6 +29,9 @@ int lf_enqueue(LFQueue *q, const FileEvent *e)
 
 int lf_dequeue(LFQueue *q, FileEvent *e)
 {
+    if (!q || !e)
+        return 0;
+
     int head = atomic_load_explicit(&q->head, memory_order_relaxed);
     int tail = atomic_load_explicit(&q->tail, memory_order_acquire);
 
@@ -37,6 +45,9 @@ int lf_dequeue(LFQueue *q, FileEvent *e)
 
 int lf_is_empty(LFQueue *q)
 {
+    if (!q)
+        return 1;
+
     return atomic_load_explicit(&q->head, memory_order_acquire) ==
            atomic_load_explicit(&q->tail, memory_order_acquire);
 }

@@ -365,7 +365,9 @@
       "id": "HASHMAP-METADATA-GUARD-01",
       "title": "Reject impossible hash-map extent and size metadata",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        163
+      ],
       "summary": "Reject unrepresentable entry-byte extent and size greater than capacity; unit regressions preserve valid entries. Local tests NOT RUN."
     }
   ]

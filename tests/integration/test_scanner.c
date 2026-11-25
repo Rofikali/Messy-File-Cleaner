@@ -141,7 +141,36 @@ int main(void)
     n = snprintf(root_link, sizeof(root_link), "%s/root-link", outside);
     assert(n > 0 && (size_t)n < sizeof(root_link));
     assert(symlink(root, root_link) == 0);
+    found_count = 0;
     assert(scan_directory(root_link, collect, NULL) == -1);
+    assert(found_count == 0);
+
+    char suffixed_root[PATH_MAX];
+    for (int separators = 1; separators <= 3; ++separators)
+    {
+        n = snprintf(suffixed_root, sizeof(suffixed_root), "%s%.*s",
+                     root_link, separators, "///");
+        assert(n > 0 && (size_t)n < sizeof(suffixed_root));
+        found_count = 0;
+        errno = 0;
+        assert(scan_directory(suffixed_root, collect, NULL) == -1);
+        assert(errno == ENOTDIR || errno == ELOOP);
+        assert(found_count == 0);
+
+        n = snprintf(suffixed_root, sizeof(suffixed_root), "%s%.*s",
+                     root, separators, "///");
+        assert(n > 0 && (size_t)n < sizeof(suffixed_root));
+        assert(scan_directory(suffixed_root, collect, NULL) == 0);
+        assert(found_count == 3);
+        int inside = 0, deep = 0, second = 0;
+        for (size_t i = 0; i < found_count; ++i)
+        {
+            inside += strcmp(found[i], path) == 0;
+            deep += strcmp(found[i], deep_file) == 0;
+            second += strcmp(found[i], sibling_file) == 0;
+        }
+        assert(inside == 1 && deep == 1 && second == 1);
+    }
 
     found_count = 0;
     errno = 0;

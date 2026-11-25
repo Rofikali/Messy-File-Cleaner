@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Scanner root separator boundary
+
+The Linux scanner removes trailing root separators (preserving a single root slash) before O_NOFOLLOW directory opening. This avoids a trailing slash making a final symlink an intermediate component. Disposable tests cover one to three trailing separators on a root symlink and real directory, verify no rejected-root callbacks and unchanged discovered paths for valid roots. This does not reject ancestor symlinks or dot-component aliases, prove pathname identity, or close source-retirement races. Watcher registration has a separate boundary.
+
 ## Scanner failure reporting boundary
 
 Traversal retains the first observed failure errno; later callback failure or cancellation still stops traversal without masking an earlier discovery failure. An unset failure errno falls back to EIO. A single-threaded, test-only metadata failure hook exercises EACCES followed by EPERM, cancellation, or successful callback completion on disposable fixtures. This improves diagnostic integrity, not filesystem identity or rollback. The hook is not compiled into production.

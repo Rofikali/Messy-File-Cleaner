@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ffe00336abe8b77b9cf9790012705ab17df1fdde",
+  "snapshot_main_sha": "86514a1add4defd18da18f1bf92783ab5eabd9aa",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCANNER-FIRST-ERROR-01",
+  "active_feature_id": "SCANNER-ROOT-SEPARATOR-01",
   "features": [
     {
       "id": "PERF-01",
@@ -500,7 +500,7 @@
       "prs": [
         174
       ],
-      "summary": "PR #174 merged; 14/14 exact-head checks passed; 1/14 integrated-main checks passed, thirteen pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #174 merged; 14/14 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 174,
       "merge_sha": "ffe00336abe8b77b9cf9790012705ab17df1fdde",
       "tested_head_sha": "7cc1c96eb4d50b435b74c58443d032d15d11f714"
@@ -508,11 +508,23 @@
     {
       "id": "SCANNER-FIRST-ERROR-01",
       "title": "Preserve first scanner failure across later termination",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         175
       ],
-      "summary": "First-failure errno retained; test-only metadata error injection covers callback and cancellation precedence. Local tests NOT RUN."
+      "summary": "PR #175 merged; 14/14 exact-head checks passed; 9/14 integrated-main checks passed, five pending at inspection. Manual acceptance NOT RUN.",
+      "last_merged_pr": 175,
+      "merge_sha": "86514a1add4defd18da18f1bf92783ab5eabd9aa",
+      "tested_head_sha": "7419f066393c746d4dd35d80d1aa339cf775551f"
+    },
+    {
+      "id": "SCANNER-ROOT-SEPARATOR-01",
+      "title": "Normalize scanner root trailing separators before no-follow open",
+      "status": "ACTIVE",
+      "prs": [
+        176
+      ],
+      "summary": "Linux trailing separators trimmed; reject root symlink with suffix, verify real directory callbacks. No ancestor identity guarantee. Local tests NOT RUN."
     }
   ]
 }

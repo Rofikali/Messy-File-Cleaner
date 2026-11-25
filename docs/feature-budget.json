@@ -897,9 +897,10 @@
       "title": "Bounded Linux scanner reference traversal evaluation",
       "status": "ACTIVE",
       "prs": [
-        221
+        221,
+        222
       ],
-      "summary": "PR #221 merged, 14/14 exact-head jobs; C17 Release 62/62 tests and scanner reference smoke passed; integrated-main CI NOT VERIFIED. Second descriptor candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "summary": "PR #222 registered (2/5); #221 merged, 14/14 exact-head jobs, C17 Release 62/62 tests and scanner reference smoke passed; integrated-main CI NOT VERIFIED. Callback-visible descriptor comparison; local tests NOT RUN at creation; CI pending; production unchanged.",
       "last_merged_pr": 221,
       "merge_sha": "d0684403429010e0356dbe2219440e3cdcbeaac2",
       "tested_head_sha": "f0ae6afc6bf0ce992ca1ad1c04826f896e81a0b8"

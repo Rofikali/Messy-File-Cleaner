@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **LINUX-SCANNER-EVAL-01 (1/5 prior opened; second PR candidate)** | Untimed callback-visible descriptor comparison at nftw budgets 1/4/16 | #221 exact-head CI PASS; new local checks NOT RUN at creation; CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **LINUX-SCANNER-EVAL-01 (2/5; PR #222 OPEN (draft))** | Untimed callback-visible descriptor comparison at nftw budgets 1/4/16 | #221 exact-head CI PASS; new local checks NOT RUN at creation; CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **STRING-EVAL-01 (3/5; #220 merged)** | 13/13 returned exact-head checks; standalone C11/C17/C23 and ASan/UBSan evidence; retain libc | FCJ4 TSan and integrated-main CI NOT VERIFIED; representative throughput/target host NOT established |
 | **DONE** | **MEMORY-POOL-EVAL-01 (4/5; #217 merged)** | 13/13 returned exact-head checks; arena smoke and unwind checks PASS; production allocator retained | FCJ4 TSan and integrated-main CI NOT VERIFIED; real scanner lifetime/RSS and throughput NOT established |
 | **DONE** | **HASHMAP-EVAL-01 (4/5; #213 merged)** | 14/14 exact-head checks; classifier and collision smoke PASS; existing 64 slots retained | Integrated-main CI NOT VERIFIED; representative performance and hostile-key resistance NOT established |

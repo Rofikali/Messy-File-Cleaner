@@ -557,7 +557,9 @@
       "id": "CLI-ROOT-SHARED-01",
       "title": "Use shared root path normalization in CLI preflight",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        179
+      ],
       "summary": "Remove third duplicate root normalization; existing CLI harness covers trailing separators, rejection and source preservation. Local tests NOT RUN."
     }
   ]

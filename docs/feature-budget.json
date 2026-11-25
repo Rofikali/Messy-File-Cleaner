@@ -789,8 +789,10 @@
       "id": "CONFIG-REGULAR-FILE-01",
       "title": "Reject non-regular configuration objects without waiting for FIFO writers",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17/POSIX opened-object type check and bounded disposable CLI regression; local tests NOT RUN; CI pending."
+      "prs": [
+        202
+      ],
+      "summary": "PR #202 registered (1/5); nonregular config rejection and bounded CLI regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

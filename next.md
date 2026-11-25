@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-REGULAR-FILE-01 (0/5; pending PR registration)** | Nonblocking config open, opened-object regular-file validation and bounded FIFO regression | Local tests NOT RUN; CI pending; device/remote open latency and post-open read fault NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-REGULAR-FILE-01 (1/5; PR #202 OPEN)** | Nonblocking config open, opened-object regular-file validation and bounded FIFO regression | Local tests NOT RUN; CI pending; device/remote open latency and post-open read fault NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **WORKER-JOIN-NOTIFY-REGRESSION-01 (1/5; #201 merged)** | 13/13 PR checks; merge `15da8199fdefc042334c80c17a359bbb780ab281` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **WORKER-LIVE-COUNT-01 (1/5; #200 merged)** | 13/13 exact-head checks; merge `2084cf9b53964475b65a9fcdb35ba636e1531a43` | 13/13 integrated-main checks; manual acceptance NOT RUN |
 | **DONE** | **SCANNER-READDIR-EXHAUSTION-01 (1/5; #199 merged)** | 13/13 PR checks; merge `251127089da34412f3611a488e40ef87996ad534` | 13/13 integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN |

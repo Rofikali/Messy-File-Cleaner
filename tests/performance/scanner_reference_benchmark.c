@@ -139,6 +139,79 @@ static int descriptor_sample(const char *root, int reference, int deep, int budg
     return 0;
 }
 
+/* Compare synchronous callback-directed early exit and native cooperative
+ * cancellation on stable fixtures. No asynchronous cancellation guarantee. */
+enum { REFERENCE_STOP = 71 };
+static size_t stop_at;
+static int stop_mode;
+static atomic_int stop_flag;
+
+static int stop_callback(const char *path)
+{
+    if (record(path) != 0)
+        return -1;
+    if (visits != stop_at)
+        return 0;
+    if (stop_mode == 2)
+    {
+        atomic_store_explicit(&stop_flag, 1, memory_order_relaxed);
+        return 0;
+    }
+    if (stop_mode == 1)
+        return REFERENCE_STOP;
+    errno = EACCES;
+    return -1;
+}
+
+static int reference_stop_callback(const char *path, const struct stat *st,
+                                   int type, struct FTW *info)
+{
+    if (type == FTW_F && st && S_ISREG(st->st_mode))
+        return stop_callback(path);
+    return reference_callback(path, st, type, info);
+}
+
+static int stop_sample(const char *root, int deep, int mode, size_t at)
+{
+    size_t before, after;
+    if (count_fds(&before) != 0)
+        return -1;
+    memset(seen, 0, sizeof seen);
+    visits = 0;
+    stop_at = at;
+    stop_mode = mode;
+    atomic_store_explicit(&stop_flag, 0, memory_order_relaxed);
+    errno = 0;
+    int rc = mode == 1 ? nftw(root, reference_stop_callback, 4, FTW_PHYS)
+                       : scan_directory(root, stop_callback,
+                                        mode == 2 ? &stop_flag : NULL);
+    int saved_errno = errno;
+    if (count_fds(&after) != 0 || before != after || visits != at)
+        return -1;
+    if (mode == 1 ? rc != REFERENCE_STOP :
+        rc != -1 || saved_errno != (mode == 2 ? ECANCELED : EACCES))
+        return -1;
+    size_t unique = 0;
+    for (size_t i = 0; i < FILES; ++i)
+        unique += seen[i] != 0;
+    if (unique != at)
+        return -1;
+    /* Same unchanged fixture must still be completely discoverable. */
+    memset(seen, 0, sizeof seen);
+    visits = 0;
+    if (scan_directory(root, record, NULL) != 0 || visits != FILES ||
+        count_fds(&after) != 0 || before != after)
+        return -1;
+    for (size_t i = 0; i < FILES; ++i)
+        if (!seen[i])
+            return -1;
+    printf("stop layout=%s mode=%s at=%zu rc=%d baseline=%zu after=%zu recovery_files=%zu\n",
+           deep ? "deep" : "wide",
+           mode == 1 ? "nftw" : mode == 2 ? "cancel" : "scanner-error",
+           at, rc, before, after, visits);
+    return 0;
+}
+
 static int fixture(int deep)
 {
     char root[] = "/tmp/fc-scanner-eval-XXXXXX";
@@ -184,6 +257,11 @@ static int fixture(int deep)
     for (size_t i = 0; i < sizeof budgets / sizeof budgets[0]; ++i)
         if (descriptor_sample(root, 1, deep, budgets[i]) != 0)
             goto cleanup;
+    const size_t stops[] = {1, FILES / 2, FILES};
+    for (int mode = 0; mode < 3; ++mode)
+        for (size_t i = 0; i < sizeof stops / sizeof stops[0]; ++i)
+            if (stop_sample(root, deep, mode, stops[i]) != 0)
+                goto cleanup;
     result = 0;
 cleanup:
     /* Only paths successfully created by this fixture; no recursive deletion. */

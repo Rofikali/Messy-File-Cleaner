@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "d0684403429010e0356dbe2219440e3cdcbeaac2",
+  "snapshot_main_sha": "d45c084b5806c873240fd6fcbb629f35606c6f2a",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-SCANNER-EVAL-01",
   "features": [
@@ -900,10 +900,10 @@
         221,
         222
       ],
-      "summary": "PR #222 registered (2/5); #221 merged, 14/14 exact-head jobs, C17 Release 62/62 tests and scanner reference smoke passed; integrated-main CI NOT VERIFIED. Callback-visible descriptor comparison; local tests NOT RUN at creation; CI pending; production unchanged.",
-      "last_merged_pr": 221,
-      "merge_sha": "d0684403429010e0356dbe2219440e3cdcbeaac2",
-      "tested_head_sha": "f0ae6afc6bf0ce992ca1ad1c04826f896e81a0b8"
+      "summary": "PR #222 merged, 13/13 returned exact-head jobs; C17 Release 62/62 tests and descriptor smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Third early-stop/rescan candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "last_merged_pr": 222,
+      "merge_sha": "d45c084b5806c873240fd6fcbb629f35606c6f2a",
+      "tested_head_sha": "5970c88e968cd459bf104567bd2e95233564109f"
     }
   ]
 }

@@ -180,6 +180,32 @@ if(BUILD_TESTING)
   add_test(NAME queue_concurrent_benchmark_smoke COMMAND queue-concurrent-benchmark)
   set_tests_properties(queue_concurrent_benchmark_smoke PROPERTIES TIMEOUT 25)
 
+  # Test-only candidate: compile the same source and harness against a
+  # generated private header. Production includes and ABI remain untouched.
+  set(queue_layout_header "${CMAKE_CURRENT_SOURCE_DIR}/include/core/lf_queue.h")
+  set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${queue_layout_header}")
+  file(READ "${queue_layout_header}" queue_layout_original)
+  string(REPLACE "    atomic_int head;\n    atomic_int tail;"
+    "    _Alignas(64) atomic_int head;\n    _Alignas(64) atomic_int tail;"
+    queue_layout_candidate "${queue_layout_original}")
+  if(queue_layout_candidate STREQUAL queue_layout_original)
+    message(FATAL_ERROR "Queue cache-layout experiment requires review: header anchor changed")
+  endif()
+  set(queue_layout_dir "${CMAKE_CURRENT_BINARY_DIR}/queue-layout-candidate")
+  file(MAKE_DIRECTORY "${queue_layout_dir}/core")
+  file(WRITE "${queue_layout_dir}/core/lf_queue.h" "${queue_layout_candidate}")
+  add_executable(queue-padded-benchmark tests/performance/queue_concurrent_benchmark.c src/core/lf_queue.c)
+  target_include_directories(queue-padded-benchmark PRIVATE "${queue_layout_dir}" "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_definitions(queue-padded-benchmark PRIVATE FC_QUEUE_PADDED_EXPERIMENT)
+  target_compile_options(queue-padded-benchmark PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes)
+  target_link_libraries(queue-padded-benchmark PRIVATE Threads::Threads)
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(queue-padded-benchmark PRIVATE -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=2)
+    target_link_options(queue-padded-benchmark PRIVATE -Wl,-z,relro,-z,now)
+  endif()
+  add_test(NAME queue_padded_benchmark_smoke COMMAND queue-padded-benchmark)
+  set_tests_properties(queue_padded_benchmark_smoke PROPERTIES TIMEOUT 25)
+
   add_executable(test_scanner tests/integration/test_scanner.c src/scanner/scanner.c)
   target_include_directories(test_scanner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_definitions(test_scanner PRIVATE FC_SCANNER_TESTING)

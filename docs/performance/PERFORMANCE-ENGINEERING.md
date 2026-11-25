@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Cache-layout comparison:** [Queue baseline](QUEUE_BASELINE.md) includes an isolated candidate with 64-byte index separation, identical C code and workload. Compare layout, memory overhead and repeated timings; hardware counter evidence and actual target workloads remain separate.
+
 **Concurrent queue measurement:** [queue baseline](QUEUE_BASELINE.md) distinguishes sequential batched pairs from two-thread transfer including event generation, verification, retry/yield and thread lifecycle. No direct speedup comparison between these workloads; no timing threshold or new workflow.
 
 **Queue baseline:** [QUEUE_BASELINE.md](QUEUE_BASELINE.md) separates a fixed-size single-threaded batch enqueue/dequeue-plus-verification measurement from concurrent SPSC or filesystem workloads. No timing gate, speedup claim, extra workflow or scale benchmark dispatch.

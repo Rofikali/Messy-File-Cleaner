@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <sched.h>
 #include <stdint.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -75,6 +76,17 @@ static void *consume(void *arg)
 
 int main(void)
 {
+    printf("queue layout: bytes=%zu alignment=%zu head_offset=%zu tail_offset=%zu head_mod64=%zu tail_mod64=%zu\n",
+           sizeof(LFQueue), (size_t)_Alignof(LFQueue),
+           offsetof(LFQueue, head), offsetof(LFQueue, tail),
+           (size_t)((uintptr_t)&queue.head % 64u),
+           (size_t)((uintptr_t)&queue.tail % 64u));
+#ifdef FC_QUEUE_PADDED_EXPERIMENT
+    if ((uintptr_t)&queue.head % 64u != 0 ||
+        (uintptr_t)&queue.tail % 64u != 0 ||
+        offsetof(LFQueue, tail) - offsetof(LFQueue, head) < 64u)
+        return 1;
+#endif
     printf("queue concurrent baseline: events_per_run=%d runs=%d event_bytes=%zu\n",
            EVENTS, RUNS, sizeof(FileEvent));
     for (int r = 0; r < RUNS; ++r)

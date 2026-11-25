@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Arena unwind candidate:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) adds bounded-capacity and simulated interruption cleanup checks; no upstream imports, scanner or production allocator changes.
+
 **Nested arena evaluation:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) models strict LIFO directory paths and transient siblings, not actual scanner callbacks or file I/O. Existing libc allocation retained; no imports.
 
 **Arena candidate:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) compares existing libc-backed path joins with independent test-only bounded batch storage. No imported allocator, dependency, filesystem or ABI change; scanner lifetimes not established.

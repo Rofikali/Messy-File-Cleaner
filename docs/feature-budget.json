@@ -777,8 +777,10 @@
       "id": "WORKER-JOIN-NOTIFY-REGRESSION-01",
       "title": "Verify shutdown notification failure cleanup and restart",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Regression only; local tests NOT RUN; CI pending."
+      "prs": [
+        201
+      ],
+      "summary": "PR #201 registered (1/5); local tests NOT RUN; CI pending."
     }
   ]
 }

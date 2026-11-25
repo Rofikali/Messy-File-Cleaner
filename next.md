@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WORKER-JOIN-NOTIFY-REGRESSION-01 (0/5; pending PR registration)** | Inject shutdown notification failure; verify cleanup and restart | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WORKER-JOIN-NOTIFY-REGRESSION-01 (1/5; PR #201 OPEN)** | Inject shutdown notification failure; verify cleanup and restart | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **WORKER-LIVE-COUNT-01 (1/5; #200 merged)** | 13/13 exact-head checks; merge `2084cf9b53964475b65a9fcdb35ba636e1531a43` | 13/13 integrated-main checks; manual acceptance NOT RUN |
 | **DONE** | **SCANNER-READDIR-EXHAUSTION-01 (1/5; #199 merged)** | 13/13 PR checks; merge `251127089da34412f3611a488e40ef87996ad534` | 11/13 integrated-main checks passed at inspection; 2 not passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **CLI-WORKER-DUPLICATES-01 (1/5; #198 merged)** | 13/13 PR checks; merge `ddc0390628fe186b99fbf1982b9b0cef369a7c65` | 13/13 integrated-main checks passed at inspection; manual acceptance NOT RUN |

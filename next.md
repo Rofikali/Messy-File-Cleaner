@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCHER-ROOT-TYPE-01 (0/5; PR assignment pending)** | Require directory-only no-follow watch registration; disposable direct API tests | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WATCHER-ROOT-TYPE-01 (1/5; PR #168 OPEN)** | Require directory-only no-follow watch registration; disposable direct API tests | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **ROOT-OUTPUT-DIAGNOSTIC-01 (1/5; #167 merged)** | 13/13 PR checks; merge `d615e057e3cac2131820f5278a96dce36853e685` | 4/13 integrated checks passed, 9 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **WORKER-DIAGNOSTIC-ESCAPE-01 (1/5; #166 merged)** | 13/13 PR checks; merge `0dc13282376056a1ef2b36e5222c94077f710bbd` | 13/13 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |
 | **DONE** | **QUEUE-SPSC-CONCURRENCY-01 (1/5; #165 merged)** | 14/14 PR checks; merge `d0a325992cc60303aeb9597293647beb34efb071` | 14/14 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |

@@ -425,7 +425,9 @@
       "id": "WATCHER-ROOT-TYPE-01",
       "title": "Restrict Linux inotify watch registration to directory targets",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        168
+      ],
       "summary": "IN_ONLYDIR and IN_DONT_FOLLOW; disposable direct API regressions, CTest timeout. Ancestor/path identity not established. Local tests NOT RUN."
     }
   ]

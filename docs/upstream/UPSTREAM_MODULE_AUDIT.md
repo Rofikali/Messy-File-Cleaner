@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Hash-map capacity evaluation:** [lookup evidence](../performance/HASHMAP_BASELINE.md) compares the current 64-slot production capacity with 128/256 test-only candidates. Reference-only libc/kernel comparisons already documented; no import, different ownership model or automatic resizing.
+
 **HASHMAP-EVAL-01:** [hash-map baseline](../performance/HASHMAP_BASELINE.md) evaluates the existing fixed-capacity linear-probing table against synthetic lookup workloads. Linux kernel hashtable.h uses hlist buckets; libc hsearch has different storage/ownership and update contracts. Reference only, no imported implementation. Queue evaluation closed at 4/5; retain original layout.
 
 **Queue controlled measurement:** [queue baseline](../performance/QUEUE_BASELINE.md) adds optional process-local Linux CPU affinity to both test layouts; no new runtime dependency or production change. Distinct logical CPUs do not imply distinct physical cores; document topology, allowed mask and scheduling limitations.

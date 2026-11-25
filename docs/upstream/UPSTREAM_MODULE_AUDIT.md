@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**String boundary evaluation:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) adds independent forward-reference routing and deterministic byte-string tests. No GNU/libc code imported; production classifier retained.
+
 **String candidate:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) compares libc strrchr-based production classification with independent test-only reverse scanning after strlen. No libc source copied or replacement justified.
 
 **Arena unwind candidate:** [path allocation](../performance/PATH_ALLOCATION_BASELINE.md) adds bounded-capacity and simulated interruption cleanup checks; no upstream imports, scanner or production allocator changes.

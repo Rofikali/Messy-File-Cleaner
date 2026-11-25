@@ -69,6 +69,109 @@ static int sample(Classifier *c, char paths[CASES][MAX_PATH],
     return 0;
 }
 
+
+/* Independent forward reference with explicit suffix matching. No hashmap
+ * calls, so candidate and production cannot hide a shared routing error. */
+static const char *reference(const char *path)
+{
+    if (!path || !*path)
+        return NULL;
+    const char *base = path, *dot = NULL;
+    for (const char *p = path; *p; ++p)
+    {
+        if (*p == '/')
+        {
+            base = p + 1;
+            dot = NULL;
+        }
+        else if (*p == '.')
+            dot = p;
+    }
+    if (!dot || dot == base || !dot[1])
+        return fallback;
+    for (size_t i = 0; i < sizeof keys / sizeof keys[0]; ++i)
+        if (strcmp(dot, keys[i]) == 0)
+            return folders[i];
+    return fallback;
+}
+
+static int check_path(Classifier *c, const char *path)
+{
+    const char *want = reference(path);
+    const char *actual = classify(c, path);
+    const char *experimental = reverse_classify(c, path);
+    if (!same(actual, want) || !same(experimental, want) || c->map->size != 4)
+        return -1;
+    /* A successful route must return the same borrowed value, not merely
+     * a string with identical contents. */
+    return actual == experimental ? 0 : -1;
+}
+
+static int boundary_checks(Classifier *c)
+{
+    /* Byte strings, not Unicode normalization or real path validation. */
+    static const unsigned char alphabet[] = {
+        '/', '.', 'a', 'j', 'p', 'g', 'z', 0xff
+    };
+    enum { ALPHABET = sizeof alphabet, SHORT_MAX = 6 };
+    char path[SHORT_MAX + 1];
+    size_t cases = 0, permutations = 1;
+    for (size_t length = 0; length <= SHORT_MAX; ++length)
+    {
+        for (size_t n = 0; n < permutations; ++n)
+        {
+            size_t index = n;
+            for (size_t i = 0; i < length; ++i)
+            {
+                ((unsigned char *)path)[i] = alphabet[index % ALPHABET];
+                index /= ALPHABET;
+            }
+            path[length] = '\0';
+            if (check_path(c, path) != 0)
+                return -1;
+            ++cases;
+        }
+        if (length != SHORT_MAX)
+            permutations *= ALPHABET;
+    }
+    if (cases != 299593)
+        return -1;
+
+    /* Explicit extension length boundaries around the existing hashmap limit.
+     * Use unknown extensions so classification must remain fallback. */
+    char long_path[MAX_PATH];
+    const size_t lengths[] = {1, MAX_KEY_LEN - 1, MAX_KEY_LEN,
+                              MAX_KEY_LEN + 1, MAX_PATH - 3};
+    for (size_t j = 0; j < sizeof lengths / sizeof lengths[0]; ++j)
+    {
+        size_t len = lengths[j];
+        long_path[0] = 'x';
+        long_path[1] = '.';
+        memset(long_path + 2, 'q', len - 1);
+        long_path[len + 1] = '\0';
+        if (check_path(c, long_path) != 0)
+            return -1;
+        ++cases;
+    }
+    static const char *const special[] = {
+        "a\\b.jpg", "a\\b/.jpg", "a\tb.jpg", "a\nb.png",
+        "a\r.txt", "\xc3\xa9.gz", "a.\xff", "a.jpg/.",
+        "a.jpg//", "//.jpg", "/.hidden.jpg", "/x.png/",
+        "dir.jpg/..", "dir.jpg/../a.txt", "a.jpg ", "a..gz"
+    };
+    for (size_t j = 0; j < sizeof special / sizeof special[0]; ++j)
+    {
+        if (check_path(c, special[j]) != 0)
+            return -1;
+        ++cases;
+    }
+    if (check_path(c, NULL) != 0)
+        return -1;
+    ++cases;
+    printf("string_boundary_cases=%zu\n", cases);
+    return cases == 299615 ? 0 : -1;
+}
+
 int main(void)
 {
     const char *const names[CASES] = {
@@ -89,6 +192,8 @@ int main(void)
         if (hashmap_put(&map, keys[i], folders[i]) != 0)
             return 1;
     classifier_init(&c, &map, fallback);
+    if (boundary_checks(&c) != 0)
+        return 1;
     if (classify(NULL, "a.jpg") || reverse_classify(NULL, "a.jpg") ||
         classify(&c, NULL) || reverse_classify(&c, NULL) ||
         classify(&c, "") || reverse_classify(&c, ""))

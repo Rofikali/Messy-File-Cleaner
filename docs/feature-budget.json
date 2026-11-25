@@ -569,7 +569,9 @@
       "id": "PATH-JOIN-SHARED-01",
       "title": "Share checked lexical path join across discovery and preflight",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        180
+      ],
       "summary": "Internal static-inline owned join; checked size arithmetic and direct regression; no component-policy or mover changes. Local tests NOT RUN."
     }
   ]

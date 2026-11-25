@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **PATH-JOIN-SHARED-01 (0/5; PR assignment pending)** | Share checked lexical path join across CLI output preflight, scanner and watcher | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **PATH-JOIN-SHARED-01 (1/5; PR #180 OPEN)** | Share checked lexical path join across CLI output preflight, scanner and watcher | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **CLI-ROOT-SHARED-01 (1/5; #179 merged)** | 13/13 PR checks; merge `7d30aabb4cef420be0d0fa43f45ed79e2cae13c8` | 4/13 integrated checks passed, 9 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **ROOT-PATH-SHARED-01 (1/5; #178 merged)** | 13/13 PR checks; merge `bf78092e018077ca8f5c9371f8c0a5afaebdd8e9` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **WATCHER-ROOT-SEPARATOR-01 (1/5; #177 merged)** | 13/13 PR checks; merge `8f1c9b1676dfa3754cb65be955888d16d34e6e64` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

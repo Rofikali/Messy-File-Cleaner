@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCHER-ROOT-SEPARATOR-01 (0/5; PR assignment pending)** | Normalize trailing root separators before Linux watcher no-follow registration; disposable regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WATCHER-ROOT-SEPARATOR-01 (1/5; PR #177 OPEN)** | Normalize trailing root separators before Linux watcher no-follow registration; disposable regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **SCANNER-ROOT-SEPARATOR-01 (1/5; #176 merged)** | 13/13 PR checks; merge `93e064833433e11aa6c61541aefcdbce54392ffa` | 2/13 integrated checks passed, 11 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **SCANNER-FIRST-ERROR-01 (1/5; #175 merged)** | 14/14 PR checks; merge `86514a1add4defd18da18f1bf92783ab5eabd9aa` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-CANCEL-BOUNDARY-01 (1/5; #174 merged)** | 14/14 PR checks; merge `ffe00336abe8b77b9cf9790012705ab17df1fdde` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

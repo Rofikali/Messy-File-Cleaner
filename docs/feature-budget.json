@@ -533,7 +533,9 @@
       "id": "WATCHER-ROOT-SEPARATOR-01",
       "title": "Normalize Linux watcher root trailing separators before no-follow registration",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        177
+      ],
       "summary": "Trim trailing root separators and use normalized root for events; reject symlink roots with suffixes, verify live real-directory dry run. Local tests NOT RUN."
     }
   ]

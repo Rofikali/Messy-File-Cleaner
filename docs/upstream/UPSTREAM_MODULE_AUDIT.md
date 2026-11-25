@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Scanner reference:** [baseline](../performance/SCANNER_REFERENCE_BASELINE.md) compares libc nftw physical traversal with actual descriptor-relative scanner on bounded private fixtures. No source import or new production traversal backend. Retain existing scanner identity checks.
+
 **String measured decision:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) shows reverse scan benefit in long synthetic paths, shortest paths effectively tied; retain libc production implementation without representative evidence or external imports.
 
 **String boundary evaluation:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) adds independent forward-reference routing and deterministic byte-string tests. No GNU/libc code imported; production classifier retained.

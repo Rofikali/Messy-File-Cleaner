@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**25 November 2026 — string scoped evaluation:** #220 merged, 13/13 returned exact-head jobs passed; FCJ4 TSan and integrated-main CI NOT VERIFIED. Scoped evaluation DONE 3/5, production libc classifier retained. [String evidence](performance/STRING_EXTENSION_BASELINE.md); next [scanner reference](performance/SCANNER_REFERENCE_BASELINE.md). Target-host and representative throughput remain unproven; FS-01B/REL-01 blocked.
+
 **25 November 2026 — memory scoped evaluation:** #217 merged, 13/13 returned exact-head CI jobs passed; FCJ4 TSan and integrated-main CI NOT VERIFIED. Scoped test harness evaluation DONE 4/5, production allocator retained. [Memory evidence](performance/PATH_ALLOCATION_BASELINE.md); next [string evaluation](performance/STRING_EXTENSION_BASELINE.md). Real scanner cancellation, callback lifetime, RSS and whole-program speed not established. FS-01B/REL-01 remain blocked.
 
 **25 November 2026 — hash-map scoped evaluation:** PR #213 merged, 14/14 exact-head jobs passed; integrated-main CI NOT VERIFIED. Existing production 64-slot map retained; synthetic benchmark acceptance complete (4/5), representative performance and hostile-key claims NOT established. [Evidence](performance/HASHMAP_BASELINE.md). Next independent test-only [path allocation baseline](performance/PATH_ALLOCATION_BASELINE.md). FS-01B/REL-01 remain blocked.

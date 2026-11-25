@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Scanner evaluation acceptance:** [baseline](performance/SCANNER_REFERENCE_BASELINE.md) requires exact regular-file callbacks with no duplicates or symlink traversal in private wide/deep fixtures; nftw is test-only and does not establish equivalent trust/cancellation contracts.
+
 **String measured evidence:** [extension baseline](performance/STRING_EXTENSION_BASELINE.md) records exact-blob standalone correctness and sanitizer pass, and all 30 C17 timing samples. Production adoption remains unapproved pending representative workload/target-host evidence.
 
 **String boundary acceptance:** [extension baseline](performance/STRING_EXTENSION_BASELINE.md) requires 299,615 untimed cases, independent forward-reference routing, unchanged map size and identical borrowed result pointers for current/candidate implementations.

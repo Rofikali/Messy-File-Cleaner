@@ -33,3 +33,8 @@ C17 Release all samples (ns/classification; run 1/2/3), same fixed fixtures and 
 | 4000 | 78.652/79.905/80.177 | 47.354/47.014/47.177 | 79.905 | 47.177 |
 
 Longest synthetic prefix approximately 1.69x faster (41% less time); shortest effectively tied, overlapping samples. No CPU pinning, clock-frequency/cache controls, independent hosts, real path-frequency distribution or statistical significance claim. Includes map lookup and result verification; not isolated libc or scanner throughput. Retain production classifier and map. This PR records evidence only; no code, ABI, dependency, import, dispatch, spending or release change. Future scoped decision after exact-head CI: close evaluation early if no meaningful safe gap remains. FS-01B/REL-01/license lock unchanged; rollback by revert.
+
+
+## Scoped evaluation closure — 25 November 2026
+
+PR #220 merged at 63cfa8af42a4e5407fed039b3b1c2bf3aedf0c2a; exact head a421c307d31b3b167e675f85b57847e37d6ef033. All 13 returned exact-head jobs passed (CMake 45664141374, Ubuntu 45664141514, Docker 45664141415, Makefile 45664141397). FCJ4 TSan and integrated-main CI NOT VERIFIED (no corresponding runs returned). Standalone evidence above retained; scope DONE 3/5. Retain production libc-based classifier, no representative throughput or target-host claim. Do not consume additional PR slots solely for polishing. Next independent LINUX-SCANNER-EVAL-01, not a reset of BENCH-SCALE-01 or SCAN-ROBUST-01.

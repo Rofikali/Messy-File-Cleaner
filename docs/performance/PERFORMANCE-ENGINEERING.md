@@ -2,7 +2,7 @@
 
 ## Feature exit and measurement boundary (2026-11-21)
 
-PERF-01 historical disposable benchmark fixture/evidence improvements are **merged through PR #128** and the feature lane is closed to repeated same-feature micro-PRs under the new five-PR policy. Measured capacity, filesystem-specific worst cases, host benchmarks and power-loss behavior are **not inferred** from regression count. Future independent BENCH-SCALE-01 may measure representative workloads only with a bounded, non-destructive plan and reproducible cost/provenance; it receives its own maximum five opened PRs. The current independent NOW feature is CLI-DRYRUN-01.
+PERF-01 historical disposable benchmark fixture/evidence improvements are **merged through PR #128** and the feature lane is closed to repeated same-feature micro-PRs under the new five-PR policy. Measured capacity, filesystem-specific worst cases, host benchmarks and power-loss behavior are **not inferred** from regression count. Future independent BENCH-SCALE-01 may measure representative workloads only with a bounded, non-destructive plan and reproducible cost/provenance; it receives its own maximum five opened PRs. BENCH-SCALE-01 resumes its existing budget (third PR slot) for a bounded native C scanner benchmark. The live selector remains next.md; no new PERF-01-only PRs.
 
 ## Objective
 Achieve high throughput and predictable latency without risking user data. Do not promise nanosecond end-to-end filesystem operations.

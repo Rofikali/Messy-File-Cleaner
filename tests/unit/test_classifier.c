@@ -17,6 +17,13 @@ int main(void)
     assert(hashmap_put(&map, ".", "Wrong/") == 0);
     classifier_init(&c, &map, "Others/");
 
+    classifier_init(NULL, &map, "Others/");
+    assert(classify(NULL, "photo.jpg") == NULL);
+    assert(classify(&c, NULL) == NULL);
+    assert(classify(&c, "") == NULL);
+    assert(classify(NULL, NULL) == NULL);
+    assert(map.size == 5);
+
     assert(strcmp(classify(&c, "photo.jpg"), "Images/") == 0);
     assert(strcmp(classify(&c, "/tmp/dir.x/photo.jpg"), "Images/") == 0);
     assert(strcmp(classify(&c, "/tmp/dir.x/plain"), "Others/") == 0);

@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Classifier API argument boundary
+
+Classification returns NULL before dereferencing a NULL context or scanning a NULL/empty filename. Initialization with a NULL context is a no-op. Disposable unit cases exercise invalid arguments and preserve valid-path routing and map size. This is a defensive C API guard, not validation of arbitrary non-NULL pointers or proof of filesystem containment. No mover or retirement changes.
+
 ## Hash-map borrowed-value update
 
 Existing-key replacement uses `memmove` for potentially overlapping borrowed value strings from `hashmap_get`. The unit test checks identical and suffix aliases, preserved map size and subsequent independent replacement. This does not relax backing-storage ownership, require a new ABI, or provide concurrent access synchronization.

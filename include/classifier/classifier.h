@@ -15,9 +15,10 @@ typedef struct
 // 2. Declare the global variable SECOND
 extern Classifier classifier;
 
-// API
+// API: a NULL initialization context is a no-op.
 void classifier_init(Classifier *c, HashMap *map, const char *def);
-// filename is a nonnull POSIX path; only the final component is classified.
+// Returns NULL for a NULL context or NULL/empty filename.
+// Otherwise only the final component of a POSIX path is classified.
 // A leading dot alone or a trailing dot is not an extension.
 const char *classify(Classifier *c, const char *filename);
 

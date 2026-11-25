@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <pthread.h>
 #include <stdatomic.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -109,9 +110,29 @@ static void test_event_records(void)
     header.mask = IN_Q_OVERFLOW;
     memcpy(record, &header, sizeof(header));
     expect_bad_record(record, sizeof(header), ENOSPC);
-    header.mask = IN_MOVE_SELF;
-    memcpy(record, &header, sizeof(header));
-    expect_bad_record(record, sizeof(header), ESTALE);
+    /* All terminal watch invalidations stop processing before a following
+     * actionable record. Exercise each flag and overflow precedence. */
+    const uint32_t terminal_masks[] = {IN_IGNORED, IN_DELETE_SELF, IN_MOVE_SELF, IN_UNMOUNT};
+    char batch[2 * sizeof(struct inotify_event) + 16] = {0};
+    struct inotify_event following = {.wd = 1, .mask = IN_CREATE, .len = 16};
+    memcpy(batch + sizeof(header), &following, sizeof(following));
+    memcpy(batch + 2 * sizeof(header), "later.txt", sizeof("later.txt"));
+    for (size_t i = 0; i < sizeof(terminal_masks) / sizeof(terminal_masks[0]); ++i)
+    {
+        header.mask = terminal_masks[i];
+        memcpy(record, &header, sizeof(header));
+        expect_bad_record(record, sizeof(header), ESTALE);
+        memcpy(batch, &header, sizeof(header));
+        expect_bad_record(batch, sizeof(batch), ESTALE);
+        header.mask |= IN_Q_OVERFLOW;
+        memcpy(batch, &header, sizeof(header));
+        expect_bad_record(batch, sizeof(batch), ENOSPC);
+    }
+    header.mask = IN_Q_OVERFLOW;
+    memcpy(batch, &header, sizeof(header));
+    expect_bad_record(batch, sizeof(batch), ENOSPC);
+    assert(atomic_load(&ctx.running) == 1);
+    assert(atomic_load(&ctx.worker_error) == 0);
 
     /* A pending stop must prevent decoding and handing off buffered work. */
     header.mask = IN_CREATE;

@@ -50,6 +50,7 @@ int main(void)
     atomic_init(&ctx.scanning_done, 0);
     atomic_init(&ctx.worker_error, 0);
     atomic_init(&ctx.watcher_error, 0);
+    atomic_init(&ctx.stop_signal, 0);
     atomic_init(&ctx.dry_run, 1);
     atomic_init(&ctx.metrics.dry_run_moves, 0);
     atomic_init(&ctx.metrics.files_moved, 0);
@@ -67,6 +68,36 @@ int main(void)
 
     (void)snprintf(test_root, sizeof(test_root), "/tmp/fc-watcher-XXXXXX");
     assert(mkdtemp(test_root) != NULL);
+
+    /* Exercise direct watcher registration without starting worker threads.
+     * With running cleared, even an incorrectly accepted watch cannot hang. */
+    char regular[256], link[256];
+    (void)snprintf(regular, sizeof(regular), "%s/not-directory", test_root);
+    (void)snprintf(link, sizeof(link), "%s-link", test_root);
+    int regular_fd = open(regular, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+    assert(regular_fd >= 0);
+    assert(write(regular_fd, "keep", 4) == 4);
+    assert(close(regular_fd) == 0);
+    assert(symlink(test_root, link) == 0);
+
+    atomic_store(&ctx.running, 0);
+    errno = 0;
+    assert(start_watcher(regular, &ctx) == -1);
+    assert(errno == ENOTDIR);
+    errno = 0;
+    assert(start_watcher(link, &ctx) == -1);
+    assert(errno == ENOTDIR);
+    assert(start_watcher(test_root, &ctx) == 0);
+    assert(atomic_load(&ctx.metrics.events_enqueued) == 0);
+    char preserved[4];
+    regular_fd = open(regular, O_RDONLY | O_CLOEXEC);
+    assert(regular_fd >= 0);
+    assert(read(regular_fd, preserved, sizeof(preserved)) == (ssize_t)sizeof(preserved));
+    assert(memcmp(preserved, "keep", sizeof(preserved)) == 0);
+    assert(close(regular_fd) == 0);
+    assert(unlink(link) == 0);
+    assert(unlink(regular) == 0);
+    atomic_store(&ctx.running, 1);
 
     lf_init(&ctx.queues[0]);
     assert(start_workers(&ctx, 1) == 0);

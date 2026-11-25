@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Watch registration boundary
+
+Linux watch registration uses IN_ONLYDIR and IN_DONT_FOLLOW to reject regular files and final-component symlinks. Disposable direct-API tests cover both rejection cases, a real directory, unchanged file bytes, and a bounded CTest timeout. This does not verify ancestor identity, trailing-slash or other path-resolution semantics, later pathname replacement, or move safety; FS-01B remains blocked.
+
 ## Root/output validation diagnostic boundary
 
 Root and output preflight rejection messages omit raw input paths and canonical output paths, retaining the reason and existing errno behavior. Disposable CLI tests exercise inaccessible roots, regular-file roots, symlinks, root/output overlap and output symlinks with control-containing path components, preserving source content. This is diagnostic hardening only; root validation policy and filesystem mutation behavior are unchanged. Other log sites remain outside this scope.

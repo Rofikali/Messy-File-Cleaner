@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCHER-IDLE-METRICS-01 (0/5; PR assignment pending)** | Count watcher idle poll timeouts and replace fixed startup sleep with bounded readiness regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WATCHER-IDLE-METRICS-01 (1/5; PR #173 OPEN)** | Count watcher idle poll timeouts and replace fixed startup sleep with bounded readiness regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **WORKER-POOL-OWNER-01 (1/5; #172 merged)** | 13/13 PR checks; merge `f51005e48ee81edfc18808003691236d5bd328e2` | 2/13 integrated checks passed, 11 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **WORKER-LIFECYCLE-BOUNDS-01 (1/5; #171 merged)** | 14/14 PR checks; merge `ade0c7707d5417717cc8914faead547cd91deb4b` | 14/14 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |
 | **DONE** | **WATCHER-RECORD-GUARD-01 (1/5; #170 merged)** | 14/14 PR checks; merge `7a7913526e50a99b669f7cca7fb26d4cdf63fd1d` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

@@ -485,7 +485,9 @@
       "id": "WATCHER-IDLE-METRICS-01",
       "title": "Count watcher idle poll timeouts and observe integration readiness",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        173
+      ],
       "summary": "Relaxed atomic metric increment on poll timeout; bounded readiness and disposable missing-root fixture. No filesystem operation policy changes. Local tests NOT RUN."
     }
   ]

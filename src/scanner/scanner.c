@@ -51,36 +51,6 @@ static int inspect_entry(int fd, const char *name, struct stat *metadata)
     return fstatat(fd, name, metadata, AT_SYMLINK_NOFOLLOW);
 }
 
-static char *join_path(const char *parent, const char *name)
-{
-    size_t parent_len = strlen(parent);
-    size_t name_len = strlen(name);
-    size_t separator_len =
-        parent_len > 0 && parent[parent_len - 1] != '/' ? 1U : 0U;
-
-    if (parent_len > SIZE_MAX - separator_len - 1 ||
-        name_len > SIZE_MAX - parent_len - separator_len - 1)
-    {
-        errno = EOVERFLOW;
-        return NULL;
-    }
-
-    size_t total_len = parent_len + separator_len + name_len + 1;
-    char *path = malloc(total_len);
-    if (!path)
-        return NULL;
-
-    memcpy(path, parent, parent_len);
-
-    size_t offset = parent_len;
-    if (separator_len != 0)
-        path[offset++] = '/';
-
-    memcpy(path + offset, name, name_len);
-    path[offset + name_len] = '\0';
-    return path;
-}
-
 static int push_frame(ScanFrame **frames,
                       size_t *count,
                       size_t *capacity,
@@ -219,7 +189,7 @@ int scan_directory(const char *path, event_handler_fn handler,
             (!S_ISDIR(metadata.st_mode) && !S_ISREG(metadata.st_mode)))
             continue;
 
-        char *child_path = join_path(frame->path, entry->d_name);
+        char *child_path = fc_join_path(frame->path, entry->d_name);
         if (!child_path)
         {
             record_failure(&status, &saved_errno);

@@ -93,9 +93,45 @@ static void test_root_path_copy(void)
     assert(fc_copy_root_path("") == NULL && errno == EINVAL);
 }
 
+static void test_path_join(void)
+{
+    const struct { const char *parent; const char *name; const char *expected; } cases[] = {
+        {"/", "child", "/child"},
+        {"/tmp", "file", "/tmp/file"},
+        {"/tmp/", "file", "/tmp/file"},
+        {"relative", "child", "relative/child"},
+        {"a//b", "c d", "a//b/c d"},
+        {"a/", "b\\c", "a/b\\c"}
+    };
+    for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+    {
+        char *joined = fc_join_path(cases[i].parent, cases[i].name);
+        assert(joined != NULL);
+        assert(strcmp(joined, cases[i].expected) == 0);
+        free(joined);
+    }
+    char parent[] = "parent";
+    char name[] = "name";
+    char *joined = fc_join_path(parent, name);
+    assert(joined != NULL);
+    parent[0] = 'P';
+    name[0] = 'N';
+    assert(strcmp(joined, "parent/name") == 0);
+    free(joined);
+    errno = 0;
+    assert(fc_join_path(NULL, "name") == NULL && errno == EINVAL);
+    errno = 0;
+    assert(fc_join_path("", "name") == NULL && errno == EINVAL);
+    errno = 0;
+    assert(fc_join_path("parent", NULL) == NULL && errno == EINVAL);
+    errno = 0;
+    assert(fc_join_path("parent", "") == NULL && errno == EINVAL);
+}
+
 int main(void)
 {
     test_root_path_copy();
+    test_path_join();
     char root_template[] = "/tmp/fc-scan-root-XXXXXX";
     char outside_template[] = "/tmp/fc-scan-outside-XXXXXX";
     char *root = mkdtemp(root_template);

@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Shared lexical path joining
+
+CLI output preflight, scanner and watcher use a common internal owned-copy path join. It rejects null/empty inputs, checks allocation arithmetic and inserts a separator only when needed (including a single root slash). Caller-side component validation is unchanged; the helper does not establish containment, canonicalize or resolve paths. Direct C regressions cover root/relative paths, existing separators, spaces, literal backslash, invalid inputs and independent ownership. Existing integration tests remain in place. No mover or retirement changes.
+
 ## Shared root path normalization
 
 CLI root preflight, scanner and watcher share an internal static-inline lexical helper that allocates an owned root copy and removes trailing slashes only. NULL and empty inputs fail with EINVAL; all-slash roots reduce to a single slash. Direct regression covers absolute and relative paths, internal separators, dot components, literal backslash and spaces, input preservation and independent ownership. Existing scanner and watcher symlink regressions remain in place. CLI dry-run tests exercise one to three trailing separators on symlink, regular-file and real-directory roots, checking rejection diagnostics, preserved fixture bytes and absence of output directories. CLI lstat/realpath and dangerous-root policy remain unchanged; preflight does not establish race-free identity. This consolidation does not canonicalize paths, validate ancestors or close source-retirement races.

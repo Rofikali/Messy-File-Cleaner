@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## CLI worker override uniqueness
+
+Repeated --workers options fail at CLI parsing before configuration loading or filesystem operations, including identical counts and overrides separated by other arguments. This prevents silent last-value-wins resource configuration. Single valid counts retain their existing range and behavior; disposable CLI tests assert usage failure and no configuration/journal creation. No worker scheduling, filesystem retirement, or ABI change.
+
 ## Watcher terminal-record regression
 
 Synthetic inotify batches cover IN_Q_OVERFLOW (ENOSPC), IN_IGNORED, IN_DELETE_SELF, IN_MOVE_SELF and IN_UNMOUNT (ESTALE), including overflow precedence and a following actionable file record. Assertions require zero events seen/enqueued and no worker-error side effect in the parser. This is test coverage of existing fail-closed behavior, not automatic resynchronization or proof of real kernel overflow recovery. No production source or filesystem policy changes.

@@ -841,7 +841,7 @@
         206,
         207
       ],
-      "summary": "PR #207 registered (2/5); sequential #206 merged with 14/14 head/main checks; concurrent baseline and full payload verification; local concurrent tests NOT RUN; exact-head CI pending.",
+      "summary": "PR #207 registered (2/5); #206 merged 14/14 head/main checks; concurrent four-blob-matched C17 probe PASS, 196608 transfers, median 709.029 ns/transfer; full local tests NOT RUN; exact-head CI pending; no speedup claim.",
       "last_merged_pr": 206,
       "merge_sha": "e349649a4d3ca57a2006d9864fc1619709ecb13e",
       "tested_head_sha": "e0694e88966cb8e23829b5f915e4b996065383c7"

@@ -40,3 +40,15 @@ L1–L7: bounded original test harness, existing production/ABI unchanged. CISSP
 ## Concurrent SPSC baseline — second PR under the same feature
 
 Baseline main e349649a4d3ca57a2006d9864fc1619709ecb13e; prior sequential PR #206 merged with 14/14 exact-head checks. Test-only queue-concurrent-benchmark uses existing LFQueue, one producer (main) and one consumer pthread, 65,536 unique verified transfers per sample and three samples. Synthetic path bytes include sequence after NUL and alternating types. Full payload compared; peer failure atomic flag and monotonic five-second retry deadline checked every 256 retries, with 25s CTest process timeout. Deadline is cooperative while retrying, not a guaranteed bound on scheduling or a running syscall. Timing includes event creation, copy, verification, yield and thread startup/join. No affinity, privileges, files, changed queue layout or memory order. No direct comparison with sequential benchmark, no per-event latency distribution or speedup claim. Run existing Release CMake build with target queue-concurrent-benchmark and ctest -R '^queue_concurrent_benchmark_smoke$' -V. Local execution NOT RUN at creation. Existing Linux 6.12 circular-buffer reference, no new code import. No new CI job or manual benchmark dispatch. FS-01B/REL-01 and import lock remain blocked.
+
+### Observed standalone concurrent C17 evidence — 25 November 2026
+
+Reconstructed four files in a disposable local container and verified exact Git blob IDs from c753645b692eedbe38f8d1c5869f18721b3dc367: queue_concurrent_benchmark.c 49e532256fd1756c8df82f667d8dce459db76826; src/core/lf_queue.c b26965dee6c8cd560e16725224473254d398ef78; include/core/lf_queue.h f0d50072239fe6b11f29ae1ef85a2dccfd0f4fd7; include/core/event.h e0813324e05b8968e2a1cff2f8a60cb6a812f0cf. GCC 14.2.0, Linux 6.18.57 x86_64, AMD EPYC 9V74 reported by lscpu, shared container, no affinity. Command: gcc -std=c17 -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -Iinclude tests/performance/queue_concurrent_benchmark.c src/core/lf_queue.c -pthread -Wl,-z,relro,-z,now -o queue-concurrent-benchmark; timeout 25 ./queue-concurrent-benchmark. Exit zero; 196,608 verified unique events, 1028 bytes/event.
+
+| Sample | Elapsed ns | Mean ns/transfer | Events/second |
+|---|---:|---:|---:|
+| 1 | 46466949 | 709.029 | 1410378.805 |
+| 2 | 12885785 | 196.621 | 5085914.440 |
+| 3 | 50328850 | 767.957 | 1302155.722 |
+
+Median sample 709.029 ns/transfer, 1.410 million events/s. Large observed variability (1.30–5.09 million events/s); three shared-container samples are not stable capacity evidence or tail latency. Sequential #206 uses a different workload and is not a speedup comparison. Full local CMake/CTest, TSan of this harness, target-host/ARM64, CPU affinity and cache-layout comparison NOT RUN. No production changes or optimization claims.

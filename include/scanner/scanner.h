@@ -6,7 +6,9 @@
 /* Return 0 to accept a file, or -1 to stop traversal and propagate errno. */
 typedef int (*event_handler_fn)(const char *path);
 
-/* Visits regular files without following symlinks.
+/* Visits regular files without following entry or final root symlinks.
+ * On Linux trailing root separators are removed before opening, except '/'.
+ * Ancestor components are not validated; callback paths use the trimmed root.
  * Returns 0 on complete success, or -1 on traversal/callback/cancellation.
  * Valid pre-cancelled requests fail with ECANCELED before opening the root.
  * Cancellation is cooperative: checked before root access, during traversal,

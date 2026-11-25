@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "56ccadd5f99c134b8b2c727d5286c5a0eb0cee15",
+  "snapshot_main_sha": "d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCANNER-ALLOCATION-FAILURE-01",
+  "active_feature_id": "SCANNER-FD-EXHAUSTION-01",
   "features": [
     {
       "id": "PERF-01",
@@ -572,7 +572,7 @@
       "prs": [
         180
       ],
-      "summary": "PR #180 merged; 13/13 exact-head checks passed; 5/13 integrated-main checks passed, eight pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #180 merged; 13/13 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 180,
       "merge_sha": "56ccadd5f99c134b8b2c727d5286c5a0eb0cee15",
       "tested_head_sha": "44ce433b84a138fb40b450b56718bc0f58664384"
@@ -580,11 +580,21 @@
     {
       "id": "SCANNER-ALLOCATION-FAILURE-01",
       "title": "Stop scanner discovery on allocation failure and verify frame cleanup",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         181
       ],
-      "summary": "Fail-fast path construction/frame growth; deterministic test-only ENOMEM injection on 20-level tree and Linux descriptor balance. Local tests NOT RUN."
+      "summary": "PR #181 merged; 13/13 exact-head checks passed; 10/13 integrated-main checks passed, three pending at inspection. Manual acceptance NOT RUN.",
+      "last_merged_pr": 181,
+      "merge_sha": "d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5",
+      "tested_head_sha": "8c67ca86f9d5d987feb2a5d91a7d73eab496f590"
+    },
+    {
+      "id": "SCANNER-FD-EXHAUSTION-01",
+      "title": "Stop scanner discovery on directory resource exhaustion",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Fail-fast EMFILE/ENFILE/ENOMEM directory acquisition; test-only child-open faults, attempt counts and descriptor balance. Local tests NOT RUN."
     }
   ]
 }

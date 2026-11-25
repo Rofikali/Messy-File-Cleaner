@@ -20,6 +20,7 @@ typedef struct
 
 } Config;
 
+/* Set scalar defaults only; preserve caller-owned ext_map. NULL is a no-op. */
 void init_config(Config *cfg);
 /* Requires a nonempty path and initialized, caller-owned hash storage
    with power-of-two capacity and size <= capacity. Returns -1 on invalid

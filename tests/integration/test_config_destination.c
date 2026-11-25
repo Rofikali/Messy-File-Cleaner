@@ -106,6 +106,28 @@ int main(void)
             }
     }
 
+    /* Initialization is null-safe and resets only scalar defaults. */
+    init_config(NULL);
+    free_config(NULL);
+    {
+        HashEntry entries[64];
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, 64);
+        assert(hashmap_put(&cfg.ext_map, ".png", "Existing") == 0);
+        cfg.batch_size = 77;
+        cfg.worker_threads = 3;
+        cfg.idle_sleep_ms = 9;
+        cfg.mode = MODE_DAEMON;
+        init_config(&cfg);
+        assert(cfg.batch_size == 64 && cfg.worker_threads == 1);
+        assert(cfg.idle_sleep_ms == 1 && cfg.mode == MODE_BATCH);
+        assert(cfg.ext_map.entries == entries && cfg.ext_map.capacity == 64);
+        assert(cfg.ext_map.size == 1);
+        assert(strcmp(hashmap_get(&cfg.ext_map, ".png"), "Existing") == 0);
+        free_config(&cfg);
+        assert(cfg.ext_map.entries == entries && cfg.ext_map.size == 1);
+    }
+
     /* Reject invalid API arguments before opening the file or copying storage. */
     {
         HashEntry entries[64];

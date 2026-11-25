@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**String differential checks:** [extension baseline](STRING_EXTENSION_BASELINE.md) separates exhaustive untimed correctness checks from existing timed classification samples; no speed claim or Unicode normalization.
+
 **String extension comparison:** [baseline](STRING_EXTENSION_BASELINE.md) compares identical synthetic paths and actual 64-slot map, varying prefix length, verifying all classifications. Includes strlen and lookup/verification, no timing threshold or production promotion.
 
 **Failure/interrupt coverage:** [path allocation](PATH_ALLOCATION_BASELINE.md) adds untimed deterministic unwind checks; do not interpret these as latency samples, system allocator failure or production cancellation evidence.

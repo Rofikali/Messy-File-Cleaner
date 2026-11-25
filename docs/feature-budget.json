@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "830e4c7340687b52e15441070c5beced02939035",
+  "snapshot_main_sha": "44b6256235d5a75e9091242db0c4f768b38c935c",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "STRING-EVAL-01",
   "features": [
@@ -883,9 +883,13 @@
       "title": "Bounded classifier extension string-processing evaluation",
       "status": "ACTIVE",
       "prs": [
-        218
+        218,
+        219
       ],
-      "summary": "PR #218 registered (1/5); first test-only libc versus reverse scan after strlen; local tests NOT RUN at creation, CI pending; production unchanged."
+      "summary": "PR #219 registered (2/5); #218 merged, 14/14 exact-head jobs; C17 Release 61/61 tests and string smoke passed; integrated-main CI NOT VERIFIED. Exhaustive boundary candidate; local tests NOT RUN at creation, CI pending; production unchanged.",
+      "last_merged_pr": 218,
+      "merge_sha": "44b6256235d5a75e9091242db0c4f768b38c935c",
+      "tested_head_sha": "2b779122e018960d9f232b30ba9ab6828de87ad6"
     }
   ]
 }

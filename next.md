@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCHER-TERMINAL-RECORD-01 (0/5; pending PR registration)** | Synthetic terminal watcher records and overflow precedence regression | Local tests NOT RUN; CI pending; real kernel overflow recovery NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WATCHER-TERMINAL-RECORD-01 (1/5; PR #197 OPEN)** | Synthetic terminal watcher records and overflow precedence regression | Local tests NOT RUN; CI pending; real kernel overflow recovery NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **WATCHER-CANCEL-BOUNDARY-01 (1/5; #196 merged)** | 13/13 PR checks; merge `41efb0a8dfc4dda99a74df2bab2687472d937f0a` | 12/13 integrated-main checks passed at inspection; 1 not passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-INIT-NULL-01 (1/5; #195 merged)** | 13/13 PR checks; merge `2e6d588079fa0712dbf89dfbca1dc77b526bfd63` | 13/13 integrated-main checks passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **HASHMAP-CAPACITY-CONSISTENCY-01 (1/5; #194 merged)** | 13/13 PR checks; merge `c616e54e4f2df036b2ef94dd6d073c877298082c` | 13/13 integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN |

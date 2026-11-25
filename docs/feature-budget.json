@@ -729,8 +729,10 @@
       "id": "WATCHER-TERMINAL-RECORD-01",
       "title": "Verify watcher event-loss and invalidation terminal record boundaries",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Synthetic multi-record watcher integration regression; local tests NOT RUN; CI pending."
+      "prs": [
+        197
+      ],
+      "summary": "PR #197 registered (1/5); terminal record and overflow precedence regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

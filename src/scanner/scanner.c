@@ -31,6 +31,8 @@ static void record_failure(int *status, int *saved_errno)
 #ifdef FC_SCANNER_TESTING
 /* Single-threaded test hook; absent from production builds. */
 static int test_next_stat_error;
+static int test_opened_stat_error;
+static int test_opened_stats_before_failure;
 static int test_frame_growths_before_failure = -1;
 static int test_child_open_error;
 static int test_child_opens_before_failure;
@@ -61,6 +63,12 @@ void fc_test_fail_scanner_frame_growth_after(int successful_growths)
     test_frame_growths_before_failure = successful_growths;
 }
 
+void fc_test_fail_scanner_opened_stat_after(int successful_stats, int error)
+{
+    test_opened_stat_error = error;
+    test_opened_stats_before_failure = successful_stats;
+}
+
 void fc_test_fail_next_scanner_stat(int error)
 {
     test_next_stat_error = error;
@@ -78,6 +86,24 @@ static int inspect_entry(int fd, const char *name, struct stat *metadata)
     }
 #endif
     return fstatat(fd, name, metadata, AT_SYMLINK_NOFOLLOW);
+}
+
+static int inspect_opened_directory(int fd, struct stat *metadata)
+{
+#ifdef FC_SCANNER_TESTING
+    if (test_opened_stat_error != 0 && test_opened_stats_before_failure == 0)
+    {
+        errno = test_opened_stat_error;
+        test_opened_stat_error = 0;
+        return -1;
+    }
+#endif
+    int result = fstat(fd, metadata);
+#ifdef FC_SCANNER_TESTING
+    if (result == 0 && test_opened_stat_error != 0 && test_opened_stats_before_failure > 0)
+        --test_opened_stats_before_failure;
+#endif
+    return result;
 }
 
 static int push_frame(ScanFrame **frames,
@@ -301,7 +327,7 @@ int scan_directory(const char *path, event_handler_fn handler,
              * Only descend into the same directory object we inspected.
              * This is not a guarantee that later pathname consumers are safe. */
             struct stat opened_metadata;
-            int stat_status = fstat(child_fd, &opened_metadata);
+            int stat_status = inspect_opened_directory(child_fd, &opened_metadata);
             if (stat_status != 0 ||
                 !S_ISDIR(opened_metadata.st_mode) ||
                 opened_metadata.st_dev != metadata.st_dev ||

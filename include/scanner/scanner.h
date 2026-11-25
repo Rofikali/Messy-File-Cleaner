@@ -25,6 +25,8 @@ int scan_directory(const char *path, event_handler_fn handler,
 #ifdef FC_SCANNER_TESTING
 /* Single-threaded test only: fail the next entry metadata lookup. */
 void fc_test_fail_next_scanner_stat(int error);
+/* Fail opened-directory fstat before stream ownership, after N successes. */
+void fc_test_fail_scanner_opened_stat_after(int successful_stats, int error);
 /* Inject ENOMEM after N successful frame-array growths; -1 disables. */
 void fc_test_fail_scanner_frame_growth_after(int successful_growths);
 /* Single-threaded child-open fault injection and attempt counter. */

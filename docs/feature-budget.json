@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "38258744768bcb0eef9f9ed8b969d6618297555e",
+  "snapshot_main_sha": "8ee0a76579ad021d454c4f966ca330c1a24fa78d",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SCANNER-METADATA-EXHAUSTION-01",
   "features": [
@@ -659,7 +659,7 @@
       "prs": [
         190
       ],
-      "summary": "PR #190 merged; 13/13 exact-head checks passed; 11/13 integrated-main checks passed at inspection; 2 not passed at inspection; manual acceptance NOT RUN.",
+      "summary": "PR #190 merged; 13/13 exact-head and integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN.",
       "last_merged_pr": 190,
       "merge_sha": "4f53c0ed59a39ee68dbd8575ee7c1553f6a08a8f",
       "tested_head_sha": "d09b32ab84767f7c0bb2cd58d1e3d40fe1e1e6af"
@@ -683,7 +683,10 @@
       "prs": [
         192
       ],
-      "summary": "PR #192 registered (1/5); scanner metadata exhaustion guard and entry lookup regression; local tests NOT RUN; exact-head CI pending."
+      "summary": "PR #192 merged; 13/13 exact-head checks passed; 10/13 integrated-main checks passed at inspection; 3 not passed at inspection. Follow-up opened-directory fault regression under same feature. Local tests NOT RUN; CI pending.",
+      "last_merged_pr": 192,
+      "merge_sha": "8ee0a76579ad021d454c4f966ca330c1a24fa78d",
+      "tested_head_sha": "48b3171914ce68564e8b65d6fb51d78dc274a75f"
     }
   ]
 }

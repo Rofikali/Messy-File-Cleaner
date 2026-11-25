@@ -2,7 +2,7 @@
 
 ## Scanner directory resource exhaustion
 
-Child-directory open and fdopendir failures with EMFILE, ENFILE or ENOMEM stop discovery and unwind owned frames, retaining the first observed failure. Other entry-specific failures keep their existing handling. Test-only child-open injection checks immediate and nested failures, exact attempt counts, Linux descriptor balance and subsequent successful scan. fdopendir-specific injection and actual operating-system limit exhaustion are not exercised by this test. No earlier callback rollback, universal descriptor bound or source-retirement guarantee.
+Child-directory open and fdopendir failures with EMFILE, ENFILE or ENOMEM stop discovery and unwind owned frames, retaining the first observed failure. Other entry-specific failures keep their existing handling. Test-only child-open injection checks immediate and nested failures, exact attempt counts, Linux descriptor balance and subsequent successful scan. Additional tests inject ENOMEM before root and child fdopendir ownership transfer, check raw descriptor balance and nested unwind, and exercise real EMFILE in a disposable forked child using a soft RLIMIT_NOFILE of at most 32, with four free slots before scanning. The parent and system-wide limits are unchanged. The child restores its limit, checks descriptor balance and rescans successfully. Real ENFILE/ENOMEM exhaustion is not attempted. No earlier callback rollback, universal descriptor bound or source-retirement guarantee.
 
 ## Scanner allocation failure boundary
 

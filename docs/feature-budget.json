@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5",
+  "snapshot_main_sha": "097e5df774f903a165d29a9c99aa464346175977",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCANNER-FD-EXHAUSTION-01",
+  "active_feature_id": "SCANNER-RESOURCE-REGRESSION-01",
   "features": [
     {
       "id": "PERF-01",
@@ -584,7 +584,7 @@
       "prs": [
         181
       ],
-      "summary": "PR #181 merged; 13/13 exact-head checks passed; 10/13 integrated-main checks passed, three pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #181 merged; 13/13 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 181,
       "merge_sha": "d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5",
       "tested_head_sha": "8c67ca86f9d5d987feb2a5d91a7d73eab496f590"
@@ -592,11 +592,21 @@
     {
       "id": "SCANNER-FD-EXHAUSTION-01",
       "title": "Stop scanner discovery on directory resource exhaustion",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         182
       ],
-      "summary": "Fail-fast EMFILE/ENFILE/ENOMEM directory acquisition; test-only child-open faults, attempt counts and descriptor balance. Local tests NOT RUN."
+      "summary": "PR #182 merged; 13/13 exact-head checks passed; 1/13 integrated-main checks passed, twelve pending at inspection. Manual acceptance NOT RUN.",
+      "last_merged_pr": 182,
+      "merge_sha": "097e5df774f903a165d29a9c99aa464346175977",
+      "tested_head_sha": "8c8c9d67bb59fe7243a6cd63da038acf1232a8d9"
+    },
+    {
+      "id": "SCANNER-RESOURCE-REGRESSION-01",
+      "title": "Exercise scanner directory stream ownership and isolated real descriptor limit",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Test-only fdopendir ENOMEM injection and isolated fork/RLIMIT_NOFILE EMFILE regression, descriptor balance and rescan. Local tests NOT RUN."
     }
   ]
 }

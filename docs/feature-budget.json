@@ -852,8 +852,10 @@
       "id": "HASHMAP-EVAL-01",
       "title": "Bounded in-memory hash-map lookup evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Verified hit/miss baseline at four synthetic occupancies; local tests NOT RUN; CI pending."
+      "prs": [
+        210
+      ],
+      "summary": "PR #210 registered (1/5); queue evaluation DONE at 4/5; verified hit/miss benchmark implemented; local execution NOT RUN; exact-head CI pending."
     }
   ]
 }

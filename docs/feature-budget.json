@@ -855,9 +855,10 @@
       "prs": [
         210,
         211,
-        212
+        212,
+        213
       ],
-      "summary": "PR #212 merged, 14/14 exact-head checks; integrated-main CI NOT VERIFIED. Fourth collision evaluation candidate; local tests NOT RUN, CI pending; retain production 64 slots.",
+      "summary": "PR #213 registered (4/5); #212 merged, 14/14 exact-head jobs passed; integrated-main CI NOT VERIFIED. Collision/wraparound stress comparison; local tests NOT RUN at creation; CI pending; production 64 slots retained.",
       "last_merged_pr": 212,
       "merge_sha": "39e47752307a6445308996302fb4331cac851cf0",
       "tested_head_sha": "ef85860d3c96a56835db28d866c1c6466e91911b"

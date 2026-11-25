@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **HASHMAP-EVAL-01 (3/5 prior opened; fourth PR candidate)** | Test-only collision and wraparound comparison at 64/128/256 slots | Local tests NOT RUN at creation; CI pending; retain production 64 slots; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **HASHMAP-EVAL-01 (4/5; PR #213 OPEN (draft))** | Test-only collision and wraparound comparison at 64/128/256 slots | Local tests NOT RUN at creation; CI pending; retain production 64 slots; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **QUEUE-UPSTREAM-EVAL-01 (4/5; #209 merged)** | 14/14 exact-head/main; merge `a31948068067fbf62437404808371673a141be80`; original queue retained | Padding inconclusive; representative host/ARM64/counters/TSan NOT RUN |
 | **DONE** | **SCANNER-SPECIAL-FILE-01 (1/5; #205 merged)** | 13/13 exact-head checks; merge `8e9ca9eaec9cf755b7afaae8fd9b89bfc2c3ed6a` | 13/13 integrated-main checks passed at inspection; device-node/manual acceptance NOT RUN |
 | **DONE** | **UPSTREAM-AUDIT-01 (1/5; #204 merged)** | 13/13 exact-head checks; merge `a8685a7f9e1f5ced87eefd4a22dfbb5c908707a2` | 13/13 integrated-main checks passed at inspection; initial triage only; manual acceptance NOT RUN |

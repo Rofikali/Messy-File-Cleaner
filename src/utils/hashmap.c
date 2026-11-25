@@ -22,7 +22,9 @@ static int valid_map(const HashMap *map)
     return map != NULL &&
            map->entries != NULL &&
            map->capacity != 0 &&
-           (map->capacity & (map->capacity - 1)) == 0;
+           (map->capacity & (map->capacity - 1)) == 0 &&
+           map->capacity <= SIZE_MAX / sizeof(HashEntry) &&
+           map->size <= map->capacity;
 }
 
 void hashmap_init(HashMap *map, HashEntry *buffer, size_t capacity)
@@ -35,7 +37,8 @@ void hashmap_init(HashMap *map, HashEntry *buffer, size_t capacity)
     map->size = 0;
 
     if (buffer == NULL || capacity == 0 ||
-        (capacity & (capacity - 1)) != 0)
+        (capacity & (capacity - 1)) != 0 ||
+        capacity > SIZE_MAX / sizeof(HashEntry))
         return;
 
     map->entries = buffer;

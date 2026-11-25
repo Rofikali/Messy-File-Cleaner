@@ -543,6 +543,7 @@ if(BUILD_TESTING)
   target_link_libraries(test_watcher PRIVATE Threads::Threads)
   target_compile_options(test_watcher PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME watcher_integration COMMAND test_watcher)
+  set_tests_properties(watcher_integration PROPERTIES TIMEOUT 30)
 
   # CLI-INPUT-01: malformed worker counts must fail before config/filesystem access.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)

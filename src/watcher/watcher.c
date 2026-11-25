@@ -178,7 +178,9 @@ int start_watcher(const char *path, AppContext *ctx)
     if (fd < 0)
         return -1;
 
-    int watch_descriptor = inotify_add_watch(fd, path, WATCH_MASK);
+    /* Enforce the final-component directory contract at watch registration. */
+    int watch_descriptor = inotify_add_watch(fd, path,
+                                             WATCH_MASK | IN_ONLYDIR | IN_DONT_FOLLOW);
     if (watch_descriptor < 0)
     {
         int saved_errno = errno;

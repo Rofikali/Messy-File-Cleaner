@@ -2,6 +2,7 @@
 #define SCANNER_H
 
 #include <stdatomic.h>
+#include <stddef.h>
 
 /* Return 0 to accept a file, or -1 to stop traversal and propagate errno. */
 typedef int (*event_handler_fn)(const char *path);
@@ -16,13 +17,16 @@ typedef int (*event_handler_fn)(const char *path);
  * The first traversal/callback/cancellation failure is retained in errno;
  * a later cancellation or callback failure still stops traversal.
  * Path construction or frame growth failure, or directory acquisition or
- * metadata lookup failure with EMFILE, ENFILE or ENOMEM, aborts discovery
+ * metadata lookup or directory read failure with EMFILE, ENFILE or ENOMEM,
+ * aborts discovery
  * and unwinds frames.
  */
 int scan_directory(const char *path, event_handler_fn handler,
                    const atomic_int *stop_signal);
 
 #ifdef FC_SCANNER_TESTING
+/* Single-threaded test only: fail the next directory read at a given frame depth. */
+void fc_test_fail_scanner_read_at_depth(size_t depth, int error);
 /* Single-threaded test only: fail the next entry metadata lookup. */
 void fc_test_fail_next_scanner_stat(int error);
 /* Fail opened-directory fstat before stream ownership, after N successes. */

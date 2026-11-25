@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Collision evaluation:** [baseline](../performance/HASHMAP_BASELINE.md) exercises current bounded probing with intentional 64-slot collisions without copying any hash implementation or importing code.
+
 **Classifier capacity evaluation:** [baseline](../performance/HASHMAP_BASELINE.md) assesses map lookup in actual classifier code without filesystem access or imports. Existing capacity retained pending representative evidence.
 
 **Hash-map capacity evaluation:** [lookup evidence](../performance/HASHMAP_BASELINE.md) compares the current 64-slot production capacity with 128/256 test-only candidates. Reference-only libc/kernel comparisons already documented; no import, different ownership model or automatic resizing.

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Collision acceptance:** [baseline](performance/HASHMAP_BASELINE.md) requires bounded fixture discovery, exact wraparound placement at 64 slots, full-table rejection and update preservation, verified values/misses and bounded smoke. No production or ABI changes.
+
 **Classifier capacity acceptance:** [baseline](performance/HASHMAP_BASELINE.md) requires every mixed-path classification and case count verified, unchanged map size, same fixture and insertion order across capacities, bounded smoke and no production change.
 
 **Hash-map capacity acceptance:** [baseline](performance/HASHMAP_BASELINE.md) preserves identical insertion/key sets across capacities, verifies every hit/miss and reports circular occupied cluster length and logical storage. No timing threshold or production change.

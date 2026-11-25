@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Collision workload:** [baseline](HASHMAP_BASELINE.md) measures bounded fixed keys sharing slot 63 at 64 slots. Larger capacities reuse the same keys, not necessarily identical initial buckets; no timing threshold or production claim.
+
 **Classifier evaluation:** [hash-map baseline](HASHMAP_BASELINE.md) adds native classifier-plus-map mixed-path samples. Includes extraction and verification, not filesystem or whole application throughput; no timing threshold.
 
 **Controlled hash-map capacity:** [baseline](HASHMAP_BASELINE.md) separates shipped default mapping set from synthetic full-capacity stress, alternates capacity order and reports lookup timings and logical storage. Not a real workload distribution or end-to-end speedup.

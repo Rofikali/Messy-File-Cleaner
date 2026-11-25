@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **HASHMAP-CAPACITY-CONSISTENCY-01 (0/5; pending PR registration)** | Prevent inconsistent insertion past declared capacity and verify full-map updates | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **HASHMAP-CAPACITY-CONSISTENCY-01 (1/5; PR #194 OPEN)** | Prevent inconsistent insertion past declared capacity and verify full-map updates | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **SCANNER-METADATA-EXHAUSTION-01 (2/5; #192 and #193 merged)** | 13/13 PR checks; final merge `a64bd7ef3207f5684cd66f5c492fa3d060f1baa5` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **WORKER-EVENT-VALIDATION-01 (1/5; #191 merged)** | 13/13 PR checks; merge `38258744768bcb0eef9f9ed8b969d6618297555e` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **SPSC-NULL-ARGUMENTS-01 (1/5; #190 merged)** | 13/13 PR checks; merge `4f53c0ed59a39ee68dbd8575ee7c1553f6a08a8f` | 13/13 integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN |

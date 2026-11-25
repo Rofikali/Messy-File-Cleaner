@@ -693,8 +693,10 @@
       "id": "HASHMAP-CAPACITY-CONSISTENCY-01",
       "title": "Prevent hash-map insertion beyond declared capacity",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 capacity guard and full-map/contradictory metadata unit regression; local tests NOT RUN; CI pending."
+      "prs": [
+        194
+      ],
+      "summary": "PR #194 registered (1/5); hash-map insertion capacity guard and full-map regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

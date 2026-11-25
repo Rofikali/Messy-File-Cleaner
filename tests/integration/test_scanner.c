@@ -517,6 +517,32 @@ int main(void)
     assert(errno == ENOMEM);
     assert(count_open_fds() == descriptors);
 
+    /* Identity lookup failure occurs after a successful child open, but
+     * before fdopendir transfers ownership. Exercise immediate and nested
+     * failure independently of directory enumeration order. */
+    const int successful_stats[] = {0, 3};
+    for (size_t i = 0; i < sizeof(resource_errors) / sizeof(resource_errors[0]); ++i)
+    {
+        for (size_t j = 0; j < sizeof(successful_stats) / sizeof(successful_stats[0]); ++j)
+        {
+            found_count = 0;
+            fc_test_fail_scanner_child_open_after(0, 0);
+            fc_test_fail_scanner_opened_stat_after(successful_stats[j], resource_errors[i]);
+            errno = 0;
+            assert(scan_directory(root, collect, NULL) == -1);
+            assert(errno == resource_errors[i]);
+            assert(fc_test_scanner_child_open_attempts() == (unsigned int)(successful_stats[j] + 1));
+            assert(count_open_fds() == descriptors);
+            for (size_t k = 0; k < found_count; ++k)
+                assert(strcmp(found[k], deep_file) != 0);
+            assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
+            assert(access(sibling_file, F_OK) == 0);
+            found_count = 0;
+            assert(scan_directory(root, collect, NULL) == 0);
+            assert(found_count == 3 && count_open_fds() == descriptors);
+        }
+    }
+
     test_real_descriptor_limit(root);
     assert(count_open_fds() == descriptors);
     found_count = 0;

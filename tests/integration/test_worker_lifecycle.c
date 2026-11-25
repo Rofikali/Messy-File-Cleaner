@@ -145,6 +145,24 @@ int main(void)
     errno = 0;
     assert(notify_worker(&ctx, MAX_WORKERS) == -1 && errno == EINVAL);
 
+    /* A plausible but false live count must not permit partial join or
+     * notification using inconsistent pool metadata. Workers do not read
+     * this count; no producer is active during these serialized calls. */
+    int second_fd = ctx.efd[1];
+    const int mismatched_counts[] = {1, 3};
+    for (size_t i = 0; i < sizeof(mismatched_counts) / sizeof(mismatched_counts[0]); ++i)
+    {
+        ctx.num_workers = mismatched_counts[i];
+        errno = 0;
+        assert(notify_worker(&ctx, 0) == -1 && errno == EINVAL);
+        errno = 0;
+        assert(join_workers(&ctx) == -1 && errno == EBUSY);
+        assert(atomic_load(&ctx.running) == 1);
+        assert(ctx.num_workers == mismatched_counts[i]);
+        assert(ctx.efd[0] == original_fd && ctx.efd[1] == second_fd);
+    }
+    ctx.num_workers = 2;
+
     /* Queue many items before notifying: one eventfd wake drains the queue. */
     for (int i = 0; i < 32; i++)
     {

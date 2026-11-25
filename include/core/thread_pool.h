@@ -24,12 +24,14 @@ int start_workers(AppContext *ctx, int num_threads);
 /* Stops intake, wakes workers, drains queued work, joins threads, and closes fds.
  * Requires an exclusively managed pool and a stable count in [0, MAX_WORKERS].
  * Invalid count fails with EINVAL; a non-owner or inconsistent ownership fails
- * with EBUSY before changing state. Caller retains ownership on rejection.
+ * with EBUSY before changing state. An in-range count that differs from the
+ * actual started count also fails with EBUSY. Caller retains ownership on rejection.
  */
 int join_workers(AppContext *ctx);
 
 /* Wake the single consumer assigned to a queue after a successful enqueue.
- * Requires the owning live pool with a stable count in [1, MAX_WORKERS].
+ * Requires the owning live pool with a stable count in [1, MAX_WORKERS]
+ * matching the actual started count; inconsistent metadata fails with EINVAL.
  */
 int notify_worker(AppContext *ctx, int worker_index);
 

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ddc0390628fe186b99fbf1982b9b0cef369a7c65",
+  "snapshot_main_sha": "251127089da34412f3611a488e40ef87996ad534",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCANNER-READDIR-EXHAUSTION-01",
+  "active_feature_id": "WORKER-LIVE-COUNT-01",
   "features": [
     {
       "id": "PERF-01",
@@ -752,11 +752,23 @@
     {
       "id": "SCANNER-READDIR-EXHAUSTION-01",
       "title": "Terminate scanner traversal on directory-read resource exhaustion",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         199
       ],
-      "summary": "PR #199 registered (1/5); directory-read exhaustion guard and depth-targeted regression; local tests NOT RUN; exact-head CI pending."
+      "summary": "PR #199 merged; 13/13 exact-head checks passed; 11/13 integrated-main checks passed at inspection; 2 not passed at inspection; manual acceptance NOT RUN.",
+      "last_merged_pr": 199,
+      "merge_sha": "251127089da34412f3611a488e40ef87996ad534",
+      "tested_head_sha": "ea9ac187ac8f8521f55acbd46df1c912a64f16e6"
+    },
+    {
+      "id": "WORKER-LIVE-COUNT-01",
+      "title": "Reject worker lifecycle operations with inconsistent live counts",
+      "status": "ACTIVE",
+      "prs": [
+        200
+      ],
+      "summary": "PR #200 registered (1/5); authoritative live-count guard and regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

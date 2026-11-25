@@ -1,4 +1,9 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -8,7 +13,7 @@
 
 #include "config/config.h"
 
-#define LINE_MAX 256
+#define CONFIG_LINE_MAX 256
 #define CONFIG_MAX_WORKERS 16
 
 static int valid_destination_folder(const char *value)
@@ -81,14 +86,43 @@ static void config_normalize(Config *cfg)
 
 static int load_config_into(const char *path, Config *cfg)
 {
-    FILE *f = fopen(path, "r");
-    if (!f)
+    /* Do not block on a named pipe waiting for a writer. Validate the
+       opened object, not a separate pathname lookup. */
+    int fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC | O_NOCTTY);
+    if (fd < 0)
     {
         perror("config open");
         return -1;
     }
+    struct stat metadata;
+    if (fstat(fd, &metadata) != 0)
+    {
+        int saved_errno = errno;
+        (void)close(fd);
+        errno = saved_errno;
+        perror("config stat");
+        errno = saved_errno;
+        return -1;
+    }
+    if (!S_ISREG(metadata.st_mode))
+    {
+        (void)close(fd);
+        fputs("config: expected a regular file\n", stderr);
+        errno = EINVAL;
+        return -1;
+    }
+    FILE *f = fdopen(fd, "r");
+    if (!f)
+    {
+        int saved_errno = errno;
+        (void)close(fd);
+        errno = saved_errno;
+        perror("config stream");
+        errno = saved_errno;
+        return -1;
+    }
 
-    char line[LINE_MAX];
+    char line[CONFIG_LINE_MAX];
 
     /* Read physical bytes, not C strings: embedded NUL must never hide
        trailing settings or make a malformed final line look valid. */

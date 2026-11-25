@@ -439,9 +439,8 @@ int main(void)
     }
 
 #ifdef __linux__
-    /* On Linux fopen(directory) may succeed, but fgets fails with EISDIR.
-       This disposable fixture exercises the stream-error path without
-       touching customer data or requiring injected production hooks. */
+    /* A directory is rejected by opened-object type validation, before
+       parsing. This no longer exercises the post-open stream-error path. */
     {
         char dir[] = "/tmp/fc-config-read-error-XXXXXX";
         assert(mkdtemp(dir) != NULL);
@@ -449,7 +448,11 @@ int main(void)
         Config cfg;
         hashmap_init(&cfg.ext_map, entries, 64);
         init_config(&cfg);
+        cfg.batch_size = 77;
+        assert(hashmap_put(&cfg.ext_map, ".png", "Existing") == 0);
         assert(load_config(dir, &cfg) != 0);
+        assert(cfg.batch_size == 77 && cfg.ext_map.size == 1);
+        assert(strcmp(hashmap_get(&cfg.ext_map, ".png"), "Existing") == 0);
         assert(rmdir(dir) == 0);
     }
 #endif

@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Configuration opened-object type boundary
+
+Configuration opens use O_NONBLOCK, O_CLOEXEC and O_NOCTTY and fstat the opened descriptor before fdopen. Non-regular objects are rejected; a FIFO with no writer must not block waiting for one. Symlinks to regular files remain supported; symlinks to FIFOs are rejected by the same descriptor check. Disposable subprocess tests use a five-second timeout, verify no journal/output creation and source bytes unchanged. Directory rejection now occurs before parsing, so the former directory fixture no longer exercises a post-open stream read error; that branch remains but is not separately fault-injected here. No claim that device opens, remote filesystems, concurrent modifications or arbitrary pathname resolution are safe or bounded. No mover or source-retirement change.
+
 ## Worker shutdown notification failure regression
 
 A test-only injected first notification failure during two-worker shutdown must return EIO while joining workers, resetting descriptor metadata and releasing ownership for a subsequent restart. No production behavior, ABI, mover or retirement change; this is not proof of arbitrary kernel failures.

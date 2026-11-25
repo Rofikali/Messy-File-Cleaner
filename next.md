@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **BENCH-SCALE-01 (2/5; PR assignment pending)** | Native C scanner benchmark with bounded disposable fixture, raw timing, CPU and RSS | Local tests NOT RUN; no large-scale measurement; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **BENCH-SCALE-01 (3/5; PR #184 OPEN)** | Native C scanner benchmark with bounded disposable fixture, raw timing, CPU and RSS | Local tests NOT RUN; no large-scale measurement; FS-01B/REL-01 blocked |
 | **DONE** | **SCANNER-RESOURCE-REGRESSION-01 (1/5; #183 merged)** | 13/13 PR checks; merge `9766abd3e86bc8030416399a3db6e5d620efd1cf` | 5/13 integrated checks passed, 8 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **SCANNER-FD-EXHAUSTION-01 (1/5; #182 merged)** | 13/13 PR checks; merge `097e5df774f903a165d29a9c99aa464346175977` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-ALLOCATION-FAILURE-01 (1/5; #181 merged)** | 13/13 PR checks; merge `d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
@@ -58,7 +58,6 @@
 | **DONE** | **CLI-ROOT-01 (1/5; #136 merged)** | Duplicate roots rejected at `ebf757cc0d66c78aa80b105f423535c426a435cf`; tested head `9f9f650eec40c1ed43dc3eb48e5890939e955c02` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-MODE-01 (1/5; #135 merged)** | Conflicting `--once`/`--watch` rejected at `d6ea61cb9d6d4ffbd034ab1c3d7f27bdc20815e4`; tested head `93e8a3ccea412bf3ac5e46f9ce826de91ba14e1f` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-INPUT-01 (1/5; #134 merged)** | Strict `--workers` parsing merged at `18b467f40d5f4be853b95c1ffa7a494a45292574`; tested head `cb0b9da560672fec3e828cecf22afaf284b4bff9` | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
-| **PARTIAL** | **BENCH-SCALE-01 (2/5; #132 and #133 merged)** | Python disposable enumeration baseline and CTest registration; latest merge `88ec4632e984b2164ce863bd2906e7d56b4465dd` | Not production C scanner throughput; manual OS/Compose/filesystem/crash NOT RUN |
 | **DONE** | **SCAN-ROBUST-01 (1/5; #131 merged)** | Callback-error/invalid-input preservation regressions merged at `8748679d71606415883dbc2b121c46f1a00d576a`; exact-head workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN |
 | **DONE** | **CLI-DRYRUN-01 (1/5; #130 merged)** | Read-only preview and failure status merged at `74176cf4f90984bae660960c4f59de0441f1043a`; exact-head four workflow families PASS | Manual Ubuntu/Docker/Compose/real-filesystem/backup/crash NOT RUN; no release |
 | **CLOSED LEGACY** | **PERF-01 — ENGINEERING IMPLEMENTED / MERGED through #128** | Existing disposable benchmark safety, provenance, output integrity, hardlink/symlink/FIFO/Unix socket and collision regressions | Earlier feature exceeded new cap; no more PERF-01-only PRs; no end-to-end release or physical-filesystem proof |

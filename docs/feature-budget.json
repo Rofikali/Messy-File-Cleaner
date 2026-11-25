@@ -896,8 +896,10 @@
       "id": "LINUX-SCANNER-EVAL-01",
       "title": "Bounded Linux scanner reference traversal evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First test-only scanner versus nftw reference comparison; local tests NOT RUN; CI pending; production unchanged."
+      "prs": [
+        221
+      ],
+      "summary": "PR #221 registered (1/5); first test-only scanner versus nftw physical traversal reference; local tests NOT RUN at creation, CI pending; production unchanged."
     }
   ]
 }

@@ -311,10 +311,159 @@ cleanup:
     return result;
 }
 
+
+/* Test-only deterministic interruption model. Owned failures are injected
+ * before a join (not a real malloc failure); arena exhaustion is real within
+ * the bounded candidate. No scanner or filesystem calls. */
+enum { UNWIND_DEPTH = 16, UNWIND_CAP = 4096 };
+
+static int unwind_case(int use_arena, size_t stop, int failure)
+{
+    char expected[UNWIND_DEPTH + 1][128];
+    char *frames[UNWIND_DEPTH] = {0};
+    size_t marks[UNWIND_DEPTH] = {0};
+    size_t count = 0, allocs = 0, frees = 0;
+    int observed = 0, ok = 0;
+    Arena a = {NULL, UNWIND_CAP, 0};
+    if (stop > UNWIND_DEPTH || (failure && stop == UNWIND_DEPTH))
+        return -1;
+    memcpy(expected[0], "/fixture", sizeof "/fixture");
+    for (size_t i = 0; i < UNWIND_DEPTH; ++i)
+    {
+        int n = snprintf(expected[i + 1], sizeof expected[i + 1],
+                         "%s/d", expected[i]);
+        if (n < 0 || (size_t)n >= sizeof expected[i + 1])
+            return -1;
+    }
+    if (use_arena)
+    {
+        a.data = malloc(UNWIND_CAP);
+        if (!a.data)
+            return -1;
+        ++allocs;
+    }
+    for (size_t i = 0; i <= UNWIND_DEPTH; ++i)
+    {
+        if (i == stop)
+        {
+            if (failure)
+            {
+                /* One byte less than needed. Verify failure leaves both
+                 * retained ancestors and the attempted region unchanged. */
+                if (use_arena)
+                {
+                    size_t old_cap = a.capacity, mark = a.used;
+                    size_t need = strlen(expected[i + 1]) + 1;
+                    char snapshot[UNWIND_CAP];
+                    memset(a.data + mark, '!', need);
+                    memcpy(snapshot, a.data, mark + need);
+                    a.capacity = mark + need - 1;
+                    char *bad = arena_join(&a, i ? frames[i - 1] : expected[0], "d");
+                    a.capacity = old_cap;
+                    if (bad || a.used != mark ||
+                        memcmp(snapshot, a.data, mark + need) != 0)
+                        goto cleanup;
+                }
+                /* In owned mode the harness deliberately skips the next join. */
+            }
+            observed = 1;
+            break;
+        }
+        marks[i] = a.used;
+        frames[i] = nested_join(&a, use_arena,
+                                i ? frames[i - 1] : expected[0], "d");
+        if (!frames[i])
+            goto cleanup;
+        ++count;
+        if (!use_arena)
+            ++allocs;
+        if (strcmp(frames[i], expected[i + 1]) != 0)
+            goto cleanup;
+    }
+    if (!observed || count != stop)
+        goto cleanup;
+    while (count > 0)
+    {
+        size_t i = count - 1;
+        if (strcmp(frames[i], expected[i + 1]) != 0)
+            goto cleanup;
+        if (use_arena)
+        {
+            frames[i] = NULL;
+            a.used = marks[i];
+        }
+        else
+        {
+            free(frames[i]);
+            frames[i] = NULL;
+            ++frees;
+        }
+        --count;
+        for (size_t j = 0; j < count; ++j)
+            if (strcmp(frames[j], expected[j + 1]) != 0)
+                goto cleanup;
+    }
+    if (a.used != 0)
+        goto cleanup;
+    /* A fresh join after unwind verifies storage can be safely reused. */
+    char *fresh = nested_join(&a, use_arena, expected[0], "d");
+    if (!fresh)
+        goto cleanup;
+    if (!use_arena)
+        ++allocs;
+    int fresh_ok = strcmp(fresh, expected[1]) == 0;
+    if (!use_arena)
+    {
+        free(fresh);
+        ++frees;
+    }
+    else
+    {
+        fresh = NULL;
+        a.used = 0;
+    }
+    if (use_arena)
+    {
+        free(a.data);
+        a.data = NULL;
+        ++frees;
+    }
+    if (fresh_ok && allocs == frees && a.used == 0)
+        ok = 1;
+cleanup:
+    if (!use_arena)
+        for (size_t i = 0; i < UNWIND_DEPTH; ++i)
+            free(frames[i]);
+    free(a.data);
+    return ok ? 0 : -1;
+}
+
+static int unwind_checks(void)
+{
+    size_t cases = 0;
+    for (int mode = 0; mode < 2; ++mode)
+    {
+        for (size_t stop = 0; stop <= UNWIND_DEPTH; ++stop)
+        {
+            if (unwind_case(mode, stop, 0) != 0)
+                return -1;
+            ++cases;
+        }
+        for (size_t stop = 0; stop < UNWIND_DEPTH; ++stop)
+        {
+            if (unwind_case(mode, stop, 1) != 0)
+                return -1;
+            ++cases;
+        }
+    }
+    printf("unwind_cases=%zu depth=%d\n", cases, UNWIND_DEPTH);
+    return cases == 66 ? 0 : -1;
+}
+
 int main(void)
 {
     const size_t lengths[] = {32, 256, MAX_PARENT};
-    if (guard_checks() != 0)
+    if (guard_checks() != 0 || unwind_checks() != 0)
         return 1;
     for (int r = 1; r <= RUNS; ++r)
         for (size_t j = 0; j < sizeof lengths / sizeof lengths[0]; ++j)

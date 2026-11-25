@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "e54ca2c2900c2c64839736f0b80147e0930c2e1f",
+  "snapshot_main_sha": "3dcc4b4103225c7dbf29ac09aaa04416c656a61a",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "MEMORY-POOL-EVAL-01",
   "features": [
@@ -870,12 +870,13 @@
       "prs": [
         214,
         215,
-        216
+        216,
+        217
       ],
-      "summary": "PR #216 registered (3/5); #215 merged, 14/14 exact-head jobs; C17 Release arena smoke and 60/60 tests passed; integrated-main CI NOT VERIFIED. Nested variable-length arena comparison; local tests NOT RUN at creation; CI pending; production allocator retained.",
-      "last_merged_pr": 215,
-      "merge_sha": "e54ca2c2900c2c64839736f0b80147e0930c2e1f",
-      "tested_head_sha": "e8d09027904f164b63ffc212911a724bbbd26f14"
+      "summary": "PR #217 registered (4/5); #216 merged, 13/13 returned exact-head jobs; C17 Release 60/60 tests passed; FCJ4 TSan and integrated-main CI NOT VERIFIED. Deterministic exhaustion/interruption unwind; local tests NOT RUN at creation; CI pending; production allocator retained.",
+      "last_merged_pr": 216,
+      "merge_sha": "3dcc4b4103225c7dbf29ac09aaa04416c656a61a",
+      "tested_head_sha": "72ca2dc73ae86421d5d9a00d34d6b20e543fdc5d"
     }
   ]
 }

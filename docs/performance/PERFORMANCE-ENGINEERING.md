@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Failure/interrupt coverage:** [path allocation](PATH_ALLOCATION_BASELINE.md) adds untimed deterministic unwind checks; do not interpret these as latency samples, system allocator failure or production cancellation evidence.
+
 **Nested lifetime workload:** [path allocation](PATH_ALLOCATION_BASELINE.md) compares variable-length nested paths with transient sibling lifetimes; report peak live payload and separately reserved arena bytes, not RSS or scanner throughput.
 
 **Arena comparison:** [measurement](PATH_ALLOCATION_BASELINE.md) includes backing allocation/free in timed samples and reports logical requested bytes, not RSS. Identical bounded batches and verification; alternating order, no threshold or production promotion.

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Upstream audit evidence:** [Module assessment](upstream/UPSTREAM_MODULE_AUDIT.md) records inspected baseline, verified references, rejected replacements and remaining test/measurement gaps. Existing C queue is retained; full-ring recycle regression is distinct from concurrent FIFO stress. No upstream code or dependency adoption.
+
 **Owner-approved upstream-first policy (2026-11-25):** Follow [reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](upstream/UPSTREAM_MASTER_PLAN.md). Prefer supported Linux/POSIX APIs and mature compatible components; retain working code unless comparative evidence justifies change. External source imports and new third-party dependencies are BLOCKED pending explicit owner license decision and component acceptance. C17, C11/C23 CI, FS-01B/REL-01, no-spend and five-PR constraints remain binding.
 
 **Status: proposed prospective acceptance rubric (2026-11-22); not a test report or blanket approval.** Companion to [advanced roadmap](ADVANCED_FEATURE_ROADMAP.md), [live selector](../next.md), [existing seven-level operating model](ENGINEERING_OPERATING_MODEL.md), and [five-PR feature policy](FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md). Existing risk: FS-01B same-UID source-retirement check/use, legacy recovery and crash guarantees still BLOCK production release. Do not declare this resolved on CI alone.

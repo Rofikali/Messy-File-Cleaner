@@ -644,8 +644,10 @@
       "id": "CLASSIFIER-API-VALIDATION-01",
       "title": "Reject invalid classifier API arguments before dereferencing",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 null/empty argument guard and unit regression; local tests NOT RUN; CI pending."
+      "prs": [
+        189
+      ],
+      "summary": "PR #189 registered (1/5); C17 null/empty argument guard and unit regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

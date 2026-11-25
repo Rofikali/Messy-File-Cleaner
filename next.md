@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CLASSIFIER-API-VALIDATION-01 (0/5; pending PR registration)** | Defensive classifier null/empty argument guard and C unit regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CLASSIFIER-API-VALIDATION-01 (1/5; PR #189 OPEN)** | Defensive classifier null/empty argument guard and C unit regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **HASHMAP-OVERLAP-UPDATE-01 (1/5; #188 merged)** | 13/13 PR checks; merge `3f5abc23e3905e4768b19a98d127f9dfc17ff918` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-BARE-WHITESPACE-01 (1/5; #187 merged)** | 13/13 PR checks; merge `969dfe5370c1c445538482ade93a85da11d5ba11` | 13/13 integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN |
 | **PARTIAL** | **BENCH-SCALE-01 (5/5; #186 merged)** | Report acceptance and compiler provenance integrated; exhausted budget | Manual workflow NOT DISPATCHED; target-host and million-file acceptance NOT RUN; no sixth PR |

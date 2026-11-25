@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Shared dispatch bounds
+
+The shared batch/watcher dispatch helper rejects null context, null or empty path, and worker counts outside 1..MAX_WORKERS before hashing. Valid paths retain the existing hash and deterministic routing; callers must keep the worker count stable during dispatch and initialize the queues before use. Direct C regression checks invalid inputs and all supported worker counts. This does not establish concurrent context mutation safety or filesystem identity.
+
 ## Watch registration boundary
 
 Linux watch registration uses IN_ONLYDIR and IN_DONT_FOLLOW to reject regular files and final-component symlinks. Disposable direct-API tests cover both rejection cases, a real directory, unchanged file bytes, and a bounded CTest timeout. This does not verify ancestor identity, trailing-slash or other path-resolution semantics, later pathname replacement, or move safety; FS-01B remains blocked.

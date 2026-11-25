@@ -40,8 +40,43 @@ static void sleep_milliseconds(long milliseconds)
         ;
 }
 
+static void test_dispatch_bounds(void)
+{
+    const int invalid_counts[] = {-1, 0, MAX_WORKERS + 1};
+    for (size_t i = 0; i < sizeof(invalid_counts) / sizeof(invalid_counts[0]); ++i)
+    {
+        ctx.num_workers = invalid_counts[i];
+        errno = 0;
+        assert(dispatch(&ctx, "fixture.jpg") == -1);
+        assert(errno == EINVAL);
+        assert(ctx.num_workers == invalid_counts[i]);
+    }
+    ctx.num_workers = 1;
+    errno = 0;
+    assert(dispatch(NULL, "fixture.jpg") == -1 && errno == EINVAL);
+    errno = 0;
+    assert(dispatch(&ctx, NULL) == -1 && errno == EINVAL);
+    errno = 0;
+    assert(dispatch(&ctx, "") == -1 && errno == EINVAL);
+
+    for (int workers = 1; workers <= MAX_WORKERS; ++workers)
+    {
+        ctx.num_workers = workers;
+        for (int i = 0; i < 128; ++i)
+        {
+            char path[64];
+            (void)snprintf(path, sizeof(path), "fixture-%d.jpg", i);
+            int index = dispatch(&ctx, path);
+            assert(index >= 0 && index < workers);
+            assert(dispatch(&ctx, path) == index);
+        }
+    }
+    ctx.num_workers = 0;
+}
+
 int main(void)
 {
+    test_dispatch_bounds();
     hashmap_init(&ctx.cfg.ext_map, entries, 64);
     classifier_init(&ctx.classifier, &ctx.cfg.ext_map, "Others/");
 

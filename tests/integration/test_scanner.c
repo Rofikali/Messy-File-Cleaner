@@ -47,6 +47,14 @@ static int cancel_after_one(const char *path)
     return 0;
 }
 
+static int fail_with_permission_error(const char *path)
+{
+    (void)path;
+    found_count++;
+    errno = EPERM;
+    return -1;
+}
+
 static void write_file(const char *path)
 {
     FILE *fp = fopen(path, "w");
@@ -192,6 +200,42 @@ int main(void)
     assert(errno == ECANCELED);
     assert(found_count == 1);
     assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
+
+    /* Two regular files ensure the second callback is reached independent of
+     * directory enumeration order after the first metadata lookup fails. */
+    char errors_dir[PATH_MAX], error_a[PATH_MAX], error_b[PATH_MAX];
+    n = snprintf(errors_dir, sizeof(errors_dir), "%s/errors", root);
+    assert(n > 0 && (size_t)n < sizeof(errors_dir));
+    assert(mkdir(errors_dir, 0700) == 0);
+    n = snprintf(error_a, sizeof(error_a), "%s/a.txt", errors_dir);
+    assert(n > 0 && (size_t)n < sizeof(error_a));
+    n = snprintf(error_b, sizeof(error_b), "%s/b.txt", errors_dir);
+    assert(n > 0 && (size_t)n < sizeof(error_b));
+    write_file(error_a);
+    write_file(error_b);
+
+    found_count = 0;
+    fc_test_fail_next_scanner_stat(EACCES);
+    errno = 0;
+    assert(scan_directory(errors_dir, fail_with_permission_error, NULL) == -1);
+    assert(errno == EACCES && found_count == 1);
+
+    found_count = 0;
+    atomic_store(&callback_stop, 0);
+    fc_test_fail_next_scanner_stat(EACCES);
+    errno = 0;
+    assert(scan_directory(errors_dir, cancel_after_one, &callback_stop) == -1);
+    assert(errno == EACCES && found_count == 1);
+    assert(atomic_load(&callback_stop) == SIGTERM);
+
+    found_count = 0;
+    fc_test_fail_next_scanner_stat(EACCES);
+    errno = 0;
+    assert(scan_directory(errors_dir, collect, NULL) == -1);
+    assert(errno == EACCES && found_count == 1);
+    assert(access(error_a, F_OK) == 0 && access(error_b, F_OK) == 0);
+    assert(unlink(error_a) == 0 && unlink(error_b) == 0);
+    assert(rmdir(errors_dir) == 0);
 
     /* Remove only the known disposable fixtures on successful completion. */
     assert(unlink(root_link) == 0);

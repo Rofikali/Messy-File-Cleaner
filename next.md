@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **STRING-EVAL-01 (0/5 prior opened; first PR candidate)** | Native classifier libc versus test-only reverse extension scan | Local tests NOT RUN at creation; CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **STRING-EVAL-01 (1/5; PR #218 OPEN (draft))** | Native classifier libc versus test-only reverse extension scan | Local tests NOT RUN at creation; CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **MEMORY-POOL-EVAL-01 (4/5; #217 merged)** | 13/13 returned exact-head checks; arena smoke and unwind checks PASS; production allocator retained | FCJ4 TSan and integrated-main CI NOT VERIFIED; real scanner lifetime/RSS and throughput NOT established |
 | **DONE** | **HASHMAP-EVAL-01 (4/5; #213 merged)** | 14/14 exact-head checks; classifier and collision smoke PASS; existing 64 slots retained | Integrated-main CI NOT VERIFIED; representative performance and hostile-key resistance NOT established |
 | **DONE** | **QUEUE-UPSTREAM-EVAL-01 (4/5; #209 merged)** | 14/14 exact-head/main; merge `a31948068067fbf62437404808371673a141be80`; original queue retained | Padding inconclusive; representative host/ARM64/counters/TSan NOT RUN |

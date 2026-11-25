@@ -882,8 +882,10 @@
       "id": "STRING-EVAL-01",
       "title": "Bounded classifier extension string-processing evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First test-only libc versus reverse scan candidate; local tests NOT RUN; CI pending; production unchanged."
+      "prs": [
+        218
+      ],
+      "summary": "PR #218 registered (1/5); first test-only libc versus reverse scan after strlen; local tests NOT RUN at creation, CI pending; production unchanged."
     }
   ]
 }

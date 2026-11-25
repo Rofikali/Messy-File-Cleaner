@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Queue controlled measurement:** [queue baseline](../performance/QUEUE_BASELINE.md) adds optional process-local Linux CPU affinity to both test layouts; no new runtime dependency or production change. Distinct logical CPUs do not imply distinct physical cores; document topology, allowed mask and scheduling limitations.
+
 **Queue cache-layout comparison:** [Linux 6.11 false-sharing documentation](https://docs.kernel.org/6.11/kernel-hacking/false-sharing.html) informs an isolated 64-byte index-alignment experiment, not a copied implementation. [Evidence and constraints](../performance/QUEUE_BASELINE.md); no production or ABI change.
 
 **Queue evaluation continuation:** [Queue baseline](../performance/QUEUE_BASELINE.md) includes separate sequential and concurrent test-only workloads; the latter uses one producer and one consumer, unique sequence bytes and full payload checks. Retain existing ring and C memory ordering. No cache-line padding or kernel import without comparative evidence.

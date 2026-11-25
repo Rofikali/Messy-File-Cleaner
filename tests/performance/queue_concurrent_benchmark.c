@@ -1,5 +1,7 @@
-#define _POSIX_C_SOURCE 200809L
+#define _GNU_SOURCE
 #include <pthread.h>
+#include <errno.h>
+#include <stdlib.h>
 #include <sched.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -9,11 +11,60 @@
 #include "core/lf_queue.h"
 
 /* Independent test-only baseline. One producer and one consumer; no
- * filesystem, CPU affinity or production queue changes. */
+ * filesystem or production queue changes. Optional process-local thread
+ * affinity is for controlled measurements only. */
 enum { EVENTS = 65536, RUNS = 3, RETRY_CHECK = 256 };
 static LFQueue queue;
 static atomic_int failed;
 static struct timespec start;
+static int consumer_cpu = -1;
+
+/* No sign, whitespace, overflow, or CPU outside the fixed mask. */
+static int parse_cpu(const char *s, int *cpu)
+{
+    if (!s || !*s)
+        return -1;
+    for (const char *p = s; *p; ++p)
+        if (*p < '0' || *p > '9')
+            return -1;
+    errno = 0;
+    char *end;
+    long n = strtol(s, &end, 10);
+    if (errno || *end || n < 0 || n >= CPU_SETSIZE)
+        return -1;
+    *cpu = (int)n;
+    return 0;
+}
+
+static int pin_current(int cpu)
+{
+    cpu_set_t mask, actual;
+    CPU_ZERO(&mask);
+    CPU_SET(cpu, &mask);
+    if (sched_setaffinity(0, sizeof(mask), &mask) != 0 ||
+        sched_getaffinity(0, sizeof(actual), &actual) != 0)
+        return -1;
+    return CPU_COUNT(&actual) == 1 && CPU_ISSET(cpu, &actual) ? 0 : -1;
+}
+
+static int configure_affinity(int argc, char **argv)
+{
+    if (argc == 1)
+        return 0;
+    int producer;
+    cpu_set_t allowed;
+    if (argc != 3 ||
+        parse_cpu(argv[1], &producer) != 0 ||
+        parse_cpu(argv[2], &consumer_cpu) != 0 ||
+        producer == consumer_cpu ||
+        sched_getaffinity(0, sizeof(allowed), &allowed) != 0 ||
+        !CPU_ISSET(producer, &allowed) ||
+        !CPU_ISSET(consumer_cpu, &allowed) ||
+        pin_current(producer) != 0)
+        return -1;
+    printf("affinity: producer_cpu=%d consumer_cpu=%d\n", producer, consumer_cpu);
+    return 0;
+}
 
 static double elapsed_ns(struct timespec a, struct timespec b)
 {
@@ -56,6 +107,11 @@ static int retry(unsigned int *attempts)
 static void *consume(void *arg)
 {
     (void)arg;
+    if (consumer_cpu >= 0 && pin_current(consumer_cpu) != 0)
+    {
+        atomic_store_explicit(&failed, 1, memory_order_relaxed);
+        return NULL;
+    }
     unsigned int attempts = 0;
     for (uint32_t i = 0; i < EVENTS; ++i)
     {
@@ -74,8 +130,13 @@ static void *consume(void *arg)
     return NULL;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+    if (configure_affinity(argc, argv) != 0)
+    {
+        fputs("Invalid or unavailable affinity: specify two distinct allowed CPU IDs\n", stderr);
+        return 1;
+    }
     printf("queue layout: bytes=%zu alignment=%zu head_offset=%zu tail_offset=%zu head_mod64=%zu tail_mod64=%zu\n",
            sizeof(LFQueue), (size_t)_Alignof(LFQueue),
            offsetof(LFQueue, head), offsetof(LFQueue, tail),

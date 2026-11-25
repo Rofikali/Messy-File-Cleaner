@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Affinity evidence:** [queue baseline](QUEUE_BASELINE.md) supports optional explicit Linux CPU IDs for test-only original and padded layouts; report topology, mask, scheduling and all samples. Pinning is not isolation or a guarantee of repeatability.
+
 **Cache-layout comparison:** [Queue baseline](QUEUE_BASELINE.md) includes an isolated candidate with 64-byte index separation, identical C code and workload. Compare layout, memory overhead and repeated timings; hardware counter evidence and actual target workloads remain separate.
 
 **Concurrent queue measurement:** [queue baseline](QUEUE_BASELINE.md) distinguishes sequential batched pairs from two-thread transfer including event generation, verification, retry/yield and thread lifecycle. No direct speedup comparison between these workloads; no timing threshold or new workflow.

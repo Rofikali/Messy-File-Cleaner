@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Affinity acceptance:** [queue baseline](performance/QUEUE_BASELINE.md) requires two distinct allowed logical CPUs, verified per-thread masks, input rejection before measurement, unchanged default smoke and full payload verification; no timing threshold. Pinned positive run only on an eligible host.
+
 **Cache-layout acceptance:** original and generated candidate compile the same concurrent benchmark and queue implementation; candidate verifies index alignment and separation, both verify full FIFO payload and bounded retry. No speed threshold or promotion based solely on smoke; [record evidence](performance/QUEUE_BASELINE.md).
 
 **Concurrent queue baseline acceptance:** unique full payload per transfer, exactly one producer/consumer, three fixed samples, peer failure signal, monotonic retry deadline and external CTest timeout; no timing threshold, production change or weak-memory proof. See [queue baseline](performance/QUEUE_BASELINE.md).

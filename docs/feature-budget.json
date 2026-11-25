@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "f5bc93f900056c63dc8b3fdb2e4671ceddff26a2",
+  "snapshot_main_sha": "742e33710b0a9d6eabbb9f699d83125808a60602",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "QUEUE-UPSTREAM-EVAL-01",
   "features": [
@@ -840,12 +840,13 @@
       "prs": [
         206,
         207,
-        208
+        208,
+        209
       ],
-      "summary": "PR #208 registered (3/5); #207 merged 14/14 head/main; standalone hash-matched comparison PASS 1179648 transfers; original/padded median 215.547/219.964 ns, +120 B, benefit inconclusive; retain production layout; full local tests NOT RUN; CI pending.",
-      "last_merged_pr": 207,
-      "merge_sha": "f5bc93f900056c63dc8b3fdb2e4671ceddff26a2",
-      "tested_head_sha": "621ac83356d427de4b1e8e64ab6783966dd1869a"
+      "summary": "PR #209 registered (4/5); #208 14/14 exact-head, 14/14 integrated-main checks passed at inspection; standalone blob-matched C17 PASS 14 negative cases and 1572864 verified transfers; pinned medians original/padded 195.317/190.132 ns, inconclusive; retain original; full local CMake/CTest NOT RUN; CI pending.",
+      "last_merged_pr": 208,
+      "merge_sha": "742e33710b0a9d6eabbb9f699d83125808a60602",
+      "tested_head_sha": "9d5b8ac722423e5d8cb52f24985c4e8aabecdc84"
     }
   ]
 }

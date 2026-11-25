@@ -12,18 +12,22 @@ typedef struct
 } WorkerArgs;
 
 /* Starts all requested workers or cleans up every partially started worker.
- * The caller initializes ctx->running; this function never overrides a stop request.
+ * Only one pool may own the process-wide thread storage. Caller initializes
+ * ctx->num_workers to zero and ctx->running; duplicate starts fail with EBUSY.
+ * Serialize start/join across contexts; stop producers before join.
+ * This function never overrides a stop request.
  */
 int start_workers(AppContext *ctx, int num_threads);
 
 /* Stops intake, wakes workers, drains queued work, joins threads, and closes fds.
  * Requires an exclusively managed pool and a stable count in [0, MAX_WORKERS].
- * Invalid count fails with EINVAL before changing state; caller retains ownership.
+ * Invalid count fails with EINVAL; a non-owner or inconsistent ownership fails
+ * with EBUSY before changing state. Caller retains ownership on rejection.
  */
 int join_workers(AppContext *ctx);
 
 /* Wake the single consumer assigned to a queue after a successful enqueue.
- * Requires a live pool with a stable count in [1, MAX_WORKERS].
+ * Requires the owning live pool with a stable count in [1, MAX_WORKERS].
  */
 int notify_worker(AppContext *ctx, int worker_index);
 

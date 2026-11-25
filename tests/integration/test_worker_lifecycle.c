@@ -117,6 +117,26 @@ int main(void)
     lf_init(&ctx.queues[1]);
     assert(start_workers(&ctx, 2) == 0);
     assert(ctx.num_workers == 2);
+    int original_fd = ctx.efd[0];
+    static AppContext other;
+    atomic_init(&other.running, 1);
+    other.num_workers = 0;
+    errno = 0;
+    assert(start_workers(&ctx, 1) == -1 && errno == EBUSY);
+    errno = 0;
+    assert(start_workers(&other, 1) == -1 && errno == EBUSY);
+    errno = 0;
+    assert(join_workers(&other) == -1 && errno == EBUSY);
+    other.num_workers = 1;
+    other.efd[0] = original_fd;
+    errno = 0;
+    assert(notify_worker(&other, 0) == -1 && errno == EINVAL);
+    errno = 0;
+    assert(join_workers(&other) == -1 && errno == EBUSY);
+    other.num_workers = 0;
+    other.efd[0] = -1;
+    assert(ctx.num_workers == 2 && ctx.efd[0] == original_fd);
+    assert(atomic_load(&ctx.running) == 1 && atomic_load(&other.running) == 1);
     errno = 0;
     assert(notify_worker(&ctx, 2) == -1);
     assert(errno == EINVAL);
@@ -143,6 +163,14 @@ int main(void)
     assert(atomic_load(&ctx.worker_error) == 0);
     assert(atomic_load(&ctx.metrics.dry_run_moves) == 32);
     assert(atomic_load(&ctx.active_workers) == 0);
+
+    /* Ownership is released after successful join; a second context can start. */
+    atomic_init(&other.active_workers, 0);
+    atomic_init(&other.worker_error, 0);
+    lf_init(&other.queues[0]);
+    assert(start_workers(&other, 1) == 0);
+    assert(join_workers(&other) == 0);
+    assert(other.num_workers == 0);
 
     /* Empty workers must wake and join cleanly too. */
     atomic_store(&ctx.running, 1);

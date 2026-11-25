@@ -18,6 +18,8 @@
 
 static WorkerArgs args_storage[MAX_WORKERS];
 static pthread_t threads_storage[MAX_WORKERS];
+/* Lifecycle is caller-serialized; producers stop before join. */
+static AppContext *pool_owner;
 
 #ifdef FC_TESTING
 static int test_eventfd_fail_after = -1;
@@ -133,7 +135,8 @@ static int create_worker_thread(pthread_t *thread, void *(*entry)(void *),
 
 int notify_worker(AppContext *ctx, int worker_index)
 {
-    if (!ctx || ctx->num_workers < 1 || ctx->num_workers > MAX_WORKERS ||
+    if (!ctx || ctx != pool_owner ||
+        ctx->num_workers < 1 || ctx->num_workers > MAX_WORKERS ||
         worker_index < 0 || worker_index >= ctx->num_workers ||
         ctx->efd[worker_index] < 0)
     {
@@ -322,6 +325,7 @@ static void cleanup_started_workers(AppContext *ctx, int started)
     }
 
     ctx->num_workers = 0;
+    pool_owner = NULL;
 }
 
 int start_workers(AppContext *ctx, int num_threads)
@@ -332,6 +336,12 @@ int start_workers(AppContext *ctx, int num_threads)
         return -1;
     }
 
+    if (pool_owner != NULL || ctx->num_workers != 0)
+    {
+        errno = EBUSY;
+        return -1;
+    }
+    pool_owner = ctx;
     atomic_store(&ctx->active_workers, 0);
     atomic_store(&ctx->worker_error, 0);
     ctx->num_workers = 0;
@@ -379,6 +389,14 @@ int join_workers(AppContext *ctx)
         return -1;
     }
 
+    if ((pool_owner != NULL && pool_owner != ctx) ||
+        (pool_owner == NULL && ctx->num_workers != 0) ||
+        (pool_owner == ctx && ctx->num_workers == 0))
+    {
+        errno = EBUSY;
+        return -1;
+    }
+
     atomic_store(&ctx->running, 0);
     int status = 0;
     int saved_errno = 0;
@@ -410,6 +428,7 @@ int join_workers(AppContext *ctx)
     }
 
     ctx->num_workers = 0;
+    pool_owner = NULL;
     if (atomic_load(&ctx->worker_error) != 0 && status == 0)
     {
         status = -1;

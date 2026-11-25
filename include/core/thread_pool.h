@@ -15,7 +15,9 @@ typedef struct
  * Only one pool may own the process-wide thread storage. Caller initializes
  * ctx->num_workers to zero and ctx->running; duplicate starts fail with EBUSY.
  * Serialize start/join across contexts; stop producers before join.
- * This function never overrides a stop request.
+ * This function never overrides a stop request. Malformed queued path strings
+ * or NULL/empty classifications stop intake and set worker_error; existing
+ * queued work follows the normal drain contract.
  */
 int start_workers(AppContext *ctx, int num_threads);
 

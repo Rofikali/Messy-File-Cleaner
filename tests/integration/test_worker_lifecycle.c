@@ -233,6 +233,42 @@ int main(void)
     assert(atomic_load(&ctx.metrics.dry_run_moves) == 33);
     assert(ctx.num_workers == 0);
 
+    /* A malformed event must never reach classification, diagnostics or a mover.
+       Preload disposable events before starting the consumer, then check drain. */
+    atomic_store(&ctx.running, 1);
+    lf_init(&ctx.queues[0]);
+    FileEvent empty_event = {0};
+    FileEvent unterminated_event = {0};
+    memset(unterminated_event.path, 'x', sizeof(unterminated_event.path));
+    assert(lf_enqueue(&ctx.queues[0], &empty_event) == 1);
+    assert(lf_enqueue(&ctx.queues[0], &unterminated_event) == 1);
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(start_workers(&ctx, 1) == 0);
+    errno = 0;
+    assert(join_workers(&ctx) == -1 && errno == EIO);
+    assert(atomic_load(&ctx.worker_error) == 1);
+    assert(atomic_load(&ctx.metrics.move_failures) == 2);
+    assert(atomic_load(&ctx.metrics.dry_run_moves) == 34);
+    assert(atomic_load(&ctx.active_workers) == 0);
+    assert(lf_is_empty(&ctx.queues[0]));
+
+    /* Invalid classification must also fail before dry-run or move handling. */
+    const char *invalid_folders[] = {NULL, ""};
+    for (size_t i = 0; i < sizeof(invalid_folders) / sizeof(invalid_folders[0]); ++i)
+    {
+        classifier_init(&ctx.classifier, &ctx.cfg.ext_map, invalid_folders[i]);
+        atomic_store(&ctx.running, 1);
+        lf_init(&ctx.queues[0]);
+        assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+        assert(start_workers(&ctx, 1) == 0);
+        errno = 0;
+        assert(join_workers(&ctx) == -1 && errno == EIO);
+        assert(atomic_load(&ctx.worker_error) == 1);
+        assert(atomic_load(&ctx.metrics.move_failures) == 3 + i);
+        assert(atomic_load(&ctx.metrics.dry_run_moves) == 34);
+    }
+    classifier_init(&ctx.classifier, &ctx.cfg.ext_map, "Others/");
+
     puts("worker lifecycle tests passed");
     return 0;
 }

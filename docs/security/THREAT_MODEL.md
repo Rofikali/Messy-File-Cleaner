@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Worker event validation boundary
+
+Workers reject empty or non-NUL-terminated fixed-buffer event paths before classification, and reject NULL/empty routing results before diagnostics or move handling. A fixed diagnostic avoids echoing malformed bytes; rejection increments move failures, sets worker_error and stops intake while existing queued work follows the existing drain policy. Dry-run disposable unit/integration inputs exercise both malformed path cases and missing/empty classification, including queued valid-event drain. This does not validate arbitrary pointers or filesystem containment, nor change mover or source-retirement semantics.
+
 ## SPSC queue argument boundary
 
 Null queue and event arguments cannot reach atomic accesses or event copies; invalid transfers return zero, null initialization does nothing and a null emptiness query returns true. Unit cases verify a queued event survives invalid calls and the existing concurrent FIFO regression remains unchanged. This is not validation of arbitrary non-null pointers, uninitialized storage, or multi-producer/multi-consumer access. No filesystem retirement changes.

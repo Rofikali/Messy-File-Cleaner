@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WORKER-DIAGNOSTIC-ESCAPE-01 (0/5; PR assignment pending)** | Escape untrusted worker path diagnostics; read-only regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WORKER-DIAGNOSTIC-ESCAPE-01 (1/5; PR #166 OPEN)** | Escape untrusted worker path diagnostics; read-only regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **QUEUE-SPSC-CONCURRENCY-01 (1/5; #165 merged)** | 14/14 PR checks; merge `d0a325992cc60303aeb9597293647beb34efb071` | 6/14 integrated checks passed, 8 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **CLASSIFIER-BASENAME-01 (1/5; #164 merged)** | 14/14 PR checks; merge `fd6db27e87b602225b4645085ae6d39de9079c91` | 14/14 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |
 | **DONE** | **HASHMAP-METADATA-GUARD-01 (1/5; #163 merged)** | 13/13 PR checks; merge `a2164724754015f268fdd3e5f8995d9251b38e17` | 13/13 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |

@@ -668,8 +668,10 @@
       "id": "WORKER-EVENT-VALIDATION-01",
       "title": "Reject malformed worker event paths and missing classification before processing",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 worker validation and dry-run failure/drain regression; local tests NOT RUN; CI pending."
+      "prs": [
+        191
+      ],
+      "summary": "PR #191 registered (1/5); worker validation and dry-run regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

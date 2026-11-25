@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WORKER-EVENT-VALIDATION-01 (0/5; pending PR registration)** | Worker path and classification validation with dry-run failure/drain regressions | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WORKER-EVENT-VALIDATION-01 (1/5; PR #191 OPEN)** | Worker path and classification validation with dry-run failure/drain regressions | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **SPSC-NULL-ARGUMENTS-01 (1/5; #190 merged)** | 13/13 PR checks; merge `4f53c0ed59a39ee68dbd8575ee7c1553f6a08a8f` | 11/13 integrated-main checks passed at inspection; 2 not passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **CLASSIFIER-API-VALIDATION-01 (1/5; #189 merged)** | 13/13 PR checks; merge `1af1dbebdcf369bce90b5d0a1cb432e6bac2ba47` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **HASHMAP-OVERLAP-UPDATE-01 (1/5; #188 merged)** | 13/13 PR checks; merge `3f5abc23e3905e4768b19a98d127f9dfc17ff918` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |

@@ -681,9 +681,10 @@
       "title": "Stop scanner discovery on metadata resource exhaustion",
       "status": "ACTIVE",
       "prs": [
-        192
+        192,
+        193
       ],
-      "summary": "PR #192 merged; 13/13 exact-head checks passed; 10/13 integrated-main checks passed at inspection; 3 not passed at inspection. Follow-up opened-directory fault regression under same feature. Local tests NOT RUN; CI pending.",
+      "summary": "PR #192 merged with 13/13 exact-head checks; 10/13 integrated-main checks passed at inspection; 3 not passed at inspection. PR #193 registered (2/5); opened-directory metadata regression; local tests NOT RUN; exact-head CI pending.",
       "last_merged_pr": 192,
       "merge_sha": "8ee0a76579ad021d454c4f966ca330c1a24fa78d",
       "tested_head_sha": "48b3171914ce68564e8b65d6fb51d78dc274a75f"

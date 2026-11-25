@@ -10,4 +10,10 @@ int dispatch(AppContext *ctx, const char *path);
  * Ancestor path components and later path replacement remain outside this guarantee. */
 int start_watcher(const char *path, AppContext *ctx);
 
+#ifdef FC_WATCHER_TESTING
+/* Test-only entry point; not part of the production ABI. */
+int fc_test_process_watcher_buffer(const char *buffer, size_t length,
+                                   const char *root, AppContext *ctx);
+#endif
+
 #endif

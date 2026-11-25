@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "281d67cf3efd35b82560db43599ca16dce436288",
+  "snapshot_main_sha": "1f197e88832ffd0ddd67d911c81852c2f2fe289f",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "DISPATCH-BOUNDS-01",
+  "active_feature_id": "WATCHER-RECORD-GUARD-01",
   "features": [
     {
       "id": "PERF-01",
@@ -428,7 +428,7 @@
       "prs": [
         168
       ],
-      "summary": "PR #168 merged; 14/14 exact-head checks passed; 2/14 integrated-main checks passed, twelve pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #168 merged; 14/14 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 168,
       "merge_sha": "281d67cf3efd35b82560db43599ca16dce436288",
       "tested_head_sha": "48e9e122059d60f1b6369add59ca579d1f79b9f0"
@@ -436,11 +436,23 @@
     {
       "id": "DISPATCH-BOUNDS-01",
       "title": "Bound shared batch and watcher dispatch to fixed worker array",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         169
       ],
-      "summary": "Reject empty paths and out-of-range worker count; verify all supported counts and deterministic index selection. Local tests NOT RUN."
+      "summary": "PR #169 merged; 13/13 exact-head checks passed; 3/13 integrated-main checks passed, ten pending at inspection. Manual acceptance NOT RUN.",
+      "last_merged_pr": 169,
+      "merge_sha": "1f197e88832ffd0ddd67d911c81852c2f2fe289f",
+      "tested_head_sha": "4ab67febb975d78639caffb287cfe077f9909221"
+    },
+    {
+      "id": "WATCHER-RECORD-GUARD-01",
+      "title": "Decode watcher headers safely and reject malformed event names",
+      "status": "ACTIVE",
+      "prs": [
+        170
+      ],
+      "summary": "Aligned local header copy, malformed record and name guards, test-only synthetic decoder regression. Local tests NOT RUN."
     }
   ]
 }

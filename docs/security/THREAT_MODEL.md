@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Watcher event record boundary
+
+Inotify headers are copied into aligned local storage before decoding; length checks precede name reads. Actionable non-directory create/move records reject empty, unterminated, slash-containing, dot and dot-dot names. Synthetic tests cover truncated and deliberately unaligned records, invalid names, overflow and invalidation errors, and a non-actionable directory event. The test entry point is compiled only into the watcher integration target. This is parser hardening, not proof of kernel event authenticity, root identity or filesystem retirement safety.
+
 ## Shared dispatch bounds
 
 The shared batch/watcher dispatch helper rejects null context, null or empty path, and worker counts outside 1..MAX_WORKERS before hashing. Valid paths retain the existing hash and deterministic routing; callers must keep the worker count stable during dispatch and initialize the queues before use. Direct C regression checks invalid inputs and all supported worker counts. This does not establish concurrent context mutation safety or filesystem identity.

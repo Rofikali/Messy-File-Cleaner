@@ -1,5 +1,7 @@
 # Linux upstream integration master plan
 
+**Initial evidence:** [Module audit](UPSTREAM_MODULE_AUDIT.md) compares baseline implementation with Linux 6.12 circular-buffer documentation and Linux man-pages; no external source imported. Other upstream projects remain research candidates until individually examined. Queue full-ring regression strengthens acceptance without modifying production.
+
 Owner-approved direction; proposed candidates, not implemented features or automatic queue. [next.md](../../next.md) is sole live selector. [Policy](UPSTREAM_REUSE_POLICY.md) governs imports.
 
 ## Official upstream research

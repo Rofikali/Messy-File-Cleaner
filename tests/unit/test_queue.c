@@ -49,6 +49,58 @@ static void test_concurrent_fifo(LFQueue *queue)
     assert(!lf_dequeue(queue, &unused));
 }
 
+/* Independent user-space regression: keep a nearly full ring while
+ * recycling slots across multiple wraparounds. Compare all path bytes,
+ * including bytes following the first NUL, and both event types. */
+static FileEvent patterned_event(int index)
+{
+    FileEvent event = make_event(index);
+    size_t length = strlen(event.path);
+    for (size_t i = length + 1; i < sizeof(event.path); ++i)
+        event.path[i] = (char)('A' + (index + (int)i) % 26);
+    event.type = index % 2 ? FILE_FOUND : FILE_CREATED;
+    return event;
+}
+
+static void test_full_ring_recycling(LFQueue *queue)
+{
+    const int capacity = QUEUE_SIZE - 1;
+    const int cycles = QUEUE_SIZE * 3 + 17;
+    int produced = 0, consumed = 0;
+    lf_init(queue);
+    for (; produced < capacity; ++produced)
+    {
+        FileEvent input = patterned_event(produced);
+        assert(lf_enqueue(queue, &input));
+    }
+    for (int i = 0; i < cycles; ++i)
+    {
+        FileEvent input = patterned_event(produced);
+        assert(!lf_enqueue(queue, &input));
+        FileEvent expected = patterned_event(consumed++);
+        FileEvent output;
+        assert(lf_dequeue(queue, &output));
+        assert(memcmp(output.path, expected.path, sizeof(output.path)) == 0);
+        assert(output.type == expected.type);
+        assert(lf_enqueue(queue, &input));
+        ++produced;
+    }
+    while (consumed < produced)
+    {
+        FileEvent expected = patterned_event(consumed++);
+        FileEvent output;
+        assert(lf_dequeue(queue, &output));
+        assert(memcmp(output.path, expected.path, sizeof(output.path)) == 0);
+        assert(output.type == expected.type);
+    }
+    FileEvent sentinel = patterned_event(42);
+    FileEvent output = sentinel;
+    assert(!lf_dequeue(queue, &output));
+    assert(memcmp(output.path, sentinel.path, sizeof(output.path)) == 0);
+    assert(output.type == sentinel.type);
+    assert(lf_is_empty(queue));
+}
+
 int main(void)
 {
     LFQueue queue;
@@ -105,6 +157,7 @@ int main(void)
         assert(strcmp(event.path, input.path) == 0);
     }
 
+    test_full_ring_recycling(&queue);
     test_concurrent_fifo(&queue);
     puts("queue tests passed (single producer / single consumer)");
     return 0;

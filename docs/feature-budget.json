@@ -497,7 +497,9 @@
       "id": "SCANNER-CANCEL-BOUNDARY-01",
       "title": "Check cooperative scanner cancellation before root access and callback handoff",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        174
+      ],
       "summary": "Pre-cancellation before root open; recheck before callback; disposable regression and fixture cleanup. Local tests NOT RUN."
     }
   ]

@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SCANNER-CANCEL-BOUNDARY-01 (0/5; PR assignment pending)** | Check cooperative scanner cancellation before root access and callback handoff; disposable regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SCANNER-CANCEL-BOUNDARY-01 (1/5; PR #174 OPEN)** | Check cooperative scanner cancellation before root access and callback handoff; disposable regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **WATCHER-IDLE-METRICS-01 (1/5; #173 merged)** | 13/13 PR checks; merge `8e243eb9a9aa52c2927b0d9fdf5fee9c0191487a` | 1/13 integrated checks passed, 12 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **WORKER-POOL-OWNER-01 (1/5; #172 merged)** | 13/13 PR checks; merge `f51005e48ee81edfc18808003691236d5bd328e2` | 13/13 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |
 | **DONE** | **WORKER-LIFECYCLE-BOUNDS-01 (1/5; #171 merged)** | 14/14 PR checks; merge `ade0c7707d5417717cc8914faead547cd91deb4b` | 14/14 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |

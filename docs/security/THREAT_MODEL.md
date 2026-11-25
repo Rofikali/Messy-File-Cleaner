@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Scanner allocation failure boundary
+
+Path construction and frame-array growth failures terminate discovery rather than repeatedly allocating under resource pressure; first failure errno is retained, and all owned frames are unwound. A test-only one-shot frame-growth failure hook exercises initial allocation and growth beyond 16 frames on a disposable 20-level tree. Linux /proc/self/fd inventory checks descriptor balance after each failure and a subsequent successful scan. This does not roll back earlier callbacks, prove a universal memory bound, or establish source-retirement safety. The injection hook is absent from production.
+
 ## Shared lexical path joining
 
 CLI output preflight, scanner and watcher use a common internal owned-copy path join. It rejects null/empty inputs, checks allocation arithmetic and inserts a separator only when needed (including a single root slash). Caller-side component validation is unchanged; the helper does not establish containment, canonicalize or resolve paths. Direct C regressions cover root/relative paths, existing separators, spaces, literal backslash, invalid inputs and independent ownership. Existing integration tests remain in place. No mover or retirement changes.

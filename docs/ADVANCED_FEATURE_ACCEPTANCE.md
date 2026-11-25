@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Queue evaluation acceptance:** [bounded baseline](performance/QUEUE_BASELINE.md) records three samples, each 65,536 verified event pairs, monotonic duration, no threshold and no production change. Smoke success is correctness evidence, not optimization evidence.
+
 **Upstream audit evidence:** [Module assessment](upstream/UPSTREAM_MODULE_AUDIT.md) records inspected baseline, verified references, rejected replacements and remaining test/measurement gaps. Existing C queue is retained; full-ring recycle regression is distinct from concurrent FIFO stress. No upstream code or dependency adoption.
 
 **Owner-approved upstream-first policy (2026-11-25):** Follow [reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](upstream/UPSTREAM_MASTER_PLAN.md). Prefer supported Linux/POSIX APIs and mature compatible components; retain working code unless comparative evidence justifies change. External source imports and new third-party dependencies are BLOCKED pending explicit owner license decision and component acceptance. C17, C11/C23 CI, FS-01B/REL-01, no-spend and five-PR constraints remain binding.

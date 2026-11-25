@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "a8685a7f9e1f5ced87eefd4a22dfbb5c908707a2",
+  "snapshot_main_sha": "8e9ca9eaec9cf755b7afaae8fd9b89bfc2c3ed6a",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCANNER-SPECIAL-FILE-01",
+  "active_feature_id": "QUEUE-UPSTREAM-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -824,11 +824,23 @@
     {
       "id": "SCANNER-SPECIAL-FILE-01",
       "title": "Verify scanner excludes FIFO and Unix socket inodes",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         205
       ],
-      "summary": "PR #205 registered (1/5); FIFO/socket exclusion regression; local tests NOT RUN; exact-head CI pending."
+      "summary": "PR #205 merged; 13/13 exact-head checks passed; 13/13 integrated-main checks passed at inspection; device-node and manual acceptance NOT RUN.",
+      "last_merged_pr": 205,
+      "merge_sha": "8e9ca9eaec9cf755b7afaae8fd9b89bfc2c3ed6a",
+      "tested_head_sha": "c2b4abb8b38e3968ccff44ae880ad0abf3517dcb"
+    },
+    {
+      "id": "QUEUE-UPSTREAM-EVAL-01",
+      "title": "Bounded in-memory C SPSC queue performance baseline",
+      "status": "ACTIVE",
+      "prs": [
+        206
+      ],
+      "summary": "PR #206 registered (1/5); standalone four-blob-matched C17 baseline PASS (196608 verified timed pairs; median 62.475 ns/pair, no speedup claim); full local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

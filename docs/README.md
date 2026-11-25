@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Documentation Map and Authority
 
+**In-memory queue measurement:** [Queue baseline](performance/QUEUE_BASELINE.md) describes a bounded test-only native C workload, its limitations and reproduction command. Not a filesystem scale benchmark or speedup claim.
+
 **Initial upstream assessment:** [Reference-only module audit](upstream/UPSTREAM_MODULE_AUDIT.md) links inspected sources, retained implementations, rejected premature replacements and remaining evidence gaps. No approved import or performance claim.
 
 **Owner-approved upstream-first policy (2026-11-25):** Follow [reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](upstream/UPSTREAM_MASTER_PLAN.md). Prefer supported Linux/POSIX APIs and mature compatible components; retain working code unless comparative evidence justifies change. External source imports and new third-party dependencies are BLOCKED pending explicit owner license decision and component acceptance. C17, C11/C23 CI, FS-01B/REL-01, no-spend and five-PR constraints remain binding.

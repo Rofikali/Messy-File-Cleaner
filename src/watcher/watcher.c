@@ -73,7 +73,8 @@ static void enqueue_path(const char *path, AppContext *ctx)
 
 int dispatch(AppContext *ctx, const char *path)
 {
-    if (!ctx || !path || ctx->num_workers <= 0)
+    if (!ctx || !path || path[0] == '\0' ||
+        ctx->num_workers <= 0 || ctx->num_workers > MAX_WORKERS)
     {
         errno = EINVAL;
         return -1;

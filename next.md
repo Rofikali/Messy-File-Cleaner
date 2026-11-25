@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Live reconciliation checkpoint:** PR #183 merged at `9766abd3e86bc8030416399a3db6e5d620efd1cf`; 13/13 exact-head checks passed; 5/13 integrated-main checks passed, 8 pending at inspection. Current feature: BENCH-SCALE-01.
+> **Live reconciliation checkpoint:** PR #184 merged at `e46550f41b785d2a5a33de40e8890ca2a94afc27`; 14/14 exact-head checks passed; 7/14 integrated-main checks passed, 7 pending at inspection. Current feature: BENCH-SCALE-01.
 
 > **Handoff (2026-11-22; verified GitHub):** PR #143 AUTOPILOT-HANDOFF-01 **MERGED** at `80de73b465ede49eec0882846c50efc0cbdee254`, reviewed exact head `c2c232aa7aceebf26c776a01f403fd3ac0d8ff77`; CMake, Docker, Makefile and Ubuntu 24.04 workflows succeeded on the PR head and merge commit. Its offline selector check does NOT establish live GitHub state. PR #142 previously merged scanner identity checking, which does NOT close source-retirement TOCTOU. **PLAN-REPORT-01 PARTIAL:** PR #145 merged at `ac9fc87a91a665e2d0f09a3af79ee7f7ca310139` (tested head `4674ee4293c9c97c0c871fe6601b5aa33908119c`, five CI workflow families PASS); aggregate-only report, no per-file plan/conflicts. **CONFIG-MODE-01 DONE:** PR #146 merged at `d7adc17afa4c015f95ad016bb3817c133a682435` (tested head `43dafa1eb0699d38f0825a0423fc73b88372df6d`; four workflow families PASS). **CONFIG-NUMERIC-01 DONE:** PR #147 merged at `d839ad608c554d0c7715dc6264be6952ef07eccf` (tested head `03956c1828a31e375fe9971e65662b58c291d6a6`; four workflow families PASS). **CONFIG-LINE-01 DONE:** PR #148 merged at `3b32efbe8fad2047f3588fa51c907525a4e4dca4` (tested head `36383fd2ca31cba9489a7e88b530b29b1fd6298d`; four PR workflow families PASS). CONFIG-EXT-TRAIL-01 is historical. Manual owner Ubuntu/Compose, hostile filesystems, backups and power-loss acceptance NOT RUN; FS-01B P0 and REL-01 remain BLOCKED.
 >
@@ -10,8 +10,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **BENCH-SCALE-01 (3/5; PR #184 OPEN)** | Native C scanner benchmark with bounded disposable fixture, raw timing, CPU and RSS | Local tests NOT RUN; no large-scale measurement; FS-01B/REL-01 blocked |
-| **DONE** | **SCANNER-RESOURCE-REGRESSION-01 (1/5; #183 merged)** | 13/13 PR checks; merge `9766abd3e86bc8030416399a3db6e5d620efd1cf` | 5/13 integrated checks passed, 8 pending at inspection; manual acceptance NOT RUN |
+| **NOW — SAFE FEATURE SELECTION** | **BENCH-SCALE-01 (4/5; PR #185 OPEN)** | Native C scanner manual-only provenance workflow and matching Release hardening; #184 merged | Local tests NOT RUN; workflow NOT DISPATCHED; no large-scale measurement; FS-01B/REL-01 blocked |
+| **DONE** | **SCANNER-RESOURCE-REGRESSION-01 (1/5; #183 merged)** | 13/13 PR checks; merge `9766abd3e86bc8030416399a3db6e5d620efd1cf` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-FD-EXHAUSTION-01 (1/5; #182 merged)** | 13/13 PR checks; merge `097e5df774f903a165d29a9c99aa464346175977` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-ALLOCATION-FAILURE-01 (1/5; #181 merged)** | 13/13 PR checks; merge `d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **PATH-JOIN-SHARED-01 (1/5; #180 merged)** | 13/13 PR checks; merge `56ccadd5f99c134b8b2c727d5286c5a0eb0cee15` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

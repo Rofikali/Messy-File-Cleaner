@@ -28,6 +28,10 @@
 
 The current branch intentionally does **not** delete or rewrite either tracked artifact. The existing milestone explicitly requires owner review before deletion. The GitHub connector exposes the blob's size but not enough safely decoded content to determine what the binary contains. Preserve evidence and report uncertainty instead of erasing or claiming it is harmless.
 
+## Native scanner evidence
+
+The manual-only native scanner workflow retains only successful JSON reports and selected hosted-runner provenance for 30 days. It uses generated disposable inputs, exact Git SHA and binary SHA-256, bounded inputs and timeout. It does not upload raw compile commands, profiles or user data; runner measurements do not establish target-host performance or release readiness. No dispatch is implied by adding the workflow.
+
 ## Technical follow-up
 
 - Add appropriate ignored local profiling and benchmark paths (this PR), including non-root build locations where relevant.

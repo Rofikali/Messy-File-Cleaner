@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## SPSC queue argument boundary
+
+Null queue and event arguments cannot reach atomic accesses or event copies; invalid transfers return zero, null initialization does nothing and a null emptiness query returns true. Unit cases verify a queued event survives invalid calls and the existing concurrent FIFO regression remains unchanged. This is not validation of arbitrary non-null pointers, uninitialized storage, or multi-producer/multi-consumer access. No filesystem retirement changes.
+
 ## Classifier API argument boundary
 
 Classification returns NULL before dereferencing a NULL context or scanning a NULL/empty filename. Initialization with a NULL context is a no-op. Disposable unit cases exercise invalid arguments and preserve valid-path routing and map size. This is a defensive C API guard, not validation of arbitrary non-NULL pointers or proof of filesystem containment. No mover or retirement changes.

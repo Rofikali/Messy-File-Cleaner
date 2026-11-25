@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCHER-RECORD-GUARD-01 (0/5; PR assignment pending)** | Alignment-independent watcher header decoding and malformed record rejection | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WATCHER-RECORD-GUARD-01 (1/5; PR #170 OPEN)** | Alignment-independent watcher header decoding and malformed record rejection | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **DISPATCH-BOUNDS-01 (1/5; #169 merged)** | 13/13 PR checks; merge `1f197e88832ffd0ddd67d911c81852c2f2fe289f` | 3/13 integrated checks passed, 10 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **WATCHER-ROOT-TYPE-01 (1/5; #168 merged)** | 14/14 PR checks; merge `281d67cf3efd35b82560db43599ca16dce436288` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **ROOT-OUTPUT-DIAGNOSTIC-01 (1/5; #167 merged)** | 13/13 PR checks; merge `d615e057e3cac2131820f5278a96dce36853e685` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

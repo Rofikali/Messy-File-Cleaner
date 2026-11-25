@@ -449,7 +449,9 @@
       "id": "WATCHER-RECORD-GUARD-01",
       "title": "Decode watcher headers safely and reject malformed event names",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        170
+      ],
       "summary": "Aligned local header copy, malformed record and name guards, test-only synthetic decoder regression. Local tests NOT RUN."
     }
   ]

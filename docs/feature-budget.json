@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "a64bd7ef3207f5684cd66f5c492fa3d060f1baa5",
+  "snapshot_main_sha": "c616e54e4f2df036b2ef94dd6d073c877298082c",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "HASHMAP-CAPACITY-CONSISTENCY-01",
+  "active_feature_id": "CONFIG-INIT-NULL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -692,11 +692,21 @@
     {
       "id": "HASHMAP-CAPACITY-CONSISTENCY-01",
       "title": "Prevent hash-map insertion beyond declared capacity",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         194
       ],
-      "summary": "PR #194 registered (1/5); hash-map insertion capacity guard and full-map regression; local tests NOT RUN; exact-head CI pending."
+      "summary": "PR #194 merged; 13/13 exact-head checks passed; 12/13 integrated-main checks passed at inspection; 1 not passed at inspection; manual acceptance NOT RUN.",
+      "last_merged_pr": 194,
+      "merge_sha": "c616e54e4f2df036b2ef94dd6d073c877298082c",
+      "tested_head_sha": "a84d7ecc52d24b8c06b84e155a483fa0784bebd5"
+    },
+    {
+      "id": "CONFIG-INIT-NULL-01",
+      "title": "Guard configuration initialization and verify scalar reset preserves routes",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "C17 null initialization guard and scalar reset regression; local tests NOT RUN; CI pending."
     }
   ]
 }

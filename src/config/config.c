@@ -297,6 +297,8 @@ static int load_config_into(const char *path, Config *cfg)
 
 void init_config(Config *cfg)
 {
+    if (!cfg)
+        return;
     config_apply_defaults(cfg);
 }
 

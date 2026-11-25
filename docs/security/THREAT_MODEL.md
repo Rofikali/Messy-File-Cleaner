@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Configuration initialization boundary
+
+Configuration initialization returns immediately for NULL and resets only scalar defaults for a valid context. Regression covers NULL initialization/cleanup and preservation of caller-owned populated extension mappings during scalar reset. This does not validate arbitrary pointers or authorize changed ownership or filesystem policy.
+
 ## Hash-map insertion capacity consistency
 
 An unused slot encountered with size equal to capacity is rejected before mutation, preventing the size count from exceeding capacity. Unit tests compare the unchanged backing-storage bytes on contradictory metadata and verify normal full-map rejection and existing-key replacement. This does not establish that arbitrary caller-owned metadata, pointer lifetime or storage extent is valid; no ABI or filesystem-policy change.

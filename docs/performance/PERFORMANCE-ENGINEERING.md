@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Scanner reference comparison:** [baseline](SCANNER_REFERENCE_BASELINE.md) separates small bounded exact-set traversal comparison from exhausted BENCH-SCALE-01; no scale dispatch, representative throughput or production backend change.
+
 **String local evidence:** [extension baseline](STRING_EXTENSION_BASELINE.md) records three C17 Release samples per mode/prefix, standalone environment and exact source hashes; no full CMake local run, statistical significance or whole-program speed claim.
 
 **String differential checks:** [extension baseline](STRING_EXTENSION_BASELINE.md) separates exhaustive untimed correctness checks from existing timed classification samples; no speed claim or Unicode normalization.

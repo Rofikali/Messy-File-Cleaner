@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "28938afeaaa218e2f808af3afabcd0f815b20840",
+  "snapshot_main_sha": "63cfa8af42a4e5407fed039b3b1c2bf3aedf0c2a",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "STRING-EVAL-01",
+  "active_feature_id": "LINUX-SCANNER-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -881,16 +881,25 @@
     {
       "id": "STRING-EVAL-01",
       "title": "Bounded classifier extension string-processing evaluation",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         218,
         219,
         220
       ],
-      "summary": "PR #220 registered (3/5); #219 merged, 13/13 returned exact-head jobs, C17 Release 61/61 tests passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Exact-blob standalone C11/C17/C23 and ASan/UBSan PASS; evidence-only, docs CI pending; production unchanged.",
-      "last_merged_pr": 219,
-      "merge_sha": "28938afeaaa218e2f808af3afabcd0f815b20840",
-      "tested_head_sha": "6cce547f728d7c63d6a74f8aa2b9f9d32f0cf140"
+      "summary": "PR #220 merged, 13/13 returned exact-head jobs; FCJ4 TSan/integrated-main CI NOT VERIFIED. Scoped evaluation DONE 3/5; standalone exact-blob evidence retained; production libc classifier unchanged.",
+      "last_merged_pr": 220,
+      "merge_sha": "63cfa8af42a4e5407fed039b3b1c2bf3aedf0c2a",
+      "tested_head_sha": "a421c307d31b3b167e675f85b57847e37d6ef033"
+    },
+    {
+      "id": "LINUX-SCANNER-EVAL-01",
+      "title": "Bounded Linux scanner reference traversal evaluation",
+      "status": "ACTIVE",
+      "prs": [
+        221
+      ],
+      "summary": "PR #221 registered (1/5); first test-only scanner versus nftw physical traversal reference; local tests NOT RUN at creation, CI pending; production unchanged."
     }
   ]
 }

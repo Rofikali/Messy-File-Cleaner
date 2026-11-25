@@ -1,0 +1,87 @@
+name: Native scanner benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: Disposable fixture files
+        type: choice
+        options:
+          - "1000"
+          - "5000"
+          - "10000"
+        default: "5000"
+        required: true
+      runs:
+        description: Measured repetitions (one additional warmup)
+        type: choice
+        options:
+          - "3"
+          - "5"
+          - "10"
+        default: "5"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  native-scanner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      SCAN_FILES: ${{ inputs.files }}
+      SCAN_RUNS: ${{ inputs.runs }}
+      TMPDIR: ${{ runner.temp }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate workload and configure portable C17 Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$SCAN_FILES" in 1000|5000|10000) ;; *) exit 2 ;; esac
+          case "$SCAN_RUNS" in 3|5|10) ;; *) exit 2 ;; esac
+          df -h "$TMPDIR"
+          df -i "$TMPDIR"
+          cmake -S . -B build/native-bench -DCMAKE_BUILD_TYPE=Release -DFC_C_STANDARD=17 -DBUILD_TESTING=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+          cmake --build build/native-bench --target scanner-benchmark --parallel 2
+
+      - name: Record provenance and run read-only scanner
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p benchmark-results/native-scanner
+          {
+            printf 'commit=%s\n' "$(git rev-parse HEAD)"
+            printf 'run_id=%s\nrun_attempt=%s\n' "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
+            printf 'files=%s\nruns=%s\n' "$SCAN_FILES" "$SCAN_RUNS"
+            uname -srmo
+            lscpu | grep -E '^Architecture:|^CPU\(s\):|^Model name:' || true
+            grep '^MemTotal:' /proc/meminfo
+            stat -f -c 'filesystem=%T' "$TMPDIR"
+            printf 'soft_nofile=%s\n' "$(ulimit -n)"
+            cmake --version | head -n 1
+            python3 --version
+            grep -E '^(CMAKE_BUILD_TYPE|FC_C_STANDARD|CMAKE_C_COMPILER|CMAKE_C_FLAGS|CMAKE_C_FLAGS_RELEASE):' build/native-bench/CMakeCache.txt
+            sha256sum build/native-bench/scanner-benchmark
+          } > benchmark-results/native-scanner/provenance.txt
+          python3 tests/performance/benchmark_scanner.py \
+            --binary build/native-bench/scanner-benchmark \
+            --files "$SCAN_FILES" --runs "$SCAN_RUNS" \
+            > benchmark-results/native-scanner/report.json
+
+      - name: Upload successful benchmark evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-scanner-${{ inputs.files }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: benchmark-results/native-scanner/
+          if-no-files-found: error
+          retention-days: 30

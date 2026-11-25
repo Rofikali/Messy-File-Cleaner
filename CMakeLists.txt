@@ -613,6 +613,11 @@ if(BUILD_TESTING)
     tests/performance/scanner_benchmark.c src/scanner/scanner.c)
   target_include_directories(scanner-benchmark PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_options(scanner-benchmark PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes)
+  # Match the production target's portable Release hardening for this measurement.
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(scanner-benchmark PRIVATE -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=2)
+    target_link_options(scanner-benchmark PRIVATE -Wl,-z,relro,-z,now)
+  endif()
   add_test(NAME native_scanner_benchmark_smoke
     COMMAND ${Python3_EXECUTABLE}
             "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_scanner.py"

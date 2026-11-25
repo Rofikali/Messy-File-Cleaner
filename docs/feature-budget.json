@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "9766abd3e86bc8030416399a3db6e5d620efd1cf",
+  "snapshot_main_sha": "e46550f41b785d2a5a33de40e8890ca2a94afc27",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "BENCH-SCALE-01",
   "features": [
@@ -47,10 +47,10 @@
         133,
         184
       ],
-      "summary": "PRs #132/#133 merged Python enumeration baseline; native scanner benchmark resumes same budget with bounded 1..10000 disposable files, callback count, CPU/RSS and monotonic samples. Local tests NOT RUN; million-file and target-host evidence NOT RUN.",
-      "last_merged_pr": 133,
-      "merge_sha": "88ec4632e984b2164ce863bd2906e7d56b4465dd",
-      "tested_head_sha": "bc043f1abe2a59f6ae25ae78f97c91ad00e49ca3"
+      "summary": "PR #184 merged; 14/14 exact-head checks passed; 7/14 integrated-main checks passed, seven pending at inspection. Fourth PR slot for bounded manual-only native scanner provenance and matching Release hardening. Local tests NOT RUN; workflow NOT DISPATCHED; target-host and million-file evidence NOT RUN.",
+      "last_merged_pr": 184,
+      "merge_sha": "e46550f41b785d2a5a33de40e8890ca2a94afc27",
+      "tested_head_sha": "29de0c81c146ea5c4fc32f84083d5aa4c1d60f8f"
     },
     {
       "id": "CLI-INPUT-01",
@@ -609,7 +609,7 @@
       "prs": [
         183
       ],
-      "summary": "PR #183 merged; 13/13 exact-head checks passed; 5/13 integrated-main checks passed, eight pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #183 merged; 13/13 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 183,
       "merge_sha": "9766abd3e86bc8030416399a3db6e5d620efd1cf",
       "tested_head_sha": "52bd4e1f1b39bd7d61baa610c34166a9c8b97e73"

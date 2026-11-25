@@ -1,5 +1,6 @@
 #define _XOPEN_SOURCE 700
 #include <errno.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <ftw.h>
 #include <stdio.h>
@@ -16,6 +17,29 @@ static char dirs[DIRS][CAP], files[FILES][CAP], links[2][CAP];
 static unsigned char seen[FILES];
 static size_t visits;
 
+/* Linux procfs observer: own enumeration fd is consistently excluded by
+ * subtracting the same baseline. Separate from timed traversal samples. */
+static int observe_fds;
+static size_t baseline_fds, callback_peak_delta, observed_callbacks;
+
+static int count_fds(size_t *out)
+{
+    DIR *directory = opendir("/proc/self/fd");
+    if (!directory)
+        return -1;
+    size_t count = 0;
+    struct dirent *entry;
+    errno = 0;
+    while ((entry = readdir(directory)) != NULL)
+        if (strcmp(entry->d_name, ".") && strcmp(entry->d_name, ".."))
+            ++count;
+    int saved = errno;
+    if (closedir(directory) != 0 || saved != 0)
+        return -1;
+    *out = count;
+    return 0;
+}
+
 static int record(const char *path)
 {
     for (size_t i = 0; i < FILES; ++i)
@@ -23,6 +47,19 @@ static int record(const char *path)
         {
             if (seen[i])
                 break;
+            if (observe_fds)
+            {
+                size_t now;
+                if (count_fds(&now) != 0 || now < baseline_fds)
+                {
+                    errno = EIO;
+                    return -1;
+                }
+                size_t delta = now - baseline_fds;
+                if (delta > callback_peak_delta)
+                    callback_peak_delta = delta;
+                ++observed_callbacks;
+            }
             seen[i] = 1;
             ++visits;
             return 0;
@@ -70,6 +107,38 @@ static int sample(const char *root, int reference, int deep, int run)
     return 0;
 }
 
+/* Only callback-visible high water, not a continuous FD trace. Verify
+ * baseline restoration after each traversal, with no timing claims. */
+static int descriptor_sample(const char *root, int reference, int deep, int budget)
+{
+    size_t after;
+    if (count_fds(&baseline_fds) != 0)
+        return -1;
+    memset(seen, 0, sizeof seen);
+    visits = 0;
+    callback_peak_delta = 0;
+    observed_callbacks = 0;
+    observe_fds = 1;
+    int rc = reference ? nftw(root, reference_callback, budget, FTW_PHYS)
+                       : scan_directory(root, record, NULL);
+    observe_fds = 0;
+    if (count_fds(&after) != 0 || after != baseline_fds ||
+        rc != 0 || visits != FILES || observed_callbacks != FILES)
+        return -1;
+    for (size_t i = 0; i < FILES; ++i)
+        if (!seen[i])
+            return -1;
+    /* Our scanner retains every ancestor DIR until unwind. nftw's budget
+     * is reported, not asserted as a process-wide descriptor guarantee. */
+    if (!reference && callback_peak_delta != (deep ? DIRS + 1U : 2U))
+        return -1;
+    printf("descriptor layout=%s mode=%s budget=%d callbacks=%zu baseline=%zu after=%zu callback_peak_delta=%zu\n",
+           deep ? "deep" : "wide", reference ? "nftw" : "scanner",
+           reference ? budget : 0, visits, baseline_fds, after,
+           callback_peak_delta);
+    return 0;
+}
+
 static int fixture(int deep)
 {
     char root[] = "/tmp/fc-scanner-eval-XXXXXX";
@@ -108,6 +177,12 @@ static int fixture(int deep)
     for (int run = 1; run <= RUNS; ++run)
         if (sample(root, run % 2, deep, run) != 0 ||
             sample(root, !(run % 2), deep, run) != 0)
+            goto cleanup;
+    if (descriptor_sample(root, 0, deep, 0) != 0)
+        goto cleanup;
+    const int budgets[] = {1, 4, 16};
+    for (size_t i = 0; i < sizeof budgets / sizeof budgets[0]; ++i)
+        if (descriptor_sample(root, 1, deep, budgets[i]) != 0)
             goto cleanup;
     result = 0;
 cleanup:

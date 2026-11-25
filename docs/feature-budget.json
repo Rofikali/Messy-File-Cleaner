@@ -840,7 +840,7 @@
       "prs": [
         206
       ],
-      "summary": "PR #206 registered (1/5); test-only bounded queue baseline; local tests NOT RUN; exact-head CI pending; no speedup claim."
+      "summary": "PR #206 registered (1/5); standalone four-blob-matched C17 baseline PASS (196608 verified timed pairs; median 62.475 ns/pair, no speedup claim); full local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

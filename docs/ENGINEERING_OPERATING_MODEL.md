@@ -1,5 +1,7 @@
 # Seven-Level Engineering, Security, CTO and Business Operating Model
 
+**Upstream review lenses:** [Reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) applies L1–L7, CISSP, Linux/SRE, CCIE, CA, MBA, management and legal questions proportionately. Agents record evidence and accountable maintenance, not independent certification or legal approval.
+
 **Status:** Review method; not a certificate, personnel hierarchy, auto-merge policy, or authority to deploy. Applies to Messy-File-Cleaner, a **local Linux/POSIX C17 production tool** with isolated Rust test support. It is not IMGENGINE's Rust API / Nuxt / SaaS architecture.
 
 ## Feature progression and fiduciary risk (2026-11-21)

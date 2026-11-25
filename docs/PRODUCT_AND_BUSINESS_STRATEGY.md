@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Product, Business and Engineering Strategy
 
+**Build versus reuse:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md) requires comparable-horizon TCO across integration, testing, compliance, maintenance, operations and opportunity cost. Free acquisition is not zero TCO. Owner license decision and any spend or commercial commitments remain separate.
+
 **Status: hypotheses and decision framework, not customer validation, prices, approved monetization, or launch.** Reviewed C17 CLI + test-only Rust at `main` `559ba1e` on 2026-11-16.
 
 ## Advanced product hypotheses and financial gate (2026-11-22)

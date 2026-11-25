@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Documentation Map and Authority
 
+**Owner-approved upstream-first policy (2026-11-25):** Follow [reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](upstream/UPSTREAM_MASTER_PLAN.md). Prefer supported Linux/POSIX APIs and mature compatible components; retain working code unless comparative evidence justifies change. External source imports and new third-party dependencies are BLOCKED pending explicit owner license decision and component acceptance. C17, C11/C23 CI, FS-01B/REL-01, no-spend and five-PR constraints remain binding.
+
 > **Current owner governance (23 November 2026):** [Zero-human-review autopilot PR workflow, branch ruleset, and documentation reconciliation](AUTOPILOT_ZERO_REVIEW_AND_DOC_SYNC.md) defines the ordinary PR-review and merge policy. [Importable main ruleset JSON](../.github/rulesets/autopilot-main-no-human-review.json) does not become active simply by committing it.
 
 See [hourly autopilot continuation and recovery](AUTOPILOT_EXECUTION_CONTINUATION.md) for exact handoff fields, no-code fallback, scheduler-vs-CI distinction, and L1–L7/security/Linux/network/finance gates. The separate ChatGPT task controls the actual recurrence.

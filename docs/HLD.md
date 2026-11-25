@@ -1,5 +1,7 @@
 # File Cleaner System — High-Level Design (HLD) (Architecture + Evolution Ready)
 
+**Proposed upstream architecture (2026-11-25):** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md) retains domain engine and C API/ABI direction; use internal adapters only for concrete accepted candidates. No kernel module, custom kernel, mandatory privilege, production ABI or destructive backend introduced.
+
 ---
 
 # 1. Overview

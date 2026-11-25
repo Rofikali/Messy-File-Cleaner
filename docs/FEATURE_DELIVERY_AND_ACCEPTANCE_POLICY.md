@@ -1,5 +1,7 @@
 # Five-PR Feature Delivery and Acceptance — Messy-File-Cleaner
 
+**Upstream-first owner amendment (2026-11-25):** [Reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](upstream/UPSTREAM_MASTER_PLAN.md) govern upstream candidate intake. License and component review precede imports; proposed stages do not reset consumed PR budgets. Existing selector and gates unchanged.
+
 ## Cross-contributor execution contract (24 November 2026)
 
 Every authorized human or agent must reconcile live GitHub main, all open and recently merged/closed PRs regardless of author, existing branches, exact-head/base CI and the feature ledger before selecting work. Resume existing eligible work instead of duplicating it. Manual `go ahead` and hourly execution coexist; changes by other contributors are discovered on the next hourly poll, not an instant webhook. Five opened PRs per stable feature ID across all authors; same-PR fixes do not consume a slot. Update AGENTS, skills/SKILLS, README, next and affected architecture/security/CI/SRE docs in the same PR; mark unchanged families N/A. Review honestly and merge only with real gates satisfied. If checkout fails, attempt concrete GitHub connector operations; report the actual failed operation/error if blocked. A completed scheduled invocation is not evidence of engineering progress. Preserve filesystem safety and release blocks.

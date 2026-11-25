@@ -2,7 +2,7 @@
 
 ## Shared root path normalization
 
-Scanner and watcher share an internal static-inline lexical helper that allocates an owned root copy and removes trailing slashes only. NULL and empty inputs fail with EINVAL; all-slash roots reduce to a single slash. Direct regression covers absolute and relative paths, internal separators, dot components, literal backslash and spaces, input preservation and independent ownership. Existing scanner and watcher symlink regressions remain in place. This consolidation does not canonicalize paths, validate ancestors or close source-retirement races.
+CLI root preflight, scanner and watcher share an internal static-inline lexical helper that allocates an owned root copy and removes trailing slashes only. NULL and empty inputs fail with EINVAL; all-slash roots reduce to a single slash. Direct regression covers absolute and relative paths, internal separators, dot components, literal backslash and spaces, input preservation and independent ownership. Existing scanner and watcher symlink regressions remain in place. CLI dry-run tests exercise one to three trailing separators on symlink, regular-file and real-directory roots, checking rejection diagnostics, preserved fixture bytes and absence of output directories. CLI lstat/realpath and dangerous-root policy remain unchanged; preflight does not establish race-free identity. This consolidation does not canonicalize paths, validate ancestors or close source-retirement races.
 
 ## Scanner root separator boundary
 

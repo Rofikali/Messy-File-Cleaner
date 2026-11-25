@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "8f1c9b1676dfa3754cb65be955888d16d34e6e64",
+  "snapshot_main_sha": "bf78092e018077ca8f5c9371f8c0a5afaebdd8e9",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "ROOT-PATH-SHARED-01",
+  "active_feature_id": "CLI-ROOT-SHARED-01",
   "features": [
     {
       "id": "PERF-01",
@@ -544,11 +544,21 @@
     {
       "id": "ROOT-PATH-SHARED-01",
       "title": "Share scanner and watcher lexical root path normalization",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         178
       ],
-      "summary": "Internal static-inline owned root copy; direct lexical, invalid-input and ownership regression; existing symlink tests retained. Local tests NOT RUN."
+      "summary": "PR #178 merged; 13/13 exact-head checks passed; 1/13 integrated-main checks passed, twelve pending at inspection. Manual acceptance NOT RUN.",
+      "last_merged_pr": 178,
+      "merge_sha": "bf78092e018077ca8f5c9371f8c0a5afaebdd8e9",
+      "tested_head_sha": "c6813cc7bc2ca58172d61f2a0b682a4bd25303d6"
+    },
+    {
+      "id": "CLI-ROOT-SHARED-01",
+      "title": "Use shared root path normalization in CLI preflight",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Remove third duplicate root normalization; existing CLI harness covers trailing separators, rejection and source preservation. Local tests NOT RUN."
     }
   ]
 }

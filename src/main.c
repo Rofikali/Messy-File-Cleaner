@@ -22,6 +22,7 @@ _Static_assert(ATOMIC_INT_LOCK_FREE == 2, "signal handler requires lock-free ato
 #include "core/context.h"
 #include "config/config.h"
 #include "utils/hashmap.h"
+#include "utils/root_path.h"
 #include "journal/journal.h"
 
 #define DEFAULT_JOURNAL_PATH "journal/move.log"
@@ -351,13 +352,9 @@ static int validate_root_and_outputs(CliOptions *opts, Config *cfg,
 
     *canonical_root_out = NULL;
 
-    char *root_argument = strdup(opts->root);
+    char *root_argument = fc_copy_root_path(opts->root);
     if (!root_argument)
         return -1;
-    size_t root_argument_length = strlen(root_argument);
-    while (root_argument_length > 1 &&
-           root_argument[root_argument_length - 1] == '/')
-        root_argument[--root_argument_length] = '\0';
 
     struct stat root_lstat;
     if (lstat(root_argument, &root_lstat) != 0)

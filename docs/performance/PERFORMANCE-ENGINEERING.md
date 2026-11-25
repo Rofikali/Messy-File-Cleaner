@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Controlled hash-map capacity:** [baseline](HASHMAP_BASELINE.md) separates shipped default mapping set from synthetic full-capacity stress, alternates capacity order and reports lookup timings and logical storage. Not a real workload distribution or end-to-end speedup.
+
 **Hash-map evidence:** [baseline](HASHMAP_BASELINE.md) distinguishes hits and misses at synthetic table occupancies; record all samples, size, timing overhead, compiler and key distribution. No scale-benchmark dispatch or production speedup claim.
 
 **Affinity evidence:** [queue baseline](QUEUE_BASELINE.md) supports optional explicit Linux CPU IDs for test-only original and padded layouts; report topology, mask, scheduling and all samples. Pinning is not isolation or a guarantee of repeatability.

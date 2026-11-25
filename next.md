@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **MEMORY-POOL-EVAL-01 (1/5 prior opened; second PR candidate)** | Owned path allocation versus bounded test-only batch arena | #214 exact-head CI PASS; local comparison NOT RUN at creation; CI pending; no production allocator change; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **MEMORY-POOL-EVAL-01 (2/5; PR #215 OPEN (draft))** | Owned path allocation versus bounded test-only batch arena | #214 exact-head CI PASS; local comparison NOT RUN at creation; CI pending; no production allocator change; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **HASHMAP-EVAL-01 (4/5; #213 merged)** | 14/14 exact-head checks; classifier and collision smoke PASS; existing 64 slots retained | Integrated-main CI NOT VERIFIED; representative performance and hostile-key resistance NOT established |
 | **DONE** | **QUEUE-UPSTREAM-EVAL-01 (4/5; #209 merged)** | 14/14 exact-head/main; merge `a31948068067fbf62437404808371673a141be80`; original queue retained | Padding inconclusive; representative host/ARM64/counters/TSan NOT RUN |
 | **DONE** | **SCANNER-SPECIAL-FILE-01 (1/5; #205 merged)** | 13/13 exact-head checks; merge `8e9ca9eaec9cf755b7afaae8fd9b89bfc2c3ed6a` | 13/13 integrated-main checks passed at inspection; device-node/manual acceptance NOT RUN |

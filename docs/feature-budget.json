@@ -868,9 +868,10 @@
       "title": "Bounded owned lexical path allocation evaluation",
       "status": "ACTIVE",
       "prs": [
-        214
+        214,
+        215
       ],
-      "summary": "PR #214 merged, 14/14 exact-head jobs; C17 Release path smoke and 59/59 tests passed; integrated-main CI NOT VERIFIED. Second bounded arena comparison candidate; local tests NOT RUN, CI pending; production allocator retained.",
+      "summary": "PR #215 registered (2/5); #214 merged, 14/14 exact-head jobs; C17 Release path smoke and 59/59 tests passed; integrated-main CI NOT VERIFIED. Bounded arena comparison; local tests NOT RUN at creation; CI pending; production allocator retained.",
       "last_merged_pr": 214,
       "merge_sha": "de5baf9d09d4de48705d9f58d69cf1a9865ecd4f",
       "tested_head_sha": "9e79f75109674c2eb9c2a438d60852d96d91c370"

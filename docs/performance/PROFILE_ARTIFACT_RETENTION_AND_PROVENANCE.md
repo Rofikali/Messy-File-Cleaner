@@ -30,7 +30,7 @@ The current branch intentionally does **not** delete or rewrite either tracked a
 
 ## Native scanner evidence
 
-The manual-only native scanner workflow retains only successful JSON reports and selected hosted-runner provenance for 30 days. It uses generated disposable inputs, exact Git SHA and binary SHA-256, bounded inputs and timeout. It does not upload raw compile commands, profiles or user data; runner measurements do not establish target-host performance or release readiness. No dispatch is implied by adding the workflow.
+The manual-only native scanner workflow retains only successful JSON reports and selected hosted-runner provenance for 30 days. It uses generated disposable inputs, exact Git SHA and binary SHA-256, bounded inputs and timeout. The final feature slot adds independent saved-report checks for matching binary hash, workload, sample count and derived statistics before upload. This is a consistency check, not an artifact signature. It does not upload raw compile commands, profiles or user data; runner measurements do not establish target-host performance or release readiness. No dispatch is implied by adding the workflow.
 
 ## Technical follow-up
 

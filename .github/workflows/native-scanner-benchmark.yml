@@ -71,12 +71,24 @@ jobs:
             cmake --version | head -n 1
             python3 --version
             grep -E '^(CMAKE_BUILD_TYPE|FC_C_STANDARD|CMAKE_C_COMPILER|CMAKE_C_FLAGS|CMAKE_C_FLAGS_RELEASE):' build/native-bench/CMakeCache.txt
+            compiler=$(sed -n 's/^CMAKE_C_COMPILER:[^=]*=//p' build/native-bench/CMakeCache.txt)
+            test -n "$compiler"
+            "$compiler" --version
             sha256sum build/native-bench/scanner-benchmark
           } > benchmark-results/native-scanner/provenance.txt
           python3 tests/performance/benchmark_scanner.py \
             --binary build/native-bench/scanner-benchmark \
             --files "$SCAN_FILES" --runs "$SCAN_RUNS" \
             > benchmark-results/native-scanner/report.json
+
+      - name: Verify report before artifact upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/performance/benchmark_scanner.py \
+            --binary build/native-bench/scanner-benchmark \
+            --files "$SCAN_FILES" --runs "$SCAN_RUNS" \
+            --verify-report benchmark-results/native-scanner/report.json
 
       - name: Upload successful benchmark evidence
         uses: actions/upload-artifact@v4

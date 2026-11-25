@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "0bd06059ae41cf4e909d7ab230697e8b63018fdf",
+  "snapshot_main_sha": "de5baf9d09d4de48705d9f58d69cf1a9865ecd4f",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "MEMORY-POOL-EVAL-01",
   "features": [
@@ -868,9 +868,13 @@
       "title": "Bounded owned lexical path allocation evaluation",
       "status": "ACTIVE",
       "prs": [
-        214
+        214,
+        215
       ],
-      "summary": "PR #214 registered (1/5); native bounded owned lexical path allocation baseline; local tests NOT RUN at creation, CI pending; no production allocator change."
+      "summary": "PR #215 registered (2/5); #214 merged, 14/14 exact-head jobs; C17 Release path smoke and 59/59 tests passed; integrated-main CI NOT VERIFIED. Bounded arena comparison; local tests NOT RUN at creation; CI pending; production allocator retained.",
+      "last_merged_pr": 214,
+      "merge_sha": "de5baf9d09d4de48705d9f58d69cf1a9865ecd4f",
+      "tested_head_sha": "9e79f75109674c2eb9c2a438d60852d96d91c370"
     }
   ]
 }

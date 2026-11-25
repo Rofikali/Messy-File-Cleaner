@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Arena acceptance:** [path allocation](performance/PATH_ALLOCATION_BASELINE.md) requires exact-fit and exhausted/short-buffer rejection without mutation, output and live-copy independence, balanced successful allocations/frees, cleared borrowed pointers before reset and bounded smoke. No production ownership change.
+
 **Memory baseline acceptance:** [path allocation](performance/PATH_ALLOCATION_BASELINE.md) verifies every owned path, independent live copies, balanced successful joins/frees and bounded fixtures. No real filesystem access, allocator replacement or RSS claim.
 
 **Collision acceptance:** [baseline](performance/HASHMAP_BASELINE.md) requires bounded fixture discovery, exact wraparound placement at 64 slots, full-table rejection and update preservation, verified values/misses and bounded smoke. No production or ABI changes.

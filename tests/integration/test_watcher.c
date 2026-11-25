@@ -147,13 +147,13 @@ int main(void)
     atomic_init(&ctx.metrics.watcher_idle_polls, 0);
     test_event_records();
 
-    char missing[] = "/tmp/fc-watcher-missing-directory";
+    (void)snprintf(test_root, sizeof(test_root), "/tmp/fc-watcher-XXXXXX");
+    assert(mkdtemp(test_root) != NULL);
+    char missing[256];
+    (void)snprintf(missing, sizeof(missing), "%s/missing", test_root);
     errno = 0;
     assert(start_watcher(missing, &ctx) == -1);
     assert(errno == ENOENT);
-
-    (void)snprintf(test_root, sizeof(test_root), "/tmp/fc-watcher-XXXXXX");
-    assert(mkdtemp(test_root) != NULL);
 
     /* Exercise direct watcher registration without starting worker threads.
      * With running cleared, even an incorrectly accepted watch cannot hang. */
@@ -190,7 +190,16 @@ int main(void)
 
     pthread_t watcher;
     assert(pthread_create(&watcher, NULL, watcher_entry, NULL) == 0);
-    sleep_milliseconds(50);
+    /* An observed idle timeout proves registration and poll-loop entry.
+     * Avoid a fixed startup sleep that can race a slow CI scheduler. */
+    for (int i = 0; i < 5000 &&
+         atomic_load(&ctx.metrics.watcher_idle_polls) == 0 &&
+         atomic_load(&ctx.watcher_error) == 0; ++i)
+        sleep_milliseconds(1);
+    assert(atomic_load(&ctx.watcher_error) == 0);
+    assert(atomic_load(&ctx.metrics.watcher_idle_polls) > 0);
+    assert(atomic_load(&ctx.metrics.events_seen) == 0);
+    assert(atomic_load(&ctx.metrics.events_enqueued) == 0);
 
     char file_path[256];
     (void)snprintf(file_path, sizeof(file_path), "%s/new-file.txt", test_root);

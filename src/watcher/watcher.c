@@ -223,7 +223,11 @@ int start_watcher(const char *path, AppContext *ctx)
             break;
         }
         if (ready == 0)
+        {
+            atomic_fetch_add_explicit(&ctx->metrics.watcher_idle_polls, 1,
+                                      memory_order_relaxed);
             continue;
+        }
         if (descriptor.revents & (POLLERR | POLLHUP | POLLNVAL))
         {
             status = -1;

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Memory baseline acceptance:** [path allocation](performance/PATH_ALLOCATION_BASELINE.md) verifies every owned path, independent live copies, balanced successful joins/frees and bounded fixtures. No real filesystem access, allocator replacement or RSS claim.
+
 **Collision acceptance:** [baseline](performance/HASHMAP_BASELINE.md) requires bounded fixture discovery, exact wraparound placement at 64 slots, full-table rejection and update preservation, verified values/misses and bounded smoke. No production or ABI changes.
 
 **Classifier capacity acceptance:** [baseline](performance/HASHMAP_BASELINE.md) requires every mixed-path classification and case count verified, unchanged map size, same fixture and insertion order across capacities, bounded smoke and no production change.

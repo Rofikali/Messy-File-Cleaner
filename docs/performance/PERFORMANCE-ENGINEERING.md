@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Path allocation baseline:** [measurement](PATH_ALLOCATION_BASELINE.md) distinguishes requested bytes and live payload from actual allocator overhead/RSS, with bounded owned copies of real lexical path helper outputs. No timing threshold or allocator promotion.
+
 **Collision workload:** [baseline](HASHMAP_BASELINE.md) measures bounded fixed keys sharing slot 63 at 64 slots. Larger capacities reuse the same keys, not necessarily identical initial buckets; no timing threshold or production claim.
 
 **Classifier evaluation:** [hash-map baseline](HASHMAP_BASELINE.md) adds native classifier-plus-map mixed-path samples. Includes extraction and verification, not filesystem or whole application throughput; no timing threshold.

@@ -23,8 +23,31 @@ static void record_failure(int *status, int *saved_errno)
     if (*status == 0)
     {
         *status = -1;
-        *saved_errno = errno;
+        *saved_errno = errno ? errno : EIO;
     }
+}
+
+#ifdef FC_SCANNER_TESTING
+/* Single-threaded test hook; absent from production builds. */
+static int test_next_stat_error;
+
+void fc_test_fail_next_scanner_stat(int error)
+{
+    test_next_stat_error = error;
+}
+#endif
+
+static int inspect_entry(int fd, const char *name, struct stat *metadata)
+{
+#ifdef FC_SCANNER_TESTING
+    if (test_next_stat_error != 0)
+    {
+        errno = test_next_stat_error;
+        test_next_stat_error = 0;
+        return -1;
+    }
+#endif
+    return fstatat(fd, name, metadata, AT_SYMLINK_NOFOLLOW);
 }
 
 static char *join_path(const char *parent, const char *name)
@@ -154,8 +177,8 @@ int scan_directory(const char *path, event_handler_fn handler,
     {
         if (stop_signal && atomic_load_explicit(stop_signal, memory_order_relaxed) != 0)
         {
-            status = -1;
-            saved_errno = ECANCELED;
+            errno = ECANCELED;
+            record_failure(&status, &saved_errno);
             break;
         }
 
@@ -181,10 +204,7 @@ int scan_directory(const char *path, event_handler_fn handler,
             continue;
 
         struct stat metadata;
-        if (fstatat(dirfd(frame->directory),
-                    entry->d_name,
-                    &metadata,
-                    AT_SYMLINK_NOFOLLOW) != 0)
+        if (inspect_entry(dirfd(frame->directory), entry->d_name, &metadata) != 0)
         {
             /* A file disappearing during a scan is a normal race. */
             if (errno != ENOENT)
@@ -268,8 +288,8 @@ int scan_directory(const char *path, event_handler_fn handler,
         if (stop_signal && atomic_load_explicit(stop_signal, memory_order_relaxed) != 0)
         {
             free(child_path);
-            status = -1;
-            saved_errno = ECANCELED;
+            errno = ECANCELED;
+            record_failure(&status, &saved_errno);
             break;
         }
 
@@ -279,8 +299,8 @@ int scan_directory(const char *path, event_handler_fn handler,
         free(child_path);
         if (handler_status != 0)
         {
-            status = -1;
-            saved_errno = handler_errno ? handler_errno : EIO;
+            errno = handler_errno ? handler_errno : EIO;
+            record_failure(&status, &saved_errno);
             break;
         }
     }

@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Scanner failure reporting boundary
+
+Traversal retains the first observed failure errno; later callback failure or cancellation still stops traversal without masking an earlier discovery failure. An unset failure errno falls back to EIO. A single-threaded, test-only metadata failure hook exercises EACCES followed by EPERM, cancellation, or successful callback completion on disposable fixtures. This improves diagnostic integrity, not filesystem identity or rollback. The hook is not compiled into production.
+
 ## Scanner cancellation boundary
 
 Valid pre-cancelled scans return ECANCELED before opening the root; discovery rechecks cancellation immediately before file callback handoff. Input validation still takes precedence over cancellation. Disposable tests cover missing roots with and without cancellation, cancellation requested by the first callback, and source existence; known fixtures are removed on successful test completion. Checks are cooperative, not atomic with syscalls or callback execution, and do not undo queued work or establish source-retirement safety.

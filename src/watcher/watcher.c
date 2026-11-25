@@ -186,17 +186,32 @@ int start_watcher(const char *path, AppContext *ctx)
         return -1;
     }
 
+    /* A trailing separator can cause Linux to resolve a final symlink
+     * before IN_DONT_FOLLOW applies. Keep one slash for the root. */
+    char *root_path = strdup(path);
+    if (!root_path)
+        return -1;
+    size_t root_length = strlen(root_path);
+    while (root_length > 1 && root_path[root_length - 1] == '/')
+        root_path[--root_length] = '\0';
+
     int fd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (fd < 0)
+    {
+        int saved_errno = errno;
+        free(root_path);
+        errno = saved_errno;
         return -1;
+    }
 
     /* Enforce the final-component directory contract at watch registration. */
-    int watch_descriptor = inotify_add_watch(fd, path,
+    int watch_descriptor = inotify_add_watch(fd, root_path,
                                              WATCH_MASK | IN_ONLYDIR | IN_DONT_FOLLOW);
     if (watch_descriptor < 0)
     {
         int saved_errno = errno;
         close(fd);
+        free(root_path);
         errno = saved_errno;
         return -1;
     }
@@ -252,7 +267,7 @@ int start_watcher(const char *path, AppContext *ctx)
             break;
         }
 
-        if (process_event_buffer(buffer, (size_t)count, path, ctx) != 0)
+        if (process_event_buffer(buffer, (size_t)count, root_path, ctx) != 0)
         {
             if (atomic_load(&ctx->stop_signal) != 0 && errno == ECANCELED)
                 break;
@@ -274,6 +289,7 @@ int start_watcher(const char *path, AppContext *ctx)
         saved_errno = errno;
     }
 
+    free(root_path);
     if (status != 0)
     {
         atomic_store(&ctx->watcher_error, saved_errno ? saved_errno : EIO);

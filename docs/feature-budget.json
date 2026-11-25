@@ -854,9 +854,10 @@
       "status": "ACTIVE",
       "prs": [
         210,
-        211
+        211,
+        212
       ],
-      "summary": "PR #211 merged; 14/14 exact-head checks; integrated-main CI NOT VERIFIED. Third classifier evaluation candidate; local tests NOT RUN, CI pending; production 64 slots retained.",
+      "summary": "PR #212 registered (3/5); #211 14/14 exact-head jobs passed; integrated-main CI NOT VERIFIED. Native mixed-path classifier comparison; local tests NOT RUN at creation, CI pending; production 64 slots retained.",
       "last_merged_pr": 211,
       "merge_sha": "abe09bde25a551aa5308785a49837c62bd13a74d",
       "tested_head_sha": "70f047a16dd1c7283508c406c01c5c6d623b6028"

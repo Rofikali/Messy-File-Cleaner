@@ -152,7 +152,13 @@ static int load_config_into(const char *path, Config *cfg)
         {
             /* sscanf can include a newline in a bare key without '='. */
             if (fields == 1)
-                key[strcspn(key, " \t\r\n")] = '\0';
+            {
+                size_t token_length = 0;
+                while (key[token_length] &&
+                       !isspace((unsigned char)key[token_length]))
+                    token_length++;
+                key[token_length] = '\0';
+            }
             /* A recognized required setting without a value must not be ignored. */
             if (fields == 1 && (strcmp(key, "batch_size") == 0 ||
                                 strcmp(key, "worker_threads") == 0 ||

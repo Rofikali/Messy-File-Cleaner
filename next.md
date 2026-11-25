@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SCANNER-METADATA-EXHAUSTION-01 (0/5; pending PR registration)** | Scanner metadata resource exhaustion stop and descriptor-balance regression | Local tests NOT RUN; CI pending; opened-directory metadata fault not separately injected; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SCANNER-METADATA-EXHAUSTION-01 (1/5; PR #192 OPEN)** | Scanner metadata resource exhaustion stop and descriptor-balance regression | Local tests NOT RUN; CI pending; opened-directory metadata fault not separately injected; FS-01B/REL-01 blocked |
 | **DONE** | **WORKER-EVENT-VALIDATION-01 (1/5; #191 merged)** | 13/13 PR checks; merge `38258744768bcb0eef9f9ed8b969d6618297555e` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |
 | **DONE** | **SPSC-NULL-ARGUMENTS-01 (1/5; #190 merged)** | 13/13 PR checks; merge `4f53c0ed59a39ee68dbd8575ee7c1553f6a08a8f` | 11/13 integrated-main checks passed at inspection; 2 not passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **CLASSIFIER-API-VALIDATION-01 (1/5; #189 merged)** | 13/13 PR checks; merge `1af1dbebdcf369bce90b5d0a1cb432e6bac2ba47` | 13/13 integrated-main checks passed; manual acceptance NOT RUN |

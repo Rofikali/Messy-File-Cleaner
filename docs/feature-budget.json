@@ -680,8 +680,10 @@
       "id": "SCANNER-METADATA-EXHAUSTION-01",
       "title": "Stop scanner discovery on metadata resource exhaustion",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 metadata failure guards and disposable entry lookup regression; local tests NOT RUN; CI pending."
+      "prs": [
+        192
+      ],
+      "summary": "PR #192 registered (1/5); scanner metadata exhaustion guard and entry lookup regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

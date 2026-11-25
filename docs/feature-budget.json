@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "8ee0a76579ad021d454c4f966ca330c1a24fa78d",
+  "snapshot_main_sha": "a64bd7ef3207f5684cd66f5c492fa3d060f1baa5",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SCANNER-METADATA-EXHAUSTION-01",
+  "active_feature_id": "HASHMAP-CAPACITY-CONSISTENCY-01",
   "features": [
     {
       "id": "PERF-01",
@@ -679,15 +679,24 @@
     {
       "id": "SCANNER-METADATA-EXHAUSTION-01",
       "title": "Stop scanner discovery on metadata resource exhaustion",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         192,
         193
       ],
-      "summary": "PR #192 merged with 13/13 exact-head checks; 10/13 integrated-main checks passed at inspection; 3 not passed at inspection. PR #193 registered (2/5); opened-directory metadata regression; local tests NOT RUN; exact-head CI pending.",
-      "last_merged_pr": 192,
-      "merge_sha": "8ee0a76579ad021d454c4f966ca330c1a24fa78d",
-      "tested_head_sha": "48b3171914ce68564e8b65d6fb51d78dc274a75f"
+      "summary": "PRs #192 and #193 merged (2/5); both exact-head and integrated-main check sets 13/13 passed. Entry and opened-directory fault regressions covered; manual acceptance NOT RUN.",
+      "last_merged_pr": 193,
+      "merge_sha": "a64bd7ef3207f5684cd66f5c492fa3d060f1baa5",
+      "tested_head_sha": "c88bc432a97882889a6fbb580ad138350897b833"
+    },
+    {
+      "id": "HASHMAP-CAPACITY-CONSISTENCY-01",
+      "title": "Prevent hash-map insertion beyond declared capacity",
+      "status": "ACTIVE",
+      "prs": [
+        194
+      ],
+      "summary": "PR #194 registered (1/5); hash-map insertion capacity guard and full-map regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

@@ -70,6 +70,31 @@ int main(void)
     assert(invalid.entries == NULL && invalid.capacity == 0 && invalid.size == 0);
     assert(strcmp(hashmap_get(&map, ".jpg"), "Images/") == 0);
 
+    /* A contradictory full count with unused slots must not mutate storage. */
+    malformed = map;
+    malformed.size = malformed.capacity;
+    unsigned char snapshot[sizeof(entries)];
+    memcpy(snapshot, entries, sizeof(snapshot));
+    assert(hashmap_put(&malformed, ".missing", "Unexpected/") == -1);
+    assert(malformed.size == malformed.capacity);
+    assert(memcmp(snapshot, entries, sizeof(snapshot)) == 0);
+    assert(hashmap_get(&map, ".missing") == NULL);
+    assert(map.size == 3);
+
+    /* A genuinely full map still permits existing-key updates. */
+    HashMap full;
+    HashEntry full_entries[2];
+    hashmap_init(&full, full_entries, 2);
+    assert(hashmap_put(&full, ".a", "A/") == 0);
+    assert(hashmap_put(&full, ".b", "B/") == 0);
+    assert(full.size == full.capacity);
+    assert(hashmap_put(&full, ".c", "C/") == -1);
+    assert(hashmap_put(&full, ".a", "Updated/") == 0);
+    assert(full.size == full.capacity);
+    assert(strcmp(hashmap_get(&full, ".a"), "Updated/") == 0);
+    assert(strcmp(hashmap_get(&full, ".b"), "B/") == 0);
+    assert(hashmap_get(&full, ".c") == NULL);
+
     puts("hashmap tests passed");
     return 0;
 }

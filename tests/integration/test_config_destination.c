@@ -82,6 +82,30 @@ int main(void)
     assert_safe_diagnostic(path, "ext.j\tpg=Jpeg\n",
                            "config: invalid extension key\n");
 
+    /* All C whitespace separators must identify a malformed bare recognized
+       setting, including vertical tab and form feed. */
+    {
+        const char *keys[] = {"mode", "batch_size", "worker_threads", "idle_sleep_ms", NULL};
+        const char separators[] = {'\v', '\f'};
+        for (size_t k = 0; keys[k]; ++k)
+            for (size_t s = 0; s < sizeof(separators); ++s)
+            {
+                FILE *file = fopen(path, "w");
+                assert(file != NULL);
+                assert(fprintf(file, "batch_size=123\n%s%cunexpected\n", keys[k], separators[s]) > 0);
+                assert(fclose(file) == 0);
+                HashEntry entries[64];
+                Config cfg;
+                hashmap_init(&cfg.ext_map, entries, 64);
+                init_config(&cfg);
+                cfg.batch_size = 77;
+                assert(hashmap_put(&cfg.ext_map, ".png", "Existing") == 0);
+                assert(load_config(path, &cfg) != 0);
+                assert(cfg.batch_size == 77 && cfg.ext_map.size == 1);
+                assert(strcmp(hashmap_get(&cfg.ext_map, ".png"), "Existing") == 0);
+            }
+    }
+
     /* Reject invalid API arguments before opening the file or copying storage. */
     {
         HashEntry entries[64];

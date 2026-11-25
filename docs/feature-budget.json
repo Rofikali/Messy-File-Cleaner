@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "b5609887707e8b3dc5908512004abd85627d2681",
+  "snapshot_main_sha": "fb2cb86c0343f0f124d61ca384ef4d9ce1a0c065",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "BENCH-SCALE-01",
+  "active_feature_id": "CONFIG-BARE-WHITESPACE-01",
   "features": [
     {
       "id": "PERF-01",
@@ -41,7 +41,7 @@
     {
       "id": "BENCH-SCALE-01",
       "title": "Reproducible scaled dry-run resource baseline",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         132,
         133,
@@ -49,10 +49,10 @@
         185,
         186
       ],
-      "summary": "PR #185 merged; 14/14 exact-head checks passed; 7/14 integrated-main checks passed, seven pending at inspection. Final PR slot for report acceptance and compiler provenance. Local tests NOT RUN; workflow NOT DISPATCHED; measured target-host and million-file acceptance pending.",
-      "last_merged_pr": 185,
-      "merge_sha": "b5609887707e8b3dc5908512004abd85627d2681",
-      "tested_head_sha": "99266adeae0800cc70d5fa8bf25d086a7827f3e8"
+      "summary": "Final PR #186 merged; five slots exhausted. Five PR-head workflow families passed in prior invocation. Integrated main: CMake build and test matrix: success (run 45555323388); Performance benchmark artifacts: success (run 45555323277); Ubuntu 24.04 LTS validation: success (run 45555323273); Docker image build and runtime smoke tests: success (run 45555323355); Makefile developer workflow: success (run 45555323264); .github/workflows/native-scanner-benchmark.yml: failure (run 45555321743). Manual benchmark workflow NOT DISPATCHED; target-host and million-file measurement NOT RUN; no sixth PR.",
+      "last_merged_pr": 186,
+      "merge_sha": "fb2cb86c0343f0f124d61ca384ef4d9ce1a0c065",
+      "tested_head_sha": "4f4b4e923364205ffbf2e12aeb37cdcf6dcedb1c"
     },
     {
       "id": "CLI-INPUT-01",
@@ -615,6 +615,15 @@
       "last_merged_pr": 183,
       "merge_sha": "9766abd3e86bc8030416399a3db6e5d620efd1cf",
       "tested_head_sha": "52bd4e1f1b39bd7d61baa610c34166a9c8b97e73"
+    },
+    {
+      "id": "CONFIG-BARE-WHITESPACE-01",
+      "title": "Reject malformed bare configuration tokens separated by C whitespace",
+      "status": "ACTIVE",
+      "prs": [
+        187
+      ],
+      "summary": "PR #187 registered (1/5); C17 parser consistency and atomic negative regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

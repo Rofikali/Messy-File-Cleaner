@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **HASHMAP-OVERLAP-UPDATE-01 (0/5; pending PR registration)** | Existing-key borrowed-value overlap guard and C unit regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **HASHMAP-OVERLAP-UPDATE-01 (1/5; PR #188 OPEN)** | Existing-key borrowed-value overlap guard and C unit regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-BARE-WHITESPACE-01 (1/5; #187 merged)** | 13/13 PR checks; merge `969dfe5370c1c445538482ade93a85da11d5ba11` | Integrated main 9/13 passed, four pending at inspection; manual acceptance NOT RUN |
 | **PARTIAL** | **BENCH-SCALE-01 (5/5; #186 merged)** | Report acceptance and compiler provenance integrated; exhausted budget | Manual workflow NOT DISPATCHED; target-host and million-file acceptance NOT RUN; no sixth PR |
 | **DONE** | **SCANNER-RESOURCE-REGRESSION-01 (1/5; #183 merged)** | 13/13 PR checks; merge `9766abd3e86bc8030416399a3db6e5d620efd1cf` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

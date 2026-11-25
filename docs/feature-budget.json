@@ -632,8 +632,10 @@
       "id": "HASHMAP-OVERLAP-UPDATE-01",
       "title": "Support overlapping borrowed values in existing hash-map updates",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Existing-key memmove and alias regression; local tests NOT RUN; CI pending."
+      "prs": [
+        188
+      ],
+      "summary": "PR #188 registered (1/5); existing-key memmove and alias regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

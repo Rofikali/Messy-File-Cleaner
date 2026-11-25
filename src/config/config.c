@@ -13,7 +13,7 @@
 
 #include "config/config.h"
 
-#define LINE_MAX 256
+#define CONFIG_LINE_MAX 256
 #define CONFIG_MAX_WORKERS 16
 
 static int valid_destination_folder(const char *value)
@@ -122,7 +122,7 @@ static int load_config_into(const char *path, Config *cfg)
         return -1;
     }
 
-    char line[LINE_MAX];
+    char line[CONFIG_LINE_MAX];
 
     /* Read physical bytes, not C strings: embedded NUL must never hide
        trailing settings or make a malformed final line look valid. */

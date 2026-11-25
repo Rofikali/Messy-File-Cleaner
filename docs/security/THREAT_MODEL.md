@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Shared root path normalization
+
+Scanner and watcher share an internal static-inline lexical helper that allocates an owned root copy and removes trailing slashes only. NULL and empty inputs fail with EINVAL; all-slash roots reduce to a single slash. Direct regression covers absolute and relative paths, internal separators, dot components, literal backslash and spaces, input preservation and independent ownership. Existing scanner and watcher symlink regressions remain in place. This consolidation does not canonicalize paths, validate ancestors or close source-retirement races.
+
 ## Scanner root separator boundary
 
 The Linux scanner removes trailing root separators (preserving a single root slash) before O_NOFOLLOW directory opening. This avoids a trailing slash making a final symlink an intermediate component. Disposable tests cover one to three trailing separators on a root symlink and real directory, verify no rejected-root callbacks and unchanged discovered paths for valid roots. This does not reject ancestor symlinks or dot-component aliases, prove pathname identity, or close source-retirement races. Watcher registration now applies the equivalent separator normalization; see the watch registration boundary below.

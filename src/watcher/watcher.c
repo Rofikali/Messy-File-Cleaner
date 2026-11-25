@@ -13,6 +13,7 @@
 
 #include "core/thread_pool.h"
 #include "watcher/watcher.h"
+#include "utils/root_path.h"
 
 #define EVENT_BUF_LEN (1024U * (sizeof(struct inotify_event) + 16U))
 #define WATCH_MASK (IN_CREATE | IN_MOVED_TO | IN_DELETE_SELF | IN_MOVE_SELF | IN_UNMOUNT)
@@ -186,14 +187,9 @@ int start_watcher(const char *path, AppContext *ctx)
         return -1;
     }
 
-    /* A trailing separator can cause Linux to resolve a final symlink
-     * before IN_DONT_FOLLOW applies. Keep one slash for the root. */
-    char *root_path = strdup(path);
+    char *root_path = fc_copy_root_path(path);
     if (!root_path)
         return -1;
-    size_t root_length = strlen(root_path);
-    while (root_length > 1 && root_path[root_length - 1] == '/')
-        root_path[--root_length] = '\0';
 
     int fd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (fd < 0)

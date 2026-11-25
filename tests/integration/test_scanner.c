@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "scanner/scanner.h"
+#include "utils/root_path.h"
 
 static char found[8][PATH_MAX];
 static size_t found_count;
@@ -63,8 +64,38 @@ static void write_file(const char *path)
     assert(fclose(fp) == 0);
 }
 
+static void test_root_path_copy(void)
+{
+    const struct { const char *input; const char *expected; } cases[] = {
+        {"/", "/"}, {"///", "/"}, {"/tmp///", "/tmp"},
+        {"relative///", "relative"}, {"a//b///", "a//b"},
+        {"a/./", "a/."}, {"../", ".."}, {".", "."},
+        {"a\\b/", "a\\b"}, {"a b/", "a b"}
+    };
+    for (size_t i = 0; i < sizeof(cases) / sizeof(cases[0]); ++i)
+    {
+        char *copy = fc_copy_root_path(cases[i].input);
+        assert(copy != NULL);
+        assert(strcmp(copy, cases[i].expected) == 0);
+        assert(copy != cases[i].input);
+        free(copy);
+    }
+    char original[] = "mutable///";
+    char *copy = fc_copy_root_path(original);
+    assert(copy != NULL && strcmp(copy, "mutable") == 0);
+    assert(strcmp(original, "mutable///") == 0);
+    original[0] = 'M';
+    assert(strcmp(copy, "mutable") == 0);
+    free(copy);
+    errno = 0;
+    assert(fc_copy_root_path(NULL) == NULL && errno == EINVAL);
+    errno = 0;
+    assert(fc_copy_root_path("") == NULL && errno == EINVAL);
+}
+
 int main(void)
 {
+    test_root_path_copy();
     char root_template[] = "/tmp/fc-scan-root-XXXXXX";
     char outside_template[] = "/tmp/fc-scan-outside-XXXXXX";
     char *root = mkdtemp(root_template);

@@ -133,7 +133,8 @@ static int create_worker_thread(pthread_t *thread, void *(*entry)(void *),
 
 int notify_worker(AppContext *ctx, int worker_index)
 {
-    if (!ctx || worker_index < 0 || worker_index >= ctx->num_workers ||
+    if (!ctx || ctx->num_workers < 1 || ctx->num_workers > MAX_WORKERS ||
+        worker_index < 0 || worker_index >= ctx->num_workers ||
         ctx->efd[worker_index] < 0)
     {
         errno = EINVAL;
@@ -372,7 +373,7 @@ int start_workers(AppContext *ctx, int num_threads)
 
 int join_workers(AppContext *ctx)
 {
-    if (!ctx)
+    if (!ctx || ctx->num_workers < 0 || ctx->num_workers > MAX_WORKERS)
     {
         errno = EINVAL;
         return -1;

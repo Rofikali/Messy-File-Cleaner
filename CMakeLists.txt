@@ -527,6 +527,7 @@ if(BUILD_TESTING)
   target_compile_definitions(test_worker_lifecycle PRIVATE FC_TESTING)
   target_compile_options(test_worker_lifecycle PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME worker_lifecycle COMMAND test_worker_lifecycle)
+  set_tests_properties(worker_lifecycle PROPERTIES TIMEOUT 30)
 
   add_executable(test_watcher
     tests/integration/test_watcher.c

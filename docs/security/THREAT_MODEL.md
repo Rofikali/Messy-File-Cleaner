@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Worker lifecycle bounds
+
+Notification validates pool count and index before accessing descriptor arrays. Shutdown rejects counts outside 0..MAX_WORKERS before changing running state or joining threads. C regression covers negative and excessive counts, null contexts, invalid indexes and zero-worker shutdown. Invalid metadata rejection does not repair a corrupted live pool; callers must serialize lifecycle operations and preserve stable metadata. No new filesystem mutation or source-retirement guarantee.
+
 ## Watcher event record boundary
 
 Inotify headers are copied into aligned local storage before decoding; length checks precede name reads. Actionable non-directory create/move records reject empty, unterminated, slash-containing, dot and dot-dot names. Synthetic tests cover truncated and deliberately unaligned records, invalid names, overflow and invalidation errors, and a non-actionable directory event. The test entry point is compiled only into the watcher integration target. This is parser hardening, not proof of kernel event authenticity, root identity or filesystem retirement safety.

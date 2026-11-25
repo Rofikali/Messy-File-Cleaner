@@ -59,6 +59,33 @@ int main(void)
     atomic_init(&ctx.metrics.files_moved, 0);
     atomic_init(&ctx.metrics.move_failures, 0);
 
+    /* Invalid metadata must fail before indexing arrays or stopping the pool.
+     * No worker or descriptor is live in these negative cases. */
+    const int invalid_counts[] = {-1, MAX_WORKERS + 1};
+    for (size_t i = 0; i < sizeof(invalid_counts) / sizeof(invalid_counts[0]); ++i)
+    {
+        ctx.num_workers = invalid_counts[i];
+        ctx.efd[0] = -1;
+        errno = 0;
+        assert(notify_worker(&ctx, MAX_WORKERS) == -1 && errno == EINVAL);
+        errno = 0;
+        assert(notify_worker(&ctx, 0) == -1 && errno == EINVAL);
+        errno = 0;
+        assert(join_workers(&ctx) == -1 && errno == EINVAL);
+        assert(ctx.num_workers == invalid_counts[i]);
+        assert(atomic_load(&ctx.running) == 1);
+        assert(ctx.efd[0] == -1);
+    }
+    ctx.num_workers = 0;
+    errno = 0;
+    assert(notify_worker(NULL, 0) == -1 && errno == EINVAL);
+    errno = 0;
+    assert(join_workers(NULL) == -1 && errno == EINVAL);
+    errno = 0;
+    assert(notify_worker(&ctx, 0) == -1 && errno == EINVAL);
+    assert(join_workers(&ctx) == 0);
+    assert(atomic_load(&ctx.running) == 0);
+
     atomic_store(&ctx.running, 1);
     fc_test_fail_eventfd_after(0);
     errno = 0;
@@ -93,6 +120,10 @@ int main(void)
     errno = 0;
     assert(notify_worker(&ctx, 2) == -1);
     assert(errno == EINVAL);
+    errno = 0;
+    assert(notify_worker(&ctx, -1) == -1 && errno == EINVAL);
+    errno = 0;
+    assert(notify_worker(&ctx, MAX_WORKERS) == -1 && errno == EINVAL);
 
     /* Queue many items before notifying: one eventfd wake drains the queue. */
     for (int i = 0; i < 32; i++)

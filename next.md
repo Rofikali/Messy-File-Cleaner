@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Live reconciliation checkpoint:** PR #169 merged at `1f197e88832ffd0ddd67d911c81852c2f2fe289f`; 13/13 exact-head checks passed; 3/13 integrated-main checks passed, 10 pending at inspection. Current feature: WATCHER-RECORD-GUARD-01.
+> **Live reconciliation checkpoint:** PR #170 merged at `7a7913526e50a99b669f7cca7fb26d4cdf63fd1d`; 14/14 exact-head checks passed; 5/14 integrated-main checks passed, 9 pending at inspection. Current feature: WORKER-LIFECYCLE-BOUNDS-01.
 
 > **Handoff (2026-11-22; verified GitHub):** PR #143 AUTOPILOT-HANDOFF-01 **MERGED** at `80de73b465ede49eec0882846c50efc0cbdee254`, reviewed exact head `c2c232aa7aceebf26c776a01f403fd3ac0d8ff77`; CMake, Docker, Makefile and Ubuntu 24.04 workflows succeeded on the PR head and merge commit. Its offline selector check does NOT establish live GitHub state. PR #142 previously merged scanner identity checking, which does NOT close source-retirement TOCTOU. **PLAN-REPORT-01 PARTIAL:** PR #145 merged at `ac9fc87a91a665e2d0f09a3af79ee7f7ca310139` (tested head `4674ee4293c9c97c0c871fe6601b5aa33908119c`, five CI workflow families PASS); aggregate-only report, no per-file plan/conflicts. **CONFIG-MODE-01 DONE:** PR #146 merged at `d7adc17afa4c015f95ad016bb3817c133a682435` (tested head `43dafa1eb0699d38f0825a0423fc73b88372df6d`; four workflow families PASS). **CONFIG-NUMERIC-01 DONE:** PR #147 merged at `d839ad608c554d0c7715dc6264be6952ef07eccf` (tested head `03956c1828a31e375fe9971e65662b58c291d6a6`; four workflow families PASS). **CONFIG-LINE-01 DONE:** PR #148 merged at `3b32efbe8fad2047f3588fa51c907525a4e4dca4` (tested head `36383fd2ca31cba9489a7e88b530b29b1fd6298d`; four PR workflow families PASS). CONFIG-EXT-TRAIL-01 is historical. Manual owner Ubuntu/Compose, hostile filesystems, backups and power-loss acceptance NOT RUN; FS-01B P0 and REL-01 remain BLOCKED.
 >
@@ -10,8 +10,9 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCHER-RECORD-GUARD-01 (1/5; PR #170 OPEN)** | Alignment-independent watcher header decoding and malformed record rejection | Local tests NOT RUN; FS-01B/REL-01 blocked |
-| **DONE** | **DISPATCH-BOUNDS-01 (1/5; #169 merged)** | 13/13 PR checks; merge `1f197e88832ffd0ddd67d911c81852c2f2fe289f` | 3/13 integrated checks passed, 10 pending at inspection; manual acceptance NOT RUN |
+| **NOW — SAFE FEATURE SELECTION** | **WORKER-LIFECYCLE-BOUNDS-01 (0/5; PR assignment pending)** | Validate worker notification and shutdown array bounds; lifecycle regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **DONE** | **WATCHER-RECORD-GUARD-01 (1/5; #170 merged)** | 14/14 PR checks; merge `7a7913526e50a99b669f7cca7fb26d4cdf63fd1d` | 5/14 integrated checks passed, 9 pending at inspection; manual acceptance NOT RUN |
+| **DONE** | **DISPATCH-BOUNDS-01 (1/5; #169 merged)** | 13/13 PR checks; merge `1f197e88832ffd0ddd67d911c81852c2f2fe289f` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **WATCHER-ROOT-TYPE-01 (1/5; #168 merged)** | 14/14 PR checks; merge `281d67cf3efd35b82560db43599ca16dce436288` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **ROOT-OUTPUT-DIAGNOSTIC-01 (1/5; #167 merged)** | 13/13 PR checks; merge `d615e057e3cac2131820f5278a96dce36853e685` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **WORKER-DIAGNOSTIC-ESCAPE-01 (1/5; #166 merged)** | 13/13 PR checks; merge `0dc13282376056a1ef2b36e5222c94077f710bbd` | 13/13 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |

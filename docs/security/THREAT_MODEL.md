@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Scanner directory resource exhaustion
+
+Child-directory open and fdopendir failures with EMFILE, ENFILE or ENOMEM stop discovery and unwind owned frames, retaining the first observed failure. Other entry-specific failures keep their existing handling. Test-only child-open injection checks immediate and nested failures, exact attempt counts, Linux descriptor balance and subsequent successful scan. fdopendir-specific injection and actual operating-system limit exhaustion are not exercised by this test. No earlier callback rollback, universal descriptor bound or source-retirement guarantee.
+
 ## Scanner allocation failure boundary
 
 Path construction and frame-array growth failures terminate discovery rather than repeatedly allocating under resource pressure; first failure errno is retained, and all owned frames are unwound. A test-only one-shot frame-growth failure hook exercises initial allocation and growth beyond 16 frames on a disposable 20-level tree. Linux /proc/self/fd inventory checks descriptor balance after each failure and a subsequent successful scan. This does not roll back earlier callbacks, prove a universal memory bound, or establish source-retirement safety. The injection hook is absent from production.

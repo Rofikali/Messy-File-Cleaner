@@ -32,6 +32,21 @@ static void record_failure(int *status, int *saved_errno)
 /* Single-threaded test hook; absent from production builds. */
 static int test_next_stat_error;
 static int test_frame_growths_before_failure = -1;
+static int test_child_open_error;
+static int test_child_opens_before_failure;
+static unsigned int test_child_open_attempts;
+
+void fc_test_fail_scanner_child_open_after(int successful_opens, int error)
+{
+    test_child_open_error = error;
+    test_child_opens_before_failure = successful_opens;
+    test_child_open_attempts = 0;
+}
+
+unsigned int fc_test_scanner_child_open_attempts(void)
+{
+    return test_child_open_attempts;
+}
 
 void fc_test_fail_scanner_frame_growth_after(int successful_growths)
 {
@@ -100,11 +115,29 @@ static int push_frame(ScanFrame **frames,
     return 0;
 }
 
+static int is_resource_exhaustion(int error)
+{
+    return error == EMFILE || error == ENFILE || error == ENOMEM;
+}
+
 static int open_child_directory(int parent_fd, const char *name)
 {
-    return openat(parent_fd,
-                  name,
-                  O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+#ifdef FC_SCANNER_TESTING
+    ++test_child_open_attempts;
+    if (test_child_open_error != 0 && test_child_opens_before_failure == 0)
+    {
+        errno = test_child_open_error;
+        test_child_open_error = 0;
+        return -1;
+    }
+#endif
+    int fd = openat(parent_fd, name,
+                    O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+#ifdef FC_SCANNER_TESTING
+    if (fd >= 0 && test_child_open_error != 0 && test_child_opens_before_failure > 0)
+        --test_child_opens_before_failure;
+#endif
+    return fd;
 }
 
 int scan_directory(const char *path, event_handler_fn handler,
@@ -228,6 +261,8 @@ int scan_directory(const char *path, event_handler_fn handler,
                 {
                     errno = open_errno;
                     record_failure(&status, &saved_errno);
+                    if (is_resource_exhaustion(open_errno))
+                        break;
                 }
                 continue;
             }
@@ -258,6 +293,8 @@ int scan_directory(const char *path, event_handler_fn handler,
                 free(child_path);
                 errno = open_errno;
                 record_failure(&status, &saved_errno);
+                if (is_resource_exhaustion(open_errno))
+                    break;
                 continue;
             }
 

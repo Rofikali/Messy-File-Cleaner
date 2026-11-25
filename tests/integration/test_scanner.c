@@ -381,6 +381,35 @@ int main(void)
     assert(count_open_fds() == descriptors);
     assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
 
+    /* Fail the first child acquisition: at least two real child directories
+     * exist, so continuing after the failure would attempt another open. */
+    const int resource_errors[] = {EMFILE, ENFILE, ENOMEM};
+    for (size_t i = 0; i < sizeof(resource_errors) / sizeof(resource_errors[0]); ++i)
+    {
+        found_count = 0;
+        fc_test_fail_scanner_child_open_after(0, resource_errors[i]);
+        errno = 0;
+        assert(scan_directory(root, collect, NULL) == -1);
+        assert(errno == resource_errors[i]);
+        assert(fc_test_scanner_child_open_attempts() == 1);
+        assert(count_open_fds() == descriptors);
+    }
+
+    /* Fail after several successful opens to exercise nested-frame unwind. */
+    found_count = 0;
+    fc_test_fail_scanner_child_open_after(3, EMFILE);
+    errno = 0;
+    assert(scan_directory(root, collect, NULL) == -1);
+    assert(errno == EMFILE);
+    assert(fc_test_scanner_child_open_attempts() == 4);
+    assert(count_open_fds() == descriptors);
+
+    found_count = 0;
+    assert(scan_directory(root, collect, NULL) == 0);
+    assert(found_count == 3);
+    assert(count_open_fds() == descriptors);
+    assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
+
     /* Remove only the known disposable fixtures on successful completion. */
     assert(unlink(root_link) == 0);
     assert(unlink(link_path) == 0); /* dir-link */

@@ -581,7 +581,9 @@
       "id": "SCANNER-ALLOCATION-FAILURE-01",
       "title": "Stop scanner discovery on allocation failure and verify frame cleanup",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        181
+      ],
       "summary": "Fail-fast path construction/frame growth; deterministic test-only ENOMEM injection on 20-level tree and Linux descriptor balance. Local tests NOT RUN."
     }
   ]

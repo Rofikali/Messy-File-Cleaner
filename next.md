@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SCANNER-ALLOCATION-FAILURE-01 (0/5; PR assignment pending)** | Stop discovery on allocation failure; verify deep-tree frame unwind and descriptor balance | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SCANNER-ALLOCATION-FAILURE-01 (1/5; PR #181 OPEN)** | Stop discovery on allocation failure; verify deep-tree frame unwind and descriptor balance | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **PATH-JOIN-SHARED-01 (1/5; #180 merged)** | 13/13 PR checks; merge `56ccadd5f99c134b8b2c727d5286c5a0eb0cee15` | 5/13 integrated checks passed, 8 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **CLI-ROOT-SHARED-01 (1/5; #179 merged)** | 13/13 PR checks; merge `7d30aabb4cef420be0d0fa43f45ed79e2cae13c8` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **ROOT-PATH-SHARED-01 (1/5; #178 merged)** | 13/13 PR checks; merge `bf78092e018077ca8f5c9371f8c0a5afaebdd8e9` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

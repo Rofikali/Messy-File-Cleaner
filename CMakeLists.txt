@@ -158,6 +158,17 @@ if(BUILD_TESTING)
   add_test(NAME queue_unit COMMAND test_queue)
   set_tests_properties(queue_unit PROPERTIES TIMEOUT 30)
 
+  # Independent in-memory queue baseline; no filesystem scale benchmark.
+  add_executable(queue-benchmark tests/performance/queue_benchmark.c src/core/lf_queue.c)
+  target_include_directories(queue-benchmark PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(queue-benchmark PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes)
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_options(queue-benchmark PRIVATE -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=2)
+    target_link_options(queue-benchmark PRIVATE -Wl,-z,relro,-z,now)
+  endif()
+  add_test(NAME queue_benchmark_smoke COMMAND queue-benchmark)
+  set_tests_properties(queue_benchmark_smoke PROPERTIES TIMEOUT 15)
+
   add_executable(test_scanner tests/integration/test_scanner.c src/scanner/scanner.c)
   target_include_directories(test_scanner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_definitions(test_scanner PRIVATE FC_SCANNER_TESTING)

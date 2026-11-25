@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Queue baseline:** [QUEUE_BASELINE.md](QUEUE_BASELINE.md) separates a fixed-size single-threaded batch enqueue/dequeue-plus-verification measurement from concurrent SPSC or filesystem workloads. No timing gate, speedup claim, extra workflow or scale benchmark dispatch.
+
 **Upstream evaluation:** [Master plan](../upstream/UPSTREAM_MASTER_PLAN.md) requires comparable compiler, kernel, hardware, filesystem, cache, workload and worker count; repeat and report latency/tails, CPU/RSS, descriptors and integrity. Proposed 1k–10m file workloads are not achieved results. BENCH-SCALE-01 remains exhausted; no benchmark dispatch or spending.
 
 ## Feature exit and measurement boundary (2026-11-21)

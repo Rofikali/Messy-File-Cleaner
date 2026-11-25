@@ -113,6 +113,18 @@ static void test_event_records(void)
     memcpy(record, &header, sizeof(header));
     expect_bad_record(record, sizeof(header), ESTALE);
 
+    /* A pending stop must prevent decoding and handing off buffered work. */
+    header.mask = IN_CREATE;
+    header.len = 16;
+    memcpy(record, &header, sizeof(header));
+    memset(name, 0, 16);
+    memcpy(name, "pending.txt", sizeof("pending.txt"));
+    atomic_store(&ctx.stop_signal, 1);
+    expect_bad_record(record, sizeof(header) + 16, ECANCELED);
+    /* Stop takes precedence over a not-yet-decoded record. */
+    expect_bad_record(record, sizeof(header) - 1, ECANCELED);
+    atomic_store(&ctx.stop_signal, 0);
+
     header.mask = IN_CREATE | IN_ISDIR;
     header.len = 16;
     memcpy(record, &header, sizeof(header));

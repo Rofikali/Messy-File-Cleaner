@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Watcher buffered cancellation boundary
+
+A pending stop signal is checked before decoding each buffered inotify record and again before constructing actionable paths. Cancellation at those boundaries returns ECANCELED without handing off the pending record; start_watcher retains its existing graceful-stop handling. Tests exercise a valid pending record and a truncated record under pre-existing cancellation with zero events seen/enqueued. Earlier accepted work and races after a cooperative check remain outside this guarantee. No filesystem retirement or mover policy changes.
+
 ## Configuration initialization boundary
 
 Configuration initialization returns immediately for NULL and resets only scalar defaults for a valid context. Regression covers NULL initialization/cleanup and preservation of caller-owned populated extension mappings during scalar reset. This does not validate arbitrary pointers or authorize changed ownership or filesystem policy.

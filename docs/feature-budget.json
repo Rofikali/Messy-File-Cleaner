@@ -855,7 +855,7 @@
       "prs": [
         210
       ],
-      "summary": "PR #210 registered (1/5); queue evaluation DONE at 4/5; verified hit/miss benchmark implemented; local execution NOT RUN; exact-head CI pending."
+      "summary": "PR #210 registered (1/5); hash-matched standalone C11/17/23 and C17 ASan/UBSan PASS; 786432 C17 Release lookups, full-table miss median 976.436 ns vs 10.648 at 25%; full local suite NOT RUN; exact-head CI pending; no production speedup claim."
     }
   ]
 }

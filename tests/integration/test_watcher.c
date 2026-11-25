@@ -10,6 +10,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/inotify.h>
 
 #include "classifier/classifier.h"
 #include "core/context.h"
@@ -74,6 +75,55 @@ static void test_dispatch_bounds(void)
     ctx.num_workers = 0;
 }
 
+static void expect_bad_record(const char *buffer, size_t length, int error)
+{
+    errno = 0;
+    assert(fc_test_process_watcher_buffer(buffer, length, "/unused", &ctx) == -1);
+    assert(errno == error);
+    assert(atomic_load(&ctx.metrics.events_enqueued) == 0);
+    assert(atomic_load(&ctx.metrics.events_seen) == 0);
+}
+
+static void test_event_records(void)
+{
+    /* Intentionally offset the buffer: parser must copy the header. */
+    _Alignas(struct inotify_event) char storage[1 + sizeof(struct inotify_event) + 16] = {0};
+    char *record = storage + 1;
+    struct inotify_event header = {.wd = 1, .mask = IN_CREATE, .len = 16};
+    memcpy(record, &header, sizeof(header));
+    expect_bad_record(record, sizeof(header) - 1, EBADMSG);
+    expect_bad_record(record, sizeof(header) + 15, EBADMSG);
+
+    char *name = record + sizeof(header);
+    memset(name, 'a', 16);
+    expect_bad_record(record, sizeof(header) + 16, EBADMSG);
+    memset(name, 0, 16);
+    expect_bad_record(record, sizeof(header) + 16, EBADMSG);
+    memcpy(name, "../outside", sizeof("../outside"));
+    expect_bad_record(record, sizeof(header) + 16, EBADMSG);
+    memcpy(name, "..", sizeof(".."));
+    expect_bad_record(record, sizeof(header) + 16, EBADMSG);
+
+    header.len = 0;
+    memcpy(record, &header, sizeof(header));
+    expect_bad_record(record, sizeof(header), EBADMSG);
+    header.mask = IN_Q_OVERFLOW;
+    memcpy(record, &header, sizeof(header));
+    expect_bad_record(record, sizeof(header), ENOSPC);
+    header.mask = IN_MOVE_SELF;
+    memcpy(record, &header, sizeof(header));
+    expect_bad_record(record, sizeof(header), ESTALE);
+
+    header.mask = IN_CREATE | IN_ISDIR;
+    header.len = 16;
+    memcpy(record, &header, sizeof(header));
+    memset(name, 0, 16);
+    memcpy(name, "folder", sizeof("folder"));
+    assert(fc_test_process_watcher_buffer(record, sizeof(header) + 16,
+                                          "/unused", &ctx) == 0);
+    assert(atomic_load(&ctx.metrics.events_seen) == 0);
+}
+
 int main(void)
 {
     test_dispatch_bounds();
@@ -95,6 +145,7 @@ int main(void)
     atomic_init(&ctx.metrics.queue_backpressure_waits, 0);
     atomic_init(&ctx.metrics.watcher_events, 0);
     atomic_init(&ctx.metrics.watcher_idle_polls, 0);
+    test_event_records();
 
     char missing[] = "/tmp/fc-watcher-missing-directory";
     errno = 0;

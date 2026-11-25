@@ -100,32 +100,35 @@ static int process_event_buffer(const char *buffer, size_t length,
             return -1;
         }
 
-        const struct inotify_event *event =
-            (const struct inotify_event *)(const void *)(buffer + offset);
-        if ((size_t)event->len > remaining - sizeof(*event))
+        struct inotify_event header;
+        memcpy(&header, buffer + offset, sizeof(header));
+        const char *name = buffer + offset + sizeof(header);
+        if ((size_t)header.len > remaining - sizeof(header))
         {
             errno = EBADMSG;
             return -1;
         }
 
-        size_t record_size = sizeof(*event) + (size_t)event->len;
-        if (event->mask & IN_Q_OVERFLOW)
+        size_t record_size = sizeof(header) + (size_t)header.len;
+        if (header.mask & IN_Q_OVERFLOW)
         {
             /* Events have been lost; do not pretend watch mode is complete. */
             errno = ENOSPC;
             return -1;
         }
-        if (event->mask & (IN_IGNORED | IN_DELETE_SELF | IN_MOVE_SELF | IN_UNMOUNT))
+        if (header.mask & (IN_IGNORED | IN_DELETE_SELF | IN_MOVE_SELF | IN_UNMOUNT))
         {
             errno = ESTALE;
             return -1;
         }
 
-        if (event->len != 0 && !(event->mask & IN_ISDIR) &&
-            (event->mask & (IN_CREATE | IN_MOVED_TO)))
+        if (!(header.mask & IN_ISDIR) &&
+            (header.mask & (IN_CREATE | IN_MOVED_TO)))
         {
-            size_t name_length = strnlen(event->name, event->len);
-            if (name_length == event->len)
+            size_t name_length = strnlen(name, header.len);
+            if (name_length == 0 || name_length == header.len ||
+                memchr(name, '/', name_length) != NULL ||
+                strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
             {
                 errno = EBADMSG;
                 return -1;
@@ -148,7 +151,7 @@ static int process_event_buffer(const char *buffer, size_t length,
             memcpy(full_path, root, root_length);
             if (separator)
                 full_path[name_offset++] = '/';
-            memcpy(full_path + name_offset, event->name, name_length + 1);
+            memcpy(full_path + name_offset, name, name_length + 1);
 
             enqueue_path(full_path, ctx);
             free(full_path);
@@ -166,6 +169,14 @@ static int process_event_buffer(const char *buffer, size_t length,
     }
     return 0;
 }
+
+#ifdef FC_WATCHER_TESTING
+int fc_test_process_watcher_buffer(const char *buffer, size_t length,
+                                   const char *root, AppContext *ctx)
+{
+    return process_event_buffer(buffer, length, root, ctx);
+}
+#endif
 
 int start_watcher(const char *path, AppContext *ctx)
 {

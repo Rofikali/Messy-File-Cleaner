@@ -389,7 +389,9 @@
       "id": "QUEUE-SPSC-CONCURRENCY-01",
       "title": "Initialize SPSC queue atomics exclusively and test concurrent FIFO wraparound",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        165
+      ],
       "summary": "Explicit atomic_init plus one producer/one consumer sequence regression and CTest timeout; no throughput or race-free claim. Local tests NOT RUN."
     }
   ]

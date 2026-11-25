@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **QUEUE-SPSC-CONCURRENCY-01 (0/5; PR assignment pending)** | Exclusive atomic initialization and concurrent SPSC FIFO/wraparound unit regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **QUEUE-SPSC-CONCURRENCY-01 (1/5; PR #165 OPEN)** | Exclusive atomic initialization and concurrent SPSC FIFO/wraparound unit regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **CLASSIFIER-BASENAME-01 (1/5; #164 merged)** | 14/14 PR checks; merge `fd6db27e87b602225b4645085ae6d39de9079c91` | 11/14 integrated checks passed, 3 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **HASHMAP-METADATA-GUARD-01 (1/5; #163 merged)** | 13/13 PR checks; merge `a2164724754015f268fdd3e5f8995d9251b38e17` | 13/13 integrated checks passed (verified in previous invocation); manual acceptance NOT RUN |
 | **DONE** | **CONFIG-EXT-CONTROL-KEY-01 (1/5; #162 merged)** | All 13 PR and integrated-main checks passed; merge `930a25dde6a470d4ec5ab8b520b7f4f45db3097b` | Manual acceptance NOT RUN |

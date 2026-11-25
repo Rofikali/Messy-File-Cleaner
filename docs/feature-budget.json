@@ -623,7 +623,7 @@
       "prs": [
         187
       ],
-      "summary": "C17 parser consistency, atomic negative regression; local tests NOT RUN; pending PR registration and exact-head CI."
+      "summary": "PR #187 registered (1/5); C17 parser consistency and atomic negative regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

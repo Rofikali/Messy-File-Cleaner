@@ -843,7 +843,7 @@
         208,
         209
       ],
-      "summary": "PR #209 registered (4/5); #208 merged with 14/14 exact-head checks; optional affinity and negative CTest cases; local tests NOT RUN; exact-head CI pending.",
+      "summary": "PR #209 registered (4/5); #208 14/14 exact-head, 14/14 integrated-main checks passed at inspection; standalone blob-matched C17 PASS 14 negative cases and 1572864 verified transfers; pinned medians original/padded 195.317/190.132 ns, inconclusive; retain original; full local CMake/CTest NOT RUN; CI pending.",
       "last_merged_pr": 208,
       "merge_sha": "742e33710b0a9d6eabbb9f699d83125808a60602",
       "tested_head_sha": "9d5b8ac722423e5d8cb52f24985c4e8aabecdc84"

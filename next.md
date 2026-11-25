@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **ROOT-PATH-SHARED-01 (0/5; PR assignment pending)** | Share lexical root copy helper across scanner and watcher; direct contract regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **ROOT-PATH-SHARED-01 (1/5; PR #178 OPEN)** | Share lexical root copy helper across scanner and watcher; direct contract regression | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **WATCHER-ROOT-SEPARATOR-01 (1/5; #177 merged)** | 13/13 PR checks; merge `8f1c9b1676dfa3754cb65be955888d16d34e6e64` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-ROOT-SEPARATOR-01 (1/5; #176 merged)** | 13/13 PR checks; merge `93e064833433e11aa6c61541aefcdbce54392ffa` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **SCANNER-FIRST-ERROR-01 (1/5; #175 merged)** | 14/14 PR checks; merge `86514a1add4defd18da18f1bf92783ab5eabd9aa` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

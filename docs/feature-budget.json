@@ -545,7 +545,9 @@
       "id": "ROOT-PATH-SHARED-01",
       "title": "Share scanner and watcher lexical root path normalization",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        178
+      ],
       "summary": "Internal static-inline owned root copy; direct lexical, invalid-input and ownership regression; existing symlink tests retained. Local tests NOT RUN."
     }
   ]

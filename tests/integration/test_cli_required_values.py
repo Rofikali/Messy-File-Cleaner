@@ -12,6 +12,9 @@ def main():
         ["--root"], ["--root", ""], ["--root", "--dry-run"],
         ["--config"], ["--config", ""], ["--config", "--once"],
         [""], ["--root", "valid", "--config", "--dry-run"],
+        ["valid", "--workers", "1", "--workers", "2"],
+        ["valid", "--workers", "2", "--workers", "2"],
+        ["--workers", "1", "--root", "valid", "--workers", "16"],
     ]
     with tempfile.TemporaryDirectory(prefix="fc-cli-values-") as tmp:
         workspace = pathlib.Path(tmp)
@@ -21,6 +24,7 @@ def main():
                                     timeout=5, check=False)
             assert result.returncode != 0, (args, result.returncode)
             assert "Usage:" in result.stderr, (args, result.stderr)
+            assert "Config load failed" not in result.stdout, (args, result.stdout)
             assert not (workspace / "journal").exists(), args
             assert not (workspace / "configs").exists(), args
 

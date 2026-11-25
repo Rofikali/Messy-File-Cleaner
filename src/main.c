@@ -171,7 +171,8 @@ static int parse_cli(int argc, char **argv, CliOptions *opts)
         }
         else if (strcmp(argv[i], "--workers") == 0)
         {
-            if (++i >= argc)
+            /* Like --root and --config, a value-bearing override is unique. */
+            if (opts->workers_override != 0 || ++i >= argc)
                 return -1;
             /* Reject malformed/overflowed counts before config or filesystem access. */
             const char *value = argv[i];

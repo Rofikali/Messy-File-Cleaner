@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "74f49415855e29826249ab96d23ad80c22745bac",
+  "snapshot_main_sha": "abe09bde25a551aa5308785a49837c62bd13a74d",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "HASHMAP-EVAL-01",
   "features": [
@@ -856,10 +856,10 @@
         210,
         211
       ],
-      "summary": "PR #211 registered (2/5); #210 14/14 head/main; exact-blob standalone C11/17/23 and C17 ASan/UBSan PASS, 4718592 lookups; 64-key median miss 212.522/30.310/12.211 ns for 64/128/256 slots; retain production capacity; full local suite NOT RUN; exact-head CI pending.",
-      "last_merged_pr": 210,
-      "merge_sha": "74f49415855e29826249ab96d23ad80c22745bac",
-      "tested_head_sha": "dbd791324fa1de5d21a7d88797284b3b25a2eb6f"
+      "summary": "PR #211 merged; 14/14 exact-head checks; integrated-main CI NOT VERIFIED. Third classifier evaluation candidate; local tests NOT RUN, CI pending; production 64 slots retained.",
+      "last_merged_pr": 211,
+      "merge_sha": "abe09bde25a551aa5308785a49837c62bd13a74d",
+      "tested_head_sha": "70f047a16dd1c7283508c406c01c5c6d623b6028"
     }
   ]
 }

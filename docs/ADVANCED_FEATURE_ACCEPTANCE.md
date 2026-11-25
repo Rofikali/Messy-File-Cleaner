@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Classifier capacity acceptance:** [baseline](performance/HASHMAP_BASELINE.md) requires every mixed-path classification and case count verified, unchanged map size, same fixture and insertion order across capacities, bounded smoke and no production change.
+
 **Hash-map capacity acceptance:** [baseline](performance/HASHMAP_BASELINE.md) preserves identical insertion/key sets across capacities, verifies every hit/miss and reports circular occupied cluster length and logical storage. No timing threshold or production change.
 
 **Hash-map acceptance:** [baseline](performance/HASHMAP_BASELINE.md) runs three verified hit and miss samples at each of four occupancies, exact values and absent-key results, no latency threshold. No production replacement or proof of hostile-key resistance.

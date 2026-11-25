@@ -3,8 +3,9 @@
 
 void lf_init(LFQueue *q)
 {
-    atomic_store_explicit(&q->head, 0, memory_order_relaxed);
-    atomic_store_explicit(&q->tail, 0, memory_order_relaxed);
+    /* Initialization is exclusive: no producer or consumer may access q. */
+    atomic_init(&q->head, 0);
+    atomic_init(&q->tail, 0);
 }
 
 int lf_enqueue(LFQueue *q, const FileEvent *e)

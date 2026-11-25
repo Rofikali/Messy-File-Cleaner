@@ -18,6 +18,7 @@ typedef struct
     atomic_int tail;
 } LFQueue;
 
+/* Initialize only before publication, or after all concurrent users stop. */
 void lf_init(LFQueue *q);
 int lf_enqueue(LFQueue *q, const FileEvent *e);
 int lf_dequeue(LFQueue *q, FileEvent *e);

@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## SPSC queue initialization and transfer boundary
+
+Queue atomics are initialized exclusively before publication or after all users stop. The C unit suite checks FIFO payload/order and final emptiness during concurrent producer/consumer wraparound, with a bounded CTest timeout. This does not establish MPSC/MPMC correctness, race freedom under every schedule, or filesystem preservation. Pthread test linkage and timeout do not alter production queue capacity, ordering operations or ABI.
+
 ## Classifier routing boundary
 
 Extension extraction examines the final POSIX path component only; parent-directory dots do not determine routing. A leading dot alone and trailing dots use the default route; multi-extension names retain the final suffix and matching remains case-sensitive. Disposable C unit tests exercise these cases. This corrects classification semantics, not filesystem identity, move safety or release approval.

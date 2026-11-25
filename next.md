@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-EXT-CONTROL-KEY-01 (0/5; staged)** | Reject control bytes in extension routing keys; disposable regression tests | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CONFIG-EXT-CONTROL-KEY-01 (1/5; PR #162 OPEN)** | Reject control bytes in extension routing keys; disposable regression tests | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **CONFIG-API-PRECONDITIONS-01 (1/5; #161 merged)** | Loader preconditions integrated at `88325fbae9dc9b0cc5ded96cdfd7d52926358090` | CI NOT VERIFIED; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-DIAGNOSTIC-01 (1/5; #160 merged)** | All 13 PR and integrated-main checks passed; merge `fdf97648157fda6cb59d026bac25d1ea94dc4b49` | Manual acceptance NOT RUN |
 | **DONE** | **CONFIG-NUL-INPUT-01 (1/5; #159 merged)** | All 13 PR and integrated-main checks passed; merge `9df0278e237a070a1a18c8296c0edafe072c3ca0` | Manual acceptance NOT RUN |

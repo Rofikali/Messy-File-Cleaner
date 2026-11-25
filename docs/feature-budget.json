@@ -353,7 +353,9 @@
       "id": "CONFIG-EXT-CONTROL-KEY-01",
       "title": "Reject control bytes in extension routing keys",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        162
+      ],
       "summary": "Reject control bytes in extension names with fixed diagnostic before map insertion; disposable negative tests. Local tests NOT RUN."
     }
   ]

@@ -79,7 +79,8 @@ int hashmap_put(HashMap *map, const char *key, const char *value)
 
         if (strcmp(entry->key, key) == 0)
         {
-            memcpy(entry->value, value, value_len + 1);
+            /* A caller may reuse the borrowed value or a suffix of it. */
+            memmove(entry->value, value, value_len + 1);
             return 0;
         }
 

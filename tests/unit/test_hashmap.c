@@ -23,6 +23,16 @@ int main(void)
     assert(map.size == 1);
     assert(strcmp(hashmap_get(&map, ".jpg"), "Images/") == 0);
 
+    /* Updating from a borrowed value must support overlapping source bytes. */
+    const char *borrowed = hashmap_get(&map, ".jpg");
+    assert(hashmap_put(&map, ".jpg", borrowed) == 0);
+    assert(strcmp(hashmap_get(&map, ".jpg"), "Images/") == 0);
+    borrowed = hashmap_get(&map, ".jpg");
+    assert(hashmap_put(&map, ".jpg", borrowed + 1) == 0);
+    assert(strcmp(hashmap_get(&map, ".jpg"), "mages/") == 0);
+    assert(map.size == 1);
+    assert(hashmap_put(&map, ".jpg", "Images/") == 0);
+
     assert(hashmap_put(&map, ".png", "Png/") == 0);
     assert(hashmap_put(&map, ".gif", "Gif/") == 0);
     assert(map.size == 3);

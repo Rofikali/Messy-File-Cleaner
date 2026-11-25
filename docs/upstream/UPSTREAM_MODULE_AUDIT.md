@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Queue evaluation continuation:** [Queue baseline](../performance/QUEUE_BASELINE.md) includes separate sequential and concurrent test-only workloads; the latter uses one producer and one consumer, unique sequence bytes and full payload checks. Retain existing ring and C memory ordering. No cache-line padding or kernel import without comparative evidence.
+
 **QUEUE-UPSTREAM-EVAL-01:** [Queue baseline](../performance/QUEUE_BASELINE.md) adds bounded measurements of existing queue operations with payload checking. Linux 6.12 circular-buffer reference already reviewed; no kernel code copied. Measure before changing modulo, cache layout or synchronization.
 
 **Follow-up — SCANNER-SPECIAL-FILE-01:** [Linux inode(7)](https://man7.org/linux/man-pages/man7/inode.7.html) and [stat(2)](https://man7.org/linux/man-pages/man2/fstatat.2.html) describe inode type classification and descriptor-relative metadata. Retain the scanner's existing fstatat/no-follow and S_ISREG/S_ISDIR policy; add independent FIFO/no-writer and bound AF_UNIX pathname-socket regression. No need for a copied VFS implementation, d_type shortcut or new dependency. No device-node or speed testing; no source-retirement guarantee.

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "8e9ca9eaec9cf755b7afaae8fd9b89bfc2c3ed6a",
+  "snapshot_main_sha": "e349649a4d3ca57a2006d9864fc1619709ecb13e",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "QUEUE-UPSTREAM-EVAL-01",
   "features": [
@@ -838,9 +838,13 @@
       "title": "Bounded in-memory C SPSC queue performance baseline",
       "status": "ACTIVE",
       "prs": [
-        206
+        206,
+        207
       ],
-      "summary": "PR #206 registered (1/5); standalone four-blob-matched C17 baseline PASS (196608 verified timed pairs; median 62.475 ns/pair, no speedup claim); full local tests NOT RUN; exact-head CI pending."
+      "summary": "PR #207 registered (2/5); #206 merged 14/14 head/main checks; concurrent four-blob-matched C17 probe PASS, 196608 transfers, median 709.029 ns/transfer; full local tests NOT RUN; exact-head CI pending; no speedup claim.",
+      "last_merged_pr": 206,
+      "merge_sha": "e349649a4d3ca57a2006d9864fc1619709ecb13e",
+      "tested_head_sha": "e0694e88966cb8e23829b5f915e4b996065383c7"
     }
   ]
 }

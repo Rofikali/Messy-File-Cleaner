@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Concurrent queue measurement:** [queue baseline](QUEUE_BASELINE.md) distinguishes sequential batched pairs from two-thread transfer including event generation, verification, retry/yield and thread lifecycle. No direct speedup comparison between these workloads; no timing threshold or new workflow.
+
 **Queue baseline:** [QUEUE_BASELINE.md](QUEUE_BASELINE.md) separates a fixed-size single-threaded batch enqueue/dequeue-plus-verification measurement from concurrent SPSC or filesystem workloads. No timing gate, speedup claim, extra workflow or scale benchmark dispatch.
 
 **Upstream evaluation:** [Master plan](../upstream/UPSTREAM_MASTER_PLAN.md) requires comparable compiler, kernel, hardware, filesystem, cache, workload and worker count; repeat and report latency/tails, CPU/RSS, descriptors and integrity. Proposed 1k–10m file workloads are not achieved results. BENCH-SCALE-01 remains exhausted; no benchmark dispatch or spending.

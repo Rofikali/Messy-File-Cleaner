@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Documentation Map and Authority
 
-**In-memory queue measurement:** [Queue baseline](performance/QUEUE_BASELINE.md) describes a bounded test-only native C workload, its limitations and reproduction command. Not a filesystem scale benchmark or speedup claim.
+**In-memory queue measurement:** [Queue baseline](performance/QUEUE_BASELINE.md) describes separate bounded sequential and concurrent test-only native C workloads, their limitations and reproduction commands. Not a filesystem scale benchmark or speedup claim.
 
 **Initial upstream assessment:** [Reference-only module audit](upstream/UPSTREAM_MODULE_AUDIT.md) links inspected sources, retained implementations, rejected premature replacements and remaining evidence gaps. No approved import or performance claim.
 

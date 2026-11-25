@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CLASSIFIER-BASENAME-01 (0/5; PR assignment pending)** | Classify final POSIX path component only; CTest unit regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CLASSIFIER-BASENAME-01 (1/5; PR #164 OPEN)** | Classify final POSIX path component only; CTest unit regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **HASHMAP-METADATA-GUARD-01 (1/5; #163 merged)** | 13/13 PR checks; merge `a2164724754015f268fdd3e5f8995d9251b38e17` | 9/13 integrated checks passed, 4 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-EXT-CONTROL-KEY-01 (1/5; #162 merged)** | All 13 PR and integrated-main checks passed; merge `930a25dde6a470d4ec5ab8b520b7f4f45db3097b` | Manual acceptance NOT RUN |
 | **DONE** | **CONFIG-API-PRECONDITIONS-01 (1/5; #161 merged)** | Loader preconditions integrated at `88325fbae9dc9b0cc5ded96cdfd7d52926358090` | CI NOT VERIFIED; manual acceptance NOT RUN |

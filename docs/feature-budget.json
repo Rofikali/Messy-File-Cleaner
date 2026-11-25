@@ -377,7 +377,9 @@
       "id": "CLASSIFIER-BASENAME-01",
       "title": "Extract classification extension from final POSIX path component",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        164
+      ],
       "summary": "Correct dotted parent directories, hidden names and trailing dots; register CTest regression tests. Local tests NOT RUN."
     }
   ]

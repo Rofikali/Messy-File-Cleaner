@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Worker shutdown notification failure regression
+
+A test-only injected first notification failure during two-worker shutdown must return EIO while joining workers, resetting descriptor metadata and releasing ownership for a subsequent restart. No production behavior, ABI, mover or retirement change; this is not proof of arbitrary kernel failures.
+
 ## Worker live-count consistency
 
 The serialized worker lifecycle tracks the actual started count independently of the caller context. A live in-range count mismatch rejects notification (EINVAL) and join (EBUSY) before changing running state, indexing worker storage or closing descriptors. Tests temporarily understate and overstate the count of a two-worker dry-run pool, verify unchanged ownership/descriptor metadata and restore the actual count before existing drain/join tests. Partial-start cleanup and successful join reset the authoritative count. This is not synchronization for concurrent lifecycle mutation or validation of arbitrary descriptors; no mover or retirement change.

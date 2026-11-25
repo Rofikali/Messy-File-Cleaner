@@ -208,6 +208,24 @@ int main(void)
     assert(ctx.num_workers == 0);
     assert(atomic_load(&ctx.worker_error) == 0);
 
+    /* A notification failure inside join must be returned even though
+     * every worker is joined and ownership is released. */
+    atomic_store(&ctx.running, 1);
+    lf_init(&ctx.queues[0]);
+    lf_init(&ctx.queues[1]);
+    assert(start_workers(&ctx, 2) == 0);
+    fc_test_fail_notify_after(0);
+    errno = 0;
+    assert(join_workers(&ctx) == -1 && errno == EIO);
+    assert(ctx.num_workers == 0);
+    assert(ctx.efd[0] == -1 && ctx.efd[1] == -1);
+    assert(atomic_load(&ctx.running) == 0);
+    assert(atomic_load(&ctx.active_workers) == 0);
+    assert(atomic_load(&ctx.worker_error) == 0);
+    atomic_store(&ctx.running, 1);
+    assert(start_workers(&ctx, 1) == 0);
+    assert(join_workers(&ctx) == 0);
+
     /*
      * Hold a worker after dequeue and active_workers++.
      * Shutdown must wait for in-flight processing rather than return early.

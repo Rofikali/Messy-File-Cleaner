@@ -753,8 +753,10 @@
       "id": "SCANNER-READDIR-EXHAUSTION-01",
       "title": "Terminate scanner traversal on directory-read resource exhaustion",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 readdir exhaustion guard and root/nested fault regression; local tests NOT RUN; CI pending."
+      "prs": [
+        199
+      ],
+      "summary": "PR #199 registered (1/5); directory-read exhaustion guard and depth-targeted regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

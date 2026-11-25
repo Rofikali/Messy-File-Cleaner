@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SCANNER-READDIR-EXHAUSTION-01 (0/5; pending PR registration)** | Directory-read resource exhaustion stop and depth-targeted cleanup regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SCANNER-READDIR-EXHAUSTION-01 (1/5; PR #199 OPEN)** | Directory-read resource exhaustion stop and depth-targeted cleanup regression | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **CLI-WORKER-DUPLICATES-01 (1/5; #198 merged)** | 13/13 PR checks; merge `ddc0390628fe186b99fbf1982b9b0cef369a7c65` | 13/13 integrated-main checks passed at inspection; manual acceptance NOT RUN |
 | **DONE** | **WATCHER-TERMINAL-RECORD-01 (1/5; #197 merged)** | 13/13 PR checks; merge `38d8f0615484b0236c7da22e517a1cf841c97d31` | 13/13 integrated-main checks passed (verified previous invocation); real kernel overflow recovery and manual acceptance NOT RUN |
 | **DONE** | **WATCHER-CANCEL-BOUNDARY-01 (1/5; #196 merged)** | 13/13 PR checks; merge `41efb0a8dfc4dda99a74df2bab2687472d937f0a` | 13/13 integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN |

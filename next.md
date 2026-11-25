@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WORKER-LIFECYCLE-BOUNDS-01 (0/5; PR assignment pending)** | Validate worker notification and shutdown array bounds; lifecycle regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **WORKER-LIFECYCLE-BOUNDS-01 (1/5; PR #171 OPEN)** | Validate worker notification and shutdown array bounds; lifecycle regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **WATCHER-RECORD-GUARD-01 (1/5; #170 merged)** | 14/14 PR checks; merge `7a7913526e50a99b669f7cca7fb26d4cdf63fd1d` | 5/14 integrated checks passed, 9 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **DISPATCH-BOUNDS-01 (1/5; #169 merged)** | 13/13 PR checks; merge `1f197e88832ffd0ddd67d911c81852c2f2fe289f` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **WATCHER-ROOT-TYPE-01 (1/5; #168 merged)** | 14/14 PR checks; merge `281d67cf3efd35b82560db43599ca16dce436288` | 14/14 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

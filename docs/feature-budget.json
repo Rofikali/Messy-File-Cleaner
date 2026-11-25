@@ -461,7 +461,9 @@
       "id": "WORKER-LIFECYCLE-BOUNDS-01",
       "title": "Bound worker notification and shutdown metadata before fixed array access",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        171
+      ],
       "summary": "Reject invalid pool counts and indexes; lifecycle regression with no live descriptors for malformed metadata. Local tests NOT RUN."
     }
   ]

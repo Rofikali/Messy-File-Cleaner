@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "742e33710b0a9d6eabbb9f699d83125808a60602",
+  "snapshot_main_sha": "a31948068067fbf62437404808371673a141be80",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "QUEUE-UPSTREAM-EVAL-01",
+  "active_feature_id": "HASHMAP-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -836,17 +836,24 @@
     {
       "id": "QUEUE-UPSTREAM-EVAL-01",
       "title": "Bounded in-memory C SPSC queue performance baseline",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         206,
         207,
         208,
         209
       ],
-      "summary": "PR #209 registered (4/5); #208 14/14 exact-head, 14/14 integrated-main checks passed at inspection; standalone blob-matched C17 PASS 14 negative cases and 1572864 verified transfers; pinned medians original/padded 195.317/190.132 ns, inconclusive; retain original; full local CMake/CTest NOT RUN; CI pending.",
-      "last_merged_pr": 208,
-      "merge_sha": "742e33710b0a9d6eabbb9f699d83125808a60602",
-      "tested_head_sha": "9d5b8ac722423e5d8cb52f24985c4e8aabecdc84"
+      "summary": "PR #209 merged; 14/14 exact-head and integrated-main checks. Scoped queue evaluation DONE 4/5; padding inconclusive; retain original. Representative host/ARM64/counters/TSan NOT RUN; no production speedup.",
+      "last_merged_pr": 209,
+      "merge_sha": "a31948068067fbf62437404808371673a141be80",
+      "tested_head_sha": "2d2d0312f567a32a5ed83fa8e26fe3573b6914b6"
+    },
+    {
+      "id": "HASHMAP-EVAL-01",
+      "title": "Bounded in-memory hash-map lookup evaluation",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Verified hit/miss baseline at four synthetic occupancies; local tests NOT RUN; CI pending."
     }
   ]
 }

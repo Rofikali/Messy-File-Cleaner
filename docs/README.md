@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Documentation Map and Authority
 
+**Hash-map performance:** [bounded lookup baseline](performance/HASHMAP_BASELINE.md) documents synthetic occupancy and hit/miss evidence. Queue baseline evaluation complete at four PRs.
+
 **In-memory queue measurement:** [Queue baseline](performance/QUEUE_BASELINE.md) describes separate bounded sequential and concurrent test-only native C workloads, their limitations and reproduction commands. Not a filesystem scale benchmark or speedup claim.
 
 **Initial upstream assessment:** [Reference-only module audit](upstream/UPSTREAM_MODULE_AUDIT.md) links inspected sources, retained implementations, rejected premature replacements and remaining evidence gaps. No approved import or performance claim.

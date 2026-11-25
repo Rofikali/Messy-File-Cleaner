@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Hash-map evidence:** [baseline](HASHMAP_BASELINE.md) distinguishes hits and misses at synthetic table occupancies; record all samples, size, timing overhead, compiler and key distribution. No scale-benchmark dispatch or production speedup claim.
+
 **Affinity evidence:** [queue baseline](QUEUE_BASELINE.md) supports optional explicit Linux CPU IDs for test-only original and padded layouts; report topology, mask, scheduling and all samples. Pinning is not isolation or a guarantee of repeatability.
 
 **Cache-layout comparison:** [Queue baseline](QUEUE_BASELINE.md) includes an isolated candidate with 64-byte index separation, identical C code and workload. Compare layout, memory overhead and repeated timings; hardware counter evidence and actual target workloads remain separate.

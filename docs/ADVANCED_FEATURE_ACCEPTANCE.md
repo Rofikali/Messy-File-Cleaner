@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Hash-map acceptance:** [baseline](performance/HASHMAP_BASELINE.md) runs three verified hit and miss samples at each of four occupancies, exact values and absent-key results, no latency threshold. No production replacement or proof of hostile-key resistance.
+
 **Affinity acceptance:** [queue baseline](performance/QUEUE_BASELINE.md) requires two distinct allowed logical CPUs, verified per-thread masks, input rejection before measurement, unchanged default smoke and full payload verification; no timing threshold. Pinned positive run only on an eligible host.
 
 **Cache-layout acceptance:** original and generated candidate compile the same concurrent benchmark and queue implementation; candidate verifies index alignment and separation, both verify full FIFO payload and bounded retry. No speed threshold or promotion based solely on smoke; [record evidence](performance/QUEUE_BASELINE.md).

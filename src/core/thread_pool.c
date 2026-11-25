@@ -251,9 +251,29 @@ static void print_worker_diagnostic(const char *label, const char *source,
     funlockfile(stderr);
 }
 
+static void reject_worker_event(AppContext *ctx)
+{
+    fputs("Worker rejected invalid event or classification\n", stderr);
+    atomic_fetch_add(&ctx->metrics.move_failures, 1);
+    atomic_store(&ctx->worker_error, 1);
+    atomic_store(&ctx->running, 0);
+}
+
 static void process_event(AppContext *ctx, const FileEvent *event)
 {
+    if (event->path[0] == '\0' ||
+        !memchr(event->path, '\0', sizeof(event->path)))
+    {
+        reject_worker_event(ctx);
+        return;
+    }
+
     const char *folder = classify(&ctx->classifier, event->path);
+    if (!folder || folder[0] == '\0')
+    {
+        reject_worker_event(ctx);
+        return;
+    }
 
     if (atomic_load(&ctx->dry_run))
     {

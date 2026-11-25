@@ -837,8 +837,10 @@
       "id": "QUEUE-UPSTREAM-EVAL-01",
       "title": "Bounded in-memory C SPSC queue performance baseline",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Existing production queue measured by test-only C harness; local tests NOT RUN; exact-head CI pending; no speedup claim."
+      "prs": [
+        206
+      ],
+      "summary": "PR #206 registered (1/5); test-only bounded queue baseline; local tests NOT RUN; exact-head CI pending; no speedup claim."
     }
   ]
 }

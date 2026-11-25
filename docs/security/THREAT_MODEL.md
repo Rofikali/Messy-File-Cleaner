@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Worker diagnostic output boundary
+
+Worker preview, move-success and move-failure messages encode nonprintable and non-ASCII path bytes and literal backslashes as printable ASCII hex escapes. A stderr stream lock keeps each worker record together. This is presentation only; paths passed to classification and filesystem operations are unchanged. Disposable read-only preview regression covers newline, ESC and backslash and verifies source preservation. Other logging sites and actual execution-mode output are not covered by this regression; this does not resolve FS-01B or authorize release.
+
 ## SPSC queue initialization and transfer boundary
 
 Queue atomics are initialized exclusively before publication or after all users stop. The C unit suite checks FIFO payload/order and final emptiness during concurrent producer/consumer wraparound, with a bounded CTest timeout. This does not establish MPSC/MPMC correctness, race freedom under every schedule, or filesystem preservation. Pthread test linkage and timeout do not alter production queue capacity, ordering operations or ABI.

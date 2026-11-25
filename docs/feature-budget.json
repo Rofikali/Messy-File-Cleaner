@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "fd6db27e87b602225b4645085ae6d39de9079c91",
+  "snapshot_main_sha": "d0a325992cc60303aeb9597293647beb34efb071",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "QUEUE-SPSC-CONCURRENCY-01",
+  "active_feature_id": "WORKER-DIAGNOSTIC-ESCAPE-01",
   "features": [
     {
       "id": "PERF-01",
@@ -380,7 +380,7 @@
       "prs": [
         164
       ],
-      "summary": "PR #164 merged; 14/14 exact-head checks passed; 11/14 integrated-main checks passed, three pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #164 merged; 14/14 exact-head and integrated-main checks passed, verified in previous invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 164,
       "merge_sha": "fd6db27e87b602225b4645085ae6d39de9079c91",
       "tested_head_sha": "77fa5c733b1d684e80bf56cf7ad7033aafd19bd0"
@@ -388,11 +388,21 @@
     {
       "id": "QUEUE-SPSC-CONCURRENCY-01",
       "title": "Initialize SPSC queue atomics exclusively and test concurrent FIFO wraparound",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         165
       ],
-      "summary": "Explicit atomic_init plus one producer/one consumer sequence regression and CTest timeout; no throughput or race-free claim. Local tests NOT RUN."
+      "summary": "PR #165 merged; 14/14 exact-head checks passed; 6/14 integrated-main checks passed, eight pending at inspection. Manual acceptance NOT RUN.",
+      "last_merged_pr": 165,
+      "merge_sha": "d0a325992cc60303aeb9597293647beb34efb071",
+      "tested_head_sha": "ed5898edfee5fc6cf95c282a426f4d0f66852403"
+    },
+    {
+      "id": "WORKER-DIAGNOSTIC-ESCAPE-01",
+      "title": "Escape untrusted worker path bytes in terminal diagnostics",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "ASCII hex escaping and stream-lock record serialization; disposable dry-run regression with hostile filenames. Local tests NOT RUN."
     }
   ]
 }

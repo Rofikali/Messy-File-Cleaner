@@ -199,6 +199,17 @@ static int load_config_into(const char *path, Config *cfg)
                 return -1;
             }
 
+            /* Extension names must not introduce control bytes into routing keys. */
+            for (const unsigned char *p = (const unsigned char *)ext; *p; ++p)
+            {
+                if (iscntrl(*p))
+                {
+                    fputs("config: invalid extension key\n", stderr);
+                    fclose(f);
+                    return -1;
+                }
+            }
+
             if (ext[0] == '.')
             {
                 int written = snprintf(normalized_key, sizeof(normalized_key), "%s", ext);

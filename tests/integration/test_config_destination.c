@@ -76,7 +76,11 @@ int main(void)
     assert_safe_diagnostic(path, "ext.bad\033[31mkey=../outside\n",
                            "config: unsafe extension destination\n");
     assert_safe_diagnostic(path, "ext.long\033[31mextensionname=Safe\n",
-                           "config: extension mapping rejected (capacity or length)\n");
+                           "config: invalid extension key\n");
+    assert_safe_diagnostic(path, "ext.j\033pg=Jpeg\n",
+                           "config: invalid extension key\n");
+    assert_safe_diagnostic(path, "ext.j\tpg=Jpeg\n",
+                           "config: invalid extension key\n");
 
     /* Reject invalid API arguments before opening the file or copying storage. */
     {

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "fdf97648157fda6cb59d026bac25d1ea94dc4b49",
+  "snapshot_main_sha": "88325fbae9dc9b0cc5ded96cdfd7d52926358090",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-API-PRECONDITIONS-01",
+  "active_feature_id": "CONFIG-EXT-CONTROL-KEY-01",
   "features": [
     {
       "id": "PERF-01",
@@ -341,11 +341,22 @@
     {
       "id": "CONFIG-API-PRECONDITIONS-01",
       "title": "Validate configuration loader API preconditions before staging",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         161
       ],
-      "summary": "Reject null/empty path and invalid hash map metadata before file open or staging; preserve valid caller state. No ABI signature change."
+      "summary": "PR #161 merged; loader argument/map metadata guard and disposable regressions integrated. Exact-head and integrated CI NOT VERIFIED in this run; manual acceptance NOT RUN.",
+      "last_merged_pr": 161,
+      "merge_sha": "88325fbae9dc9b0cc5ded96cdfd7d52926358090"
+    },
+    {
+      "id": "CONFIG-EXT-CONTROL-KEY-01",
+      "title": "Reject control bytes in extension routing keys",
+      "status": "ACTIVE",
+      "prs": [
+        162
+      ],
+      "summary": "Reject control bytes in extension names with fixed diagnostic before map insertion; disposable negative tests. Local tests NOT RUN."
     }
   ]
 }

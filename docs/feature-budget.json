@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "e46550f41b785d2a5a33de40e8890ca2a94afc27",
+  "snapshot_main_sha": "b5609887707e8b3dc5908512004abd85627d2681",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "BENCH-SCALE-01",
   "features": [
@@ -46,12 +46,13 @@
         132,
         133,
         184,
-        185
+        185,
+        186
       ],
-      "summary": "PR #184 merged; 14/14 exact-head checks passed; 7/14 integrated-main checks passed, seven pending at inspection. Fourth PR slot for bounded manual-only native scanner provenance and matching Release hardening. Local tests NOT RUN; workflow NOT DISPATCHED; target-host and million-file evidence NOT RUN.",
-      "last_merged_pr": 184,
-      "merge_sha": "e46550f41b785d2a5a33de40e8890ca2a94afc27",
-      "tested_head_sha": "29de0c81c146ea5c4fc32f84083d5aa4c1d60f8f"
+      "summary": "PR #185 merged; 14/14 exact-head checks passed; 7/14 integrated-main checks passed, seven pending at inspection. Final PR slot for report acceptance and compiler provenance. Local tests NOT RUN; workflow NOT DISPATCHED; measured target-host and million-file acceptance pending.",
+      "last_merged_pr": 185,
+      "merge_sha": "b5609887707e8b3dc5908512004abd85627d2681",
+      "tested_head_sha": "99266adeae0800cc70d5fa8bf25d086a7827f3e8"
     },
     {
       "id": "CLI-INPUT-01",

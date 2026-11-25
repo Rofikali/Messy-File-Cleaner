@@ -623,6 +623,10 @@ if(BUILD_TESTING)
             "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/benchmark_scanner.py"
             --binary "$<TARGET_FILE:scanner-benchmark>" --files 30 --runs 2)
   set_tests_properties(native_scanner_benchmark_smoke PROPERTIES TIMEOUT 30)
+  add_test(NAME native_scanner_report_unit
+    COMMAND ${Python3_EXECUTABLE}
+            "${CMAKE_CURRENT_SOURCE_DIR}/tests/performance/test_native_scanner_report.py")
+  set_tests_properties(native_scanner_report_unit PROPERTIES TIMEOUT 15)
 
   add_test(NAME cli_move_benchmark_smoke
     COMMAND ${Python3_EXECUTABLE}

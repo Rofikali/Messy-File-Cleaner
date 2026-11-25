@@ -49,7 +49,7 @@ The exact implementation may combine or split source files when cohesion and own
 
 `CLI/config -> validated context -> scanner -> classifier -> bounded queue -> workers -> mover <-> journal -> result reporting`
 
-Linux inotify watch registration uses IN_ONLYDIR and IN_DONT_FOLLOW for the final path component; this does not verify ancestors or prevent later pathname replacement. Inotify decoding copies headers into aligned local storage and rejects truncated records and malformed actionable name components. The watcher is an optional source of scan/reconciliation triggers. Watcher notifications can be dropped or coalesced; reconciliation must be able to re-establish filesystem truth.
+Linux inotify watch registration uses IN_ONLYDIR and IN_DONT_FOLLOW for the final path component; this does not verify ancestors or prevent later pathname replacement. Inotify decoding copies headers into aligned local storage and rejects truncated records and malformed actionable name components. The watcher is an optional source of scan/reconciliation triggers. The watcher_idle_polls metric counts completed poll timeouts (not events or elapsed time); an observed timeout is the bounded readiness signal in the disposable integration test. Watcher notifications can be dropped or coalesced; reconciliation must be able to re-establish filesystem truth.
 
 ### 2.4 Runtime and deployment boundaries
 

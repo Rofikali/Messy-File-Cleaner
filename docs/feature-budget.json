@@ -883,9 +883,10 @@
       "title": "Bounded classifier extension string-processing evaluation",
       "status": "ACTIVE",
       "prs": [
-        218
+        218,
+        219
       ],
-      "summary": "PR #218 merged, 14/14 exact-head jobs; C17 Release 61/61 tests and string smoke passed; integrated-main CI NOT VERIFIED. Second exhaustive boundary candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "summary": "PR #219 registered (2/5); #218 merged, 14/14 exact-head jobs; C17 Release 61/61 tests and string smoke passed; integrated-main CI NOT VERIFIED. Exhaustive boundary candidate; local tests NOT RUN at creation, CI pending; production unchanged.",
       "last_merged_pr": 218,
       "merge_sha": "44b6256235d5a75e9091242db0c4f768b38c935c",
       "tested_head_sha": "2b779122e018960d9f232b30ba9ab6828de87ad6"

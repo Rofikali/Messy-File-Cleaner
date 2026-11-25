@@ -54,3 +54,21 @@ with tempfile.TemporaryDirectory(prefix="fc-plan-json-") as temp:
     assert not (base / "journal").exists()
     assert not (base / "Jpeg").exists()
     assert not (base / "Others").exists()
+
+    # Worker diagnostics must not emit filename-controlled terminal bytes.
+    # Only disposable fixtures and read-only preview are used.
+    hostile = source / "line\nescape\x1b[31m\\literal.jpg"
+    hostile.write_bytes(b"keep-hostile-original")
+    config.write_text("mode=batch\nworker_threads=2\next.jpg=Jpeg/\n")
+    escaped = run("--dry-run", "--once", "--report-json")
+    assert escaped.returncode == 0, (escaped.stdout, escaped.stderr)
+    expected = r"line\x0Aescape\x1B[31m\x5Cliteral.jpg -> Jpeg/"
+    assert any(line.startswith("Would move: ") and line.endswith(expected)
+               for line in escaped.stderr.splitlines()), escaped.stderr
+    assert "\x1b" not in escaped.stderr
+    assert "line\nescape" not in escaped.stderr
+    assert hostile.read_bytes() == b"keep-hostile-original"
+    assert sample.read_bytes() == b"keep-original"
+    assert not (base / "journal").exists()
+    assert not (base / "Jpeg").exists()
+    assert not (source / "Jpeg").exists()

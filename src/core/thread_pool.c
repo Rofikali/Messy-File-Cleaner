@@ -214,13 +214,46 @@ static int wait_for_work(int event_fd)
     }
 }
 
+/* Display untrusted path bytes as printable ASCII without changing the path.
+ * Escape backslash too, so a literal escape-like filename is distinguishable.
+ * Caller holds the stderr stream lock for the complete diagnostic record. */
+static void print_path_for_diagnostic(const char *path)
+{
+    static const char hex[] = "0123456789ABCDEF";
+    for (const unsigned char *p = (const unsigned char *)path; *p; ++p)
+    {
+        if (*p >= 0x20 && *p <= 0x7e && *p != '\\')
+            (void)fputc(*p, stderr);
+        else
+        {
+            (void)fputs("\\x", stderr);
+            (void)fputc(hex[*p >> 4], stderr);
+            (void)fputc(hex[*p & 0x0f], stderr);
+        }
+    }
+}
+
+static void print_worker_diagnostic(const char *label, const char *source,
+                                    const char *destination, int failed, int error)
+{
+    flockfile(stderr);
+    (void)fputs(label, stderr);
+    print_path_for_diagnostic(source);
+    (void)fputs(" -> ", stderr);
+    print_path_for_diagnostic(destination);
+    if (failed)
+        (void)fprintf(stderr, " (errno=%d)", error);
+    (void)fputc('\n', stderr);
+    funlockfile(stderr);
+}
+
 static void process_event(AppContext *ctx, const FileEvent *event)
 {
     const char *folder = classify(&ctx->classifier, event->path);
 
     if (atomic_load(&ctx->dry_run))
     {
-        fprintf(stderr, "Would move: %s -> %s\n", event->path, folder);
+        print_worker_diagnostic("Would move: ", event->path, folder, 0, 0);
         atomic_fetch_add(&ctx->metrics.dry_run_moves, 1);
         return;
     }
@@ -228,13 +261,12 @@ static void process_event(AppContext *ctx, const FileEvent *event)
     MoveResult result;
     if (move_file_journaled(event->path, folder, &ctx->journal, &result) == 0)
     {
-        fprintf(stderr, "Moved: %s -> %s\n", event->path, result.destination);
+        print_worker_diagnostic("Moved: ", event->path, result.destination, 0, 0);
         atomic_fetch_add(&ctx->metrics.files_moved, 1);
     }
     else
     {
-        fprintf(stderr, "Move failed: %s -> %s (errno=%d)\n",
-                event->path, folder, result.error_code);
+        print_worker_diagnostic("Move failed: ", event->path, folder, 1, result.error_code);
         atomic_fetch_add(&ctx->metrics.move_failures, 1);
     }
 }

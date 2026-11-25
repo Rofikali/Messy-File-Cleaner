@@ -741,8 +741,10 @@
       "id": "CLI-WORKER-DUPLICATES-01",
       "title": "Reject repeated CLI worker-count overrides before filesystem access",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "C17 duplicate --workers guard and CLI regression; local tests NOT RUN; CI pending."
+      "prs": [
+        198
+      ],
+      "summary": "PR #198 registered (1/5); duplicate worker override guard and CLI regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

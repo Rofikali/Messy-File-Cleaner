@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CLI-WORKER-DUPLICATES-01 (0/5; pending PR registration)** | Reject repeated worker-count overrides before config or filesystem access | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CLI-WORKER-DUPLICATES-01 (1/5; PR #198 OPEN)** | Reject repeated worker-count overrides before config or filesystem access | Local tests NOT RUN; CI pending; FS-01B/REL-01 blocked |
 | **DONE** | **WATCHER-TERMINAL-RECORD-01 (1/5; #197 merged)** | 13/13 PR checks; merge `38d8f0615484b0236c7da22e517a1cf841c97d31` | 11/13 integrated-main checks passed at inspection; 2 not passed at inspection; real kernel overflow recovery and manual acceptance NOT RUN |
 | **DONE** | **WATCHER-CANCEL-BOUNDARY-01 (1/5; #196 merged)** | 13/13 PR checks; merge `41efb0a8dfc4dda99a74df2bab2687472d937f0a` | 13/13 integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN |
 | **DONE** | **CONFIG-INIT-NULL-01 (1/5; #195 merged)** | 13/13 PR checks; merge `2e6d588079fa0712dbf89dfbca1dc77b526bfd63` | 13/13 integrated-main checks passed at inspection; manual acceptance NOT RUN |

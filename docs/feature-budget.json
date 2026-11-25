@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "c616e54e4f2df036b2ef94dd6d073c877298082c",
+  "snapshot_main_sha": "2e6d588079fa0712dbf89dfbca1dc77b526bfd63",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CONFIG-INIT-NULL-01",
+  "active_feature_id": "WATCHER-CANCEL-BOUNDARY-01",
   "features": [
     {
       "id": "PERF-01",
@@ -696,7 +696,7 @@
       "prs": [
         194
       ],
-      "summary": "PR #194 merged; 13/13 exact-head checks passed; 12/13 integrated-main checks passed at inspection; 1 not passed at inspection; manual acceptance NOT RUN.",
+      "summary": "PR #194 merged; 13/13 exact-head and integrated-main checks passed (verified previous invocation); manual acceptance NOT RUN.",
       "last_merged_pr": 194,
       "merge_sha": "c616e54e4f2df036b2ef94dd6d073c877298082c",
       "tested_head_sha": "a84d7ecc52d24b8c06b84e155a483fa0784bebd5"
@@ -704,11 +704,21 @@
     {
       "id": "CONFIG-INIT-NULL-01",
       "title": "Guard configuration initialization and verify scalar reset preserves routes",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         195
       ],
-      "summary": "PR #195 registered (1/5); null initialization guard and scalar reset regression; local tests NOT RUN; exact-head CI pending."
+      "summary": "PR #195 merged; 13/13 exact-head checks passed; 13/13 integrated-main checks passed at inspection; manual acceptance NOT RUN.",
+      "last_merged_pr": 195,
+      "merge_sha": "2e6d588079fa0712dbf89dfbca1dc77b526bfd63",
+      "tested_head_sha": "26794933c6614de7f22d5d80ad8d0eda051ce282"
+    },
+    {
+      "id": "WATCHER-CANCEL-BOUNDARY-01",
+      "title": "Honor pending cancellation between buffered watcher records",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "C17 cooperative stop checks and pending-record regression; local tests NOT RUN; CI pending."
     }
   ]
 }

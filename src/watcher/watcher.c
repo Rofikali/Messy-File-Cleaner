@@ -94,6 +94,13 @@ static int process_event_buffer(const char *buffer, size_t length,
     size_t offset = 0;
     while (offset < length)
     {
+        /* Cancellation is cooperative, including between buffered records. */
+        if (atomic_load(&ctx->stop_signal) != 0)
+        {
+            errno = ECANCELED;
+            return -1;
+        }
+
         size_t remaining = length - offset;
         if (remaining < sizeof(struct inotify_event))
         {
@@ -132,6 +139,12 @@ static int process_event_buffer(const char *buffer, size_t length,
                 strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
             {
                 errno = EBADMSG;
+                return -1;
+            }
+
+            if (atomic_load(&ctx->stop_signal) != 0)
+            {
+                errno = ECANCELED;
                 return -1;
             }
 

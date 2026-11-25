@@ -8,7 +8,9 @@
 int dispatch(AppContext *ctx, const char *path);
 /* Watches a directory only; trims trailing separators (except the root slash)
  * before no-follow registration. Event paths use the trimmed root.
- * Ancestor symlinks, dot-component aliases and later path replacement are outside this guarantee. */
+ * Ancestor symlinks, dot-component aliases and later path replacement are outside this guarantee.
+ * A stop signal is checked between buffered records and before path construction;
+ * cancellation is cooperative, not a guarantee against an in-flight enqueue. */
 int start_watcher(const char *path, AppContext *ctx);
 
 #ifdef FC_WATCHER_TESTING

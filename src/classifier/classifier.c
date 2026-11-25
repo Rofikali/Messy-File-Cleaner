@@ -4,8 +4,11 @@
 
 static const char *extract_ext(const char *filename)
 {
-    const char *dot = strrchr(filename, '.');
-    if (!dot || dot == filename)
+    /* Workers pass full POSIX paths; only the final component has an extension. */
+    const char *slash = strrchr(filename, '/');
+    const char *basename = slash ? slash + 1 : filename;
+    const char *dot = strrchr(basename, '.');
+    if (!dot || dot == basename || dot[1] == '\0')
         return NULL;
     return dot;
 }

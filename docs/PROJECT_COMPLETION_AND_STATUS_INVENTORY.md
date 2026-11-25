@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**25 November 2026 — hash-map scoped evaluation:** PR #213 merged, 14/14 exact-head jobs passed; integrated-main CI NOT VERIFIED. Existing production 64-slot map retained; synthetic benchmark acceptance complete (4/5), representative performance and hostile-key claims NOT established. [Evidence](performance/HASHMAP_BASELINE.md). Next independent test-only [path allocation baseline](performance/PATH_ALLOCATION_BASELINE.md). FS-01B/REL-01 remain blocked.
+
 **Purpose:** Evidence-conscious companion to the [live NOW / NEXT / LATER board](../next.md). Source snapshot: GitHub `main` `30f14e93a70297d696026f2d3f60549ce50c7a1f`, 2026-11-16. This is a **source/recorded-CI review**, not a newly executed end-to-end safety assessment. When code and this page differ, current source and accepted contracts win. This page classifies **feature completion**, not only merged PRs.
 
 ## 2026-11-21 transition checkpoint — current evidence, not universal acceptance

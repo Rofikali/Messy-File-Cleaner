@@ -1,0 +1,26 @@
+# HASHMAP-EVAL-01 — Bounded hash-map lookup baseline
+
+Baseline main a31948068067fbf62437404808371673a141be80. Existing production map uses caller-owned fixed-capacity power-of-two storage, a string hash, linear probing, bounded full-table search, copied strings and existing-key updates. Preserve those semantics, overflow guards and overlap-safe existing-value updates.
+
+## Reference-only assessment
+[Linux kernel hashtable.h](https://github.com/torvalds/linux/blob/master/include/linux/hashtable.h) (live reference, not pinned or imported) uses hlist buckets, requiring a different storage model; [Linux hsearch(3)](https://man7.org/linux/man-pages/man3/hsearch.3.html) describes libc table management, different ownership and update semantics. Neither is a drop-in replacement. No external code or dependency added; license/import lock remains active. Evaluate existing performance first; any alternative must justify compatibility, security, memory and maintenance cost.
+
+## Measurement
+Independent C test-only executable links actual hashmap.c. Fixed capacity 256, 64/128/192/256 occupied slots (25/50/75/100%). Pre-generated short extension-like keys and values, separate absent keys. Each occupancy has three 32,768-lookup hit samples and three miss samples; 786,432 lookups total. Check every returned value or absence and unchanged size. Alternate hit/miss order. Setup excluded from CLOCK_MONOTONIC timing; timed region includes loop, indexing and verification. No random/hostile-key claim; patterned keys can cluster, this is one synthetic distribution. No tail-latency, insertion, memory allocator or end-to-end classifier measurement. Full-table misses exercise bounded search. CTest smoke limit 15 seconds, no timing threshold. No real files, privileges, extra CI job, external imports, manual dispatch or spending. Local execution NOT RUN at creation.
+
+Reproduce on a local checkout: configure Release CMake with BUILD_TESTING=ON; build target hashmap-benchmark and run ctest -R '^hashmap_benchmark_smoke$' -V in that build directory. Record exact commit, compiler, flags, hardware, table size, all samples and distribution before comparisons. No production change, ABI change or speedup claim. BENCH-SCALE-01 remains exhausted; this is a distinct in-memory lookup feature. L1–L7, security/Linux/SRE: bounded original harness, retain existing validation and ownership; CCIE/network N/A; CA/MBA/management: no new spend, compare total cost before adoption. FS-01B/REL-01 remain blocked; rollback by revert.
+
+## Observed standalone local evidence — 25 November 2026
+
+Reconstructed three files in an isolated temporary directory and verified Git blob IDs at c5427791cc3c5995bb356898dfaf6f784e5b46b5: src/utils/hashmap.c 51980e4b33677fe244c4b51bf20418164b767312; include/utils/hashmap.h c7feefb8e774fb25230d7821f97e149c9912a16f; tests/performance/hashmap_benchmark.c fdb852cf186a8f4ea7fba0e387b149c03ccf2d79. Initial header reconstruction had an extra trailing newline; corrected and verified all three exact hashes before compilation. GCC 14.2.0 (Debian 14.2.0-19), Linux 6.18.57 x86_64, Intel Xeon Platinum 8573C reported by lscpu, CPUs 0–4 allowed, shared container without affinity. Command: gcc -std=c17 -O3 -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes -Werror -Iinclude tests/performance/hashmap_benchmark.c src/utils/hashmap.c -Wl,-z,relro,-z,now -o hashmap-benchmark; timeout 15 ./hashmap-benchmark. Exit zero, 786432 verified lookups, 84 B/entry, 21504 B backing storage (excludes map and fixture arrays). Timing includes result checks.
+
+| Occupancy | Hit samples ns/lookup (elapsed ns) | Miss samples ns/lookup (elapsed ns) | Hit median ns | Miss median ns |
+|---|---|---|---:|---:|
+| 25% | 14.033 (459831), 13.638 (446894), 14.494 (474938) | 10.309 (337802), 11.603 (380215), 10.648 (348913) | 14.033 | 10.648 |
+| 50% | 23.398 (766694), 23.432 (767811), 22.901 (750410) | 52.525 (1721126), 26.659 (873550), 27.372 (896915) | 23.398 | 27.372 |
+| 75% | 29.318 (960704), 29.036 (951450), 30.795 (1009091) | 46.668 (1529224), 49.768 (1630784), 46.824 (1534335) | 29.318 | 46.824 |
+| 100% | 72.516 (2376194), 73.678 (2414272), 71.425 (2340467) | 976.436 (31995849), 934.292 (30614878), 1006.867 (32993023) | 72.516 | 976.436 |
+
+Full-table misses probe all 256 slots in the existing implementation; these synthetic samples demonstrate why occupancy and absent-key frequency matter. 100% vs 25% miss median ratio about 91.7x, not a before/after speedup or representative classifier measurement. No production capacity recommendation without actual usage evidence; no weakening of full-table semantics or validation.
+
+Additional standalone builds with the same Release flags and -std=c11 and -std=c23 both passed all 786432 verified lookups. GCC C17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer -Wall -Wextra -Wpedantic -Werror, ASAN_OPTIONS=detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1, timeout 15, exit zero with no sanitizer diagnostics. Three Release builds plus sanitized build completed 3145728 verified lookups in total; only C17 Release timing above reported. These are narrow standalone runs, not full local checkout/CMake/CTest or whole-program sanitizer acceptance. No import, production code change or spend.

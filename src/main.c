@@ -291,9 +291,8 @@ static int validate_root_output_overlap(const char *root, const char *cwd,
         if (S_ISLNK(st.st_mode) || !S_ISDIR(st.st_mode))
         {
             int saved_errno = S_ISLNK(st.st_mode) ? ELOOP : ENOTDIR;
-            fprintf(stderr,
-                    "Refusing output path '%s': it must be a real directory, not a symlink or file.\n",
-                    output_path);
+            fputs("Refusing output path: it must be a real directory, not a symlink or file.\n",
+                  stderr);
             free(output_path);
             errno = saved_errno;
             return -1;
@@ -327,9 +326,8 @@ static int validate_root_output_overlap(const char *root, const char *cwd,
     int overlaps = paths_overlap(root, canonical_output);
     if (overlaps)
     {
-        fprintf(stderr,
-                "Refusing input root '%s': it overlaps output directory '%s'. Choose a separate input folder or working directory.\n",
-                root, canonical_output);
+        fputs("Refusing input root: it overlaps output directory. Choose a separate input folder or working directory.\n",
+              stderr);
     }
 
     free(canonical_output);
@@ -365,16 +363,14 @@ static int validate_root_and_outputs(CliOptions *opts, Config *cfg,
     if (lstat(root_argument, &root_lstat) != 0)
     {
         int saved_errno = errno;
-        fprintf(stderr, "Input root '%s' is not accessible: %s\n",
-                opts->root, strerror(saved_errno));
+        fprintf(stderr, "Input root is not accessible: %s\n", strerror(saved_errno));
         free(root_argument);
         errno = saved_errno;
         return -1;
     }
     if (S_ISLNK(root_lstat.st_mode))
     {
-        fprintf(stderr, "Refusing symlink input root '%s'. Use its real directory path.\n",
-                opts->root);
+        fputs("Refusing symlink input root. Use its real directory path.\n", stderr);
         free(root_argument);
         errno = ELOOP;
         return -1;
@@ -388,7 +384,7 @@ static int validate_root_and_outputs(CliOptions *opts, Config *cfg,
     struct stat root_stat;
     if (stat(canonical_root, &root_stat) != 0 || !S_ISDIR(root_stat.st_mode))
     {
-        fprintf(stderr, "Input root '%s' must be a directory.\n", canonical_root);
+        fputs("Input root must be a directory.\n", stderr);
         free(canonical_root);
         errno = ENOTDIR;
         return -1;
@@ -396,8 +392,7 @@ static int validate_root_and_outputs(CliOptions *opts, Config *cfg,
 
     if (!opts->force && is_dangerous_root(canonical_root))
     {
-        fprintf(stderr, "Refusing dangerous input root '%s'. Pass --force only if you really intend this.\n",
-                canonical_root);
+        fputs("Refusing dangerous input root. Pass --force only if you really intend this.\n", stderr);
         free(canonical_root);
         errno = EPERM;
         return -1;

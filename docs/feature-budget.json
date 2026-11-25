@@ -898,9 +898,10 @@
       "status": "ACTIVE",
       "prs": [
         221,
-        222
+        222,
+        223
       ],
-      "summary": "PR #222 merged, 13/13 returned exact-head jobs; C17 Release 62/62 tests and descriptor smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Third early-stop/rescan candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "summary": "PR #223 registered (3/5); #222 merged, 13/13 returned exact-head jobs, C17 Release 62/62 tests and descriptor smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Early-stop/rescan contracts; local tests NOT RUN at creation; CI pending; production unchanged.",
       "last_merged_pr": 222,
       "merge_sha": "d45c084b5806c873240fd6fcbb629f35606c6f2a",
       "tested_head_sha": "5970c88e968cd459bf104567bd2e95233564109f"

@@ -867,8 +867,10 @@
       "id": "MEMORY-POOL-EVAL-01",
       "title": "Bounded owned lexical path allocation evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First native path-allocation baseline candidate; no production allocator change; local tests NOT RUN, CI pending."
+      "prs": [
+        214
+      ],
+      "summary": "PR #214 registered (1/5); native bounded owned lexical path allocation baseline; local tests NOT RUN at creation, CI pending; no production allocator change."
     }
   ]
 }

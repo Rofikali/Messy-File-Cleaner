@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Hash-map metadata trust boundary
+
+The C hash map rejects capacity whose entry-byte extent exceeds SIZE_MAX and rejects size greater than capacity before lookup or insertion. Invalid initialization resets map metadata without touching backing entries. This validates representability, not actual caller-owned buffer extent or entry integrity; no ABI or filesystem mutation contract changes. Unit regressions exercise malformed metadata and preserve valid routing entries.
+
 ## Configuration diagnostic trust boundary
 
 Extension routing names reject control bytes before insertion into the map; rejection uses a fixed diagnostic. Existing safe destinations and ordinary extension keys retain their behavior. Disposable integration tests cover short control-containing keys and exact diagnostic bytes.

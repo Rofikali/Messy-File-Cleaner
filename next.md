@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-> **Live reconciliation checkpoint:** PR #161 merged at `88325fbae9dc9b0cc5ded96cdfd7d52926358090`; exact-head and integrated CI NOT VERIFIED in this run. Current feature: CONFIG-EXT-CONTROL-KEY-01.
+> **Live reconciliation checkpoint:** PR #162 merged at `930a25dde6a470d4ec5ab8b520b7f4f45db3097b`; all 13 exact-head and integrated-main checks passed. Current feature: HASHMAP-METADATA-GUARD-01.
 
 > **Handoff (2026-11-22; verified GitHub):** PR #143 AUTOPILOT-HANDOFF-01 **MERGED** at `80de73b465ede49eec0882846c50efc0cbdee254`, reviewed exact head `c2c232aa7aceebf26c776a01f403fd3ac0d8ff77`; CMake, Docker, Makefile and Ubuntu 24.04 workflows succeeded on the PR head and merge commit. Its offline selector check does NOT establish live GitHub state. PR #142 previously merged scanner identity checking, which does NOT close source-retirement TOCTOU. **PLAN-REPORT-01 PARTIAL:** PR #145 merged at `ac9fc87a91a665e2d0f09a3af79ee7f7ca310139` (tested head `4674ee4293c9c97c0c871fe6601b5aa33908119c`, five CI workflow families PASS); aggregate-only report, no per-file plan/conflicts. **CONFIG-MODE-01 DONE:** PR #146 merged at `d7adc17afa4c015f95ad016bb3817c133a682435` (tested head `43dafa1eb0699d38f0825a0423fc73b88372df6d`; four workflow families PASS). **CONFIG-NUMERIC-01 DONE:** PR #147 merged at `d839ad608c554d0c7715dc6264be6952ef07eccf` (tested head `03956c1828a31e375fe9971e65662b58c291d6a6`; four workflow families PASS). **CONFIG-LINE-01 DONE:** PR #148 merged at `3b32efbe8fad2047f3588fa51c907525a4e4dca4` (tested head `36383fd2ca31cba9489a7e88b530b29b1fd6298d`; four PR workflow families PASS). CONFIG-EXT-TRAIL-01 is historical. Manual owner Ubuntu/Compose, hostile filesystems, backups and power-loss acceptance NOT RUN; FS-01B P0 and REL-01 remain BLOCKED.
 >
@@ -10,7 +10,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CONFIG-EXT-CONTROL-KEY-01 (1/5; PR #162 OPEN)** | Reject control bytes in extension routing keys; disposable regression tests | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **HASHMAP-METADATA-GUARD-01 (1/5; PR #163 OPEN)** | Reject impossible hash-map extent and size metadata; unit regressions | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **DONE** | **CONFIG-EXT-CONTROL-KEY-01 (1/5; #162 merged)** | All 13 PR and integrated-main checks passed; merge `930a25dde6a470d4ec5ab8b520b7f4f45db3097b` | Manual acceptance NOT RUN |
 | **DONE** | **CONFIG-API-PRECONDITIONS-01 (1/5; #161 merged)** | Loader preconditions integrated at `88325fbae9dc9b0cc5ded96cdfd7d52926358090` | CI NOT VERIFIED; manual acceptance NOT RUN |
 | **DONE** | **CONFIG-DIAGNOSTIC-01 (1/5; #160 merged)** | All 13 PR and integrated-main checks passed; merge `fdf97648157fda6cb59d026bac25d1ea94dc4b49` | Manual acceptance NOT RUN |
 | **DONE** | **CONFIG-NUL-INPUT-01 (1/5; #159 merged)** | All 13 PR and integrated-main checks passed; merge `9df0278e237a070a1a18c8296c0edafe072c3ca0` | Manual acceptance NOT RUN |

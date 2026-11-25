@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "utils/hashmap.h"
 
@@ -38,6 +39,26 @@ int main(void)
     assert(invalid.capacity == 0);
     assert(hashmap_put(&invalid, ".txt", "Text/") == -1);
     assert(hashmap_get(&invalid, ".txt") == NULL);
+
+    /* Malformed metadata must be rejected without probing or modifying entries. */
+    HashMap malformed = map;
+    malformed.size = map.capacity + 1;
+    assert(hashmap_put(&malformed, ".jpg", "Changed/") == -1);
+    assert(hashmap_get(&malformed, ".jpg") == NULL);
+    assert(malformed.size == map.capacity + 1);
+    assert(strcmp(hashmap_get(&map, ".jpg"), "Images/") == 0);
+    assert(map.size == 3);
+
+    /* A power-of-two capacity whose byte extent overflows size_t is invalid. */
+    size_t impossible_capacity = SIZE_MAX / 2 + 1;
+    malformed = map;
+    malformed.capacity = impossible_capacity;
+    assert(hashmap_put(&malformed, ".jpg", "Changed/") == -1);
+    assert(hashmap_get(&malformed, ".jpg") == NULL);
+    assert(strcmp(hashmap_get(&map, ".jpg"), "Images/") == 0);
+    hashmap_init(&invalid, entries, impossible_capacity);
+    assert(invalid.entries == NULL && invalid.capacity == 0 && invalid.size == 0);
+    assert(strcmp(hashmap_get(&map, ".jpg"), "Images/") == 0);
 
     puts("hashmap tests passed");
     return 0;

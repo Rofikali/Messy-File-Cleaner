@@ -813,8 +813,10 @@
       "id": "UPSTREAM-AUDIT-01",
       "title": "Initial reference-only upstream module comparison and queue acceptance regression",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Baseline module triage, verified Linux references and full-ring recycling test; local tests NOT RUN; CI pending."
+      "prs": [
+        204
+      ],
+      "summary": "PR #204 registered (1/5); reference-only module assessment and full-ring recycle regression; local tests NOT RUN; exact-head CI pending."
     }
   ]
 }

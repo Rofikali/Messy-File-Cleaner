@@ -264,26 +264,9 @@ static int is_dangerous_root(const char *root)
 static int validate_root_output_overlap(const char *root, const char *cwd,
                                        const char *component)
 {
-    size_t cwd_length = strlen(cwd);
-    size_t component_length = strlen(component);
-    if (cwd_length > SIZE_MAX - component_length - 2)
-    {
-        errno = EOVERFLOW;
-        return -1;
-    }
-
-    size_t output_capacity = cwd_length + component_length + 2;
-    char *output_path = malloc(output_capacity);
+    char *output_path = fc_join_path(cwd, component);
     if (!output_path)
         return -1;
-
-    int written = snprintf(output_path, output_capacity, "%s/%s", cwd, component);
-    if (written < 0 || (size_t)written >= output_capacity)
-    {
-        free(output_path);
-        errno = EOVERFLOW;
-        return -1;
-    }
 
     struct stat st;
     char *canonical_output = NULL;

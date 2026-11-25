@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "bf78092e018077ca8f5c9371f8c0a5afaebdd8e9",
+  "snapshot_main_sha": "7d30aabb4cef420be0d0fa43f45ed79e2cae13c8",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CLI-ROOT-SHARED-01",
+  "active_feature_id": "PATH-JOIN-SHARED-01",
   "features": [
     {
       "id": "PERF-01",
@@ -548,7 +548,7 @@
       "prs": [
         178
       ],
-      "summary": "PR #178 merged; 13/13 exact-head checks passed; 1/13 integrated-main checks passed, twelve pending at inspection. Manual acceptance NOT RUN.",
+      "summary": "PR #178 merged; 13/13 exact-head and integrated-main checks passed, verified in this invocation. Manual acceptance NOT RUN.",
       "last_merged_pr": 178,
       "merge_sha": "bf78092e018077ca8f5c9371f8c0a5afaebdd8e9",
       "tested_head_sha": "c6813cc7bc2ca58172d61f2a0b682a4bd25303d6"
@@ -556,11 +556,21 @@
     {
       "id": "CLI-ROOT-SHARED-01",
       "title": "Use shared root path normalization in CLI preflight",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         179
       ],
-      "summary": "Remove third duplicate root normalization; existing CLI harness covers trailing separators, rejection and source preservation. Local tests NOT RUN."
+      "summary": "PR #179 merged; 13/13 exact-head checks passed; 4/13 integrated-main checks passed, nine pending at inspection. Manual acceptance NOT RUN.",
+      "last_merged_pr": 179,
+      "merge_sha": "7d30aabb4cef420be0d0fa43f45ed79e2cae13c8",
+      "tested_head_sha": "9b690b0193bd88ea4b33b8ecfa43b49cdfbaa67b"
+    },
+    {
+      "id": "PATH-JOIN-SHARED-01",
+      "title": "Share checked lexical path join across discovery and preflight",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Internal static-inline owned join; checked size arithmetic and direct regression; no component-policy or mover changes. Local tests NOT RUN."
     }
   ]
 }

@@ -135,24 +135,9 @@ static int process_event_buffer(const char *buffer, size_t length,
                 return -1;
             }
 
-            size_t root_length = strlen(root);
-            size_t name_offset = root_length;
-            int separator = root_length > 0 && root[root_length - 1] != '/';
-            if (root_length > SIZE_MAX - (size_t)separator - name_length - 1)
-            {
-                errno = EOVERFLOW;
-                return -1;
-            }
-
-            size_t needed = root_length + (size_t)separator + name_length + 1;
-            char *full_path = malloc(needed);
+            char *full_path = fc_join_path(root, name);
             if (!full_path)
                 return -1;
-
-            memcpy(full_path, root, root_length);
-            if (separator)
-                full_path[name_offset++] = '/';
-            memcpy(full_path + name_offset, name, name_length + 1);
 
             enqueue_path(full_path, ctx);
             free(full_path);

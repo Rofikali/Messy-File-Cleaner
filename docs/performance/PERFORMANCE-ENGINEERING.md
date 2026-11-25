@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Scanner early-stop checks:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) keeps stop and rescan validation outside timed traversal measurements; no asynchronous cancellation, race or end-to-end performance claim.
+
 **Scanner FD observation:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) separates procfs callback-visible descriptor high-water from uninstrumented timing and continuous process peak. No system-wide resource-limit change or scale dispatch.
 
 **Scanner reference comparison:** [baseline](SCANNER_REFERENCE_BASELINE.md) separates small bounded exact-set traversal comparison from exhausted BENCH-SCALE-01; no scale dispatch, representative throughput or production backend change.

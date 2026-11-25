@@ -2,7 +2,7 @@
 
 ## Scanner root separator boundary
 
-The Linux scanner removes trailing root separators (preserving a single root slash) before O_NOFOLLOW directory opening. This avoids a trailing slash making a final symlink an intermediate component. Disposable tests cover one to three trailing separators on a root symlink and real directory, verify no rejected-root callbacks and unchanged discovered paths for valid roots. This does not reject ancestor symlinks or dot-component aliases, prove pathname identity, or close source-retirement races. Watcher registration has a separate boundary.
+The Linux scanner removes trailing root separators (preserving a single root slash) before O_NOFOLLOW directory opening. This avoids a trailing slash making a final symlink an intermediate component. Disposable tests cover one to three trailing separators on a root symlink and real directory, verify no rejected-root callbacks and unchanged discovered paths for valid roots. This does not reject ancestor symlinks or dot-component aliases, prove pathname identity, or close source-retirement races. Watcher registration now applies the equivalent separator normalization; see the watch registration boundary below.
 
 ## Scanner failure reporting boundary
 
@@ -30,7 +30,7 @@ The shared batch/watcher dispatch helper rejects null context, null or empty pat
 
 ## Watch registration boundary
 
-Linux watch registration uses IN_ONLYDIR and IN_DONT_FOLLOW to reject regular files and final-component symlinks. Disposable direct-API tests cover both rejection cases, a real directory, unchanged file bytes, and a bounded CTest timeout. This does not verify ancestor identity, trailing-slash or other path-resolution semantics, later pathname replacement, or move safety; FS-01B remains blocked.
+Linux watch registration trims trailing root separators (preserving a single root slash) before IN_ONLYDIR and IN_DONT_FOLLOW to reject regular files and final-component symlinks, and constructs event paths from the trimmed root. Disposable direct-API tests cover both rejection cases, one to three trailing separators on symlink and real directory roots, unchanged file bytes, and a bounded CTest timeout. The running integration watches a real directory with trailing separators and verifies dry-run event processing. This does not verify ancestor identity, dot-component aliases, later pathname replacement, or move safety; FS-01B remains blocked.
 
 ## Root/output validation diagnostic boundary
 

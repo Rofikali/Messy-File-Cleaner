@@ -22,10 +22,9 @@ static AppContext ctx;
 static HashEntry entries[64];
 static char test_root[128];
 
-static void *watcher_entry(void *unused)
+static void *watcher_entry(void *root)
 {
-    (void)unused;
-    int result = start_watcher(test_root, &ctx);
+    int result = start_watcher((const char *)root, &ctx);
     if (result != 0)
         atomic_store(&ctx.watcher_error, errno ? errno : EIO);
     return NULL;
@@ -174,6 +173,22 @@ int main(void)
     assert(start_watcher(link, &ctx) == -1);
     assert(errno == ENOTDIR);
     assert(start_watcher(test_root, &ctx) == 0);
+    char suffixed_root[256];
+    for (int separators = 1; separators <= 3; ++separators)
+    {
+        int n = snprintf(suffixed_root, sizeof(suffixed_root), "%s%.*s",
+                         link, separators, "///");
+        assert(n > 0 && (size_t)n < sizeof(suffixed_root));
+        errno = 0;
+        assert(start_watcher(suffixed_root, &ctx) == -1);
+        assert(errno == ENOTDIR || errno == ELOOP);
+
+        n = snprintf(suffixed_root, sizeof(suffixed_root), "%s%.*s",
+                     test_root, separators, "///");
+        assert(n > 0 && (size_t)n < sizeof(suffixed_root));
+        assert(start_watcher(suffixed_root, &ctx) == 0);
+    }
+    assert(atomic_load(&ctx.metrics.events_seen) == 0);
     assert(atomic_load(&ctx.metrics.events_enqueued) == 0);
     char preserved[4];
     regular_fd = open(regular, O_RDONLY | O_CLOEXEC);
@@ -189,7 +204,7 @@ int main(void)
     assert(start_workers(&ctx, 1) == 0);
 
     pthread_t watcher;
-    assert(pthread_create(&watcher, NULL, watcher_entry, NULL) == 0);
+    assert(pthread_create(&watcher, NULL, watcher_entry, suffixed_root) == 0);
     /* An observed idle timeout proves registration and poll-loop entry.
      * Avoid a fixed startup sleep that can race a slow CI scheduler. */
     for (int i = 0; i < 5000 &&

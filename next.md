@@ -10,7 +10,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SCANNER-RESOURCE-REGRESSION-01 (0/5; PR assignment pending)** | Verify stream ownership failure and actual isolated Linux descriptor limit exhaustion | Local tests NOT RUN; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SCANNER-RESOURCE-REGRESSION-01 (1/5; PR #183 OPEN)** | Verify stream ownership failure and actual isolated Linux descriptor limit exhaustion | Local tests NOT RUN; FS-01B/REL-01 blocked |
 | **DONE** | **SCANNER-FD-EXHAUSTION-01 (1/5; #182 merged)** | 13/13 PR checks; merge `097e5df774f903a165d29a9c99aa464346175977` | 1/13 integrated checks passed, 12 pending at inspection; manual acceptance NOT RUN |
 | **DONE** | **SCANNER-ALLOCATION-FAILURE-01 (1/5; #181 merged)** | 13/13 PR checks; merge `d7ffc2d0a93c6cebeb3b0331f74f6bd6d8fcafe5` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |
 | **DONE** | **PATH-JOIN-SHARED-01 (1/5; #180 merged)** | 13/13 PR checks; merge `56ccadd5f99c134b8b2c727d5286c5a0eb0cee15` | 13/13 integrated checks passed (verified in this invocation); manual acceptance NOT RUN |

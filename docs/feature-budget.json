@@ -605,7 +605,9 @@
       "id": "SCANNER-RESOURCE-REGRESSION-01",
       "title": "Exercise scanner directory stream ownership and isolated real descriptor limit",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        183
+      ],
       "summary": "Test-only fdopendir ENOMEM injection and isolated fork/RLIMIT_NOFILE EMFILE regression, descriptor balance and rescan. Local tests NOT RUN."
     }
   ]

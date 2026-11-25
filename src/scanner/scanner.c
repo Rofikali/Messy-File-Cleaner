@@ -104,6 +104,13 @@ int scan_directory(const char *path, event_handler_fn handler,
         return -1;
     }
 
+    /* An already-cancelled valid request must not access the filesystem. */
+    if (stop_signal && atomic_load_explicit(stop_signal, memory_order_relaxed) != 0)
+    {
+        errno = ECANCELED;
+        return -1;
+    }
+
     int root_fd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
     if (root_fd < 0)
         return -1;
@@ -255,6 +262,15 @@ int scan_directory(const char *path, event_handler_fn handler,
             }
 
             continue;
+        }
+
+        /* Recheck after discovery, immediately before handing off the path. */
+        if (stop_signal && atomic_load_explicit(stop_signal, memory_order_relaxed) != 0)
+        {
+            free(child_path);
+            status = -1;
+            saved_errno = ECANCELED;
+            break;
         }
 
         errno = 0;

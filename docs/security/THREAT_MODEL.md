@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Watcher terminal-record regression
+
+Synthetic inotify batches cover IN_Q_OVERFLOW (ENOSPC), IN_IGNORED, IN_DELETE_SELF, IN_MOVE_SELF and IN_UNMOUNT (ESTALE), including overflow precedence and a following actionable file record. Assertions require zero events seen/enqueued and no worker-error side effect in the parser. This is test coverage of existing fail-closed behavior, not automatic resynchronization or proof of real kernel overflow recovery. No production source or filesystem policy changes.
+
 ## Watcher buffered cancellation boundary
 
 A pending stop signal is checked before decoding each buffered inotify record and again before constructing actionable paths. Cancellation at those boundaries returns ECANCELED without handing off the pending record; start_watcher retains its existing graceful-stop handling. Tests exercise a valid pending record and a truncated record under pre-existing cancellation with zero events seen/enqueued. Earlier accepted work and races after a cooperative check remain outside this guarantee. No filesystem retirement or mover policy changes.

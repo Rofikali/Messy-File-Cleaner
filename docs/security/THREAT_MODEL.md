@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Scanner directory-read resource exhaustion
+
+A readdir failure with EMFILE, ENFILE or ENOMEM records the first error and stops discovery before subsequent frames or sibling entries are visited. Owned streams and paths unwind through the existing cleanup loop. Test-only depth-targeted faults cover root, first child and deeper frames for all three errors, with child-open counts at root/first-child boundaries, descriptor balance, fixture existence and successful rescan. Normal EOF and other directory-read errors retain existing behavior. No real system-wide exhaustion, source-retirement guarantee or mover change.
+
 ## CLI worker override uniqueness
 
 Repeated --workers options fail at CLI parsing before configuration loading or filesystem operations, including identical counts and overrides separated by other arguments. This prevents silent last-value-wins resource configuration. Single valid counts retain their existing range and behavior; disposable CLI tests assert usage failure and no configuration/journal creation. No worker scheduling, filesystem retirement, or ABI change.

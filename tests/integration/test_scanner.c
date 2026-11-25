@@ -543,6 +543,34 @@ int main(void)
         }
     }
 
+    /* readdir resource exhaustion is terminal, including nested streams.
+     * The first child stream failure must prevent later sibling opens. */
+    const size_t read_depths[] = {1, 2, 4};
+    for (size_t i = 0; i < sizeof(resource_errors) / sizeof(resource_errors[0]); ++i)
+    {
+        for (size_t j = 0; j < sizeof(read_depths) / sizeof(read_depths[0]); ++j)
+        {
+            found_count = 0;
+            fc_test_fail_scanner_child_open_after(0, 0);
+            fc_test_fail_scanner_read_at_depth(read_depths[j], resource_errors[i]);
+            errno = 0;
+            assert(scan_directory(root, collect, NULL) == -1);
+            assert(errno == resource_errors[i]);
+            if (read_depths[j] == 1)
+                assert(found_count == 0 && fc_test_scanner_child_open_attempts() == 0);
+            if (read_depths[j] == 2)
+                assert(fc_test_scanner_child_open_attempts() == 1);
+            for (size_t k = 0; k < found_count; ++k)
+                assert(strcmp(found[k], deep_file) != 0);
+            assert(count_open_fds() == descriptors);
+            assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
+            assert(access(sibling_file, F_OK) == 0);
+            found_count = 0;
+            assert(scan_directory(root, collect, NULL) == 0);
+            assert(found_count == 3 && count_open_fds() == descriptors);
+        }
+    }
+
     test_real_descriptor_limit(root);
     assert(count_open_fds() == descriptors);
     found_count = 0;

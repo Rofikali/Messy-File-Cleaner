@@ -31,6 +31,14 @@ static void record_failure(int *status, int *saved_errno)
 #ifdef FC_SCANNER_TESTING
 /* Single-threaded test hook; absent from production builds. */
 static int test_next_stat_error;
+static size_t test_read_failure_depth;
+static int test_read_error;
+
+void fc_test_fail_scanner_read_at_depth(size_t depth, int error)
+{
+    test_read_failure_depth = depth;
+    test_read_error = error;
+}
 static int test_opened_stat_error;
 static int test_opened_stats_before_failure;
 static int test_frame_growths_before_failure = -1;
@@ -261,11 +269,26 @@ int scan_directory(const char *path, event_handler_fn handler,
         ScanFrame *frame = &frames[frame_count - 1];
 
         errno = 0;
-        struct dirent *entry = readdir(frame->directory);
+        struct dirent *entry;
+#ifdef FC_SCANNER_TESTING
+        if (test_read_error != 0 && frame_count == test_read_failure_depth)
+        {
+            errno = test_read_error;
+            test_read_error = 0;
+            entry = NULL;
+        }
+        else
+#endif
+        {
+            entry = readdir(frame->directory);
+        }
         if (!entry)
         {
-            if (errno != 0)
+            int read_errno = errno;
+            if (read_errno != 0)
                 record_failure(&status, &saved_errno);
+            if (is_resource_exhaustion(read_errno))
+                break;
 
             if (closedir(frame->directory) != 0)
                 record_failure(&status, &saved_errno);

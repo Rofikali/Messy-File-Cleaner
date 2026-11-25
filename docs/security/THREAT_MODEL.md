@@ -1,5 +1,9 @@
 # Security Threat Model
 
+## Scanner cancellation boundary
+
+Valid pre-cancelled scans return ECANCELED before opening the root; discovery rechecks cancellation immediately before file callback handoff. Input validation still takes precedence over cancellation. Disposable tests cover missing roots with and without cancellation, cancellation requested by the first callback, and source existence; known fixtures are removed on successful test completion. Checks are cooperative, not atomic with syscalls or callback execution, and do not undo queued work or establish source-retirement safety.
+
 ## Worker pool ownership boundary
 
 Process-wide static thread storage has a single owning context. Duplicate starts and wrong-context notification/join fail before overwriting live metadata or touching descriptors. Disposable C regression exercises duplicate and cross-context calls, original pool preservation, partial-start cleanup through existing tests, and ownership transfer after a successful join. This guard assumes caller-serialized lifecycle operations and stopped producers before join; it does not provide concurrent lifecycle synchronization or repair failed pthread joins. Filesystem retirement remains outside scope.

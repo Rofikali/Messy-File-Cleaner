@@ -162,6 +162,7 @@ if(BUILD_TESTING)
   target_include_directories(test_scanner PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_options(test_scanner PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -UNDEBUG)
   add_test(NAME scanner_security COMMAND test_scanner)
+  set_tests_properties(scanner_security PROPERTIES TIMEOUT 30)
 
   add_executable(test_mover
     tests/integration/test_mover.c

@@ -12,6 +12,7 @@
 
 static char found[8][PATH_MAX];
 static size_t found_count;
+static atomic_int callback_stop;
 
 static int collect(const char *path)
 {
@@ -36,6 +37,14 @@ static int fail_without_errno(const char *path)
     found_count++;
     errno = 0;
     return -1;
+}
+
+static int cancel_after_one(const char *path)
+{
+    (void)path;
+    found_count++;
+    atomic_store(&callback_stop, SIGTERM);
+    return 0;
 }
 
 static void write_file(const char *path)
@@ -161,6 +170,52 @@ int main(void)
     assert(scan_directory(root, collect, &stop_signal) == -1);
     assert(errno == ECANCELED);
     assert(found_count == 0);
+
+    char missing[PATH_MAX];
+    n = snprintf(missing, sizeof(missing), "%s/not-created", root);
+    assert(n > 0 && (size_t)n < sizeof(missing));
+    errno = 0;
+    assert(scan_directory(missing, collect, &stop_signal) == -1);
+    assert(errno == ECANCELED);
+    assert(found_count == 0);
+    /* Input validation still precedes cancellation. */
+    errno = 0;
+    assert(scan_directory(NULL, collect, &stop_signal) == -1 && errno == EINVAL);
+    atomic_store(&stop_signal, 0);
+    errno = 0;
+    assert(scan_directory(missing, collect, &stop_signal) == -1 && errno == ENOENT);
+
+    atomic_init(&callback_stop, 0);
+    found_count = 0;
+    errno = 0;
+    assert(scan_directory(root, cancel_after_one, &callback_stop) == -1);
+    assert(errno == ECANCELED);
+    assert(found_count == 1);
+    assert(access(path, F_OK) == 0 && access(deep_file, F_OK) == 0);
+
+    /* Remove only the known disposable fixtures on successful completion. */
+    assert(unlink(root_link) == 0);
+    assert(unlink(link_path) == 0); /* dir-link */
+    n = snprintf(link_path, sizeof(link_path), "%s/file-link", root);
+    assert(n > 0 && (size_t)n < sizeof(link_path));
+    assert(unlink(link_path) == 0);
+    assert(unlink(path) == 0);
+    assert(unlink(deep_file) == 0);
+    for (int i = 0; i < 7; ++i)
+    {
+        assert(rmdir(nested) == 0);
+        char *slash = strrchr(nested, '/');
+        assert(slash != NULL);
+        *slash = '\0';
+    }
+    assert(strcmp(nested, root) == 0);
+    assert(unlink(sibling_file) == 0);
+    assert(rmdir(sibling) == 0);
+    assert(rmdir(root) == 0);
+    assert(unlink(external_child) == 0);
+    assert(rmdir(outside_dir) == 0);
+    assert(unlink(outside_file) == 0);
+    assert(rmdir(outside) == 0);
 
     puts("scanner symlink, long-path, and cancellation tests passed");
     return 0;

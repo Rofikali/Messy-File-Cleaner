@@ -413,7 +413,9 @@
       "id": "ROOT-OUTPUT-DIAGNOSTIC-01",
       "title": "Omit untrusted root/output paths from validation diagnostics",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        167
+      ],
       "summary": "Fixed preflight rejection messages preserve reason and errno; disposable CLI regression for hostile path names. Local tests NOT RUN."
     }
   ]

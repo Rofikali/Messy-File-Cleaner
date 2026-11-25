@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**String measured evidence:** [extension baseline](performance/STRING_EXTENSION_BASELINE.md) records exact-blob standalone correctness and sanitizer pass, and all 30 C17 timing samples. Production adoption remains unapproved pending representative workload/target-host evidence.
+
 **String boundary acceptance:** [extension baseline](performance/STRING_EXTENSION_BASELINE.md) requires 299,615 untimed cases, independent forward-reference routing, unchanged map size and identical borrowed result pointers for current/candidate implementations.
 
 **String acceptance:** [extension baseline](performance/STRING_EXTENSION_BASELINE.md) requires null/empty, hidden, trailing-dot, dotted-directory, unknown, uppercase and multi-extension semantics unchanged, exact results and unchanged map size. No new production algorithm.

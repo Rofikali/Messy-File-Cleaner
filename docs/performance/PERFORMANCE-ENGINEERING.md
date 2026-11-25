@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**String local evidence:** [extension baseline](STRING_EXTENSION_BASELINE.md) records three C17 Release samples per mode/prefix, standalone environment and exact source hashes; no full CMake local run, statistical significance or whole-program speed claim.
+
 **String differential checks:** [extension baseline](STRING_EXTENSION_BASELINE.md) separates exhaustive untimed correctness checks from existing timed classification samples; no speed claim or Unicode normalization.
 
 **String extension comparison:** [baseline](STRING_EXTENSION_BASELINE.md) compares identical synthetic paths and actual 64-slot map, varying prefix length, verifying all classifications. Includes strlen and lookup/verification, no timing threshold or production promotion.

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**String measured decision:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) shows reverse scan benefit in long synthetic paths, shortest paths effectively tied; retain libc production implementation without representative evidence or external imports.
+
 **String boundary evaluation:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) adds independent forward-reference routing and deterministic byte-string tests. No GNU/libc code imported; production classifier retained.
 
 **String candidate:** [extension baseline](../performance/STRING_EXTENSION_BASELINE.md) compares libc strrchr-based production classification with independent test-only reverse scanning after strlen. No libc source copied or replacement justified.

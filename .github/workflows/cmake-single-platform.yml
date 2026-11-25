@@ -19,6 +19,10 @@ jobs:
         run: python3 -m unittest discover -s scripts/tests -p 'test_feature_budget.py'
       - name: Verify budget and PR's declared feature
         run: python3 scripts/feature_budget_check.py --event "$GITHUB_EVENT_PATH"
+      - name: Test upstream import lock
+        run: python3 -m unittest discover -s scripts/tests -p 'test_upstream_import.py'
+      - name: Enforce upstream import lock
+        run: python3 scripts/upstream_import_check.py
 
   build-and-test:
     runs-on: ubuntu-latest

@@ -1,5 +1,7 @@
 # Security Threat Model
 
+**Owner-approved upstream-first policy (2026-11-25):** Follow [reuse policy](../upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](../upstream/UPSTREAM_MASTER_PLAN.md). Prefer supported Linux/POSIX APIs and mature compatible components; retain working code unless comparative evidence justifies change. External source imports and new third-party dependencies are BLOCKED pending explicit owner license decision and component acceptance. C17, C11/C23 CI, FS-01B/REL-01, no-spend and five-PR constraints remain binding.
+
 ## Configuration opened-object type boundary
 
 Configuration opens use O_NONBLOCK, O_CLOEXEC and O_NOCTTY and fstat the opened descriptor before fdopen. Non-regular objects are rejected; a FIFO with no writer must not block waiting for one. Symlinks to regular files remain supported; symlinks to FIFOs are rejected by the same descriptor check. Disposable subprocess tests use a five-second timeout, verify no journal/output creation and source bytes unchanged. Directory rejection now occurs before parsing, so the former directory fixture no longer exercises a post-open stream read error; that branch remains but is not separately fault-injected here. No claim that device opens, remote filesystems, concurrent modifications or arbitrary pathname resolution are safe or bounded. No mover or source-retirement change.

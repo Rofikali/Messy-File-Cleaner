@@ -593,7 +593,9 @@
       "id": "SCANNER-FD-EXHAUSTION-01",
       "title": "Stop scanner discovery on directory resource exhaustion",
       "status": "ACTIVE",
-      "prs": [],
+      "prs": [
+        182
+      ],
       "summary": "Fail-fast EMFILE/ENFILE/ENOMEM directory acquisition; test-only child-open faults, attempt counts and descriptor balance. Local tests NOT RUN."
     }
   ]

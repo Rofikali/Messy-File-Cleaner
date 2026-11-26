@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Linux scanner abort lifecycle reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) adds real process inheritance plus abort/rescan ownership checks; no upstream source imported.
+
 **Linux scanner exec reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) independently tests descriptor inheritance across actual exec with a positive control; no upstream source imported.
 
 **Linux selftest reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) uses independent Linux/POSIX descriptor lifecycle checks, no kselftest source imported.

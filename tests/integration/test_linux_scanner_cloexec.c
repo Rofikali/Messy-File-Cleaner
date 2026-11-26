@@ -16,6 +16,9 @@ static struct stat identities[2];
 static const char *expected_path;
 static unsigned int callbacks, exec_checks;
 static const char *root_path, *child_path;
+static int callback_error;
+static atomic_int cancel_scan;
+static int cancel_after_probe;
 
 static int same_inode(const struct stat *a, const struct stat *b)
 {
@@ -107,6 +110,13 @@ static int inspect_callback(const char *path)
         return -1;
     }
     ++callbacks;
+    if (cancel_after_probe)
+        atomic_store_explicit(&cancel_scan, 1, memory_order_relaxed);
+    if (callback_error)
+    {
+        errno = callback_error;
+        return -1;
+    }
     return 0;
 }
 
@@ -157,7 +167,31 @@ int main(int argc, char **argv)
             callbacks != 1 || inventory(0, 0, 1) != 0)
             goto cleanup;
     }
-    if (exec_checks != 6U)
+    /* Exercise real scanner unwinding after both child probes have run.
+     * Each abort is followed immediately by a clean scan of the same inodes. */
+    const int errors[] = {EACCES, EIO, 0};
+    for (size_t scenario = 0; scenario < sizeof errors / sizeof errors[0]; ++scenario)
+    {
+        callbacks = 0;
+        callback_error = errors[scenario];
+        cancel_after_probe = callback_error == 0;
+        atomic_store_explicit(&cancel_scan, 0, memory_order_relaxed);
+        const int expected_error = callback_error ? callback_error : ECANCELED;
+        errno = 0;
+        const int scan_status = scan_directory(root, inspect_callback, &cancel_scan);
+        const int scan_error = errno;
+        if (scan_status != -1 || scan_error != expected_error ||
+            callbacks != 1 || inventory(0, 0, 1) != 0)
+            goto cleanup;
+        callbacks = 0;
+        callback_error = 0;
+        cancel_after_probe = 0;
+        atomic_store_explicit(&cancel_scan, 0, memory_order_relaxed);
+        if (scan_directory(root, inspect_callback, &cancel_scan) != 0 ||
+            callbacks != 1 || inventory(0, 0, 1) != 0)
+            goto cleanup;
+    }
+    if (exec_checks != 18U)
         goto cleanup;
     fd = open(file, O_RDONLY | O_CLOEXEC);
     char byte = 0, extra = 0;
@@ -175,6 +209,6 @@ cleanup:
     if (rmdir(root) != 0)
         result = 1;
     if (result == 0)
-        puts("linux_scanner_cloexec=PASS rounds=3 live_directory_checks=6 restored=3 preserved=1 exec_negative=3 exec_positive=3");
+        puts("linux_scanner_cloexec=PASS rounds=3 live_directory_checks=18 restored=9 preserved=1 exec_negative=9 exec_positive=9 abort_errors=2 abort_cancel=1 recovery=3");
     return result;
 }

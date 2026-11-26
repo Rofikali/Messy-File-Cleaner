@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Linux selftest checkpoint:** #251 merged, 14/14 exact-head jobs and 69/69 C17 Debug/Release; prior #250 Ubuntu image PASS. [Actual exec inheritance candidate](security/FILESYSTEM-SCANNER-SECURITY.md) pending CI; production unchanged.
+
 **CPU optimization checkpoint:** #250 merged, C17 Debug/Release 68/68, 82560 guard-page checks PASS. Ubuntu image job still pending at inspection; retain production classifier. [Linux selftest candidate](security/FILESYSTEM-SCANNER-SECURITY.md) pending CI.
 
 **CPU optimization checkpoint:** #249 merged, 13/13 returned exact-head jobs, 68/68 C17 Debug/Release, dispatch policy and 660480 comparisons PASS; [final guard-page candidate](performance/CPU_OPT_REFERENCE.md) pending. Retain production classifier; no release claim.

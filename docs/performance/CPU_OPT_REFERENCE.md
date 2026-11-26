@@ -31,3 +31,6 @@ Baseline 4b632bad3f2a346edc401a2b1cf1e82581b611fc; #249 merged, 13/13 returned e
 ## Scoped closure
 
 #250 merged at c1da93f54e01bf156a5b6c70486ba96501282cda; exact head e4f310d048a584f3b68b5363f86e856e3dfe949c. CMake 45774596673, Docker 45774596618, Makefile 45774596751 PASS; Ubuntu 45774597005 three C-standard jobs PASS, image job in progress at inspection; FCJ4 TSan not returned. C17 Debug 139755089210 and Release 139755089152 each 68/68; verbose Release confirms 82560 guard-page checks with 4096-byte pages, 660480 dispatch checks and 135 timing rows PASS. Scoped research DONE 5/5, retain production classifier; no sixth PR. Older CPU, ARM, integrated-main and native benchmark not verified. Next security stage LINUX-SELFTEST-01 per master plan; public ABI/FFI gated.
+
+
+Follow-up: #250 Ubuntu workflow 45774597005 completed successfully (all four jobs); 13/13 returned exact-head jobs now PASS. FCJ4 TSan not returned. Scoped decision unchanged.

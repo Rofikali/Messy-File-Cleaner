@@ -998,8 +998,10 @@
       "id": "CPU-OPT-EVAL-01",
       "title": "Bounded portable and CPU-specific byte-processing reference evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First portable scalar/libc byte-count candidate awaiting registration; local tests NOT RUN, CI pending. No production changes or speedup claim."
+      "prs": [
+        246
+      ],
+      "summary": "First portable scalar/libc byte-count candidate registered as #246 (1/5); local tests NOT RUN, CI pending. No production changes or speedup claim."
     }
   ]
 }

@@ -1062,8 +1062,10 @@
       "id": "UPSTREAM-COMPAT-01",
       "title": "Bounded upstream compiler and platform compatibility evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First Clang C11/C17/C23 production build and CLI help candidate awaiting registration; local tests NOT RUN, exact-head CI pending; no production changes."
+      "prs": [
+        266
+      ],
+      "summary": "First Clang C11/C17/C23 production build and CLI help candidate registered as #266 (1/5); local tests NOT RUN, exact-head CI pending; no production changes."
     }
   ]
 }

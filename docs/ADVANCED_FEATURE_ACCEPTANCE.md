@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Supply-chain acceptance:** [build integrity](security/SUPPLY_CHAIN_REFERENCE.md) requires bounded fresh authenticated index refresh, fail-closed exhaustion and unchanged package set; deterministic retry branch coverage pending.
+
 **Final fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires 12 combined read/close failures with exact rollback, descriptor release, staged free and clean retry; all prior 24 cases retained.
 
 **Configuration acquisition fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires three open and three fdopen errors, exact path/flags, staged free, raw FD closure and six recovery commits.

@@ -1,6 +1,22 @@
 FROM ubuntu:24.04 AS build
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential cmake ninja-build && rm -rf /var/lib/apt/lists/*
+# Mirror metadata can change during a fetch. Retry a clean authenticated
+# index refresh, not a failed install; never consume a partial/stale index.
+RUN set -eu; \
+    for attempt in 1 2 3; do \
+        rm -rf /var/lib/apt/lists/*; \
+        if apt-get -o APT::Update::Error-Mode=any update; then \
+            break; \
+        fi; \
+        if [ "$attempt" -eq 3 ]; then \
+            echo "APT index refresh failed after 3 attempts" >&2; \
+            exit 1; \
+        fi; \
+        echo "APT index refresh failed; retry $attempt of 2" >&2; \
+        sleep "$((attempt * 2))"; \
+    done; \
+    apt-get install -y --no-install-recommends build-essential cmake ninja-build; \
+    rm -rf /var/lib/apt/lists/*
 WORKDIR /src
 COPY CMakeLists.txt ./
 COPY include/ ./include/

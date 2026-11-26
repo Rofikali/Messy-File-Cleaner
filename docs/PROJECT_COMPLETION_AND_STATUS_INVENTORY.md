@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Fault reference closure:** #260 merged, 13/13 returned jobs after Docker retry, 70/70 C17 Debug/Release, 36 faults and recoveries PASS. [Supply-chain candidate](security/SUPPLY_CHAIN_REFERENCE.md) pending CI.
+
 **Fault checkpoint:** #259 merged, 13 completed jobs PASS, Makefile pending; #258 Ubuntu image pending; 70/70 C17 Debug/Release and 24 isolated faults PASS. [Final combined fault candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.
 
 **Fault checkpoint:** #258 merged, 13 completed jobs PASS, Ubuntu image running, 70/70 C17 Debug/Release and three allocation faults PASS. [Acquisition candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.

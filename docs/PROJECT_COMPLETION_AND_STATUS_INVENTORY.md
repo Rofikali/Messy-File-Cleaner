@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Linux selftest closure:** #255 merged, 13/13 returned jobs, 69/69 C17 Debug/Release, 30 exec probes and 3 leak rejections PASS. [Fault injection candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.
+
 **Linux selftest checkpoint:** #254 merged, 13/13 returned jobs, C17 Debug/Release 69/69, depth 20 and six deep exec probes PASS. [Final leak oracle candidate](security/FILESYSTEM-SCANNER-SECURITY.md) pending; production unchanged.
 
 **Linux selftest checkpoint:** #253 merged, 12 completed jobs PASS, Ubuntu image running, C17 Debug/Release 69/69 and 18 exec probes PASS. [Deep lifecycle candidate](security/FILESYSTEM-SCANNER-SECURITY.md) pending; production unchanged.

@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+**Internal header compatibility:** [compatibility evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) records #268 merged, hosted Clang sanitizer preflight and Debug 70/70 PASS; fourth candidate checks each internal header independently and twice under GCC/Clang C11/C17/C2x, normal and test macros. No public ABI promise or new dependency.
+
 **Same-PR Clang Debug correction:** Ubuntu run 45824599054/job 139925552427 failed at link because the development image lacks Clang 18 ASan runtime archives. [Compatibility evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) moves only Debug to the existing non-root hosted Ubuntu runner with preinstalled clang-18, explicit ASan/UBSan link/run probe, disposable tracked source archive and build directory; no package added, no sanitizer disabled, container Release isolation unchanged. Host runtime availability and exact-head CI pending; host step is not container-isolated.
 
 **Compiler compatibility:** [evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) records #267 merged, full Clang C17 Release CTest 69 passed, one io_uring capability skip, zero failures; third candidate runs full Clang Debug suite with existing ASan/UBSan target instrumentation and halt-on-error, same isolation. No new packages or runtime/API changes.

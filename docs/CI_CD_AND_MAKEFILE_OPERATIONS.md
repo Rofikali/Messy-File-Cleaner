@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Internal header syntax gate:** existing Ubuntu image job runs standalone duplicate-inclusion checks with GCC/Clang, three language modes and test macros; no extra runner/packages.
+
 **Clang Debug correction:** move only Debug step to existing hosted Ubuntu runner with preinstalled clang-18 and explicit sanitizer link/run probe; original container Release isolation unchanged; host Debug not container-isolated.
 
 **Clang Debug suite:** existing Ubuntu development image, same isolation, eight-minute step, target-specific sanitizer instrumentation, halt-on-error and full registered CTest suite. No new runner or packages.

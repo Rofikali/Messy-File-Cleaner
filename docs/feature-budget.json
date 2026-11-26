@@ -1033,9 +1033,10 @@
       "prs": [
         256,
         257,
-        258
+        258,
+        259
       ],
-      "summary": "#258 merged, 13 completed exact-head jobs PASS, Ubuntu image running, FCJ4 TSan PASS; C17 Debug/Release 70/70, 12 read, 3 close and 3 allocation faults PASS. Fourth acquisition candidate awaiting registration; local tests NOT RUN, CI pending; no production change.",
+      "summary": "#258 merged, 13 completed exact-head jobs PASS, Ubuntu image running, FCJ4 TSan PASS; C17 Debug/Release 70/70, 12 read, 3 close and 3 allocation faults PASS. Fourth acquisition candidate registered as #259 (4/5); local tests NOT RUN, CI pending; no production change.",
       "last_merged_pr": 258,
       "merge_sha": "4f73f69421c7d68de91631250028c54b659a6338",
       "tested_head_sha": "6c8cffbb3e7ac45526d4a0dbdb729b2471ba194f"

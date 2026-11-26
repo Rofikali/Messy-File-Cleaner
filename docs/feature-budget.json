@@ -1017,9 +1017,10 @@
       "prs": [
         251,
         252,
-        253
+        253,
+        254
       ],
-      "summary": "#253 merged, 12 completed exact-head jobs PASS, Ubuntu image running, FCJ4 TSan not returned; 69/69 C17 Debug/Release, 18 exec probes, 9 restorations, 3 recovery scans PASS. Fourth deep lifecycle candidate awaiting registration; local tests NOT RUN, CI pending; no production change.",
+      "summary": "#253 merged, 12 completed exact-head jobs PASS, Ubuntu image running, FCJ4 TSan not returned; 69/69 C17 Debug/Release, 18 exec probes, 9 restorations, 3 recovery scans PASS. Fourth deep lifecycle candidate registered as #254 (4/5); local tests NOT RUN, CI pending; no production change.",
       "last_merged_pr": 253,
       "merge_sha": "589fb430d83af5cae716e97b23b579d804a77d58",
       "tested_head_sha": "d0dbe2fec208e74da232c686134e50c90ec23997"

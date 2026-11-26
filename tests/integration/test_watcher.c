@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <poll.h>
 #include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -12,6 +13,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/inotify.h>
+#include <sys/stat.h>
 
 #include "classifier/classifier.h"
 #include "core/context.h"
@@ -156,6 +158,109 @@ static void test_event_records(void)
     assert(atomic_load(&ctx.metrics.events_seen) == 0);
 }
 
+/* Real kernel invalidation, not a synthetic parser record. Independent raw
+ * watch illustrates that a watch can remain attached to the renamed object. */
+static void test_real_root_invalidation(void)
+{
+    char parent[] = "/tmp/fc-watch-invalidation-XXXXXX";
+    assert(mkdtemp(parent) != NULL);
+    char root[256], relocated[256], old_file[256], new_file[256];
+    int n = snprintf(root, sizeof root, "%s/root", parent);
+    assert(n > 0 && (size_t)n < sizeof root);
+    n = snprintf(relocated, sizeof relocated, "%s/relocated", parent);
+    assert(n > 0 && (size_t)n < sizeof relocated);
+    n = snprintf(old_file, sizeof old_file, "%s/original.txt", relocated);
+    assert(n > 0 && (size_t)n < sizeof old_file);
+    n = snprintf(new_file, sizeof new_file, "%s/replacement.txt", root);
+    assert(n > 0 && (size_t)n < sizeof new_file);
+    assert(mkdir(root, 0700) == 0);
+    int raw = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
+    assert(raw >= 0);
+    int wd = inotify_add_watch(raw, root, IN_CREATE | IN_MOVED_TO |
+                               IN_DELETE_SELF | IN_MOVE_SELF | IN_UNMOUNT |
+                               IN_ONLYDIR | IN_DONT_FOLLOW);
+    assert(wd >= 0);
+
+    /* Workers have already joined; no file events should reach production. */
+    unsigned long long seen = atomic_load(&ctx.metrics.events_seen);
+    unsigned long long queued = atomic_load(&ctx.metrics.events_enqueued);
+    unsigned long long moves = atomic_load(&ctx.metrics.dry_run_moves);
+    atomic_store(&ctx.watcher_error, 0);
+    atomic_store(&ctx.stop_signal, 0);
+    atomic_store(&ctx.metrics.watcher_idle_polls, 0);
+    atomic_store(&ctx.running, 1);
+    pthread_t watcher;
+    assert(pthread_create(&watcher, NULL, watcher_entry, root) == 0);
+    for (int i = 0; i < 5000 &&
+         atomic_load(&ctx.metrics.watcher_idle_polls) == 0 &&
+         atomic_load(&ctx.watcher_error) == 0; ++i)
+        sleep_milliseconds(1);
+    assert(atomic_load(&ctx.watcher_error) == 0);
+    assert(atomic_load(&ctx.metrics.watcher_idle_polls) > 0);
+
+    assert(rename(root, relocated) == 0);
+    for (int i = 0; i < 5000 && atomic_load(&ctx.watcher_error) == 0; ++i)
+        sleep_milliseconds(1);
+    assert(atomic_load(&ctx.watcher_error) == ESTALE);
+    assert(pthread_join(watcher, NULL) == 0);
+    atomic_store(&ctx.running, 0);
+
+    /* Recreate the former name, then generate an event in each object.
+     * The app has stopped; the raw watch should see only the old object. */
+    assert(mkdir(root, 0700) == 0);
+    int fd = open(new_file, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+    assert(fd >= 0 && close(fd) == 0);
+    fd = open(old_file, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+    assert(fd >= 0 && close(fd) == 0);
+    struct pollfd ready = {.fd = raw, .events = POLLIN};
+    int polled;
+    do { polled = poll(&ready, 1, 1000); } while (polled < 0 && errno == EINTR);
+    assert(polled == 1 && (ready.revents & POLLIN));
+    char buffer[4096];
+    size_t records = 0;
+    for (;;)
+    {
+        ssize_t count = read(raw, buffer, sizeof buffer);
+        if (count < 0 && errno == EINTR)
+            continue;
+        if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            break;
+        assert(count > 0);
+        size_t length = (size_t)count, offset = 0;
+        while (offset < length)
+        {
+            struct inotify_event event;
+            assert(length - offset >= sizeof event);
+            memcpy(&event, buffer + offset, sizeof event);
+            assert((size_t)event.len <= length - offset - sizeof event);
+            assert(event.wd == wd);
+            if (records == 0)
+            {
+                assert(event.mask == IN_MOVE_SELF && event.len == 0);
+            }
+            else
+            {
+                assert(records == 1 && event.mask == IN_CREATE && event.len > 0);
+                const char *name = buffer + offset + sizeof event;
+                assert(strnlen(name, event.len) < event.len);
+                assert(strcmp(name, "original.txt") == 0);
+            }
+            ++records;
+            offset += sizeof event + (size_t)event.len;
+        }
+    }
+    assert(records == 2);
+    assert(atomic_load(&ctx.metrics.events_seen) == seen);
+    assert(atomic_load(&ctx.metrics.events_enqueued) == queued);
+    assert(atomic_load(&ctx.metrics.dry_run_moves) == moves);
+    assert(access(old_file, F_OK) == 0 && access(new_file, F_OK) == 0);
+    assert(inotify_rm_watch(raw, wd) == 0);
+    assert(close(raw) == 0);
+    assert(unlink(old_file) == 0 && unlink(new_file) == 0);
+    assert(rmdir(relocated) == 0 && rmdir(root) == 0 && rmdir(parent) == 0);
+    puts("watcher_real_root_invalidation=PASS; production ESTALE; raw original identity");
+}
+
 int main(void)
 {
     test_dispatch_bounds();
@@ -272,6 +377,8 @@ int main(void)
 
     assert(unlink(file_path) == 0);
     assert(rmdir(test_root) == 0);
+
+    test_real_root_invalidation();
 
     puts("watcher integration tests passed");
     return 0;

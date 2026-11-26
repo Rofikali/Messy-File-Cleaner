@@ -45,5 +45,4 @@ jobs:
           uname -srm
           cc --version
           getconf GNU_LIBC_VERSION
-          ctest --test-dir build-c17-Release -R '^scanner_reference_benchmark_smoke
- --no-tests=error --verbose --output-on-failure
+          ctest --test-dir build-c17-Release -R '^scanner_reference_benchmark_smoke$' --no-tests=error --verbose --output-on-failure

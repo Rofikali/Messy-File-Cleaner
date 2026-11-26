@@ -71,3 +71,5 @@ For GitHub CI, report exact head SHA, workflow, status/conclusion, link, and NOT
 `BASE_SHA`, `PR_HEAD_SHA`, files changed, scoped tests, exact commands and exit statuses, selected CI runs, missing checks, production-link/packaging impact, security/failure cases, rollback, owner approval. If no actual execution evidence exists, say **NOT RUN**. Tests from prior PRs are historical baselines, not new evidence.
 
 Companion policies: [Makefile safety](quality/MAKEFILE-SAFETY.md), [engineering model](ENGINEERING_OPERATING_MODEL.md), [continuation](AGENT_CONTINUATION_AND_HANDOFF.md), [next](../next.md), [threat model](security/THREAT_MODEL.md).
+
+PR #224 same-PR repair: keep the anchored CTest selector and all flags on one YAML-indented command line; initial CMake workflow did not start jobs. Exact corrected-head execution required; no additional workflow dispatch or PR attempt.

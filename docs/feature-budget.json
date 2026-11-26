@@ -902,7 +902,7 @@
         223,
         224
       ],
-      "summary": "PR #224 registered (4/5); #223 merged, 13/13 returned exact-head jobs, C17 Release 62/62 tests and stop/rescan smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Bounded verbose reporting step not run at creation; production unchanged.",
+      "summary": "PR #224 registered (4/5); #223 merged, 13/13 returned exact-head jobs, C17 Release 62/62 tests and stop/rescan smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Bounded verbose reporting step not run at creation; production unchanged. Initial #224 CMake YAML failure (run 45744293325, zero jobs) repaired within same PR; exact corrected-head CI pending.",
       "last_merged_pr": 223,
       "merge_sha": "f5b2c15ef80f3d05e6013b0c9bd38ad8ea3131f6",
       "tested_head_sha": "adf0719aa73df1707e87a4ff8e0dfa8735699328"

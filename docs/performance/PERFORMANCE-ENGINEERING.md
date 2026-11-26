@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Path resolution reference:** [baseline](LINUX_PATH_REFERENCE.md) is an untimed Linux capability/semantics test, not lexical normalization, syscall timing or production speed evidence.
+
 **Scanner CI samples:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) captures all existing scanner reference sample rows and descriptor/stop checks in one C17 Release job; no speed threshold or representative workload claim.
 
 **Scanner early-stop checks:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) keeps stop and rescan validation outside timed traversal measurements; no asynchronous cancellation, race or end-to-end performance claim.

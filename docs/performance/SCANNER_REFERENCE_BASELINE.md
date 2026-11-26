@@ -30,3 +30,15 @@ Add a single step in existing CMake C17 Release matrix leg after full suite: una
 ### Same-PR CI repair
 
 PR #224 initial registered head 0fee3520a9d3bb3a38f014f06188d5b16dea40bd had a malformed YAML command: the anchored selector was truncated and its options appeared on an unindented line. CMake run 45744293325 failed with zero jobs; Ubuntu, Docker and Makefile completed successfully (six jobs). Restore the complete single-line quoted selector; verify the repaired exact head before merge. A separate native-scanner workflow failure 45744294554 appeared on a push; that dispatch-only workflow blob is identical to main, no root cause established, no scale dispatch authorized. No additional PR slot consumed. Integrated-main CI remains unverified.
+
+
+## Scoped evaluation closure — 26 November 2026
+
+PR #224 merged at 7d76d2917c8f096182f4b474a6364c076036b476; corrected exact head 2d968eef6bd3d0d106ea4e013f4b1bae67089758. All 13 PR-head jobs in four returned PR workflow families succeeded (CMake 45746353660, Ubuntu 45746353673, Docker 45746353678, Makefile 45746353658). C17 Release job 139663260298 reports full 62/62 suite and verbose 1/1 reference smoke PASS. Linux 7.0.0-1020-azure x86_64, cc Ubuntu 15.2.0-16ubuntu1, glibc 2.43. Three samples per mode/layout, elapsed ns for 96 files with callback verification:
+
+| Layout | Native scanner run 1/2/3 | nftw budget 4 run 1/2/3 | Native median | nftw median |
+|---|---|---|---:|---:|
+| Wide | 280796/274755/274124 | 360525/292829/269876 | 274755 | 292829 |
+| Deep | 395612/347310/336421 | 352931/298399/310131 | 347310 | 310131 |
+
+Native wide median 6.17% lower; nftw deep median 10.71% lower. Callback-visible descriptor delta wide/deep: native 2/13; nftw budget 1: 1/1; budget 4: 2/4; budget 16: 2/13. All eight descriptor traversals and eighteen stop/rescan pairs reported baseline/after 7/7; all rescan rows 96 files. One host, small stable fixtures, different descriptor semantics and uncontrolled cache state; no statistical or production throughput claim. Separate native-scanner dispatch-only workflow push failure 45746348330 with unchanged workflow; cause unresolved, no dispatch. Integrated-main push runs CMake 45746845665, Docker 45746845707, performance 45746845736 completed success; Ubuntu 45746845664 and Makefile 45746845776 in progress at inspection; native benchmark push failure 45746844265; FCJ4 TSan not returned. Do not claim all main checks pass. Scoped comparison DONE 4/5, retain native scanner for identity/error/cancellation contracts, no fifth PR solely for polish. Next independent LINUX-PATH-EVAL-01.

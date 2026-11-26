@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Path resolution acceptance:** [baseline](performance/LINUX_PATH_REFERENCE.md) requires successful capability probe and 11 stable private-fixture comparisons; missing headers/syscall or policy-denied probe NOT VERIFIED, not a capability pass. Production trust and FS-01B remain unchanged.
+
 **Scanner reporting acceptance:** [reference baseline](performance/SCANNER_REFERENCE_BASELINE.md) requires successful existing C17 Release smoke, verbose sample evidence and environment identification; keep production scanner until trust and resource equivalence are established.
 
 **Scanner stop acceptance:** [reference baseline](performance/SCANNER_REFERENCE_BASELINE.md) requires 18 deterministic stop/rescan pairs with exact unique partial callbacks, native errno, nftw callback return, descriptor restoration and complete recovery set.

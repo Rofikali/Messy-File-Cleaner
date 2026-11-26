@@ -1002,9 +1002,10 @@
         246,
         247,
         248,
-        249
+        249,
+        250
       ],
-      "summary": "#249 merged, 13/13 returned exact-head jobs, 68/68 C17 Debug/Release, 32 policy cases, 660480 dispatch comparisons (165120 forced portable), 135 timing rows PASS. Final guard-page candidate awaiting registration; local tests NOT RUN, CI pending; retain production classifier.",
+      "summary": "#249 merged, 13/13 returned exact-head jobs, 68/68 C17 Debug/Release, 32 policy cases, 660480 dispatch comparisons (165120 forced portable), 135 timing rows PASS. Final guard-page candidate registered as #250 (5/5); local tests NOT RUN, CI pending; retain production classifier.",
       "last_merged_pr": 249,
       "merge_sha": "4b632bad3f2a346edc401a2b1cf1e82581b611fc",
       "tested_head_sha": "d62d3bf1908b9073509dc6adf856fd6b9a5a3130"

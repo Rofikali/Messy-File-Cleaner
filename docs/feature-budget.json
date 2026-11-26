@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "dfcb1b9be33e2775d73c938e584b7a3e1f450cdb",
+  "snapshot_main_sha": "454ccd24fb6d12ec1ddae2e2ad6d98a5cbea0a47",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SUPPLY-CHAIN-01",
   "features": [
@@ -1050,10 +1050,10 @@
         261,
         262
       ],
-      "summary": "#261 merged, 13/13 returned exact-head jobs, C17 Debug/Release 70/70, Docker build and smoke PASS; FCJ4 TSan not returned. Second deterministic APT retry candidate registered as #262 (2/5); local tests NOT RUN; CI pending.",
-      "last_merged_pr": 261,
-      "merge_sha": "dfcb1b9be33e2775d73c938e584b7a3e1f450cdb",
-      "tested_head_sha": "7759085f54174dd3c59edfb956e079c90b91dda9"
+      "summary": "#262 merged, 13/13 returned exact-head jobs, C17 Debug/Release 70/70, seven APT retry scenarios PASS. Third build-reference inventory candidate awaiting registration; local tests NOT RUN; CI pending.",
+      "last_merged_pr": 262,
+      "merge_sha": "454ccd24fb6d12ec1ddae2e2ad6d98a5cbea0a47",
+      "tested_head_sha": "6048989004a8c3e0a8a9e7a879f3d5458dbb9db3"
     }
   ]
 }

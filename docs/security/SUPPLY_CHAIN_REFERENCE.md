@@ -6,3 +6,22 @@ Baseline a291c75995d6cf6a2f28344a4a39dec170ccdf6e. Stage 5 master plan. First ca
 ## Deterministic retry oracle — second candidate
 
 Baseline dfcb1b9be33e2775d73c938e584b7a3e1f450cdb; #261 merged, 13/13 returned exact-head jobs PASS (CMake 45786741902, Makefile 45786741889, Ubuntu 45786741852, Docker 45786742095; FCJ4 TSan not returned). C17 Release 139795295833 and Debug 139795295752 each 70/70; Docker job 139795294313 logs actual bounded RUN and image export/smoke. New POSIX shell test extracts exact RUN body (unique anchor; syntax check), executes it with private PATH containing only apt-get/rm/sleep stubs and 10-second per-case timeout, verifies strict update and identical install arguments, exact command order, exits. Seven cases: success at first/second/third update, exhaustion, install failure, initial/final cleanup failure. Stub does not remove actual lists or call real APT/network/sleep; verifies shell control flow, not APT trust implementation or actual mirror fault. Existing feature-budget CI job invokes test; no new job or external package. Production Dockerfile unchanged in this PR. Local tests NOT RUN; exact-head CI pending. Mutable base tags/package versions/actions remain future assessment; no hermetic build or signature/provenance certification. No dependencies, imports, spend or release; FS-01B/REL-01/license lock unchanged. Rollback test/CI revert.
+
+
+## Direct build-input inventory — third candidate
+
+Baseline 454ccd24fb6d12ec1ddae2e2ad6d98a5cbea0a47; #262 merged, 13/13 returned exact-head jobs PASS (CMake 45818184002, Ubuntu 45818184022, Docker 45818184063, Makefile 45818183936; FCJ4 TSan not returned). C17 Release 139903234163 and Debug 139903235267 each 70/70; feature contract job 139903233633 logs seven APT retry cases PASS. Full tracked tree enumeration at baseline returned truncated=false. Reviewed nine workflows, both Dockerfiles, Compose, devcontainer JSON, Rust toolchain and test crate lock, Makefile and CMake. Add [textual inventory](build-inputs.inventory) of 35 direct declaration occurrences across 11 files (including duplicate declarations) and POSIX shell drift gate in existing feature-budget job. Git tracked YAML files in .github/workflows and the two named Dockerfiles; compare normalized single-line literal uses, runs-on, python-version and FROM declarations to sorted inventory. New tracked workflow inputs or changed declarations require inventory review in same PR. Not a YAML parser, not a security allowlist, cannot find indirect/inline/complex YAML, scripts, runtime-fetched dependencies or arbitrary new Dockerfiles; no claim of comprehensive dependency discovery. Inventory records declarations, not pins or verified resolution.
+
+| Source | Baseline observed state | Decision |
+|---|---|---|
+| Workflow actions | actions/checkout@v4, docker/build-push-action@v6, actions/setup-python@v5, actions/upload-artifact@v4 | mutable tags; assess verified full-SHA pinning and update ownership next |
+| Hosted runners | ubuntu-latest, ubuntu-24.04 | mutable runner image and preinstalled tool versions |
+| Benchmark Python | 3.x | mutable, benchmark-only |
+| Production Docker base | ubuntu:24.04 twice | mutable; Docker job 139903234162 observed ubuntu digest 562111b88caa79c71391c0c4d3c2114a7d5c35915c20561fd893cb1e07929e6b; observation only, manifest/platform verification before pin |
+| Devcontainer base | mcr.microsoft.com/devcontainers/base:ubuntu-24.04 | mutable; Ubuntu job 139903376331 observed d94c97dd9cacf183d0a6fd12a8e87b526e9e928307674ae9c94139139c0c6eae; observation only |
+| APT dependencies | unversioned build-essential, cmake, ninja-build; devcontainer/host CI additional unversioned tooling | authenticated but mutable; no snapshot service, no new packages |
+| Rust test support | rust-toolchain.toml 1.99.1; clippy/rustfmt; Cargo.lock contains only local crate; --locked | declared toolchain fixed; test-only, no production Rust or third-party crates |
+| Devcontainer extensions | cpptools, cmake-tools, python by identifier | mutable, development only; no extension changes |
+| Compose | local build from root Dockerfile | inherits mutable base inputs |
+
+No pin or dependency change in this PR. Local tests NOT RUN; exact-head CI pending; gate must prove inventory equality, negative-control drift test pending. No new dependencies/imports/spend/release; FS-01B/REL-01/license lock unchanged. Reproducibility, SBOM, provenance and vulnerability coverage remain unverified. Rollback inventory/script/CI revert.

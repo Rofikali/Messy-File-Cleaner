@@ -1,5 +1,7 @@
 # Messy File Cleaner
 
+**Build-input inventory:** [supply-chain reference](docs/security/SUPPLY_CHAIN_REFERENCE.md) documents mutable direct action, runner, Python and Docker base references; CI checks the tracked textual inventory. #262 merged, 13/13 returned jobs and seven APT retry cases PASS. New inventory gate CI pending; no version pinning or runtime change.
+
 **APT retry acceptance:** [supply-chain reference](docs/security/SUPPLY_CHAIN_REFERENCE.md) adds a deterministic test of the exact Dockerfile RUN body with isolated command stubs, seven cases including exhausted retries and failed installation/cleanup. #261 merged, 13/13 returned exact-head jobs and 70/70 C17 Debug/Release PASS; new CI pending.
 
 **Supply-chain reference:** [build integrity](docs/security/SUPPLY_CHAIN_REFERENCE.md) begins SUPPLY-CHAIN-01 with a bounded fail-closed authenticated APT refresh in the existing production-image build after #260's observed mirror inconsistency. UPSTREAM-FAULT-01 scoped DONE 5/5; no runtime binary or dependency-set change.

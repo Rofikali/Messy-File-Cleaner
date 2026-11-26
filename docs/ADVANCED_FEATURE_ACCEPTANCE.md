@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Direct build inventory acceptance:** [supply-chain reference](security/SUPPLY_CHAIN_REFERENCE.md) requires the tracked direct declaration inventory to match actual workflow and Dockerfile references; not a complete dependency resolver.
+
 **APT retry oracle acceptance:** [build integrity](security/SUPPLY_CHAIN_REFERENCE.md) requires seven exact command-order/exit cases from actual Dockerfile RUN; no actual package operations.
 
 **Supply-chain acceptance:** [build integrity](security/SUPPLY_CHAIN_REFERENCE.md) requires bounded fresh authenticated index refresh, fail-closed exhaustion and unchanged package set; deterministic retry branch coverage pending.

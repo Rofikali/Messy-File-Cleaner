@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Build-input inventory:** [supply-chain reference](../security/SUPPLY_CHAIN_REFERENCE.md) records mutable CI/container inputs and existing dependency-free Rust test support; no source import.
+
 **APT deterministic reference:** [build integrity](../security/SUPPLY_CHAIN_REFERENCE.md) tests shell retry control flow with private stubs, not upstream imports.
 
 **Supply-chain reference:** [build integrity](../security/SUPPLY_CHAIN_REFERENCE.md) responds to observed Ubuntu mirror inconsistency without source imports or new dependencies.

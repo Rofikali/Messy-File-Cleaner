@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**26 November 2026 — path scoped evaluation:** #227 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and real UAPI error reference PASS (not skipped). Scoped evaluation DONE 3/5; production path handling retained. [Path evidence](performance/LINUX_PATH_REFERENCE.md); next [watcher reference](performance/LINUX_WATCH_REFERENCE.md). Integrated-main in progress at inspection, separate native benchmark push failure unresolved; FS-01B/REL-01 blocked.
+
 **26 November 2026 — scanner scoped evaluation:** #224 merged, 13/13 returned exact-head PR jobs passed; C17 Release verbose evidence captured. Scoped evaluation DONE 4/5, production scanner retained. [Scanner evidence](performance/SCANNER_REFERENCE_BASELINE.md); next [path resolution](performance/LINUX_PATH_REFERENCE.md). Integrated-main CI partial at inspection; separate dispatch-only native benchmark push failure unresolved; FS-01B/REL-01 blocked.
 
 **25 November 2026 — string scoped evaluation:** #220 merged, 13/13 returned exact-head jobs passed; FCJ4 TSan and integrated-main CI NOT VERIFIED. Scoped evaluation DONE 3/5, production libc classifier retained. [String evidence](performance/STRING_EXTENSION_BASELINE.md); next [scanner reference](performance/SCANNER_REFERENCE_BASELINE.md). Target-host and representative throughput remain unproven; FS-01B/REL-01 blocked.

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "52bd65c7cb9eb977a4122d7b6266d000a740bf1f",
+  "snapshot_main_sha": "a732b82372ac95cb1b64da44b75ed847c57cc829",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "LINUX-PATH-EVAL-01",
+  "active_feature_id": "LINUX-WATCH-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -910,16 +910,25 @@
     {
       "id": "LINUX-PATH-EVAL-01",
       "title": "Bounded Linux path resolution capability comparison",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         225,
         226,
         227
       ],
-      "summary": "PR #227 registered (3/5); #226 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and path identity PASS. FCJ4 TSan not returned, integrated-main in progress at inspection, native benchmark push failure unresolved. Real UAPI error candidate; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 226,
-      "merge_sha": "52bd65c7cb9eb977a4122d7b6266d000a740bf1f",
-      "tested_head_sha": "1078f00fdd9519e7cab7a8abac31042da2ad8e1e"
+      "summary": "PR #227 merged, 13/13 returned PR-head jobs; C17 Release 63/63 and path capability/error reference PASS not skipped. Scoped evaluation DONE 3/5; production path handling retained. Integrated-main in progress, native benchmark push failure unresolved.",
+      "last_merged_pr": 227,
+      "merge_sha": "a732b82372ac95cb1b64da44b75ed847c57cc829",
+      "tested_head_sha": "c91fbff69dab24c079b324a4f9cc6c667ed47b78"
+    },
+    {
+      "id": "LINUX-WATCH-EVAL-01",
+      "title": "Bounded real Linux watcher event and identity evaluation",
+      "status": "ACTIVE",
+      "prs": [
+        228
+      ],
+      "summary": "PR #228 registered (1/5); first real kernel root invalidation and raw watch identity comparison; local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

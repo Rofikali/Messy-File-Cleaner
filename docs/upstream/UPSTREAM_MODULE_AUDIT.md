@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Linux watcher reference:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) examines real inotify root invalidation and watch-object identity rather than reimplementing or importing kernel source. Existing terminal policy retained.
+
 **Path fail-closed reference:** [baseline](../performance/LINUX_PATH_REFERENCE.md) characterizes invalid openat2 requests on private fixtures, with explicit errno checks; no source imported, no production fallback.
 
 **Path identity comparison:** [baseline](../performance/LINUX_PATH_REFERENCE.md) distinguishes openat2 resolution constraints from immutable pathname identity using a private rename/replacement fixture; no kernel source imported or production adoption.

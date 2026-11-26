@@ -8,10 +8,13 @@
 #include <linux/io_uring.h>
 #include <sys/syscall.h>
 #include <sys/mman.h>
+#include <sys/uio.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <stdint.h>
 #include <string.h>
 
-/* Test-only capability discovery. No submission, mappings or file I/O. */
+/* Test-only capability discovery and bounded private-fixture execution. */
 enum { PROBE_OPS = 64 };
 
 static int supports(const struct io_uring_probe *probe, unsigned int op)
@@ -22,8 +25,8 @@ static int supports(const struct io_uring_probe *probe, unsigned int op)
     return 0;
 }
 
-/* Bounded test-only shared-ring access; no file operations, SQPOLL, or
- * registered resources. Acquire/release pairs with kernel ring ownership. */
+/* Bounded test-only shared-ring access; no SQPOLL or registered resources.
+ * Acquire/release pairs with kernel ring ownership. */
 static unsigned int load_acquire(const unsigned int *p)
 {
     return __atomic_load_n(p, __ATOMIC_ACQUIRE);
@@ -37,9 +40,48 @@ static int field_ok(size_t offset, size_t bytes, size_t align, size_t length)
     return offset % align == 0 && offset <= length && bytes <= length - offset;
 }
 
-static int nop_batches(int fd, const struct io_uring_params *p)
+/* Static lifetime: a failed/short enter may leave work pending until ring
+ * teardown. Keep iovecs and data alive through process exit on failure. */
+enum { IO_BATCH = 4, IO_BYTES = 32 };
+static unsigned char data[IO_BATCH][IO_BYTES];
+static struct iovec vectors[IO_BATCH][2];
+
+static int private_file(void)
 {
-    enum { BATCH = 4, ROUNDS = 4, LIMIT = 1024 * 1024 };
+    char path[] = "/tmp/fc-uring-io-XXXXXX";
+    int fd = mkostemp(path, O_CLOEXEC);
+    if (fd < 0)
+        return -1;
+    if (unlink(path) != 0)
+    {
+        close(fd);
+        return -1;
+    }
+    return fd;
+}
+
+static unsigned char expected_byte(size_t i)
+{
+    return (unsigned char)((i * 17U + 29U) & 255U);
+}
+
+static int verify_file(int fd)
+{
+    unsigned char bytes[IO_BATCH * IO_BYTES];
+    struct stat st;
+    if (fstat(fd, &st) != 0 || st.st_size != (off_t)sizeof bytes ||
+        pread(fd, bytes, sizeof bytes, 0) != (ssize_t)sizeof bytes ||
+        lseek(fd, 0, SEEK_CUR) != 0)
+        return -1;
+    for (size_t i = 0; i < sizeof bytes; ++i)
+        if (bytes[i] != expected_byte(i))
+            return -1;
+    return 0;
+}
+
+static int execute_batches(int fd, const struct io_uring_params *p)
+{
+    enum { BATCH = IO_BATCH, NOP_ROUNDS = 4, ROUNDS = 6, LIMIT = 1024 * 1024 };
     if (p->sq_entries < BATCH || p->sq_entries > 64 ||
         p->cq_entries < BATCH || p->cq_entries > 128 ||
         p->sq_off.array > LIMIT || p->cq_off.cqes > LIMIT)
@@ -70,7 +112,7 @@ static int nop_batches(int fd, const struct io_uring_params *p)
                   _Alignof(struct io_uring_cqe), cq_len))
         return 1;
 #undef CHECK_FIELD
-    int result = 1;
+    int result = 1, source = -1, destination = -1;
     char *sq = mmap(NULL, sq_len, PROT_READ | PROT_WRITE, MAP_SHARED,
                     fd, IORING_OFF_SQ_RING);
     char *cq = MAP_FAILED;
@@ -97,6 +139,22 @@ static int nop_batches(int fd, const struct io_uring_params *p)
         sm != p->sq_entries - 1 || cm != p->cq_entries - 1 ||
         (p->sq_entries & sm) || (p->cq_entries & cm))
         goto cleanup;
+    source = private_file();
+    destination = private_file();
+    if (source < 0 || destination < 0)
+        goto cleanup;
+    unsigned char initial[BATCH * IO_BYTES];
+    for (size_t i = 0; i < sizeof initial; ++i)
+        initial[i] = expected_byte(i);
+    if (pwrite(source, initial, sizeof initial, 0) != (ssize_t)sizeof initial)
+        goto cleanup;
+    for (unsigned int i = 0; i < BATCH; ++i)
+    {
+        vectors[i][0].iov_base = data[i];
+        vectors[i][0].iov_len = 13;
+        vectors[i][1].iov_base = data[i] + 13;
+        vectors[i][1].iov_len = IO_BYTES - 13;
+    }
     for (unsigned int round = 0; round < ROUNDS; ++round)
     {
         unsigned int tail = load_acquire(st), head = load_acquire(sh);
@@ -107,7 +165,16 @@ static int nop_batches(int fd, const struct io_uring_params *p)
         {
             unsigned int slot = (tail + i) & sm;
             memset(&entries[slot], 0, sizeof entries[slot]);
-            entries[slot].opcode = IORING_OP_NOP;
+            if (round < NOP_ROUNDS)
+                entries[slot].opcode = IORING_OP_NOP;
+            else
+            {
+                entries[slot].opcode = round == NOP_ROUNDS ? IORING_OP_READV : IORING_OP_WRITEV;
+                entries[slot].fd = round == NOP_ROUNDS ? source : destination;
+                entries[slot].off = (uint64_t)i * IO_BYTES;
+                entries[slot].addr = (uint64_t)(uintptr_t)vectors[i];
+                entries[slot].len = 2;
+            }
             entries[slot].user_data = (uint64_t)round * BATCH + i + 1;
             array[slot] = slot;
         }
@@ -128,7 +195,8 @@ static int nop_batches(int fd, const struct io_uring_params *p)
         {
             struct io_uring_cqe c = completions[(c_head + i) & cm];
             uint64_t first = (uint64_t)round * BATCH + 1;
-            if (c.res != 0 || c.flags != 0 || c.user_data < first ||
+            int expected = round < NOP_ROUNDS ? 0 : IO_BYTES;
+            if (c.res != expected || c.flags != 0 || c.user_data < first ||
                 c.user_data - first >= BATCH)
                 goto cleanup;
             unsigned int bit = 1U << (unsigned int)(c.user_data - first);
@@ -139,11 +207,22 @@ static int nop_batches(int fd, const struct io_uring_params *p)
         if (seen != (1U << BATCH) - 1U)
             goto cleanup;
         store_release(ch, c_head + BATCH);
+        if (round == NOP_ROUNDS - 1)
+            puts("uring_nop=PASS batches=4 completions=16");
+        if (round == NOP_ROUNDS)
+            for (unsigned int i = 0; i < BATCH; ++i)
+                for (size_t j = 0; j < IO_BYTES; ++j)
+                    if (data[i][j] != expected_byte((size_t)i * IO_BYTES + j))
+                        goto cleanup;
     }
-    puts("uring_nop=PASS batches=4 completions=16");
+    if (verify_file(source) != 0 || verify_file(destination) != 0)
+        goto cleanup;
+    puts("uring_vectored=PASS readv=4 writev=4 bytes=128 iovecs_per_request=2");
     result = 0;
 #undef PTR
 cleanup:
+    if (destination >= 0 && close(destination) != 0) result = 1;
+    if (source >= 0 && close(source) != 0) result = 1;
     if (entries != MAP_FAILED && munmap(entries, entries_len) != 0)
         result = 1;
     if (!shared && cq != MAP_FAILED && munmap(cq, cq_len) != 0)
@@ -214,7 +293,7 @@ static int probe_ring(void)
     if (result == 77)
         puts("uring_required_ops=NOT_VERIFIED");
     else if (result == 0)
-        result = nop_batches(fd, &params);
+        result = execute_batches(fd, &params);
 cleanup:
     free(probe);
     if (close(fd) != 0)

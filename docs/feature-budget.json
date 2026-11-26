@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ec0ebbc03e3241f8abcd8b5ae8b358063ff0e056",
+  "snapshot_main_sha": "70f7812f2572e52ea9d71dbe44f35058685389d4",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LIBURING-EVAL-01",
   "features": [
@@ -955,12 +955,13 @@
       "status": "ACTIVE",
       "prs": [
         234,
-        235
+        235,
+        236
       ],
-      "summary": "PR #235 registered (2/5); #234 merged, 14/14 PR-head jobs, 65/65 C17 Release and verbose capability PASS; integrated-main partial, native benchmark failure unresolved. Actual NOP candidate; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 234,
-      "merge_sha": "ec0ebbc03e3241f8abcd8b5ae8b358063ff0e056",
-      "tested_head_sha": "b3b324bc82f47fedd2e7cb727171a7ecbd2d6248"
+      "summary": "PR #236 registered (3/5); #235 merged, 14/14 PR-head jobs, 65/65 C17 Release and 16 NOP completions PASS on Linux 7.0.0-1020-azure. Integrated-main partial; native benchmark failure unresolved. Vectored file I/O candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "last_merged_pr": 235,
+      "merge_sha": "70f7812f2572e52ea9d71dbe44f35058685389d4",
+      "tested_head_sha": "05931639410a302fef390d4a5c2a50221a842732"
     }
   ]
 }

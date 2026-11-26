@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <stdint.h>
+#include <inttypes.h>
+#include <time.h>
 #include <unistd.h>
 
 /* Independent test-only content-transfer model. No production mover calls. */
@@ -114,7 +117,35 @@ static int ranged(int in, int out, size_t size, int allow_skip)
     return end == 0 ? 0 : -1;
 }
 
-static int sample(int dir, size_t size, int *capability)
+/* Time only the content-transfer loop; verify offsets and every byte
+ * outside the interval. No fsync, preparation or production mover timing. */
+static int transfer(int in, int out, size_t size, int reference,
+                    int allow_skip, int run)
+{
+    struct timespec start, end;
+    if (lseek(in, 0, SEEK_SET) != 0 ||
+        clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+        return -1;
+    int rc = reference ? ranged(in, out, size, allow_skip) : buffered(in, out);
+    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+        return -1;
+    if (rc != 0)
+        return rc;
+    if (lseek(in, 0, SEEK_CUR) != (off_t)size ||
+        lseek(out, 0, SEEK_CUR) != (off_t)size ||
+        verify(out, size) != 0 || verify(in, size) != 0)
+        return -1;
+    int64_t elapsed = (int64_t)(end.tv_sec - start.tv_sec) * INT64_C(1000000000)
+                      + (int64_t)end.tv_nsec - (int64_t)start.tv_nsec;
+    if (elapsed < 0)
+        return -1;
+    if (run > 0)
+        printf("io_timing bytes=%zu mode=%s run=%d elapsed_ns=%" PRId64 "\n",
+               size, reference ? "copy_file_range" : "buffered", run, elapsed);
+    return 0;
+}
+
+static int sample(int dir, size_t size, int *capability, int run)
 {
     int in = -1, baseline = -1, candidate = -1, result = -1;
     in = openat(dir, "source", O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC, 0600);
@@ -126,22 +157,23 @@ static int sample(int dir, size_t size, int *capability)
     candidate = openat(dir, "candidate", O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC, 0600);
     if (candidate < 0)
         goto cleanup;
-    if (populate(in, size) != 0 || lseek(in, 0, SEEK_SET) != 0 ||
-        buffered(in, baseline) != 0 || verify(baseline, size) != 0 ||
-        verify(in, size) != 0 || lseek(in, 0, SEEK_SET) != 0)
+    if (populate(in, size) != 0)
         goto cleanup;
-    if (*capability != 77)
+    /* Alternate first transfer to reduce fixed ordering bias. */
+    for (int step = 0; step < 2; ++step)
     {
-        int rc = ranged(in, candidate, size, *capability == 0);
-        if (rc == 77)
+        int reference = (run % 2 == 0) ? step : 1 - step;
+        if (reference && *capability == 77)
+            continue;
+        int rc = transfer(in, reference ? candidate : baseline, size,
+                          reference, *capability == 0, run);
+        if (reference && rc == 77)
             *capability = 77;
         else
         {
-            if (rc != 0 || lseek(in, 0, SEEK_CUR) != (off_t)size ||
-                lseek(candidate, 0, SEEK_CUR) != (off_t)size ||
-                verify(candidate, size) != 0 || verify(in, size) != 0)
+            if (rc != 0)
                 goto cleanup;
-            if (size != 0)
+            if (reference && size != 0)
                 *capability = 1;
         }
     }
@@ -180,11 +212,19 @@ int main(void)
     else
     {
         for (size_t i = 0; i < sizeof sizes / sizeof sizes[0]; ++i)
-            if (sample(dir, sizes[i], &capability) != 0)
+            if (sample(dir, sizes[i], &capability, 0) != 0)
             {
                 result = 1;
                 break;
             }
+        const size_t measured[] = {CHUNK, 1024U * 1024U + 17U};
+        for (int run = 1; run <= 3 && result == 0 && capability == 1; ++run)
+            for (size_t i = 0; i < sizeof measured / sizeof measured[0]; ++i)
+                if (sample(dir, measured[i], &capability, run) != 0)
+                {
+                    result = 1;
+                    break;
+                }
         if (close(dir) != 0)
             result = 1;
     }

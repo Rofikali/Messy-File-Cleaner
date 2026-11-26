@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Linux I/O timing:** [baseline](LINUX_IO_REFERENCE.md) records transfer-loop elapsed ns for three repetitions per mode at two sizes, validates bytes outside timing, and excludes fsync, setup and production mover costs.
+
 **Linux I/O reference:** [baseline](LINUX_IO_REFERENCE.md) validates exact bytes, size, offsets and EOF across six boundary sizes before any timing or integration claim.
 
 **Watcher lifecycle reference:** [baseline](LINUX_WATCH_REFERENCE.md) observes procfs descriptor counts at readiness and joined boundaries, not continuous peak consumption or latency.

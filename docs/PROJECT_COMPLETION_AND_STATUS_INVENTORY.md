@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Fault checkpoint:** #257 merged, 13/13 returned exact-head jobs, 70/70 C17 Debug/Release, 12 read and three close fault cases PASS. [Allocation candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.
+
 **Fault checkpoint:** #256 merged, 14/14 exact-head jobs, C17 Debug/Release 70/70, 12 read fault rollback/closure/retry cases PASS. [Close fault candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.
 
 **Linux selftest closure:** #255 merged, 13/13 returned jobs, 69/69 C17 Debug/Release, 30 exec probes and 3 leak rejections PASS. [Fault injection candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.

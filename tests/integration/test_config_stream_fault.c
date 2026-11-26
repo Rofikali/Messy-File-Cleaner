@@ -1,5 +1,5 @@
 /* Test-only GNU stream adapter. The actual loader, map and file open are
- * unchanged; only fdopen in this isolated executable is wrapped. */
+ * unchanged; fdopen and staged allocation are wrapped in this test only. */
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
@@ -16,6 +16,52 @@ static struct {
     unsigned int wrapped, injected, closed;
     int close_ok;
 } fault;
+
+/* Linker wrapping affects direct references in this executable, not
+ * libc's internal allocations. Arm only around a single load_config call. */
+static struct {
+    int armed, fail;
+    unsigned int calls, injected, frees, unexpected_frees;
+    size_t bytes;
+    void *live;
+} allocation;
+
+void *__real_malloc(size_t bytes);
+void *__wrap_malloc(size_t bytes);
+void __real_free(void *ptr);
+void __wrap_free(void *ptr);
+
+void *__wrap_malloc(size_t bytes)
+{
+    if (!allocation.armed)
+        return __real_malloc(bytes);
+    ++allocation.calls;
+    allocation.bytes = bytes;
+    if (allocation.fail)
+    {
+        ++allocation.injected;
+        errno = ENOMEM;
+        return NULL;
+    }
+    void *ptr = __real_malloc(bytes);
+    allocation.live = ptr;
+    return ptr;
+}
+
+void __wrap_free(void *ptr)
+{
+    if (allocation.armed)
+    {
+        if (ptr != NULL && ptr == allocation.live)
+        {
+            ++allocation.frees;
+            allocation.live = NULL;
+        }
+        else
+            ++allocation.unexpected_frees;
+    }
+    __real_free(ptr);
+}
 
 FILE *__real_fdopen(int fd, const char *mode);
 FILE *__wrap_fdopen(int fd, const char *mode);
@@ -82,6 +128,78 @@ static int unchanged(const Config *cfg, const HashEntry *entries,
            cfg->worker_threads == 3 && cfg->idle_sleep_ms == 9 &&
            cfg->mode == MODE_BATCH &&
            memcmp(entries, snapshot, 64 * sizeof *entries) == 0;
+}
+
+/* Real loader allocation at three valid map capacities, including a
+ * two-entry map which becomes full on a successful recovery. */
+static int allocation_tests(const char *path, size_t length)
+{
+    const size_t capacities[] = {2, 8, 64};
+    unsigned int cases = 0;
+    for (size_t i = 0; i < sizeof capacities / sizeof capacities[0]; ++i)
+    {
+        const size_t capacity = capacities[i];
+        HashEntry entries[64], snapshot[64];
+        memset(entries, 0, sizeof entries);
+        Config cfg;
+        hashmap_init(&cfg.ext_map, entries, capacity);
+        init_config(&cfg);
+        cfg.batch_size = 77;
+        cfg.worker_threads = 3;
+        cfg.idle_sleep_ms = 9;
+        if (hashmap_put(&cfg.ext_map, ".png", "Existing") != 0)
+            return 1;
+        memcpy(snapshot, entries, sizeof entries);
+        memset(&fault, 0, sizeof fault);
+        fault.armed = 1;
+        fault.fd = -1;
+        memset(&allocation, 0, sizeof allocation);
+        allocation.armed = 1;
+        allocation.fail = 1;
+        int status = load_config(path, &cfg);
+        allocation.armed = 0;
+        fault.armed = 0;
+        if (status != -1 || allocation.calls != 1 || allocation.injected != 1 ||
+            allocation.bytes != capacity * sizeof(HashEntry) ||
+            allocation.frees != 0 || allocation.unexpected_frees != 0 ||
+            allocation.live != NULL || fault.wrapped != 0 ||
+            cfg.ext_map.entries != entries || cfg.ext_map.capacity != capacity ||
+            cfg.ext_map.size != 1 || cfg.batch_size != 77 ||
+            cfg.worker_threads != 3 || cfg.idle_sleep_ms != 9 ||
+            cfg.mode != MODE_BATCH || memcmp(entries, snapshot, sizeof entries) != 0)
+            return 1;
+
+        memset(&fault, 0, sizeof fault);
+        fault.armed = 1;
+        fault.fd = -1;
+        memset(&allocation, 0, sizeof allocation);
+        allocation.armed = 1;
+        status = load_config(path, &cfg);
+        allocation.armed = 0;
+        fault.armed = 0;
+        if (status != 0 || allocation.calls != 1 || allocation.injected != 0 ||
+            allocation.bytes != capacity * sizeof(HashEntry) ||
+            allocation.frees != 1 || allocation.unexpected_frees != 0 ||
+            allocation.live != NULL || fault.wrapped != 1 || fault.injected != 0 ||
+            fault.delivered != length || fault.eof_seen == 0 ||
+            fault.closed != 1 || fault.close_injected != 0 || !fault.close_ok ||
+            fault.fd < 0 || cfg.ext_map.entries != entries ||
+            cfg.ext_map.capacity != capacity || cfg.ext_map.size != 2 ||
+            cfg.batch_size != 123 || cfg.worker_threads != 4 ||
+            cfg.idle_sleep_ms != 9 || cfg.mode != MODE_DAEMON ||
+            memcmp(entries + capacity, snapshot + capacity,
+                   (64U - capacity) * sizeof(HashEntry)) != 0)
+            return 1;
+        errno = 0;
+        if (fcntl(fault.fd, F_GETFD) != -1 || errno != EBADF)
+            return 1;
+        const char *png = hashmap_get(&cfg.ext_map, ".png");
+        const char *jpg = hashmap_get(&cfg.ext_map, ".jpg");
+        if (!png || !jpg || strcmp(png, "Existing") || strcmp(jpg, "NewFolder"))
+            return 1;
+        ++cases;
+    }
+    return cases == 3U ? 0 : 1;
 }
 
 int main(void)
@@ -200,7 +318,7 @@ int main(void)
             goto cleanup;
         ++close_cases;
     }
-    if (close_cases != 3U)
+    if (close_cases != 3U || allocation_tests(path, length) != 0)
         goto cleanup;
     result = 0;
 cleanup:
@@ -210,6 +328,7 @@ cleanup:
     {
         puts("config_stream_fault=PASS cases=12 cuts=6 errors=2 rollback=12 closed=12 recovery=12");
         puts("config_close_fault=PASS cases=3 eof=3 rollback=3 closed=3 adapter_recovery=3");
+        puts("config_alloc_fault=PASS cases=3 capacities=2,8,64 rollback=3 no_stream=3 recovery=3 staged_free=3");
     }
     return result;
 }

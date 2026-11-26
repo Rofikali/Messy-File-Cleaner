@@ -1065,9 +1065,10 @@
       "prs": [
         266,
         267,
-        268
+        268,
+        269
       ],
-      "summary": "#268 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70; hosted Clang Debug 70/70 and ASan/UBSan preflight PASS, container Release 69 passed/1 io_uring capability skip. Fourth header compatibility candidate awaiting registration; local tests NOT RUN, CI pending.",
+      "summary": "#268 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70; hosted Clang Debug 70/70 and ASan/UBSan preflight PASS, container Release 69 passed/1 io_uring capability skip. Fourth header compatibility candidate registered as #269 (4/5); local tests NOT RUN, CI pending.",
       "last_merged_pr": 268,
       "merge_sha": "f0853041f55fcada530a5c13412d60b2247f52e2",
       "tested_head_sha": "92b57f2e919d9eb4b3ae7ca697c693273f5b787a"

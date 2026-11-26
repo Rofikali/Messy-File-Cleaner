@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-COMPAT-01 (fourth candidate awaiting registration)** | Internal header standalone/repeated inclusion under GCC and Clang C11/C17/C2x with normal/test macro modes | #268 13/13 returned jobs; hosted Clang Debug 70/70, sanitizer probe PASS; local tests NOT RUN; CI pending; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-COMPAT-01 (4/5; PR #269 OPEN (draft))** | Internal header standalone/repeated inclusion under GCC and Clang C11/C17/C2x with normal/test macro modes | #268 13/13 returned jobs; hosted Clang Debug 70/70, sanitizer probe PASS; local tests NOT RUN; CI pending; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **SUPPLY-CHAIN-01 (5/5; #265 merged)** | Seven APT controls, 35 direct references, 18 action pins and 11 gate fixtures PASS | Scoped acceptance; no sixth PR; mutable base/APT/runner, SBOM and provenance unresolved |
 | **DONE** | **UPSTREAM-FAULT-01 (5/5; #260 merged)** | 36 fault scenarios and recoveries, 70/70 C17 Debug/Release, 13/13 returned jobs after Docker retry | Scoped evaluation complete; retain loader; no sixth PR |
 | **DONE** | **LINUX-SELFTEST-01 (5/5; #255 merged)** | 13/13 returned jobs, 69/69 C17 Debug/Release, 30 exec probes incl 3 leak rejections | Scoped evaluation complete; retain scanner; no sixth PR |

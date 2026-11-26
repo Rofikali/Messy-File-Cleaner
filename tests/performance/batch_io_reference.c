@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/uio.h>
 #include <unistd.h>
@@ -96,10 +98,21 @@ static int make_vectors(struct iovec v[SEGMENTS], size_t offset, size_t length)
 }
 
 enum mode { SMALL, LARGE, VECTOR };
-static int transfer(int in, int out, enum mode mode, size_t size)
+static int64_t elapsed_ns(struct timespec start, struct timespec end)
+{
+    return (int64_t)(end.tv_sec - start.tv_sec) * INT64_C(1000000000)
+           + (int64_t)end.tv_nsec - (int64_t)start.tv_nsec;
+}
+
+static int transfer(int in, int out, enum mode mode, size_t size, unsigned int round)
 {
     size_t reads = 0, writes = 0, total = 0;
     size_t request = mode == SMALL ? SEGMENT : CAPACITY;
+    struct timespec wall_start = {0}, wall_end = {0}, cpu_start = {0}, cpu_end = {0};
+    if (round != 0 &&
+        (clock_gettime(CLOCK_MONOTONIC, &wall_start) != 0 ||
+         clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu_start) != 0))
+        return -1;
     for (;;)
     {
         struct iovec v[SEGMENTS];
@@ -138,24 +151,40 @@ static int transfer(int in, int out, enum mode mode, size_t size)
         }
         total += (size_t)n;
     }
+    if (round != 0 &&
+        (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &cpu_end) != 0 ||
+         clock_gettime(CLOCK_MONOTONIC, &wall_end) != 0))
+        return -1;
     if (total != size || lseek(in, 0, SEEK_CUR) != (off_t)size ||
         lseek(out, 0, SEEK_CUR) != (off_t)size ||
         verify(in, size) != 0 || verify(out, size) != 0)
         return -1;
-    printf("batch_io bytes=%zu mode=%s reads=%zu writes=%zu total_calls=%zu PASS\n",
-           size, mode == SMALL ? "scalar32k" : mode == LARGE ? "scalar128k" : "vector4x32k",
-           reads, writes, reads + writes);
+    const char *label = mode == SMALL ? "scalar32k" :
+                        mode == LARGE ? "scalar128k" : "vector4x32k";
+    if (round == 0)
+        printf("batch_io bytes=%zu mode=%s reads=%zu writes=%zu total_calls=%zu PASS\n",
+               size, label, reads, writes, reads + writes);
+    else
+    {
+        int64_t wall = elapsed_ns(wall_start, wall_end);
+        int64_t cpu = elapsed_ns(cpu_start, cpu_end);
+        if (wall < 0 || cpu < 0)
+            return -1;
+        printf("batch_io_timing bytes=%zu mode=%s round=%u calls=%zu wall_ns=%" PRId64
+               " cpu_ns=%" PRId64 " PASS\n",
+               size, label, round, reads + writes, wall, cpu);
+    }
     return 0;
 }
 
-static int sample(size_t size, enum mode mode)
+static int sample(size_t size, enum mode mode, unsigned int round)
 {
     int in = fixture(), out = -1, result = -1;
     if (in < 0)
         return -1;
     out = fixture();
     if (out >= 0 && populate(in, size) == 0)
-        result = transfer(in, out, mode, size);
+        result = transfer(in, out, mode, size, round);
     if (out >= 0 && close(out) != 0)
         result = -1;
     if (close(in) != 0)
@@ -169,8 +198,20 @@ int main(void)
                             CAPACITY, CAPACITY + 17U};
     for (size_t i = 0; i < sizeof sizes / sizeof sizes[0]; ++i)
         for (int mode = SMALL; mode <= VECTOR; ++mode)
-            if (sample(sizes[i], (enum mode)mode) != 0)
+            if (sample(sizes[i], (enum mode)mode, 0) != 0)
                 return 1;
     puts("batch_io_reference=PASS samples=21");
+    /* Rotate the first method so each occupies each position once per size.
+     * Fresh source and destination per sample; no cache manipulation. */
+    const size_t measured[] = {CAPACITY, 1024U * 1024U + 17U};
+    for (unsigned int round = 1; round <= 3; ++round)
+        for (size_t i = 0; i < sizeof measured / sizeof measured[0]; ++i)
+            for (unsigned int position = 0; position < 3; ++position)
+            {
+                enum mode selected = (enum mode)((round - 1 + position) % 3);
+                if (sample(measured[i], selected, round) != 0)
+                    return 1;
+            }
+    puts("batch_io_timing=PASS samples=18 backing_bytes=131072");
     return 0;
 }

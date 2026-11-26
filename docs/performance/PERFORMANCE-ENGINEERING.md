@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Batch I/O timing:** [baseline](BATCH_IO_REFERENCE.md) retains seven-size call-count evidence and adds elapsed/process CPU time across two sizes, three methods and three rotated repetitions; excludes verification, preparation and durability.
+
 **Batch I/O reference:** [baseline](BATCH_IO_REFERENCE.md) records actual transfer syscall counts and verifies bytes/offsets across seven sizes; no timing or production speedup claim.
 
 **io_uring synchronization/error reference:** [baseline](LINUX_URING_REFERENCE.md) checks mixed completion results and subsequent valid reads, not timing, power-loss durability or production transfer performance.

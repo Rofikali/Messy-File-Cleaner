@@ -1034,9 +1034,10 @@
         256,
         257,
         258,
-        259
+        259,
+        260
       ],
-      "summary": "#259 merged, 13 completed exact-head jobs PASS, Makefile running; #258 Ubuntu image still running; C17 Debug/Release 70/70, 24 isolated fault cases PASS. Final combined fault candidate awaiting registration; local tests NOT RUN, CI pending; no production change.",
+      "summary": "#259 merged, 13 completed exact-head jobs PASS, Makefile running; #258 Ubuntu image still running; C17 Debug/Release 70/70, 24 isolated fault cases PASS. Final combined fault candidate registered as #260 (5/5); local tests NOT RUN, CI pending; no production change.",
       "last_merged_pr": 259,
       "merge_sha": "acb56b0ffde03faa147f78837aebab5946029a34",
       "tested_head_sha": "f0370a5bc7e43cf11366e288dcb8873823873a43"

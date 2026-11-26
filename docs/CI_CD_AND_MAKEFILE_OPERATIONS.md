@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**APT retry regression:** existing feature-budget job runs isolated shell oracle with seven deterministic cases; no real APT/network in the test.
+
 **APT mirror retry:** [build integrity](security/SUPPLY_CHAIN_REFERENCE.md) records exact failed Docker job and successful retry, adds bounded clean strict index refresh in production-image build; package authentication remains enabled.
 
 **Acquisition fault evidence:** isolated config stream test now wraps open as well as fdopen/malloc/free; direct Debug sanitizers and verbose Release retained.

@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Cache-layout capacity and concurrency:** [baseline](CACHE_LAYOUT_REFERENCE.md) adds two oversized logical extent checks and four immutable readers; no new throughput or RSS claim.
+
 **Cache-layout safety:** [baseline](CACHE_LAYOUT_REFERENCE.md) records previous construction/traversal medians and adds checked packed construction; timing implementation changes, so do not assume prior timings persist.
 
 **Cache-layout timing:** [baseline](CACHE_LAYOUT_REFERENCE.md) records verified logical bytes and adds allocation/construction and full-path digest traversal elapsed time for three counts, two distributions, two modes and three repetitions.

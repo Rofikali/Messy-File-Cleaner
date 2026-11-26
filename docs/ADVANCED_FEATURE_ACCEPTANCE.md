@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Cache-layout capacity acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires oversized logical count/bytes rejection before access and four immutable readers with 64 exact digests each; no concurrent reclamation claim.
+
 **Cache-layout ownership acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires malformed input rejection, two injected allocation failures, occupied-output rejection, source-free lifetime, seven corrupted representations rejected and repeatable cleanup.
 
 **Cache-layout timing acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires six original footprint cases and 36 verified timing rows, independent ownership, bounded packed offsets and full-content equivalence; no latency threshold.

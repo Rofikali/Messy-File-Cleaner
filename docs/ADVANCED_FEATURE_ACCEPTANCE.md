@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Configuration allocation fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires three ENOMEM cases, exact allocation sizes, no stream acquisition, complete rollback, three recovery commits and matching frees.
+
 **Configuration close fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires true EOF, three injected close reports after actual release, full rollback, EBADF and three same-adapter positive controls.
 
 **Upstream fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires 12 post-open read faults with real stdio error, exact cut, full rollback, close and successful retry.

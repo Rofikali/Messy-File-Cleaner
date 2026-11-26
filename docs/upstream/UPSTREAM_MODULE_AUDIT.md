@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Allocation fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) uses test-target-only malloc/free linker wraps for staged config ownership, no source import.
+
 **Close fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) extends isolated GNU stream callbacks to distinguish EOF and close report, no production modification.
 
 **Fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) uses test-only linker wrapping and GNU libc stream callbacks, not upstream source imports.

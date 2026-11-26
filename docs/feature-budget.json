@@ -954,9 +954,10 @@
       "title": "Bounded Linux asynchronous I/O capability and liburing reference evaluation",
       "status": "ACTIVE",
       "prs": [
-        234
+        234,
+        235
       ],
-      "summary": "PR #234 merged, 14/14 PR-head jobs, 65/65 C17 Release and verbose capability PASS; integrated-main partial, native benchmark failure unresolved. Second actual NOP candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "summary": "PR #235 registered (2/5); #234 merged, 14/14 PR-head jobs, 65/65 C17 Release and verbose capability PASS; integrated-main partial, native benchmark failure unresolved. Actual NOP candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 234,
       "merge_sha": "ec0ebbc03e3241f8abcd8b5ae8b358063ff0e056",
       "tested_head_sha": "b3b324bc82f47fedd2e7cb727171a7ecbd2d6248"

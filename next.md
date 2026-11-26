@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **LIBURING-EVAL-01 (1/5 prior opened; second PR candidate)** | Bounded actual NOP submission/completion and ring reuse | #234 capability PASS; local tests NOT RUN; new CI pending; no production change, imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **LIBURING-EVAL-01 (2/5; PR #235 OPEN (draft))** | Bounded actual NOP submission/completion and ring reuse | #234 capability PASS; local tests NOT RUN; new CI pending; no production change, imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **LINUX-IO-EVAL-01 (3/5; #233 merged)** | 13/13 returned PR-head jobs; 64/64 and explicit offsets PASS; retain buffered transfer | Integrated-main in progress; no production speedup/durability/retirement proof |
 | **DONE** | **LINUX-WATCH-EVAL-01 (3/5; #230 merged)** | 13/13 returned PR-head jobs; 63/63 tests and lifecycle PASS | Integrated-main in progress; real overflow/recovery NOT VERIFIED; retain watcher |
 | **DONE** | **LINUX-PATH-EVAL-01 (3/5; #227 merged)** | 13/13 returned PR-head jobs; 63/63 tests and openat2 reference PASS | Integrated-main in progress at inspection; no production confinement/fallback or source-retirement proof |

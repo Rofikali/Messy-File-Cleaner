@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **LINUX-SELFTEST-01 (third candidate awaiting registration)** | Actual exec probes followed by callback error/cancellation, descriptor restoration and rescan | #252 13/13 returned jobs; local candidate tests NOT RUN; CI pending; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **LINUX-SELFTEST-01 (3/5; PR #253 OPEN (draft))** | Actual exec probes followed by callback error/cancellation, descriptor restoration and rescan | #252 13/13 returned jobs; local candidate tests NOT RUN; CI pending; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **CPU-OPT-EVAL-01 (5/5; #250 merged)** | 68/68 C17 Debug/Release, 82560 guard-page checks PASS | Scoped research complete; Ubuntu image job now PASS; no production SIMD adoption or sixth PR |
 | **DONE** | **CACHE-LAYOUT-EVAL-01 (5/5; #245 merged)** | 14/14 exact-head jobs, 67/67 C17 Debug and Release, instrumented reference PASS; retain fixed layout | RSS/cache counters/packed TSan, representative workloads and native benchmark not verified; no sixth PR |
 | **DONE** | **BATCH-IO-EVAL-01 (3/5; #240 merged)** | 13/13 returned PR-head jobs; 66/66 and controlled fault evidence PASS | Retain scalar128k; no production speedup or durability claim |

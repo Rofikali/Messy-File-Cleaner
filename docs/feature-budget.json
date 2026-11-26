@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "589fb430d83af5cae716e97b23b579d804a77d58",
+  "snapshot_main_sha": "0b8dddf02e4445627e482a02287f7a18044ab59a",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-SELFTEST-01",
   "features": [
@@ -1018,12 +1018,13 @@
         251,
         252,
         253,
-        254
+        254,
+        255
       ],
-      "summary": "#253 merged, 12 completed exact-head jobs PASS, Ubuntu image running, FCJ4 TSan not returned; 69/69 C17 Debug/Release, 18 exec probes, 9 restorations, 3 recovery scans PASS. Fourth deep lifecycle candidate registered as #254 (4/5); local tests NOT RUN, CI pending; no production change.",
-      "last_merged_pr": 253,
-      "merge_sha": "589fb430d83af5cae716e97b23b579d804a77d58",
-      "tested_head_sha": "d0dbe2fec208e74da232c686134e50c90ec23997"
+      "summary": "#254 merged, 13/13 returned exact-head jobs, C17 Debug/Release 69/69, depth 20, 60 live identities, 6 deep exec probes, 3 restorations and cancellation recovery PASS; #253 Ubuntu image PASS. Final leak oracle candidate registered as #255 (5/5); local tests NOT RUN, CI pending; no production change.",
+      "last_merged_pr": 254,
+      "merge_sha": "0b8dddf02e4445627e482a02287f7a18044ab59a",
+      "tested_head_sha": "e2465b4c23f9ae756c86c4ed5e1074d4c2f03aee"
     }
   ]
 }

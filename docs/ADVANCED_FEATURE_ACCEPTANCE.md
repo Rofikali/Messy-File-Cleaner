@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Linux final leak oracle acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires three deepest-inode positive controls and three explicit zero-inheritance rejections with reserved exit 42 after exact leak identification, all prior cases retained.
+
 **Linux deep descriptor acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires 20 distinct live directory identities across frame growth, both exec controls, cancellation, restoration and rescan.
 
 **Linux scanner abort lifecycle acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires EACCES/EIO and ECANCELED after real exec controls, exact first error, inode-specific cleanup and successful immediate rescans.

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**io_uring vectored acceptance:** [baseline](performance/LINUX_URING_REFERENCE.md) requires NOP regression, four READV and four WRITEV successful exact-length completions, unchanged descriptor offsets and original source bytes, with exact destination contents.
+
 **io_uring NOP acceptance:** [baseline](performance/LINUX_URING_REFERENCE.md) requires 16 unique successful completions, exact submission count, zero dropped/overflow and mapping cleanup; capability skip NOT VERIFIED.
 
 **io_uring capability acceptance:** [baseline](performance/LINUX_URING_REFERENCE.md) requires actual setup and valid operation probe with NOP/READV/WRITEV/FSYNC support; unsupported build/runtime explicitly NOT VERIFIED, no security-policy bypass.

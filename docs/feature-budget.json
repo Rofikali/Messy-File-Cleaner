@@ -983,9 +983,10 @@
       "title": "Bounded event representation and cache-locality reference evaluation",
       "status": "ACTIVE",
       "prs": [
-        241
+        241,
+        242
       ],
-      "summary": "PR #241 merged, 14/14 PR-head jobs, 67/67 C17 Release and six layout cases PASS; packed logical storage 93.77%/64.59% lower. Five integrated-main workflows success, native benchmark failure unresolved. Second snapshot timing candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "summary": "PR #242 registered (2/5); #241 merged, 14/14 PR-head jobs, 67/67 C17 Release and six layout cases PASS; packed logical storage 93.77%/64.59% lower. Five integrated-main workflows success, native benchmark failure unresolved. Snapshot timing candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 241,
       "merge_sha": "ea048faed480ad966d0af7884ced5529820acb04",
       "tested_head_sha": "15fafa65073d8cddf1c0c0bbb65eae0d7f9b30bc"

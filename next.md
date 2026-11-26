@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CACHE-LAYOUT-EVAL-01 (1/5 prior opened; second PR candidate)** | Independently owned snapshot construction and full-path digest traversal timing | #241 exact-head CI PASS; local tests NOT RUN; new CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CACHE-LAYOUT-EVAL-01 (2/5; PR #242 OPEN (draft))** | Independently owned snapshot construction and full-path digest traversal timing | #241 exact-head CI PASS; local tests NOT RUN; new CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **BATCH-IO-EVAL-01 (3/5; #240 merged)** | 13/13 returned PR-head jobs; 66/66 and controlled fault evidence PASS | Retain scalar128k; no production speedup or durability claim |
 | **DONE** | **LIBURING-EVAL-01 (4/5; #237 merged)** | 13/13 returned PR-head jobs; 65/65 and 32 raw UAPI completions PASS | Actual liburing integration NOT EVALUATED; no production speedup or durability proof |
 | **DONE** | **LINUX-IO-EVAL-01 (3/5; #233 merged)** | 13/13 returned PR-head jobs; 64/64 and explicit offsets PASS; retain buffered transfer | Integrated-main in progress; no production speedup/durability/retirement proof |

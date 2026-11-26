@@ -999,9 +999,10 @@
       "title": "Bounded portable and CPU-specific byte-processing reference evaluation",
       "status": "ACTIVE",
       "prs": [
-        246
+        246,
+        247
       ],
-      "summary": "#246 merged, 14/14 returned exact-head jobs, C17 Debug/Release 68/68 PASS. Second timing/vectorization candidate awaiting registration; local tests NOT RUN, CI pending; no explicit SIMD or production changes.",
+      "summary": "#246 merged, 14/14 returned exact-head jobs, C17 Debug/Release 68/68 PASS. Second timing/vectorization candidate registered as #247 (2/5); local tests NOT RUN, CI pending; no explicit SIMD or production changes.",
       "last_merged_pr": 246,
       "merge_sha": "ba6c69a0b76514a13d302c0b5d77e555a722db95",
       "tested_head_sha": "f68c2e4cfd1f07af3ed31af157615f6daf7e7d52"

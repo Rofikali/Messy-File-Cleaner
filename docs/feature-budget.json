@@ -953,8 +953,10 @@
       "id": "LIBURING-EVAL-01",
       "title": "Bounded Linux asynchronous I/O capability and liburing reference evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First raw Linux UAPI setup/operation probe; no liburing dependency; local tests NOT RUN; CI pending; production unchanged."
+      "prs": [
+        234
+      ],
+      "summary": "PR #234 registered (1/5); first raw Linux UAPI setup/operation probe; no liburing dependency; local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

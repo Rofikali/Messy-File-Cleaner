@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Public API mock caller:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #272 merged at 1071b60baf6be4768e70f45932d133429068a8ab; 13/13 returned jobs PASS, formal independent review not verified. #273 (3/5) adds synthetic caller checks; CI pending.
+
 **Public API consumer boundary:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #271 merged at 0083d7ff25edecc85ecd6d8fc718b8e0c2213b92; 13/13 returned PR-head jobs PASS. #272 (2/5) remains design-only and CI pending.
 
 **Compatibility closure:** #270 merged, 13/13 returned jobs, hosted Clang Debug 70/70, container Release 69 passed/1 skipped, 324 headers probes, host 5/container 4 capability passes. [API candidate](architecture/C-API-ABI-FFI-ROADMAP.md) design/compile-only pending CI.

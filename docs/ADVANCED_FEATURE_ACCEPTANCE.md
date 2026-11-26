@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Cache-layout timing acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires six original footprint cases and 36 verified timing rows, independent ownership, bounded packed offsets and full-content equivalence; no latency threshold.
+
 **Cache-layout acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires exact ordered path/type contents, bounded offsets, NUL terminators, matching full-byte digests and reported storage for all six cases.
 
 **Batch I/O failure acceptance:** [baseline](performance/BATCH_IO_REFERENCE.md) requires interrupted/short-write completion, zero-progress and permanent-EIO termination, exact committed prefix and original source preservation. Injected returns are not kernel fault evidence.

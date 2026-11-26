@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "0e72e1d60e5032563548f453f2ea00fefc6d08e1",
+  "snapshot_main_sha": "84ea67e73cd93ad2fe3e5b5595d7f60072b78ce0",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "PUBLIC-API-01",
   "features": [
@@ -1082,12 +1082,13 @@
         271,
         272,
         273,
-        274
+        274,
+        275
       ],
-      "summary": "#273 merged, 13/13 returned PR-head jobs, six mock builds x ten scenarios PASS; formal independent review not verified. #274 (4/5) synthetic heap ownership and ten positive retries, 16 matching allocations/releases, hosted ASan/UBSan leak detection; CI pending. No real engine runtime, external consumer or production ABI/FFI authorization.",
-      "last_merged_pr": 273,
-      "merge_sha": "0e72e1d60e5032563548f453f2ea00fefc6d08e1",
-      "tested_head_sha": "fc8f596b694a6882927fdb67611d63d404ff85e6"
+      "summary": "#274 merged, 13/13 returned PR-head jobs, 140 synthetic calls and 112 matching allocations/releases, hosted ASan/UBSan with leak detection PASS; formal independent review not verified. #275 (5/5) final candidate: production symbol and staged CLI-only install isolation with positive mock and negative controls in three standards; CI pending. No sixth PR; no real engine API, external consumer, license or production ABI/FFI authorization.",
+      "last_merged_pr": 274,
+      "merge_sha": "84ea67e73cd93ad2fe3e5b5595d7f60072b78ce0",
+      "tested_head_sha": "d1a89864f51708372d164b5240b1f85e5bfbec8f"
     }
   ]
 }

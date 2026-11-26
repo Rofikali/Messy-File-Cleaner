@@ -142,6 +142,25 @@ jobs:
               done
             '
 
+      - name: Run isolated public API mock caller checks
+        timeout-minutes: 3
+        run: |
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            --user vscode --mount "type=bind,source=$PWD,target=/source,readonly" \
+            --entrypoint /bin/sh messy-file-cleaner-dev:ci -ec '
+              work=$(mktemp -d)
+              for compiler in gcc clang; do
+                for standard in c11 c17 c2x; do
+                  "$compiler" -std="$standard" -Wall -Wextra -Wpedantic -Werror \
+                    /source/tests/reference/public_api_candidate.c \
+                    /source/tests/reference/public_api_candidate_mock_test.c \
+                    -o "$work/mock"
+                  printf "mock compiler=%s standard=%s\n" "$compiler" "$standard"
+                  "$work/mock"
+                done
+              done
+            '
+
       - name: Verify full Clang C17 Debug suite on existing hosted runner
         timeout-minutes: 8
         shell: bash

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "0083d7ff25edecc85ecd6d8fc718b8e0c2213b92",
+  "snapshot_main_sha": "1071b60baf6be4768e70f45932d133429068a8ab",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "PUBLIC-API-01",
   "features": [
@@ -1080,12 +1080,13 @@
       "status": "ACTIVE",
       "prs": [
         271,
-        272
+        272,
+        273
       ],
-      "summary": "#271 merged, 13/13 returned PR-head jobs PASS. #272 (2/5) design-only concrete in-repo CLI preview consumer mapping; success-only output and owned handle cleanup shape; six syntax checks pending. No actual API runtime, installed header, external consumer approval or ABI/FFI authorization.",
-      "last_merged_pr": 271,
-      "merge_sha": "0083d7ff25edecc85ecd6d8fc718b8e0c2213b92",
-      "tested_head_sha": "1dbf969b2bf64601c7d13050b67e5b67a164bf5e"
+      "summary": "#272 merged, 13/13 returned PR-head jobs PASS; independent formal review not verified. #273 (3/5) ten synthetic mock caller scenarios across six compiler modes; local NOT RUN, CI pending. No real engine implementation/runtime, external consumer approval or ABI/FFI authorization.",
+      "last_merged_pr": 272,
+      "merge_sha": "1071b60baf6be4768e70f45932d133429068a8ab",
+      "tested_head_sha": "39e7143d3799f9db513eaf0b04701ed02a970ff0"
     }
   ]
 }

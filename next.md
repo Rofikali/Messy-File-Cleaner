@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **PUBLIC-API-01 (2/5; PR #272 OPEN (draft))** | Concrete existing batch-preview CLI consumer mapping; compile-only success-only output and handle cleanup shape; six compiler/standard syntax checks | #271 merged at `0083d7ff25edecc85ecd6d8fc718b8e0c2213b92`, 13/13 returned PR-head jobs PASS; #272 local tests NOT RUN, CI pending; no runtime proof or external consumer approval; production ABI/FFI, imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **PUBLIC-API-01 (3/5; PR #273 OPEN (draft))** | Synthetic mock caller status, output and ownership oracle: ten scenarios, six compiler-mode executions; no real engine | #272 merged at `1071b60baf6be4768e70f45932d133429068a8ab`, 13/13 returned PR-head jobs PASS; independent formal review not verified; #273 local tests NOT RUN, CI pending; no real engine runtime proof or external consumer approval; production ABI/FFI, imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **UPSTREAM-COMPAT-01 (5/5; #270 merged)** | 324 header probes; host Clang Debug 70/70, container Release 69 passed/1 skipped; host 5/container 4 capability passes, container io_uring EPERM | Scoped acceptance only; no sixth PR |
 | **DONE** | **SUPPLY-CHAIN-01 (5/5; #265 merged)** | Seven APT controls, 35 direct references, 18 action pins and 11 gate fixtures PASS | Scoped acceptance; no sixth PR; mutable base/APT/runner, SBOM and provenance unresolved |
 | **DONE** | **UPSTREAM-FAULT-01 (5/5; #260 merged)** | 36 fault scenarios and recoveries, 70/70 C17 Debug/Release, 13/13 returned jobs after Docker retry | Scoped evaluation complete; retain loader; no sixth PR |

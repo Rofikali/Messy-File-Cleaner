@@ -116,6 +116,7 @@ jobs:
               cmake --build "$work/build" --parallel 2
               ctest --test-dir "$work/build" --no-tests=error --output-on-failure
               printf "clang_c17_release_suite=PASS\n"
+              sh /source/scripts/tests/report_platform_capabilities.sh "$work/build" container_release
             '
 
       - name: Verify internal header self-containment with GCC and Clang
@@ -154,6 +155,7 @@ jobs:
           cmake --build "$work/build" --parallel 2
           ctest --test-dir "$work/build" --no-tests=error --output-on-failure
           printf 'clang_c17_debug_suite=PASS environment=hosted_runner\n'
+          sh "$work/source/scripts/tests/report_platform_capabilities.sh" "$work/build" hosted_debug
 
       - name: Build production image
         run: docker build --pull -t messy-file-cleaner:ci .

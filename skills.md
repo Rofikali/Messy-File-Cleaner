@@ -1,5 +1,7 @@
 # Engineering Skills and Contributor Workflow
 
+**Scoped compiler/platform acceptance:** [compatibility evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) records #269 merged and 324/324 internal-header checks PASS. Final candidate explicitly reports five existing capability-sensitive tests separately in container Release and hosted Debug, distinguishing PASS from NOT_VERIFIED on skip; no API/ABI claim or new dependencies.
+
 **Internal header compatibility:** [compatibility evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) records #268 merged, hosted Clang sanitizer preflight and Debug 70/70 PASS; fourth candidate checks each internal header independently and twice under GCC/Clang C11/C17/C2x, normal and test macros. No public ABI promise or new dependency.
 
 **Same-PR Clang Debug correction:** Ubuntu run 45824599054/job 139925552427 failed at link because the development image lacks Clang 18 ASan runtime archives. [Compatibility evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) moves only Debug to the existing non-root hosted Ubuntu runner with preinstalled clang-18, explicit ASan/UBSan link/run probe, disposable tracked source archive and build directory; no package added, no sanitizer disabled, container Release isolation unchanged. Host runtime availability and exact-head CI pending; host step is not container-isolated.

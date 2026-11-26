@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Compatibility checkpoint:** #269 merged, 13/13 returned jobs, 324/324 header probes, hosted Clang Debug 70/70, container Release 69 passed/1 skipped. [Final capability report candidate](upstream/UPSTREAM_COMPAT_REFERENCE.md) pending CI.
+
 **Compatibility checkpoint:** #268 merged, 13/13 returned jobs, GNU C17 Debug/Release 70/70, hosted Clang Debug 70/70, sanitizer probe PASS, container Release 69 passed/1 skipped. [Header candidate](upstream/UPSTREAM_COMPAT_REFERENCE.md) pending CI.
 
 **#268 failure:** Ubuntu job 139925552427 failed linking missing ASan archives; same-PR hosted runner correction CI pending.

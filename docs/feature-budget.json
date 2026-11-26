@@ -1001,9 +1001,10 @@
       "prs": [
         246,
         247,
-        248
+        248,
+        249
       ],
-      "summary": "#248 merged, 14/14 exact-head jobs, C17 Debug/Release 68/68, 165120 original and 330240 wrapper comparisons, 108 timing rows PASS; native SSE2/AVX2. Fourth dispatch candidate awaiting registration; local tests NOT RUN; CI pending; no production change.",
+      "summary": "#248 merged, 14/14 exact-head jobs, C17 Debug/Release 68/68, 165120 original and 330240 wrapper comparisons, 108 timing rows PASS; native SSE2/AVX2. Fourth dispatch candidate registered as #249 (4/5); local tests NOT RUN; CI pending; no production change.",
       "last_merged_pr": 248,
       "merge_sha": "a7997654af4bf6f2b7d0070b115b1b0d20013896",
       "tested_head_sha": "e1c228bcbcafe8816fc6f350036924129bea494a"

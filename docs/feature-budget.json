@@ -956,9 +956,10 @@
       "prs": [
         234,
         235,
-        236
+        236,
+        237
       ],
-      "summary": "PR #236 merged, 13/13 returned PR-head jobs, 65/65 C17 Release and 24 NOP/vectored completions PASS on Linux 7.0.0-1018-aws. Integrated-main partial; native benchmark failure unresolved. Fourth mixed sync/error/recovery candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "summary": "PR #237 registered (4/5); #236 merged, 13/13 returned PR-head jobs, 65/65 C17 Release and 24 NOP/vectored completions PASS on Linux 7.0.0-1018-aws. Integrated-main partial; native benchmark failure unresolved. Mixed sync/error/recovery candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 236,
       "merge_sha": "923f2be6c3fef0e222cbdea46d54fb6ae1c395a3",
       "tested_head_sha": "7e6af3fa5ce867450e406c9895bfe1aeb18246a4"

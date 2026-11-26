@@ -939,8 +939,10 @@
       "id": "LINUX-IO-EVAL-01",
       "title": "Bounded Linux content-transfer reference comparison",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First independent buffered vs copy_file_range byte correctness reference; local tests NOT RUN; CI pending; production unchanged."
+      "prs": [
+        231
+      ],
+      "summary": "PR #231 registered (1/5); independent buffered vs copy_file_range byte correctness reference; local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

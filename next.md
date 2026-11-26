@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **LINUX-IO-EVAL-01 (0/5 prior opened; first PR candidate)** | Independent buffered vs copy_file_range byte correctness reference | Local tests NOT RUN; CI pending; unsupported capability NOT VERIFIED; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **LINUX-IO-EVAL-01 (1/5; PR #231 OPEN (draft))** | Independent buffered vs copy_file_range byte correctness reference | Local tests NOT RUN; CI pending; unsupported capability NOT VERIFIED; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **LINUX-WATCH-EVAL-01 (3/5; #230 merged)** | 13/13 returned PR-head jobs; 63/63 tests and lifecycle PASS | Integrated-main in progress; real overflow/recovery NOT VERIFIED; retain watcher |
 | **DONE** | **LINUX-PATH-EVAL-01 (3/5; #227 merged)** | 13/13 returned PR-head jobs; 63/63 tests and openat2 reference PASS | Integrated-main in progress at inspection; no production confinement/fallback or source-retirement proof |
 | **DONE** | **LINUX-SCANNER-EVAL-01 (4/5; #224 merged)** | 13/13 returned PR-head jobs; full and verbose scanner smoke PASS; retain production scanner | Integrated-main partial; native benchmark push failure unresolved; representative throughput/trust equivalence NOT established |

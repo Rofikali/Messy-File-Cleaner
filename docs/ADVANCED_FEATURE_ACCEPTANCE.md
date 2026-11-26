@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Compiler compatibility acceptance:** [reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) requires three actual Clang production builds and CLI help controls under C11/C17/C23; full alternate compiler suite pending.
+
 **Final scoped supply-chain acceptance:** [reference](security/SUPPLY_CHAIN_REFERENCE.md) requires seven APT controls, 35 inventory references, 18 action pins and 11 direct gate fixture cases; broader provenance and mutable inputs remain outside accepted scope.
 
 **Direct action pin acceptance:** [supply-chain reference](security/SUPPLY_CHAIN_REFERENCE.md) records 18 existing action uses pinned to four official tag-resolved full SHAs, inventory synchronized; manual workflows not credited without execution.

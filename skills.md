@@ -1,5 +1,7 @@
 # Engineering Skills and Contributor Workflow
 
+**Final supply-chain acceptance candidate:** [supply-chain reference](docs/security/SUPPLY_CHAIN_REFERENCE.md) requires literal direct action owner/repo@40 lowercase hex SHA independently of inventory equality, with 11 isolated fixture cases. #264 merged, 15/15 returned jobs, 70/70 C17 Debug/Release, 35 references and seven APT cases PASS; final candidate CI pending. No new dependencies or production source changes.
+
 **Immutable action references:** [supply-chain reference](docs/security/SUPPLY_CHAIN_REFERENCE.md) pins all 18 direct action declarations across nine workflows to the full commits resolved from the existing official upstream major tags. #263 merged, 13/13 returned exact-head jobs, 70/70 C17 Debug/Release, 35 inventory references and seven APT cases PASS. Existing runtime, runner and package set unchanged; pin candidate CI pending.
 
 **Build-input inventory:** [supply-chain reference](docs/security/SUPPLY_CHAIN_REFERENCE.md) documents mutable direct action, runner, Python and Docker base references; CI checks the tracked textual inventory. #262 merged, 13/13 returned jobs and seven APT retry cases PASS. New inventory gate CI pending; no version pinning or runtime change.

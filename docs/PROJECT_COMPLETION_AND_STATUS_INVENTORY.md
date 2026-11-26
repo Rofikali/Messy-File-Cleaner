@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Supply-chain checkpoint:** #264 merged, 15/15 returned jobs, 70/70 C17 Debug/Release, pinned checkout/build-push execution, seven APT cases and 35 references PASS. [Final candidate](security/SUPPLY_CHAIN_REFERENCE.md) pending CI.
+
 **Supply-chain checkpoint:** #263 merged, 13/13 returned jobs, 70/70 C17 Debug/Release, seven APT cases and 35 direct inventory references PASS. [Action pin candidate](security/SUPPLY_CHAIN_REFERENCE.md) pending CI.
 
 **Supply-chain checkpoint:** #262 merged, 13/13 returned jobs, 70/70 C17 Debug/Release and seven APT retry cases PASS. [Direct build-input inventory](security/SUPPLY_CHAIN_REFERENCE.md) pending CI.

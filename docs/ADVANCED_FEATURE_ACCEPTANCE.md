@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Final scoped supply-chain acceptance:** [reference](security/SUPPLY_CHAIN_REFERENCE.md) requires seven APT controls, 35 inventory references, 18 action pins and 11 direct gate fixture cases; broader provenance and mutable inputs remain outside accepted scope.
+
 **Direct action pin acceptance:** [supply-chain reference](security/SUPPLY_CHAIN_REFERENCE.md) records 18 existing action uses pinned to four official tag-resolved full SHAs, inventory synchronized; manual workflows not credited without execution.
 
 **Direct build inventory acceptance:** [supply-chain reference](security/SUPPLY_CHAIN_REFERENCE.md) requires the tracked direct declaration inventory to match actual workflow and Dockerfile references; not a complete dependency resolver.

@@ -25,6 +25,8 @@ jobs:
         run: python3 scripts/upstream_import_check.py
       - name: Verify bounded APT retry behavior
         run: sh scripts/tests/test_apt_retry.sh
+      - name: Test direct build-input gate
+        run: sh scripts/tests/test_build_inputs.sh
       - name: Verify declared direct build inputs
         run: sh scripts/check_build_inputs.sh
 

@@ -14,7 +14,7 @@ jobs:
     name: Five-PR feature delivery contract
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Test feature ledger validator
         run: python3 -m unittest discover -s scripts/tests -p 'test_feature_budget.py'
       - name: Verify budget and PR's declared feature
@@ -36,7 +36,7 @@ jobs:
         c-standard: ["11", "17", "23"]
         build-type: ["Debug", "Release"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Configure C${{ matrix.c-standard }} (${{ matrix.build-type }})
         run: cmake -S . -B "build-c${{ matrix.c-standard }}-${{ matrix.build-type }}" -DCMAKE_BUILD_TYPE=${{ matrix.build-type }} -DFC_C_STANDARD=${{ matrix.c-standard }}
       - name: Build

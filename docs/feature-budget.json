@@ -1014,8 +1014,10 @@
       "id": "LINUX-SELFTEST-01",
       "title": "Linux selftest-style actual kernel descriptor lifecycle security regressions",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First independent scanner FD_CLOEXEC reference candidate awaiting registration; local tests NOT RUN, CI pending; prior Ubuntu image job pending at inspection; no production change."
+      "prs": [
+        251
+      ],
+      "summary": "First independent scanner FD_CLOEXEC reference candidate registered as #251 (1/5); local tests NOT RUN, CI pending; prior Ubuntu image job pending at inspection; no production change."
     }
   ]
 }

@@ -45,6 +45,8 @@ static int field_ok(size_t offset, size_t bytes, size_t align, size_t length)
 enum { IO_BATCH = 4, IO_BYTES = 32 };
 static unsigned char data[IO_BATCH][IO_BYTES];
 static struct iovec vectors[IO_BATCH][2];
+static unsigned char rejected_data[IO_BYTES], eof_data[IO_BYTES];
+static struct iovec rejected_vector, eof_vector;
 
 static int private_file(void)
 {
@@ -81,7 +83,8 @@ static int verify_file(int fd)
 
 static int execute_batches(int fd, const struct io_uring_params *p)
 {
-    enum { BATCH = IO_BATCH, NOP_ROUNDS = 4, ROUNDS = 6, LIMIT = 1024 * 1024 };
+    enum { BATCH = IO_BATCH, NOP_ROUNDS = 4, MIXED_ROUND = 6,
+           RECOVERY_ROUND = 7, ROUNDS = 8, LIMIT = 1024 * 1024 };
     if (p->sq_entries < BATCH || p->sq_entries > 64 ||
         p->cq_entries < BATCH || p->cq_entries > 128 ||
         p->sq_off.array > LIMIT || p->cq_off.cqes > LIMIT)
@@ -155,6 +158,10 @@ static int execute_batches(int fd, const struct io_uring_params *p)
         vectors[i][1].iov_base = data[i] + 13;
         vectors[i][1].iov_len = IO_BYTES - 13;
     }
+    memset(rejected_data, 0xa5, sizeof rejected_data);
+    memset(eof_data, 0x5a, sizeof eof_data);
+    rejected_vector = (struct iovec){.iov_base = rejected_data, .iov_len = sizeof rejected_data};
+    eof_vector = (struct iovec){.iov_base = eof_data, .iov_len = sizeof eof_data};
     for (unsigned int round = 0; round < ROUNDS; ++round)
     {
         unsigned int tail = load_acquire(st), head = load_acquire(sh);
@@ -167,9 +174,31 @@ static int execute_batches(int fd, const struct io_uring_params *p)
             memset(&entries[slot], 0, sizeof entries[slot]);
             if (round < NOP_ROUNDS)
                 entries[slot].opcode = IORING_OP_NOP;
+            else if (round == MIXED_ROUND)
+            {
+                /* Prior write batch fully completed before FSYNC submission.
+                 * All other requests here are independent of that sync. */
+                if (i == 0)
+                {
+                    entries[slot].opcode = IORING_OP_FSYNC;
+                    entries[slot].fd = destination;
+                }
+                else if (i == 3)
+                    entries[slot].opcode = IORING_OP_NOP;
+                else
+                {
+                    entries[slot].opcode = IORING_OP_READV;
+                    entries[slot].fd = i == 1 ? -1 : source;
+                    entries[slot].off = i == 1 ? 0 : BATCH * IO_BYTES;
+                    entries[slot].addr = (uint64_t)(uintptr_t)
+                        (i == 1 ? &rejected_vector : &eof_vector);
+                    entries[slot].len = 1;
+                }
+            }
             else
             {
-                entries[slot].opcode = round == NOP_ROUNDS ? IORING_OP_READV : IORING_OP_WRITEV;
+                entries[slot].opcode = round == NOP_ROUNDS + 1 ?
+                    IORING_OP_WRITEV : IORING_OP_READV;
                 entries[slot].fd = round == NOP_ROUNDS ? source : destination;
                 entries[slot].off = (uint64_t)i * IO_BYTES;
                 entries[slot].addr = (uint64_t)(uintptr_t)vectors[i];
@@ -195,11 +224,16 @@ static int execute_batches(int fd, const struct io_uring_params *p)
         {
             struct io_uring_cqe c = completions[(c_head + i) & cm];
             uint64_t first = (uint64_t)round * BATCH + 1;
-            int expected = round < NOP_ROUNDS ? 0 : IO_BYTES;
-            if (c.res != expected || c.flags != 0 || c.user_data < first ||
+            if (c.flags != 0 || c.user_data < first ||
                 c.user_data - first >= BATCH)
                 goto cleanup;
-            unsigned int bit = 1U << (unsigned int)(c.user_data - first);
+            unsigned int index = (unsigned int)(c.user_data - first);
+            int expected = round < NOP_ROUNDS ? 0 : IO_BYTES;
+            if (round == MIXED_ROUND)
+                expected = index == 1 ? -EBADF : 0;
+            if (c.res != expected)
+                goto cleanup;
+            unsigned int bit = 1U << index;
             if (seen & bit)
                 goto cleanup;
             seen |= bit;
@@ -209,15 +243,30 @@ static int execute_batches(int fd, const struct io_uring_params *p)
         store_release(ch, c_head + BATCH);
         if (round == NOP_ROUNDS - 1)
             puts("uring_nop=PASS batches=4 completions=16");
-        if (round == NOP_ROUNDS)
+        if (round == NOP_ROUNDS || round == RECOVERY_ROUND)
             for (unsigned int i = 0; i < BATCH; ++i)
                 for (size_t j = 0; j < IO_BYTES; ++j)
                     if (data[i][j] != expected_byte((size_t)i * IO_BYTES + j))
                         goto cleanup;
+        if (round == NOP_ROUNDS + 1)
+        {
+            if (verify_file(source) != 0 || verify_file(destination) != 0)
+                goto cleanup;
+            puts("uring_vectored=PASS readv=4 writev=4 bytes=128 iovecs_per_request=2");
+        }
+        if (round == MIXED_ROUND)
+        {
+            for (size_t j = 0; j < IO_BYTES; ++j)
+                if (rejected_data[j] != 0xa5 || eof_data[j] != 0x5a)
+                    goto cleanup;
+            /* All mixed completions consumed; reuse existing read buffers
+             * with distinct sentinel content for the recovery read batch. */
+            memset(data, 0, sizeof data);
+        }
     }
     if (verify_file(source) != 0 || verify_file(destination) != 0)
         goto cleanup;
-    puts("uring_vectored=PASS readv=4 writev=4 bytes=128 iovecs_per_request=2");
+    puts("uring_sync_errors=PASS fsync=1 ebadf=1 eof=1 nop=1 recovery_readv=4 total_completions=32");
     result = 0;
 #undef PTR
 cleanup:

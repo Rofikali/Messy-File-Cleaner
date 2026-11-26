@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Linux scanner exec evidence:** C17 Release matrix emits verbose `linux_scanner_cloexec` output; existing timeout and direct Debug sanitizer checks retained.
+
 **CPU reference evidence:** C17 Release matrix leg emits verbose `cpu_opt_reference` output and `objdump` of `scalar_count`; GNU Release reports auto-vectorization diagnostics. No extra workflow dispatch.
 
 **Cache-layout evidence:** existing C17 Release verbose reporting also selects cache_layout_reference exactly; reports representation sizes and verified content equivalence. No new runner, dependency or scale dispatch.

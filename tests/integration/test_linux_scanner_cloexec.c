@@ -8,12 +8,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include "scanner/scanner.h"
 
 static struct stat identities[2];
 static const char *expected_path;
-static unsigned int callbacks;
+static unsigned int callbacks, exec_checks;
+static const char *root_path, *child_path;
 
 static int same_inode(const struct stat *a, const struct stat *b)
 {
@@ -22,7 +24,8 @@ static int same_inode(const struct stat *a, const struct stat *b)
 
 /* Count only descriptors belonging to the two private directory inodes.
  * The inventory itself has a different inode and is closed before return. */
-static int inventory(unsigned int expected)
+static int inventory(unsigned int expected_root, unsigned int expected_child,
+                     int require_cloexec)
 {
     DIR *d = opendir("/proc/self/fd");
     if (!d)
@@ -55,19 +58,50 @@ static int inventory(unsigned int expected)
             if (same_inode(&st, &identities[i]))
             {
                 int flags = fcntl(fd, F_GETFD);
-                if (flags < 0 || !(flags & FD_CLOEXEC) || !S_ISDIR(st.st_mode))
+                if (flags < 0 || ((flags & FD_CLOEXEC) != 0) != require_cloexec ||
+                    !S_ISDIR(st.st_mode))
                     failed = 1;
                 ++seen[i];
             }
     }
     if (closedir(d) != 0)
         failed = 1;
-    return !failed && seen[0] == expected && seen[1] == expected ? 0 : -1;
+    return !failed && seen[0] == expected_root && seen[1] == expected_child ? 0 : -1;
+}
+
+/* Re-execute this exact test binary. A positive control deliberately
+ * inherits one private root descriptor; the scanner's two descriptors
+ * must be absent in both children after exec. No shell or PATH lookup. */
+static int exec_probe(int positive)
+{
+    char *const args[] = {(char *)"scanner-exec-probe", (char *)"--exec-probe",
+                          (char *)root_path, (char *)child_path,
+                          (char *)(positive ? "1" : "0"), NULL};
+    pid_t pid = fork();
+    if (pid < 0)
+        return -1;
+    if (pid == 0)
+    {
+        if (positive && open(root_path, O_RDONLY | O_DIRECTORY) < 0)
+            _exit(125);
+        execv("/proc/self/exe", args);
+        _exit(126);
+    }
+    int status;
+    pid_t waited;
+    do {
+        waited = waitpid(pid, &status, 0);
+    } while (waited < 0 && errno == EINTR);
+    if (waited != pid || !WIFEXITED(status) || WEXITSTATUS(status) != 0)
+        return -1;
+    ++exec_checks;
+    return 0;
 }
 
 static int inspect_callback(const char *path)
 {
-    if (strcmp(path, expected_path) != 0 || inventory(1) != 0)
+    if (strcmp(path, expected_path) != 0 || inventory(1, 1, 1) != 0 ||
+        exec_probe(0) != 0 || exec_probe(1) != 0 || inventory(1, 1, 1) != 0)
     {
         errno = EIO;
         return -1;
@@ -76,8 +110,17 @@ static int inspect_callback(const char *path)
     return 0;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+    if (argc == 5 && strcmp(argv[1], "--exec-probe") == 0)
+    {
+        if ((strcmp(argv[4], "0") != 0 && strcmp(argv[4], "1") != 0) ||
+            stat(argv[2], &identities[0]) != 0 || stat(argv[3], &identities[1]) != 0)
+            return 1;
+        return inventory((unsigned int)(argv[4][0] == '1'), 0, 0) == 0 ? 0 : 1;
+    }
+    if (argc != 1)
+        return 1;
     char root[] = "/tmp/fc-cloexec-XXXXXX";
     if (!mkdtemp(root))
         return 1;
@@ -102,16 +145,20 @@ int main(void)
     }
     fd = -1;
     if (stat(root, &identities[0]) != 0 || stat(child, &identities[1]) != 0 ||
-        inventory(0) != 0)
+        inventory(0, 0, 1) != 0)
         goto cleanup;
     expected_path = file;
+    root_path = root;
+    child_path = child;
     for (unsigned int round = 0; round < 3U; ++round)
     {
         callbacks = 0;
         if (scan_directory(root, inspect_callback, NULL) != 0 ||
-            callbacks != 1 || inventory(0) != 0)
+            callbacks != 1 || inventory(0, 0, 1) != 0)
             goto cleanup;
     }
+    if (exec_checks != 6U)
+        goto cleanup;
     fd = open(file, O_RDONLY | O_CLOEXEC);
     char byte = 0, extra = 0;
     if (fd < 0 || read(fd, &byte, 1) != 1 || byte != 'x' ||
@@ -128,6 +175,6 @@ cleanup:
     if (rmdir(root) != 0)
         result = 1;
     if (result == 0)
-        puts("linux_scanner_cloexec=PASS rounds=3 live_directory_checks=6 restored=3 preserved=1");
+        puts("linux_scanner_cloexec=PASS rounds=3 live_directory_checks=6 restored=3 preserved=1 exec_negative=3 exec_positive=3");
     return result;
 }

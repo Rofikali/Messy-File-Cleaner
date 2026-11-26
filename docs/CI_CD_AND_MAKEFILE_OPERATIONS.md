@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Explicit capability outcomes:** existing Clang Release and Debug steps rerun five exact-name CTest fixtures with verbose output; skipped means NOT_VERIFIED and any missing/failing/ambiguous outcome fails report. No new jobs.
+
 **Internal header syntax gate:** existing Ubuntu image job runs standalone duplicate-inclusion checks with GCC/Clang, three language modes and test macros; no extra runner/packages.
 
 **Clang Debug correction:** move only Debug step to existing hosted Ubuntu runner with preinstalled clang-18 and explicit sanitizer link/run probe; original container Release isolation unchanged; host Debug not container-isolated.

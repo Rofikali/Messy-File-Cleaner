@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Linux I/O range evidence:** [baseline](LINUX_IO_REFERENCE.md) records actual prior transfer samples and adds untimed explicit offset/EOF cases with exact untouched byte verification.
+
 **Linux I/O timing:** [baseline](LINUX_IO_REFERENCE.md) records transfer-loop elapsed ns for three repetitions per mode at two sizes, validates bytes outside timing, and excludes fsync, setup and production mover costs.
 
 **Linux I/O reference:** [baseline](LINUX_IO_REFERENCE.md) validates exact bytes, size, offsets and EOF across six boundary sizes before any timing or integration claim.

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Linux I/O offset comparison:** [baseline](../performance/LINUX_IO_REFERENCE.md) retains existing production buffered transfer after measured reference results; adds explicit range/EOF semantics using installed libc only.
+
 **Linux I/O measured reference:** [baseline](../performance/LINUX_IO_REFERENCE.md) uses installed libc copy_file_range and independent buffered model, with bounded comparative timing only. No source import or production adoption.
 
 **Linux I/O reference:** [baseline](../performance/LINUX_IO_REFERENCE.md) evaluates installed libc copy_file_range API only; no kernel/GNU source imports or production adoption.

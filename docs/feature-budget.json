@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "410ad28292c738c1a7706c01f33e80cd2a6ede1f",
+  "snapshot_main_sha": "9f62519dab36ba2ec5054658801ce3d818150804",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-IO-EVAL-01",
   "features": [
@@ -941,12 +941,13 @@
       "status": "ACTIVE",
       "prs": [
         231,
-        232
+        232,
+        233
       ],
-      "summary": "PR #232 registered (2/5); #231 merged, 14/14 PR-head jobs, C17 Release 64/64 and Linux I/O capability PASS not skipped. Integrated-main in progress; native benchmark push failure unresolved. Bounded timing candidate; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 231,
-      "merge_sha": "410ad28292c738c1a7706c01f33e80cd2a6ede1f",
-      "tested_head_sha": "2af529623f61f90d34a5d90bb0f08163dd77956c"
+      "summary": "PR #233 registered (3/5); #232 merged, 13/13 returned PR-head jobs, 64/64 C17 Release and verbose timing PASS; retain buffered transfer. Integrated-main in progress, native benchmark failure unresolved. Explicit offset/EOF candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "last_merged_pr": 232,
+      "merge_sha": "9f62519dab36ba2ec5054658801ce3d818150804",
+      "tested_head_sha": "03a82817fd9e845e189629d49c4650b1efdae87e"
     }
   ]
 }

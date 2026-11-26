@@ -199,6 +199,91 @@ cleanup:
     return result;
 }
 
+/* Explicit offsets must not alter either open file description's position.
+ * Use existing bytes in a private destination to detect unintended writes. */
+static int explicit_transfer(int in, int out, off_t src, off_t dst,
+                             size_t requested, size_t expected)
+{
+    size_t done = 0;
+    off_t input = src, output = dst;
+    while (done < requested)
+    {
+        ssize_t n = copy_file_range(in, &input, out, &output, requested - done, 0);
+        if (n < 0 && errno == EINTR)
+            continue;
+        if (n < 0 || (size_t)n > requested - done)
+            return -1;
+        if (n == 0)
+            break;
+        done += (size_t)n;
+    }
+    return done == expected && input == src + (off_t)expected &&
+           output == dst + (off_t)expected && lseek(in, 0, SEEK_CUR) == 7 &&
+           lseek(out, 0, SEEK_CUR) == 13 ? 0 : -1;
+}
+
+static int explicit_offset_fixture(int dir)
+{
+    enum { SIZE = 4096 };
+    unsigned char actual[SIZE];
+    int in = -1, out = -1, result = -1;
+    in = openat(dir, "offset-source", O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC, 0600);
+    if (in < 0)
+        goto cleanup;
+    out = openat(dir, "offset-dest", O_CREAT | O_EXCL | O_RDWR | O_CLOEXEC, 0600);
+    if (out < 0)
+        goto cleanup;
+    memset(actual, 0xa5, sizeof actual);
+    if (populate(in, SIZE) != 0 || write_all(out, actual, sizeof actual) != 0 ||
+        lseek(in, 7, SEEK_SET) != 7 || lseek(out, 13, SEEK_SET) != 13)
+        goto cleanup;
+    /* Disjoint destination ranges; second request crosses input EOF. */
+    if (explicit_transfer(in, out, 123, 700, 511, 511) != 0 ||
+        explicit_transfer(in, out, SIZE - 19, 2100, 100, 19) != 0 ||
+        explicit_transfer(in, out, SIZE, 3000, 100, 0) != 0)
+        goto cleanup;
+    struct stat st;
+    if (fstat(out, &st) != 0 || st.st_size != SIZE ||
+        lseek(out, 0, SEEK_SET) != 0)
+        goto cleanup;
+    size_t done = 0;
+    while (done < sizeof actual)
+    {
+        ssize_t n = read(out, actual + done, sizeof actual - done);
+        if (n < 0 && errno == EINTR)
+            continue;
+        if (n <= 0)
+            goto cleanup;
+        done += (size_t)n;
+    }
+    for (size_t i = 0; i < sizeof actual; ++i)
+    {
+        unsigned char expected = 0xa5;
+        if (i >= 700 && i < 1211)
+            expected = pattern(123 + i - 700);
+        else if (i >= 2100 && i < 2119)
+            expected = pattern(SIZE - 19 + i - 2100);
+        if (actual[i] != expected)
+            goto cleanup;
+    }
+    if (verify(in, SIZE) != 0)
+        goto cleanup;
+    puts("io_explicit_offsets=PASS ranges=3 bytes_copied=530 untouched=3566");
+    result = 0;
+cleanup:
+    if (out >= 0)
+    {
+        if (close(out) != 0) result = -1;
+        if (unlinkat(dir, "offset-dest", 0) != 0) result = -1;
+    }
+    if (in >= 0)
+    {
+        if (close(in) != 0) result = -1;
+        if (unlinkat(dir, "offset-source", 0) != 0) result = -1;
+    }
+    return result;
+}
+
 int main(void)
 {
     char root[] = "/tmp/fc-io-reference-XXXXXX";
@@ -225,6 +310,8 @@ int main(void)
                     result = 1;
                     break;
                 }
+        if (result == 0 && capability == 1 && explicit_offset_fixture(dir) != 0)
+            result = 1;
         if (close(dir) != 0)
             result = 1;
     }

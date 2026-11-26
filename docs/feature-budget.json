@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "f5b2c15ef80f3d05e6013b0c9bd38ad8ea3131f6",
+  "snapshot_main_sha": "7d76d2917c8f096182f4b474a6364c076036b476",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "LINUX-SCANNER-EVAL-01",
+  "active_feature_id": "LINUX-PATH-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -895,17 +895,26 @@
     {
       "id": "LINUX-SCANNER-EVAL-01",
       "title": "Bounded Linux scanner reference traversal evaluation",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         221,
         222,
         223,
         224
       ],
-      "summary": "PR #224 registered (4/5); #223 merged, 13/13 returned exact-head jobs, C17 Release 62/62 tests and stop/rescan smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Bounded verbose reporting step not run at creation; production unchanged. Initial #224 CMake YAML failure (run 45744293325, zero jobs) repaired within same PR; exact corrected-head CI pending.",
-      "last_merged_pr": 223,
-      "merge_sha": "f5b2c15ef80f3d05e6013b0c9bd38ad8ea3131f6",
-      "tested_head_sha": "adf0719aa73df1707e87a4ff8e0dfa8735699328"
+      "summary": "PR #224 merged, 13/13 returned PR-head jobs; full 62/62 and verbose scanner reference smoke PASS. Scoped evaluation DONE 4/5; native scanner retained. Integrated-main partial at inspection, separate native benchmark push failure unresolved.",
+      "last_merged_pr": 224,
+      "merge_sha": "7d76d2917c8f096182f4b474a6364c076036b476",
+      "tested_head_sha": "2d968eef6bd3d0d106ea4e013f4b1bae67089758"
+    },
+    {
+      "id": "LINUX-PATH-EVAL-01",
+      "title": "Bounded Linux path resolution capability comparison",
+      "status": "ACTIVE",
+      "prs": [
+        225
+      ],
+      "summary": "PR #225 registered (1/5); first test-only openat2 confinement reference, local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

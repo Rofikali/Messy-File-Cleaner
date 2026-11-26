@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Public API final isolation candidate:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing isolated Clang production-only C11/C17/C23 builds check symbol and staged CLI-only install isolation with positive mock and two negative controls per mode; no new runner or package. CI pending.
+
 **Public API synthetic ownership:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing six compiler modes retain synthetic caller checks; existing hosted Clang 18 job adds ASan/UBSan and leak detection, no new runner or dependency. CI pending.
 
 **Public API mock caller:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing isolated Ubuntu development image runs the separate synthetic mock caller under GCC/Clang C11/C17/C2x; ten scenarios per build, no real engine, new runner or dependency. CI pending.

@@ -2,13 +2,16 @@
 #include "public_api_candidate.h"
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 fc_candidate_status_t fc_candidate_example(const char *, uint64_t,
                                            const char *, uint64_t,
                                            fc_candidate_summary_t *);
 
-struct fc_candidate_engine { unsigned token; };
-static struct fc_candidate_engine handle = {1};
+struct fc_candidate_engine { char root[2]; char config[2]; };
+static struct fc_candidate_engine *live_handle;
+static unsigned allocations, releases;
 enum scenario {
     SUCCESS, NULL_OUTPUT, VERSION_MISMATCH, CREATE_FAIL, NULL_HANDLE,
     PREVIEW_FAIL, BAD_SIZE, BAD_VERSION, INCOMPLETE, BAD_RESERVED
@@ -37,8 +40,20 @@ fc_candidate_status_t fc_candidate_create(const fc_candidate_options_t *opts,
     }
     if (mode == CREATE_FAIL)
         return FC_CANDIDATE_RESOURCE;
-    if (mode != NULL_HANDLE)
-        *out = &handle;
+    if (mode != NULL_HANDLE) {
+        if (live_handle != NULL) {
+            ++invalid_calls;
+            return FC_CANDIDATE_INVALID;
+        }
+        live_handle = malloc(sizeof *live_handle);
+        if (!live_handle)
+            return FC_CANDIDATE_RESOURCE;
+        ++allocations;
+        memcpy(live_handle->root, opts->root, 1);
+        memcpy(live_handle->config, opts->config, 1);
+        live_handle->root[1] = live_handle->config[1] = '\0';
+        *out = live_handle;
+    }
     return FC_CANDIDATE_OK;
 }
 
@@ -46,7 +61,9 @@ fc_candidate_status_t fc_candidate_preview(fc_candidate_engine_t *engine,
                                            fc_candidate_summary_t *summary)
 {
     ++previews;
-    if (engine != &handle || !summary ||
+    if (!engine || engine != live_handle ||
+        strcmp(engine->root, "r") != 0 || strcmp(engine->config, "c") != 0 ||
+        !summary ||
         summary->struct_size != sizeof *summary ||
         summary->contract_version != FC_CANDIDATE_VERSION ||
         summary->complete != 0 || summary->reserved != 0) {
@@ -72,8 +89,13 @@ fc_candidate_status_t fc_candidate_preview(fc_candidate_engine_t *engine,
 void fc_candidate_destroy(fc_candidate_engine_t *engine)
 {
     ++destroys;
-    if (engine != &handle || previews != 1 || destroys != 1)
+    if (!engine || engine != live_handle || previews != 1 || destroys != 1) {
         ++invalid_calls;
+        return;
+    }
+    free(live_handle);
+    live_handle = NULL;
+    ++releases;
 }
 
 static int unchanged(const fc_candidate_summary_t *s)
@@ -102,26 +124,36 @@ int main(void)
         {INCOMPLETE, FC_CANDIDATE_INVALID, 1, 1, 1, 1},
         {BAD_RESERVED, FC_CANDIDATE_INVALID, 1, 1, 1, 1}
     };
+    /* Follow every scenario with a positive retry without resetting ownership. */
     for (size_t i = 0; i < sizeof cases / sizeof cases[0]; ++i) {
-        mode = cases[i].scenario;
-        versions = creates = previews = destroys = invalid_calls = 0;
-        fc_candidate_summary_t out = {91, 92, 93, 94, 95, 96, 97, 98};
-        fc_candidate_status_t status = fc_candidate_example(
-            "r", 1, "c", 1, mode == NULL_OUTPUT ? NULL : &out);
-        int valid = mode == SUCCESS
-            ? out.struct_size == sizeof out &&
-              out.contract_version == FC_CANDIDATE_VERSION &&
-              out.events_seen == 7 && out.events_enqueued == 5 &&
-              out.previewed_moves == 3 && out.move_failures == 0 &&
-              out.complete == 1 && out.reserved == 0
-            : unchanged(&out);
-        if (status != cases[i].status || !valid || invalid_calls ||
-            versions != cases[i].version || creates != cases[i].create ||
-            previews != cases[i].preview || destroys != cases[i].destroy) {
-            fprintf(stderr, "mock consumer case %zu FAILED\n", i);
-            return 1;
+        for (unsigned retry = 0; retry < 2; ++retry) {
+            size_t index = retry ? 0 : i;
+            mode = cases[index].scenario;
+            versions = creates = previews = destroys = invalid_calls = 0;
+            unsigned prior_allocations = allocations, prior_releases = releases;
+            fc_candidate_summary_t out = {91, 92, 93, 94, 95, 96, 97, 98};
+            fc_candidate_status_t status = fc_candidate_example(
+                "r", 1, "c", 1, mode == NULL_OUTPUT ? NULL : &out);
+            int valid = mode == SUCCESS
+                ? out.struct_size == sizeof out &&
+                  out.contract_version == FC_CANDIDATE_VERSION &&
+                  out.events_seen == 7 && out.events_enqueued == 5 &&
+                  out.previewed_moves == 3 && out.move_failures == 0 &&
+                  out.complete == 1 && out.reserved == 0
+                : unchanged(&out);
+            if (status != cases[index].status || !valid || invalid_calls ||
+                versions != cases[index].version || creates != cases[index].create ||
+                previews != cases[index].preview || destroys != cases[index].destroy ||
+                live_handle != NULL ||
+                allocations - prior_allocations != cases[index].destroy ||
+                releases - prior_releases != cases[index].destroy) {
+                fprintf(stderr, "mock consumer case %zu retry %u FAILED\n", i, retry);
+                return 1;
+            }
         }
     }
-    puts("public_api_mock_consumer=PASS cases=10");
+    if (allocations != 16 || releases != allocations)
+        return 1;
+    puts("public_api_mock_consumer=PASS cases=10 retries=10 allocations=16 releases=16");
     return 0;
 }

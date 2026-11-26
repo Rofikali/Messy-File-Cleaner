@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Public API synthetic ownership:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #273 merged at 0e72e1d60e5032563548f453f2ea00fefc6d08e1; 13/13 returned jobs and 60 mock scenarios PASS; formal independent review not verified. #274 (4/5) adds synthetic heap ownership and recovery; CI pending.
+
 **Public API mock caller:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #272 merged at 1071b60baf6be4768e70f45932d133429068a8ab; 13/13 returned jobs PASS, formal independent review not verified. #273 (3/5) adds synthetic caller checks; CI pending.
 
 **Public API consumer boundary:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #271 merged at 0083d7ff25edecc85ecd6d8fc718b8e0c2213b92; 13/13 returned PR-head jobs PASS. #272 (2/5) remains design-only and CI pending.

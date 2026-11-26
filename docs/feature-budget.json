@@ -941,9 +941,10 @@
       "status": "ACTIVE",
       "prs": [
         231,
-        232
+        232,
+        233
       ],
-      "summary": "PR #232 merged, 13/13 returned PR-head jobs, 64/64 C17 Release and verbose timing PASS; retain buffered transfer. Integrated-main in progress, native benchmark failure unresolved. Third explicit offset/EOF candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "summary": "PR #233 registered (3/5); #232 merged, 13/13 returned PR-head jobs, 64/64 C17 Release and verbose timing PASS; retain buffered transfer. Integrated-main in progress, native benchmark failure unresolved. Explicit offset/EOF candidate; local tests NOT RUN, CI pending; production unchanged.",
       "last_merged_pr": 232,
       "merge_sha": "9f62519dab36ba2ec5054658801ce3d818150804",
       "tested_head_sha": "03a82817fd9e845e189629d49c4650b1efdae87e"

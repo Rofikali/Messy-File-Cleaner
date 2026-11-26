@@ -129,6 +129,59 @@ cleanup:
     return result;
 }
 
+/* Characterize real UAPI error responses. No fallback is attempted.
+ * Invalid capability/options must not be treated as a permissive open. */
+static int rejected_request(int fd, const char *path, struct open_how *how,
+                            size_t size, int expected_errno)
+{
+    long rc = syscall(SYS_openat2, fd, path, how, size);
+    if (rc >= 0)
+    {
+        close((int)rc);
+        return -1;
+    }
+    return errno == expected_errno ? 0 : -1;
+}
+
+static int error_fixture(int base)
+{
+    struct open_how how = {
+        .flags = O_RDONLY | O_DIRECTORY | O_CLOEXEC,
+        .resolve = RESOLVE_BENEATH | RESOLVE_NO_SYMLINKS | RESOLVE_NO_MAGICLINKS
+    };
+    int file = -1, created = 0, result = -1;
+    file = openat(base, "not-directory", O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
+                  0600);
+    if (file < 0)
+        goto cleanup;
+    created = 1;
+
+    if (rejected(base, "", ENOENT) != 0 ||
+        rejected(-1, "real", EBADF) != 0 ||
+        rejected(file, "child", ENOTDIR) != 0 ||
+        rejected(base, "not-directory", ENOTDIR) != 0 ||
+        rejected(base, "not-directory/child", ENOTDIR) != 0 ||
+        rejected(base, "real/../../outside", EXDEV) != 0 ||
+        rejected_request(base, "real", &how, 0, EINVAL) != 0)
+        goto cleanup;
+    /* Unknown resolve bit: the kernel must reject, never silently ignore. */
+    how.resolve |= (1ULL << 63);
+    if (rejected_request(base, "real", &how, sizeof how, EINVAL) != 0)
+        goto cleanup;
+    how.resolve = RESOLVE_BENEATH | RESOLVE_IN_ROOT;
+    if (rejected_request(base, "real", &how, sizeof how, EINVAL) != 0)
+        goto cleanup;
+    /* Confirm a valid request still works after invalid requests. */
+    if (same_directory(base, "real/child") != 0)
+        goto cleanup;
+    puts("openat2_error_cases=10; no unrestricted fallback");
+    result = 0;
+cleanup:
+    if (file >= 0 && close(file) != 0) result = -1;
+    if (created && unlinkat(base, "not-directory", 0) != 0) result = -1;
+    return result;
+}
+
 static int run_fixture(void)
 {
     char root[] = "/tmp/fc-path-eval-XXXXXX";
@@ -189,6 +242,8 @@ static int run_fixture(void)
         goto cleanup;
     puts("openat2_path_cases=11; private fixture, no production change");
     if (identity_fixture(base) != 0)
+        goto cleanup;
+    if (error_fixture(base) != 0)
         goto cleanup;
     result = 0;
 cleanup:

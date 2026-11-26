@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Path fail-closed reference:** [baseline](../performance/LINUX_PATH_REFERENCE.md) characterizes invalid openat2 requests on private fixtures, with explicit errno checks; no source imported, no production fallback.
+
 **Path identity comparison:** [baseline](../performance/LINUX_PATH_REFERENCE.md) distinguishes openat2 resolution constraints from immutable pathname identity using a private rename/replacement fixture; no kernel source imported or production adoption.
 
 **Path resolution candidate:** [baseline](../performance/LINUX_PATH_REFERENCE.md) examines Linux openat2 UAPI confinement relative to openat O_NOFOLLOW; no kernel source imported or production adoption.

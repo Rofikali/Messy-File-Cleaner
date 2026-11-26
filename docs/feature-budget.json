@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "9dbc39cdf57ebc924e5965ccc6c8e8b3f2c73b83",
+  "snapshot_main_sha": "52bd65c7cb9eb977a4122d7b6266d000a740bf1f",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-PATH-EVAL-01",
   "features": [
@@ -913,12 +913,13 @@
       "status": "ACTIVE",
       "prs": [
         225,
-        226
+        226,
+        227
       ],
-      "summary": "PR #226 registered (2/5); #225 merged, 14/14 PR-head jobs, C17 Release 63/63 and openat2 capability PASS not skipped. Integrated-main in progress at inspection; native benchmark push failure unresolved. Deterministic identity scenario; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 225,
-      "merge_sha": "9dbc39cdf57ebc924e5965ccc6c8e8b3f2c73b83",
-      "tested_head_sha": "3f65beb16a21c79f04b695bcfc6a7e41ed4fcf56"
+      "summary": "PR #227 registered (3/5); #226 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and path identity PASS. FCJ4 TSan not returned, integrated-main in progress at inspection, native benchmark push failure unresolved. Real UAPI error candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "last_merged_pr": 226,
+      "merge_sha": "52bd65c7cb9eb977a4122d7b6266d000a740bf1f",
+      "tested_head_sha": "1078f00fdd9519e7cab7a8abac31042da2ad8e1e"
     }
   ]
 }

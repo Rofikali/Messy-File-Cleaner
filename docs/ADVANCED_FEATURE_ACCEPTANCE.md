@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Path error acceptance:** [baseline](performance/LINUX_PATH_REFERENCE.md) requires nine exact error comparisons and a subsequent valid identity comparison, with no unrestricted fallback. Unsupported capability stays NOT VERIFIED.
+
 **Path identity acceptance:** [baseline](performance/LINUX_PATH_REFERENCE.md) requires held original directory and child identities survive a rename, replaced lexical name resolves distinct objects, and relocated child matches original identity. No source-retirement claim.
 
 **Path resolution acceptance:** [baseline](performance/LINUX_PATH_REFERENCE.md) requires successful capability probe and 11 stable private-fixture comparisons; missing headers/syscall or policy-denied probe NOT VERIFIED, not a capability pass. Production trust and FS-01B remain unchanged.

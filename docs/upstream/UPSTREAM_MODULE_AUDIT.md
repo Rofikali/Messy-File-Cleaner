@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Final fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) combines real stdio read/close reports and test-only allocation/acquisition instrumentation; no upstream source imported.
+
 **Acquisition fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) uses isolated open/fdopen wrapping to verify ownership before stream acquisition; no external source imported.
 
 **Allocation fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) uses test-target-only malloc/free linker wraps for staged config ownership, no source import.

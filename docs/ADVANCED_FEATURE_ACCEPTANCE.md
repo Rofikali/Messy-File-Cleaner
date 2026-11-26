@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Final fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires 12 combined read/close failures with exact rollback, descriptor release, staged free and clean retry; all prior 24 cases retained.
+
 **Configuration acquisition fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires three open and three fdopen errors, exact path/flags, staged free, raw FD closure and six recovery commits.
 
 **Configuration allocation fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires three ENOMEM cases, exact allocation sizes, no stream acquisition, complete rollback, three recovery commits and matching frees.

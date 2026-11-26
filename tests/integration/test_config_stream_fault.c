@@ -361,6 +361,71 @@ static int acquisition_tests(const char *path, size_t length)
     return cases == 6U ? 0 : 1;
 }
 
+/* Both read and close faults in the same transaction, with all ownership
+ * adapters armed. Retry on the same caller storage after every failure. */
+static int combined_tests(const char *path, size_t length)
+{
+    const size_t cuts[] = {
+        sizeof("batch_size=123\next.jpg=NewFolder\n") - 1, length
+    };
+    const int read_errors[] = {EIO, EACCES};
+    const int close_errors[] = {EIO, ENOSPC, EINTR};
+    unsigned int cases = 0;
+    for (size_t c = 0; c < sizeof cuts / sizeof cuts[0]; ++c)
+        for (size_t r = 0; r < sizeof read_errors / sizeof read_errors[0]; ++r)
+            for (size_t e = 0; e < sizeof close_errors / sizeof close_errors[0]; ++e)
+            {
+                HashEntry entries[64], snapshot[64];
+                memset(entries, 0, sizeof entries);
+                Config cfg;
+                hashmap_init(&cfg.ext_map, entries, 64);
+                init_config(&cfg);
+                cfg.batch_size = 77;
+                cfg.worker_threads = 3;
+                cfg.idle_sleep_ms = 9;
+                if (hashmap_put(&cfg.ext_map, ".png", "Existing") != 0)
+                    return 1;
+                memcpy(snapshot, entries, sizeof entries);
+                arm_acquisition(path, 0, 0);
+                fault.limit = cuts[c];
+                fault.error = read_errors[r];
+                fault.close_error = close_errors[e];
+                int status = load_config(path, &cfg);
+                disarm_acquisition();
+                if (status != -1 || !acquired_once() ||
+                    acquisition.injected != 0 || fault.wrapped != 1 ||
+                    fault.stream_injected != 0 || fault.fd != acquisition.fd ||
+                    fault.injected != 1 || fault.delivered != cuts[c] ||
+                    fault.eof_seen != 0 || fault.closed != 1 ||
+                    fault.close_injected != 1 || !fault.close_ok ||
+                    !is_closed(acquisition.fd) ||
+                    !unchanged(&cfg, entries, snapshot))
+                    return 1;
+
+                arm_acquisition(path, 0, 0);
+                status = load_config(path, &cfg);
+                disarm_acquisition();
+                if (status != 0 || !acquired_once() ||
+                    acquisition.injected != 0 || fault.wrapped != 1 ||
+                    fault.stream_injected != 0 || fault.fd != acquisition.fd ||
+                    fault.injected != 0 || fault.delivered != length ||
+                    fault.eof_seen == 0 || fault.closed != 1 ||
+                    fault.close_injected != 0 || !fault.close_ok ||
+                    !is_closed(acquisition.fd) || cfg.ext_map.entries != entries ||
+                    cfg.ext_map.capacity != 64 || cfg.ext_map.size != 2 ||
+                    cfg.batch_size != 123 || cfg.worker_threads != 4 ||
+                    cfg.idle_sleep_ms != 9 || cfg.mode != MODE_DAEMON)
+                    return 1;
+                const char *png = hashmap_get(&cfg.ext_map, ".png");
+                const char *jpg = hashmap_get(&cfg.ext_map, ".jpg");
+                if (!png || !jpg || strcmp(png, "Existing") ||
+                    strcmp(jpg, "NewFolder"))
+                    return 1;
+                ++cases;
+            }
+    return cases == 12U ? 0 : 1;
+}
+
 int main(void)
 {
     static const char input[] =
@@ -478,7 +543,7 @@ int main(void)
         ++close_cases;
     }
     if (close_cases != 3U || allocation_tests(path, length) != 0 ||
-        acquisition_tests(path, length) != 0)
+        acquisition_tests(path, length) != 0 || combined_tests(path, length) != 0)
         goto cleanup;
     result = 0;
 cleanup:
@@ -490,6 +555,7 @@ cleanup:
         puts("config_close_fault=PASS cases=3 eof=3 rollback=3 closed=3 adapter_recovery=3");
         puts("config_alloc_fault=PASS cases=3 capacities=2,8,64 rollback=3 no_stream=3 recovery=3 staged_free=3");
         puts("config_acquire_fault=PASS cases=6 open=3 stream=3 rollback=6 raw_fd_closed=3 staged_free=6 recovery=6");
+        puts("config_combined_fault=PASS cases=12 cuts=2 read_errors=2 close_errors=3 dual_injected=12 rollback=12 closed=12 staged_free=12 recovery=12");
     }
     return result;
 }

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "4f73f69421c7d68de91631250028c54b659a6338",
+  "snapshot_main_sha": "acb56b0ffde03faa147f78837aebab5946029a34",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "UPSTREAM-FAULT-01",
   "features": [
@@ -1034,12 +1034,13 @@
         256,
         257,
         258,
-        259
+        259,
+        260
       ],
-      "summary": "#258 merged, 13 completed exact-head jobs PASS, Ubuntu image running, FCJ4 TSan PASS; C17 Debug/Release 70/70, 12 read, 3 close and 3 allocation faults PASS. Fourth acquisition candidate registered as #259 (4/5); local tests NOT RUN, CI pending; no production change.",
-      "last_merged_pr": 258,
-      "merge_sha": "4f73f69421c7d68de91631250028c54b659a6338",
-      "tested_head_sha": "6c8cffbb3e7ac45526d4a0dbdb729b2471ba194f"
+      "summary": "#259 merged, 13 completed exact-head jobs PASS, Makefile running; #258 Ubuntu image still running; C17 Debug/Release 70/70, 24 isolated fault cases PASS. Final combined fault candidate registered as #260 (5/5); local tests NOT RUN, CI pending; no production change.",
+      "last_merged_pr": 259,
+      "merge_sha": "acb56b0ffde03faa147f78837aebab5946029a34",
+      "tested_head_sha": "f0370a5bc7e43cf11366e288dcb8873823873a43"
     }
   ]
 }

@@ -1078,8 +1078,10 @@
       "id": "PUBLIC-API-01",
       "title": "Design-only public C preview interface and consumer contract evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First design/compile-only opaque preview interface candidate awaiting registration. No installed header, implementation, ABI or real consumer approval; local tests NOT RUN, CI pending."
+      "prs": [
+        271
+      ],
+      "summary": "First design/compile-only opaque preview interface candidate registered as #271 (1/5). No installed header, implementation, ABI or real consumer approval; local tests NOT RUN, CI pending."
     }
   ]
 }

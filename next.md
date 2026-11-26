@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **PUBLIC-API-01 (first candidate awaiting registration)** | Design-only opaque preview contract and compile-only C consumer fixture; six compiler/standard syntax checks | #270 13/13 returned jobs, capability reports complete; local tests NOT RUN; CI pending; production ABI/FFI, imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **PUBLIC-API-01 (1/5; PR #271 OPEN (draft))** | Design-only opaque preview contract and compile-only C consumer fixture; six compiler/standard syntax checks | #270 13/13 returned jobs, capability reports complete; local tests NOT RUN; CI pending; production ABI/FFI, imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **UPSTREAM-COMPAT-01 (5/5; #270 merged)** | 324 header probes; host Clang Debug 70/70, container Release 69 passed/1 skipped; host 5/container 4 capability passes, container io_uring EPERM | Scoped acceptance only; no sixth PR |
 | **DONE** | **SUPPLY-CHAIN-01 (5/5; #265 merged)** | Seven APT controls, 35 direct references, 18 action pins and 11 gate fixtures PASS | Scoped acceptance; no sixth PR; mutable base/APT/runner, SBOM and provenance unresolved |
 | **DONE** | **UPSTREAM-FAULT-01 (5/5; #260 merged)** | 36 fault scenarios and recoveries, 70/70 C17 Debug/Release, 13/13 returned jobs after Docker retry | Scoped evaluation complete; retain loader; no sixth PR |

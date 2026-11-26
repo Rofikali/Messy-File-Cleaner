@@ -1,16 +1,19 @@
-/* Test-only GNU stream adapter. The actual loader, map and file open are
- * unchanged; fdopen and staged allocation are wrapped in this test only. */
+/* Test-only GNU fault adapters. Production loader and map are unchanged;
+ * open, fdopen and staged allocation are wrapped in this test only. */
 #define _GNU_SOURCE
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <stdarg.h>
+#include <sys/stat.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include "config/config.h"
 
 static struct {
-    int armed, fd, error, close_error;
+    int armed, fd, error, close_error, stream_error;
+    unsigned int stream_injected;
     unsigned int eof_seen, close_injected;
     size_t limit, delivered;
     unsigned int wrapped, injected, closed;
@@ -63,6 +66,52 @@ void __wrap_free(void *ptr)
     __real_free(ptr);
 }
 
+static struct {
+    int armed, error, fd, flags;
+    const char *path;
+    unsigned int calls, injected, wrong_path;
+} acquisition;
+
+int __real_open(const char *path, int flags, ...);
+int __wrap_open(const char *path, int flags, ...);
+
+int __wrap_open(const char *path, int flags, ...)
+{
+    /* This test exercises read-only opens. Preserve the variadic ABI
+     * for other direct open references when not injecting a failure. */
+    const int has_mode = (flags & O_CREAT) != 0 ||
+                         (flags & O_TMPFILE) == O_TMPFILE;
+    mode_t mode = 0;
+    if (has_mode)
+    {
+        va_list args;
+        va_start(args, flags);
+        mode = va_arg(args, mode_t);
+        va_end(args);
+    }
+    if (acquisition.armed)
+    {
+        ++acquisition.calls;
+        acquisition.flags = flags;
+        if (strcmp(path, acquisition.path) != 0)
+        {
+            ++acquisition.wrong_path;
+            errno = EINVAL;
+            return -1;
+        }
+        if (acquisition.error)
+        {
+            ++acquisition.injected;
+            errno = acquisition.error;
+            return -1;
+        }
+    }
+    int fd = has_mode ? __real_open(path, flags, mode) : __real_open(path, flags);
+    if (acquisition.armed)
+        acquisition.fd = fd;
+    return fd;
+}
+
 FILE *__real_fdopen(int fd, const char *mode);
 FILE *__wrap_fdopen(int fd, const char *mode);
 
@@ -113,6 +162,12 @@ FILE *__wrap_fdopen(int fd, const char *mode)
         return __real_fdopen(fd, mode);
     ++fault.wrapped;
     fault.fd = fd;
+    if (fault.stream_error)
+    {
+        ++fault.stream_injected;
+        errno = fault.stream_error;
+        return NULL; /* Loader still owns the real descriptor. */
+    }
     cookie_io_functions_t io = {
         .read = fault_read, .write = NULL, .seek = NULL, .close = fault_close
     };
@@ -200,6 +255,110 @@ static int allocation_tests(const char *path, size_t length)
         ++cases;
     }
     return cases == 3U ? 0 : 1;
+}
+
+static void arm_acquisition(const char *path, int open_error, int stream_error)
+{
+    memset(&acquisition, 0, sizeof acquisition);
+    acquisition.armed = 1;
+    acquisition.fd = -1;
+    acquisition.path = path;
+    acquisition.error = open_error;
+    memset(&fault, 0, sizeof fault);
+    fault.armed = 1;
+    fault.fd = -1;
+    fault.stream_error = stream_error;
+    memset(&allocation, 0, sizeof allocation);
+    allocation.armed = 1;
+}
+
+static void disarm_acquisition(void)
+{
+    acquisition.armed = 0;
+    fault.armed = 0;
+    allocation.armed = 0;
+}
+
+static int acquired_once(void)
+{
+    const int required = O_NONBLOCK | O_CLOEXEC | O_NOCTTY;
+    return acquisition.calls == 1 && acquisition.wrong_path == 0 &&
+           (acquisition.flags & O_ACCMODE) == O_RDONLY &&
+           (acquisition.flags & required) == required &&
+           allocation.calls == 1 && allocation.injected == 0 &&
+           allocation.bytes == 64U * sizeof(HashEntry) &&
+           allocation.frees == 1 && allocation.unexpected_frees == 0 &&
+           allocation.live == NULL;
+}
+
+static int is_closed(int fd)
+{
+    errno = 0;
+    return fd >= 0 && fcntl(fd, F_GETFD) == -1 && errno == EBADF;
+}
+
+static int acquisition_tests(const char *path, size_t length)
+{
+    const int open_errors[] = {EACCES, EMFILE, ENFILE};
+    const int stream_errors[] = {ENOMEM, EMFILE, EINVAL};
+    unsigned int cases = 0;
+    for (unsigned int stage = 0; stage < 2; ++stage)
+        for (size_t i = 0; i < 3; ++i)
+        {
+            HashEntry entries[64], snapshot[64];
+            memset(entries, 0, sizeof entries);
+            Config cfg;
+            hashmap_init(&cfg.ext_map, entries, 64);
+            init_config(&cfg);
+            cfg.batch_size = 77;
+            cfg.worker_threads = 3;
+            cfg.idle_sleep_ms = 9;
+            if (hashmap_put(&cfg.ext_map, ".png", "Existing") != 0)
+                return 1;
+            memcpy(snapshot, entries, sizeof entries);
+            arm_acquisition(path, stage == 0 ? open_errors[i] : 0,
+                            stage == 1 ? stream_errors[i] : 0);
+            int status = load_config(path, &cfg);
+            disarm_acquisition();
+            if (status != -1 || !acquired_once() ||
+                !unchanged(&cfg, entries, snapshot) ||
+                fault.delivered != 0 || fault.eof_seen != 0 ||
+                fault.closed != 0 || fault.injected != 0 || fault.close_injected != 0)
+                return 1;
+            if (stage == 0)
+            {
+                if (acquisition.injected != 1 || acquisition.fd != -1 ||
+                    fault.wrapped != 0 || fault.stream_injected != 0 || fault.fd != -1)
+                    return 1;
+            }
+            else
+            {
+                if (acquisition.injected != 0 || fault.wrapped != 1 ||
+                    fault.stream_injected != 1 || fault.fd != acquisition.fd ||
+                    !is_closed(acquisition.fd))
+                    return 1;
+            }
+
+            arm_acquisition(path, 0, 0);
+            status = load_config(path, &cfg);
+            disarm_acquisition();
+            if (status != 0 || !acquired_once() || acquisition.injected != 0 ||
+                fault.wrapped != 1 || fault.stream_injected != 0 ||
+                fault.fd != acquisition.fd || fault.injected != 0 ||
+                fault.delivered != length || fault.eof_seen == 0 ||
+                fault.closed != 1 || fault.close_injected != 0 || !fault.close_ok ||
+                !is_closed(acquisition.fd) || cfg.ext_map.entries != entries ||
+                cfg.ext_map.capacity != 64 || cfg.ext_map.size != 2 ||
+                cfg.batch_size != 123 || cfg.worker_threads != 4 ||
+                cfg.idle_sleep_ms != 9 || cfg.mode != MODE_DAEMON)
+                return 1;
+            const char *png = hashmap_get(&cfg.ext_map, ".png");
+            const char *jpg = hashmap_get(&cfg.ext_map, ".jpg");
+            if (!png || !jpg || strcmp(png, "Existing") || strcmp(jpg, "NewFolder"))
+                return 1;
+            ++cases;
+        }
+    return cases == 6U ? 0 : 1;
 }
 
 int main(void)
@@ -318,7 +477,8 @@ int main(void)
             goto cleanup;
         ++close_cases;
     }
-    if (close_cases != 3U || allocation_tests(path, length) != 0)
+    if (close_cases != 3U || allocation_tests(path, length) != 0 ||
+        acquisition_tests(path, length) != 0)
         goto cleanup;
     result = 0;
 cleanup:
@@ -329,6 +489,7 @@ cleanup:
         puts("config_stream_fault=PASS cases=12 cuts=6 errors=2 rollback=12 closed=12 recovery=12");
         puts("config_close_fault=PASS cases=3 eof=3 rollback=3 closed=3 adapter_recovery=3");
         puts("config_alloc_fault=PASS cases=3 capacities=2,8,64 rollback=3 no_stream=3 recovery=3 staged_free=3");
+        puts("config_acquire_fault=PASS cases=6 open=3 stream=3 rollback=6 raw_fd_closed=3 staged_free=6 recovery=6");
     }
     return result;
 }

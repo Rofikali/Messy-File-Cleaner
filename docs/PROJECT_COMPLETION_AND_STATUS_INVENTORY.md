@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Fault checkpoint:** #259 merged, 13 completed jobs PASS, Makefile pending; #258 Ubuntu image pending; 70/70 C17 Debug/Release and 24 isolated faults PASS. [Final combined fault candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.
+
 **Fault checkpoint:** #258 merged, 13 completed jobs PASS, Ubuntu image running, 70/70 C17 Debug/Release and three allocation faults PASS. [Acquisition candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.
 
 **Fault checkpoint:** #257 merged, 13/13 returned exact-head jobs, 70/70 C17 Debug/Release, 12 read and three close fault cases PASS. [Allocation candidate](security/UPSTREAM_FAULT_REFERENCE.md) pending CI.

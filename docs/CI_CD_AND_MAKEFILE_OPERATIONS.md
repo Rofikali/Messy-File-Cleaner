@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Action reference pinning:** existing nine workflows use four official full-SHA action references in 18 declarations; same inventory and review update policy. No new jobs or manual scale dispatch.
+
 **Build reference drift gate:** existing feature-budget job checks direct literal workflow/Dockerfile declarations against reviewed inventory; no new runner, packages or workflow.
 
 **APT retry regression:** existing feature-budget job runs isolated shell oracle with seven deterministic cases; no real APT/network in the test.

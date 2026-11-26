@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Direct action pin acceptance:** [supply-chain reference](security/SUPPLY_CHAIN_REFERENCE.md) records 18 existing action uses pinned to four official tag-resolved full SHAs, inventory synchronized; manual workflows not credited without execution.
+
 **Direct build inventory acceptance:** [supply-chain reference](security/SUPPLY_CHAIN_REFERENCE.md) requires the tracked direct declaration inventory to match actual workflow and Dockerfile references; not a complete dependency resolver.
 
 **APT retry oracle acceptance:** [build integrity](security/SUPPLY_CHAIN_REFERENCE.md) requires seven exact command-order/exit cases from actual Dockerfile RUN; no actual package operations.

@@ -25,3 +25,17 @@ Baseline 454ccd24fb6d12ec1ddae2e2ad6d98a5cbea0a47; #262 merged, 13/13 returned e
 | Compose | local build from root Dockerfile | inherits mutable base inputs |
 
 No pin or dependency change in this PR. Local tests NOT RUN; exact-head CI pending; gate must prove inventory equality, negative-control drift test pending. No new dependencies/imports/spend/release; FS-01B/REL-01/license lock unchanged. Reproducibility, SBOM, provenance and vulnerability coverage remain unverified. Rollback inventory/script/CI revert.
+
+
+## Immutable direct GitHub Actions references — fourth candidate
+
+Baseline e07deee9a0430b1c7af7d498a15b3d3ee38c730e; #263 merged, 13/13 returned exact-head jobs PASS (CMake 45820801524, Docker 45820801330, Makefile 45820801342, Ubuntu 45820801368; FCJ4 TSan not returned). C17 Release 139912233617 and Debug 139912233770 each 70/70; feature contract job 139912233806 logs `build_input_inventory=PASS references=35 files=11` and seven APT retry scenarios PASS. Resolve official upstream Git ref endpoints on 2026-11-26, each tag directly identifies a commit (not a tag object); replace existing tags with full SHAs, retain tag comments, synchronize inventory. No action major-version upgrade or new action.
+
+| Official action | Previous tag | Pinned full commit | Evidence |
+|---|---|---|---|
+| actions/checkout | v4 | `11d5960a326750d5838078e36cf38b85af677262` | Official ref and #263 CI download logs |
+| docker/build-push-action | v6 | `10e90e3645eae34f1e60eeb005ba3a3d33f178e8` | Official ref and #263 Docker log 139912232497 |
+| actions/setup-python | v5 | `a26af69be951a213d495a4c3e4e4022e16d87065` | Official ref; manual benchmark execution NOT RUN |
+| actions/upload-artifact | v4 | `ea165f8d65b6e75b540449e92b4886f43607fa02` | Official ref; manual benchmark execution NOT RUN |
+
+18 direct uses across nine workflows; 35 declaration occurrences across 11 inventoried files preserved. Full SHA prevents tag movement from changing the selected action revision; does not certify action source, transitive dependencies, runner trust, network downloads or security patch currency. Update ownership: agent/maintainer periodically review upstream security advisories and official release/ref mapping; propose exact SHA and inventory/doc updates in a reviewed, budgeted PR; verify relevant exact-head workflows; never auto-advance tags or claim manual workflow coverage. No automatic dispatch of large benchmark workflows, no new permission, dependencies, imports, spending or release. Node runtime deprecation warning and mutable runner/base/APT versions remain; no SBOM or provenance claim. Final slot should validate drift negative controls and pin form against the actual gate, reconcile CI and record bounded acceptance; do not claim complete supply-chain hardening. Local tests NOT RUN; exact-head CI pending. Rollback revert workflow and inventory changes together. FS-01B/REL-01/license lock unchanged.

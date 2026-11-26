@@ -1,35 +1,35 @@
 .devcontainer/Dockerfile | FROM mcr.microsoft.com/devcontainers/base:ubuntu-24.04
 .github/workflows/cmake-single-platform.yml | runs-on: ubuntu-latest
 .github/workflows/cmake-single-platform.yml | runs-on: ubuntu-latest
-.github/workflows/cmake-single-platform.yml | uses: actions/checkout@v4
-.github/workflows/cmake-single-platform.yml | uses: actions/checkout@v4
+.github/workflows/cmake-single-platform.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+.github/workflows/cmake-single-platform.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 .github/workflows/docker-build.yml | runs-on: ubuntu-latest
-.github/workflows/docker-build.yml | uses: actions/checkout@v4
-.github/workflows/docker-build.yml | uses: docker/build-push-action@v6
+.github/workflows/docker-build.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+.github/workflows/docker-build.yml | uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
 .github/workflows/fcj4-tsan.yml | runs-on: ubuntu-24.04
-.github/workflows/fcj4-tsan.yml | uses: actions/checkout@v4
+.github/workflows/fcj4-tsan.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 .github/workflows/large-scale-scan-benchmark.yml | python-version: "3.x"
 .github/workflows/large-scale-scan-benchmark.yml | runs-on: ubuntu-latest
-.github/workflows/large-scale-scan-benchmark.yml | uses: actions/checkout@v4
-.github/workflows/large-scale-scan-benchmark.yml | uses: actions/setup-python@v5
-.github/workflows/large-scale-scan-benchmark.yml | uses: actions/upload-artifact@v4
+.github/workflows/large-scale-scan-benchmark.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+.github/workflows/large-scale-scan-benchmark.yml | uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+.github/workflows/large-scale-scan-benchmark.yml | uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
 .github/workflows/makefile-validation.yml | runs-on: ubuntu-24.04
-.github/workflows/makefile-validation.yml | uses: actions/checkout@v4
+.github/workflows/makefile-validation.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 .github/workflows/native-scanner-benchmark.yml | python-version: "3.x"
 .github/workflows/native-scanner-benchmark.yml | runs-on: ubuntu-latest
-.github/workflows/native-scanner-benchmark.yml | uses: actions/checkout@v4
-.github/workflows/native-scanner-benchmark.yml | uses: actions/setup-python@v5
-.github/workflows/native-scanner-benchmark.yml | uses: actions/upload-artifact@v4
+.github/workflows/native-scanner-benchmark.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+.github/workflows/native-scanner-benchmark.yml | uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+.github/workflows/native-scanner-benchmark.yml | uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
 .github/workflows/performance-benchmark.yml | python-version: "3.x"
 .github/workflows/performance-benchmark.yml | runs-on: ubuntu-latest
-.github/workflows/performance-benchmark.yml | uses: actions/checkout@v4
-.github/workflows/performance-benchmark.yml | uses: actions/setup-python@v5
-.github/workflows/performance-benchmark.yml | uses: actions/upload-artifact@v4
+.github/workflows/performance-benchmark.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+.github/workflows/performance-benchmark.yml | uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+.github/workflows/performance-benchmark.yml | uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
 .github/workflows/rust-test-support.yml | runs-on: ubuntu-24.04
-.github/workflows/rust-test-support.yml | uses: actions/checkout@v4
+.github/workflows/rust-test-support.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 .github/workflows/ubuntu-24.04-validation.yml | runs-on: ubuntu-24.04
 .github/workflows/ubuntu-24.04-validation.yml | runs-on: ubuntu-24.04
-.github/workflows/ubuntu-24.04-validation.yml | uses: actions/checkout@v4
-.github/workflows/ubuntu-24.04-validation.yml | uses: actions/checkout@v4
+.github/workflows/ubuntu-24.04-validation.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+.github/workflows/ubuntu-24.04-validation.yml | uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 Dockerfile | FROM ubuntu:24.04 AS build
 Dockerfile | FROM ubuntu:24.04 AS runtime

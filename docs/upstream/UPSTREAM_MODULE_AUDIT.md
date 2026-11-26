@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Supply-chain reference:** [build integrity](../security/SUPPLY_CHAIN_REFERENCE.md) responds to observed Ubuntu mirror inconsistency without source imports or new dependencies.
+
 **Final fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) combines real stdio read/close reports and test-only allocation/acquisition instrumentation; no upstream source imported.
 
 **Acquisition fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) uses isolated open/fdopen wrapping to verify ownership before stream acquisition; no external source imported.

@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "acb56b0ffde03faa147f78837aebab5946029a34",
+  "snapshot_main_sha": "a291c75995d6cf6a2f28344a4a39dec170ccdf6e",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "UPSTREAM-FAULT-01",
+  "active_feature_id": "SUPPLY-CHAIN-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1029,7 +1029,7 @@
     {
       "id": "UPSTREAM-FAULT-01",
       "title": "Independent deterministic libc-boundary fault injection reference",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         256,
         257,
@@ -1037,10 +1037,17 @@
         259,
         260
       ],
-      "summary": "#259 merged, 13 completed exact-head jobs PASS, Makefile running; #258 Ubuntu image still running; C17 Debug/Release 70/70, 24 isolated fault cases PASS. Final combined fault candidate registered as #260 (5/5); local tests NOT RUN, CI pending; no production change.",
-      "last_merged_pr": 259,
-      "merge_sha": "acb56b0ffde03faa147f78837aebab5946029a34",
-      "tested_head_sha": "f0370a5bc7e43cf11366e288dcb8873823873a43"
+      "summary": "Scoped DONE 5/5; #260 merged, 13/13 returned exact-head jobs after Docker retry, 70/70 C17 Debug/Release, 36 fault scenarios and recoveries PASS. FCJ4 TSan not returned; #258/#259 outstanding jobs PASS. Retain loader; no crash/release guarantee.",
+      "last_merged_pr": 260,
+      "merge_sha": "a291c75995d6cf6a2f28344a4a39dec170ccdf6e",
+      "tested_head_sha": "f17fe0415fae055657f429faa2cce985938ed93f"
+    },
+    {
+      "id": "SUPPLY-CHAIN-01",
+      "title": "Build supply-chain integrity and bounded dependency acquisition",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "First bounded fail-closed APT index refresh candidate awaiting registration; local tests NOT RUN; exact-head CI pending; no dependency-set or runtime change."
     }
   ]
 }

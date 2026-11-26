@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Acquisition fault evidence:** isolated config stream test now wraps open as well as fdopen/malloc/free; direct Debug sanitizers and verbose Release retained.
+
 **Allocation fault evidence:** isolated config stream test target now wraps malloc/free in addition to fdopen; direct Debug sanitizers and C17 Release verbose test retained.
 
 **Fault evidence:** Linux GNU/Clang isolated config stream test uses linker wrap only in test target, direct Debug sanitizer and C17 Release verbose CTest.

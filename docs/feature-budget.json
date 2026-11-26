@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "bdd1a2a77fa253c6109ad8f7c9fece7dbd537790",
+  "snapshot_main_sha": "b8c786565a036648b876b69d7226eef0038ac23b",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "CACHE-LAYOUT-EVAL-01",
   "features": [
@@ -986,12 +986,13 @@
         241,
         242,
         243,
-        244
+        244,
+        245
       ],
-      "summary": "PR #244 candidate (4/5); #243 merged, 13/13 returned exact-head jobs passed. Trusted owner extents and immutable readers candidate, local tests NOT RUN, exact-head CI pending. Retain production layout; native benchmark unresolved; integrated-main not verified.",
-      "last_merged_pr": 243,
-      "merge_sha": "bdd1a2a77fa253c6109ad8f7c9fece7dbd537790",
-      "tested_head_sha": "9214a9c32baabcb4875f6a79e3b9ca3abb7a16a7"
+      "summary": "PR #244 merged, 14/14 returned exact-head jobs, C17 Release 67/67 tests plus 256 reader digests and two oversized metadata cases PASS. Final sanitizer candidate registered as PR #245 (5/5); CI pending. Retain production layout; RSS/counters/packed TSan and native benchmark unresolved.",
+      "last_merged_pr": 244,
+      "merge_sha": "b8c786565a036648b876b69d7226eef0038ac23b",
+      "tested_head_sha": "fd6e27697c3ddba3c0a1e2ef907e492bf042bed5"
     }
   ]
 }

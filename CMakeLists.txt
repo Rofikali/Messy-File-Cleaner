@@ -220,6 +220,12 @@ if(BUILD_TESTING)
   target_link_libraries(cache-layout-reference PRIVATE Threads::Threads)
   target_include_directories(cache-layout-reference PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_options(cache-layout-reference PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes)
+  # Instrument this experimental target itself in Debug, not just the CLI.
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(cache-layout-reference PRIVATE
+      -O0 -g3 -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
+    target_link_options(cache-layout-reference PRIVATE -fsanitize=address,undefined)
+  endif()
   add_test(NAME cache_layout_reference COMMAND cache-layout-reference)
   set_tests_properties(cache_layout_reference PROPERTIES TIMEOUT 15)
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

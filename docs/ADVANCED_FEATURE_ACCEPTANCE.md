@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Cache-layout final candidate:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires directly instrumented Debug reference execution with fatal ASan/UBSan and ordinary Release checks; no production adoption or packed TSan claim.
+
 **Cache-layout capacity acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires oversized logical count/bytes rejection before access and four immutable readers with 64 exact digests each; no concurrent reclamation claim.
 
 **Cache-layout ownership acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires malformed input rejection, two injected allocation failures, occupied-output rejection, source-free lifetime, seven corrupted representations rejected and repeatable cleanup.

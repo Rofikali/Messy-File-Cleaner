@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Cache-layout final candidate:** [baseline](../performance/CACHE_LAYOUT_REFERENCE.md) adds direct sanitizer instrumentation only; no external implementation, ABI or production change.
+
 **Cache-layout capacity reference:** [baseline](../performance/CACHE_LAYOUT_REFERENCE.md) uses trusted owner extents and POSIX readers in test-only research; no external implementation or ABI change.
 
 **Cache-layout safety reference:** [baseline](../performance/CACHE_LAYOUT_REFERENCE.md) evaluates independent packed snapshots with bounded input/metadata checks and owned allocations; no external source or production ABI change.

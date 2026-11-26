@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Public API consumer boundary:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Acceptance is compile-only; no execution, actual consumer adoption, ownership runtime test, ABI or release claim.
+
 **Public API design acceptance:** [roadmap](architecture/C-API-ABI-FFI-ROADMAP.md) defines an opaque preview-only contract and compile-only consumer fixture; no installed API, ABI, implementation or real consumer approval.
 
 **Final compiler/platform acceptance:** [compatibility reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) requires explicit five-test reports in both environments; skips remain NOT_VERIFIED, not successful capabilities. 324 header probes verified.

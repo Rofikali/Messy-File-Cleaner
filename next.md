@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **LINUX-WATCH-EVAL-01 (1/5 prior opened; second PR candidate)** | Actual kernel buffered create/move-in events through parser and dry-run worker | #228 returned CI PASS; local tests NOT RUN; new CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **LINUX-WATCH-EVAL-01 (2/5; PR #229 OPEN (draft))** | Actual kernel buffered create/move-in events through parser and dry-run worker | #228 returned CI PASS; local tests NOT RUN; new CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **LINUX-PATH-EVAL-01 (3/5; #227 merged)** | 13/13 returned PR-head jobs; 63/63 tests and openat2 reference PASS | Integrated-main in progress at inspection; no production confinement/fallback or source-retirement proof |
 | **DONE** | **LINUX-SCANNER-EVAL-01 (4/5; #224 merged)** | 13/13 returned PR-head jobs; full and verbose scanner smoke PASS; retain production scanner | Integrated-main partial; native benchmark push failure unresolved; representative throughput/trust equivalence NOT established |
 | **DONE** | **STRING-EVAL-01 (3/5; #220 merged)** | 13/13 returned exact-head checks; standalone C11/C17/C23 and ASan/UBSan evidence; retain libc | FCJ4 TSan and integrated-main CI NOT VERIFIED; representative throughput/target host NOT established |

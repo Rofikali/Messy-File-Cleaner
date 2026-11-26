@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Path error reference:** [baseline](LINUX_PATH_REFERENCE.md) adds ten untimed Linux request/error/recovery comparisons; not a syscall benchmark or a production fallback implementation.
+
 **Path identity reference:** [baseline](LINUX_PATH_REFERENCE.md) adds untimed stable rename/replacement checks, not syscall timing or concurrent race proof.
 
 **Path resolution reference:** [baseline](LINUX_PATH_REFERENCE.md) is an untimed Linux capability/semantics test, not lexical normalization, syscall timing or production speed evidence.

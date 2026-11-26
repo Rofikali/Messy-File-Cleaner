@@ -1030,8 +1030,10 @@
       "id": "UPSTREAM-FAULT-01",
       "title": "Independent deterministic libc-boundary fault injection reference",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First post-open configuration stream fault candidate awaiting registration; local tests NOT RUN, CI pending; no production changes."
+      "prs": [
+        256
+      ],
+      "summary": "First post-open configuration stream fault candidate registered as #256 (1/5); local tests NOT RUN, CI pending; no production changes."
     }
   ]
 }

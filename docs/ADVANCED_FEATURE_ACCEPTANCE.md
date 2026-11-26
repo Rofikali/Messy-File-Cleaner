@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Batch I/O acceptance:** [baseline](performance/BATCH_IO_REFERENCE.md) requires 21 complete independent transfers, exact bytes and offsets, bounded iovecs and partial write handling; actual call counts are observational.
+
 **io_uring mixed completion acceptance:** [baseline](performance/LINUX_URING_REFERENCE.md) requires completed write batch before FSYNC, exact negative EBADF/zero EOF results, untouched sentinel buffers, and four valid recovery READV completions.
 
 **io_uring vectored acceptance:** [baseline](performance/LINUX_URING_REFERENCE.md) requires NOP regression, four READV and four WRITEV successful exact-length completions, unchanged descriptor offsets and original source bytes, with exact destination contents.

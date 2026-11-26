@@ -217,6 +217,12 @@ if(BUILD_TESTING)
   add_test(NAME scanner_reference_benchmark_smoke COMMAND scanner-reference-benchmark)
   set_tests_properties(scanner_reference_benchmark_smoke PROPERTIES TIMEOUT 15)
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(batch-io-reference tests/performance/batch_io_reference.c)
+    target_compile_options(batch-io-reference PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes)
+    add_test(NAME batch_io_reference COMMAND batch-io-reference)
+    set_tests_properties(batch_io_reference PROPERTIES TIMEOUT 15)
+  endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include(CheckCSourceCompiles)
     check_c_source_compiles([=[
       #define _GNU_SOURCE

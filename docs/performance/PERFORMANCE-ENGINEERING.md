@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Batch I/O reference:** [baseline](BATCH_IO_REFERENCE.md) records actual transfer syscall counts and verifies bytes/offsets across seven sizes; no timing or production speedup claim.
+
 **io_uring synchronization/error reference:** [baseline](LINUX_URING_REFERENCE.md) checks mixed completion results and subsequent valid reads, not timing, power-loss durability or production transfer performance.
 
 **io_uring vectored reference:** [baseline](LINUX_URING_REFERENCE.md) checks eight actual file-operation completions and 128 exact bytes, not throughput or durable transfer.

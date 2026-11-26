@@ -1046,8 +1046,10 @@
       "id": "SUPPLY-CHAIN-01",
       "title": "Build supply-chain integrity and bounded dependency acquisition",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First bounded fail-closed APT index refresh candidate awaiting registration; local tests NOT RUN; exact-head CI pending; no dependency-set or runtime change."
+      "prs": [
+        261
+      ],
+      "summary": "First bounded fail-closed APT index refresh candidate registered as #261 (1/5); local tests NOT RUN; exact-head CI pending; no dependency-set or runtime change."
     }
   ]
 }

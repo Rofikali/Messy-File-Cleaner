@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Linux selftest reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) uses independent Linux/POSIX descriptor lifecycle checks, no kselftest source imported.
+
 **CPU final reference:** [baseline](../performance/CPU_OPT_REFERENCE.md) adds Linux mmap/mprotect guard-page research, no external source, dependency or production change.
 
 **CPU dispatch reference:** [baseline](../performance/CPU_OPT_REFERENCE.md) adds test-only capability intersection and forced portable policy; no imported implementation or ABI change.

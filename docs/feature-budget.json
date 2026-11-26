@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "4b632bad3f2a346edc401a2b1cf1e82581b611fc",
+  "snapshot_main_sha": "c1da93f54e01bf156a5b6c70486ba96501282cda",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "CPU-OPT-EVAL-01",
+  "active_feature_id": "LINUX-SELFTEST-01",
   "features": [
     {
       "id": "PERF-01",
@@ -997,7 +997,7 @@
     {
       "id": "CPU-OPT-EVAL-01",
       "title": "Bounded portable and CPU-specific byte-processing reference evaluation",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         246,
         247,
@@ -1005,10 +1005,19 @@
         249,
         250
       ],
-      "summary": "#249 merged, 13/13 returned exact-head jobs, 68/68 C17 Debug/Release, 32 policy cases, 660480 dispatch comparisons (165120 forced portable), 135 timing rows PASS. Final guard-page candidate registered as #250 (5/5); local tests NOT RUN, CI pending; retain production classifier.",
-      "last_merged_pr": 249,
-      "merge_sha": "4b632bad3f2a346edc401a2b1cf1e82581b611fc",
-      "tested_head_sha": "d62d3bf1908b9073509dc6adf856fd6b9a5a3130"
+      "summary": "Scoped DONE 5/5; #250 merged, 12 completed exact-head jobs PASS, Ubuntu image job still running, FCJ4 TSan not returned. C17 Debug/Release 68/68, guard-page 82560, dispatch 660480, 135 rows PASS. Retain production classifier; no production speed claim.",
+      "last_merged_pr": 250,
+      "merge_sha": "c1da93f54e01bf156a5b6c70486ba96501282cda",
+      "tested_head_sha": "e4f310d048a584f3b68b5363f86e856e3dfe949c"
+    },
+    {
+      "id": "LINUX-SELFTEST-01",
+      "title": "Linux selftest-style actual kernel descriptor lifecycle security regressions",
+      "status": "ACTIVE",
+      "prs": [
+        251
+      ],
+      "summary": "First independent scanner FD_CLOEXEC reference candidate registered as #251 (1/5); local tests NOT RUN, CI pending; prior Ubuntu image job pending at inspection; no production change."
     }
   ]
 }

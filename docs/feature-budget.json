@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "a2b5f47d9186c296f76f9674d542a9d8e4a07c1c",
+  "snapshot_main_sha": "82c20e1ec2d6f9e82cf19e75ad76a4f5dc024fab",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-WATCH-EVAL-01",
   "features": [
@@ -927,12 +927,13 @@
       "status": "ACTIVE",
       "prs": [
         228,
-        229
+        229,
+        230
       ],
-      "summary": "PR #229 registered (2/5); #228 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and real watcher invalidation PASS. Integrated-main partial; native benchmark push failure unresolved. Real kernel batch candidate; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 228,
-      "merge_sha": "a2b5f47d9186c296f76f9674d542a9d8e4a07c1c",
-      "tested_head_sha": "93f7d25bd47ddf07a189227aa2e20d579e158cf5"
+      "summary": "PR #230 registered (3/5); #229 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and real event batch PASS. Integrated-main in progress; native benchmark push failure unresolved. Repeated watcher lifecycle candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "last_merged_pr": 229,
+      "merge_sha": "82c20e1ec2d6f9e82cf19e75ad76a4f5dc024fab",
+      "tested_head_sha": "f9ab5a0903afaf48342518f9a5e83d0aab8141db"
     }
   ]
 }

@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CACHE-LAYOUT-EVAL-01 (4/5 merged; final candidate awaiting PR registration)** | Instrument reference Debug builds with fatal ASan/UBSan and close scoped research after exact-head CI | #244 returned 14/14 jobs; local candidate tests NOT RUN; RSS/cache counters/packed TSan not verified; retain production layout; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CACHE-LAYOUT-EVAL-01 (5/5; PR #245 OPEN (draft))** | Instrument reference Debug builds with fatal ASan/UBSan and close scoped research after exact-head CI | #244 returned 14/14 jobs; local candidate tests NOT RUN; RSS/cache counters/packed TSan not verified; retain production layout; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **BATCH-IO-EVAL-01 (3/5; #240 merged)** | 13/13 returned PR-head jobs; 66/66 and controlled fault evidence PASS | Retain scalar128k; no production speedup or durability claim |
 | **DONE** | **LIBURING-EVAL-01 (4/5; #237 merged)** | 13/13 returned PR-head jobs; 65/65 and 32 raw UAPI completions PASS | Actual liburing integration NOT EVALUATED; no production speedup or durability proof |
 | **DONE** | **LINUX-IO-EVAL-01 (3/5; #233 merged)** | 13/13 returned PR-head jobs; 64/64 and explicit offsets PASS; retain buffered transfer | Integrated-main in progress; no production speedup/durability/retirement proof |

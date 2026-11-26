@@ -986,9 +986,10 @@
         241,
         242,
         243,
-        244
+        244,
+        245
       ],
-      "summary": "PR #244 merged, 14/14 returned exact-head jobs, C17 Release 67/67 tests plus 256 reader digests and two oversized metadata cases PASS. Final sanitizer candidate awaiting registration and CI. Retain production layout; RSS/counters/packed TSan and native benchmark unresolved.",
+      "summary": "PR #244 merged, 14/14 returned exact-head jobs, C17 Release 67/67 tests plus 256 reader digests and two oversized metadata cases PASS. Final sanitizer candidate registered as PR #245 (5/5); CI pending. Retain production layout; RSS/counters/packed TSan and native benchmark unresolved.",
       "last_merged_pr": 244,
       "merge_sha": "b8c786565a036648b876b69d7226eef0038ac23b",
       "tested_head_sha": "fd6e27697c3ddba3c0a1e2ef907e492bf042bed5"

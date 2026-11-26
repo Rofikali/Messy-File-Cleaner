@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**CPU optimization checkpoint:** #249 merged, 13/13 returned exact-head jobs, 68/68 C17 Debug/Release, dispatch policy and 660480 comparisons PASS; [final guard-page candidate](performance/CPU_OPT_REFERENCE.md) pending. Retain production classifier; no release claim.
+
 **CPU optimization checkpoint:** cache layout scoped DONE 5/5 (#245 merged, 14/14 returned jobs; C17 Debug/Release 67/67); retain fixed layout. [Next CPU reference](performance/CPU_OPT_REFERENCE.md) is pending CI; no release claim.
 
 **Cache-layout checkpoint:** [evidence](performance/CACHE_LAYOUT_REFERENCE.md) records #244 merged, 14/14 returned PR-head jobs and 67/67 C17 Release tests; final direct sanitizer candidate pending, retain production layout. No release or source-retirement safety claim.

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "a7997654af4bf6f2b7d0070b115b1b0d20013896",
+  "snapshot_main_sha": "4b632bad3f2a346edc401a2b1cf1e82581b611fc",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "CPU-OPT-EVAL-01",
   "features": [
@@ -1002,12 +1002,13 @@
         246,
         247,
         248,
-        249
+        249,
+        250
       ],
-      "summary": "#248 merged, 14/14 exact-head jobs, C17 Debug/Release 68/68, 165120 original and 330240 wrapper comparisons, 108 timing rows PASS; native SSE2/AVX2. Fourth dispatch candidate registered as #249 (4/5); local tests NOT RUN; CI pending; no production change.",
-      "last_merged_pr": 248,
-      "merge_sha": "a7997654af4bf6f2b7d0070b115b1b0d20013896",
-      "tested_head_sha": "e1c228bcbcafe8816fc6f350036924129bea494a"
+      "summary": "#249 merged, 13/13 returned exact-head jobs, 68/68 C17 Debug/Release, 32 policy cases, 660480 dispatch comparisons (165120 forced portable), 135 timing rows PASS. Final guard-page candidate registered as #250 (5/5); local tests NOT RUN, CI pending; retain production classifier.",
+      "last_merged_pr": 249,
+      "merge_sha": "4b632bad3f2a346edc401a2b1cf1e82581b611fc",
+      "tested_head_sha": "d62d3bf1908b9073509dc6adf856fd6b9a5a3130"
     }
   ]
 }

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Compatibility closure:** #270 13/13 returned jobs; 324 header probes and two explicit capability reports complete; no production adoption. [Public API design](../architecture/C-API-ABI-FFI-ROADMAP.md) keeps kernel internals hidden.
+
 **Platform capability evidence:** [compatibility reference](UPSTREAM_COMPAT_REFERENCE.md) records 324 header probes and explicit reporting of existing Linux/FCJ3 capability fixtures; no production adoption.
 
 **Compiler compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) records #268 hosted Clang sanitizer preflight and Debug 70/70; internal header candidate pending.

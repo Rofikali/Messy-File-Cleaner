@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "e59df66c6907a998956de1d028a71af2a49d9418",
+  "snapshot_main_sha": "70817c9a606b22907be675b6ac74df7f7ce57f87",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "UPSTREAM-COMPAT-01",
+  "active_feature_id": "PUBLIC-API-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1061,7 +1061,7 @@
     {
       "id": "UPSTREAM-COMPAT-01",
       "title": "Bounded upstream compiler and platform compatibility evaluation",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         266,
         267,
@@ -1069,10 +1069,17 @@
         269,
         270
       ],
-      "summary": "#269 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70, hosted Clang Debug 70/70, sanitizer preflight PASS, container Release 69 passed/1 io_uring skipped; 324/324 header syntax probes PASS. Final explicit capability report candidate registered as #270 (5/5); local tests NOT RUN, CI pending.",
-      "last_merged_pr": 269,
-      "merge_sha": "e59df66c6907a998956de1d028a71af2a49d9418",
-      "tested_head_sha": "dc1f2c0714e7a2b792bd6ea1cd10189f23245616"
+      "summary": "Scoped DONE 5/5; #270 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70, hosted Clang Debug 70/70 and sanitizer preflight PASS, container Release 69 passed/1 skipped, 324 header probes, five host/four container capability tests PASS, container io_uring EPERM NOT_VERIFIED. No ABI or broader platform guarantee.",
+      "last_merged_pr": 270,
+      "merge_sha": "70817c9a606b22907be675b6ac74df7f7ce57f87",
+      "tested_head_sha": "a4e56bc5abb5aa8ca9ba8a54f4f1c2341d392c1c"
+    },
+    {
+      "id": "PUBLIC-API-01",
+      "title": "Design-only public C preview interface and consumer contract evaluation",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "First design/compile-only opaque preview interface candidate awaiting registration. No installed header, implementation, ABI or real consumer approval; local tests NOT RUN, CI pending."
     }
   ]
 }

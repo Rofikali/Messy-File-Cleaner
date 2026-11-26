@@ -912,9 +912,10 @@
       "title": "Bounded Linux path resolution capability comparison",
       "status": "ACTIVE",
       "prs": [
-        225
+        225,
+        226
       ],
-      "summary": "PR #225 merged, 14/14 PR-head jobs; C17 Release 63/63 and openat2 capability PASS not skipped. Integrated-main in progress at inspection, native benchmark push failure unresolved. Second deterministic identity candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "summary": "PR #226 registered (2/5); #225 merged, 14/14 PR-head jobs, C17 Release 63/63 and openat2 capability PASS not skipped. Integrated-main in progress at inspection; native benchmark push failure unresolved. Deterministic identity scenario; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 225,
       "merge_sha": "9dbc39cdf57ebc924e5965ccc6c8e8b3f2c73b83",
       "tested_head_sha": "3f65beb16a21c79f04b695bcfc6a7e41ed4fcf56"

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Linux I/O timing acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires all six original boundary cases and six repeated comparison pairs, raw timings with exact contents/offset verification; skipped capability NOT VERIFIED.
+
 **Linux I/O acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires complete independent byte verification of source and both destinations on six sizes; unsupported candidate NOT VERIFIED, no fallback or source retirement.
 
 **Watcher lifecycle acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires four actual watcher cycles, two cooperative stops, two root deletions, four failed registrations and descriptor-count restoration with no additional file handoff.

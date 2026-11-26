@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Linux I/O evidence:** existing C17 Release reporting step also selects linux_io_reference exactly and exposes verbose rows; missing test fails the evidence step, skipped capability remains NOT VERIFIED. No new workflow or scale dispatch.
+
 **Scanner reference evidence:** CMake matrix C17 Release only runs the existing bounded scanner reference smoke once more with verbose output and kernel/compiler/libc context. Exact test selector and --no-tests=error ensure missing test fails. No additional workflow or scale dispatch. See [baseline](performance/SCANNER_REFERENCE_BASELINE.md).
 
 **CI scope:** existing required Five-PR feature delivery contract job also runs the upstream import-lock validator and unit tests. No extra runner/job, network dependency, production Python or branch-rule context. Structural guard cannot detect arbitrary copied snippets or all linkage; exact-head CI and human/agent source review remain necessary.

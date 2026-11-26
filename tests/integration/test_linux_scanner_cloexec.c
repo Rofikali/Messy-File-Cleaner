@@ -29,8 +29,8 @@ static int same_inode(const struct stat *a, const struct stat *b)
 
 /* Count only descriptors belonging to private fixture directory inodes.
  * The inventory itself has a different inode and is closed before return. */
-static int inventory(unsigned int expected_root, unsigned int expected_child,
-                     int require_cloexec)
+static int inventory_with_extra(unsigned int expected_root, unsigned int expected_child,
+                                int require_cloexec, size_t extra_index)
 {
     DIR *d = opendir("/proc/self/fd");
     if (!d)
@@ -74,19 +74,31 @@ static int inventory(unsigned int expected_root, unsigned int expected_child,
     if (failed || seen[0] != expected_root)
         return -1;
     for (size_t i = 1; i < identity_count; ++i)
-        if (seen[i] != expected_child)
+        if (seen[i] != expected_child + (unsigned int)(i == extra_index))
             return -1;
     return 0;
 }
 
-/* Re-execute this exact test binary. A positive control deliberately
- * inherits one private root descriptor; all scanner directory descriptors
- * must be absent in both children after exec. No shell or PATH lookup. */
-static int exec_probe(int positive)
+static int inventory(unsigned int expected_root, unsigned int expected_child,
+                     int require_cloexec)
 {
+    return inventory_with_extra(expected_root, expected_child, require_cloexec,
+                                identity_count);
+}
+
+enum { PROBE_CLEAN = 0, PROBE_ROOT = 1, PROBE_DEEPEST = 2,
+       PROBE_REJECT_LEAK = 3, LEAK_DETECTED_EXIT = 42 };
+
+/* All intentional inheritance is confined to the forked test child.
+ * Mode 3 requires the child to observe the exact injected deepest inode,
+ * then reject the zero-inheritance expectation. No shell or PATH lookup. */
+static int exec_probe(unsigned int mode)
+{
+    if (mode > PROBE_REJECT_LEAK)
+        return -1;
+    char mode_arg[] = {(char)('0' + mode), '\0'};
     char *args[DEEP_LEVELS + 4] = {
-        (char *)"scanner-exec-probe", (char *)"--exec-probe",
-        (char *)(positive ? "1" : "0")
+        (char *)"scanner-exec-probe", (char *)"--exec-probe", mode_arg
     };
     for (size_t i = 0; i < identity_count; ++i)
         args[i + 3] = (char *)identity_paths[i];
@@ -96,8 +108,12 @@ static int exec_probe(int positive)
         return -1;
     if (pid == 0)
     {
-        if (positive && open(identity_paths[0], O_RDONLY | O_DIRECTORY) < 0)
-            _exit(125);
+        if (mode != PROBE_CLEAN)
+        {
+            const size_t target = mode == PROBE_ROOT ? 0 : identity_count - 1;
+            if (open(identity_paths[target], O_RDONLY | O_DIRECTORY) < 0)
+                _exit(125);
+        }
         execv("/proc/self/exe", args);
         _exit(126);
     }
@@ -106,7 +122,8 @@ static int exec_probe(int positive)
     do {
         waited = waitpid(pid, &status, 0);
     } while (waited < 0 && errno == EINTR);
-    if (waited != pid || !WIFEXITED(status) || WEXITSTATUS(status) != 0)
+    const int expected_exit = mode == PROBE_REJECT_LEAK ? LEAK_DETECTED_EXIT : 0;
+    if (waited != pid || !WIFEXITED(status) || WEXITSTATUS(status) != expected_exit)
         return -1;
     ++exec_checks;
     return 0;
@@ -115,7 +132,10 @@ static int exec_probe(int positive)
 static int inspect_callback(const char *path)
 {
     if (strcmp(path, expected_path) != 0 || inventory(1, 1, 1) != 0 ||
-        exec_probe(0) != 0 || exec_probe(1) != 0 || inventory(1, 1, 1) != 0)
+        exec_probe(PROBE_CLEAN) != 0 || exec_probe(PROBE_ROOT) != 0 ||
+        (identity_count > 2 &&
+         (exec_probe(PROBE_DEEPEST) != 0 || exec_probe(PROBE_REJECT_LEAK) != 0)) ||
+        inventory(1, 1, 1) != 0)
     {
         errno = EIO;
         return -1;
@@ -191,7 +211,7 @@ static int deep_descriptor_tests(void)
             callbacks != 1 || inventory(0, 0, 1) != 0)
             goto cleanup;
     }
-    if (exec_checks != 6U)
+    if (exec_checks != 12U)
         goto cleanup;
     fd = open(file, O_RDONLY | O_CLOEXEC);
     char byte = 0, extra = 0;
@@ -208,7 +228,7 @@ cleanup:
         if (rmdir(dirs[--created]) != 0)
             result = 1;
     if (result == 0)
-        puts("linux_scanner_deep_cloexec=PASS depth=20 scans=3 live_identities=60 restored=3 exec_negative=3 exec_positive=3 abort_cancel=1 recovery=1 preserved=1");
+        puts("linux_scanner_deep_cloexec=PASS depth=20 scans=3 live_identities=60 restored=3 exec_negative=3 exec_positive=3 exec_deepest=3 leak_rejected=3 abort_cancel=1 recovery=1 preserved=1");
     return result;
 }
 
@@ -217,13 +237,22 @@ int main(int argc, char **argv)
     if (argc >= 5 && argc <= DEEP_LEVELS + 3 &&
         strcmp(argv[1], "--exec-probe") == 0)
     {
-        if (strcmp(argv[2], "0") != 0 && strcmp(argv[2], "1") != 0)
+        if (argv[2][0] < '0' || argv[2][0] > '3' || argv[2][1] != '\0')
             return 1;
+        const unsigned int mode = (unsigned int)(argv[2][0] - '0');
         identity_count = (size_t)(argc - 3);
         for (size_t i = 0; i < identity_count; ++i)
             if (stat(argv[i + 3], &identities[i]) != 0)
                 return 1;
-        return inventory((unsigned int)(argv[2][0] == '1'), 0, 0) == 0 ? 0 : 1;
+        if (mode == PROBE_CLEAN || mode == PROBE_ROOT)
+            return inventory((unsigned int)(mode == PROBE_ROOT), 0, 0) == 0 ? 0 : 1;
+        if (inventory_with_extra(0, 0, 0, identity_count - 1) != 0)
+            return 1;
+        if (mode == PROBE_DEEPEST)
+            return 0;
+        /* Do not credit a generic child error as detection. The exact
+         * intentional leak was observed above; require rejection here. */
+        return inventory(0, 0, 0) != 0 ? LEAK_DETECTED_EXIT : 1;
     }
     if (argc != 1)
         return 1;

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Linux final selftest reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) tests deliberate child-only deepest inode inheritance and rejection oracle; no external source imported.
+
 **Linux deep descriptor reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) evaluates real descriptor lifecycle across scanner frame growth, no external source import.
 
 **Linux scanner abort lifecycle reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) adds real process inheritance plus abort/rescan ownership checks; no upstream source imported.

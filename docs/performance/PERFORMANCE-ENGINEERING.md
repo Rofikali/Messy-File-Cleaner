@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**CPU explicit vector reference:** [baseline](CPU_OPT_REFERENCE.md) adds bounded SSE2/AVX2, generic x86-64 baseline and runtime checks; no production speedup claim.
+
 **CPU timing reference:** [baseline](CPU_OPT_REFERENCE.md) measures absent/sparse/dense byte counts, rotated order and verified output; no threshold or production claim.
 
 **CPU optimization reference:** [baseline](CPU_OPT_REFERENCE.md) begins length-bounded scalar/libc comparisons; no timing or explicit ISA claim.

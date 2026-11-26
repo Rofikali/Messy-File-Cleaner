@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**CPU explicit vector acceptance:** [baseline](performance/CPU_OPT_REFERENCE.md) requires both wrappers equal libc across all 165120 cases each, capability-tagged execution, safe tails and 54–108 checked timing rows.
+
 **CPU timing acceptance:** [baseline](performance/CPU_OPT_REFERENCE.md) requires 54 rows with every result checked, unchanged correctness suite and actual compiler/disassembly evidence before ISA claims.
 
 **CPU optimization reference acceptance:** [baseline](performance/CPU_OPT_REFERENCE.md) requires 165120 exact scalar/libc comparisons and zero-length NULL checks, directly instrumented Debug, portable Release; no performance or explicit SIMD claim.

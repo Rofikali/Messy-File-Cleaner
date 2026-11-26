@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**CPU explicit vector reference:** [baseline](../performance/CPU_OPT_REFERENCE.md) uses compiler intrinsics and runtime checks, no copied implementation or dependencies.
+
 **CPU timing reference:** [baseline](../performance/CPU_OPT_REFERENCE.md) compares portable C against libc and requests compiler evidence; no external code import.
 
 **CPU optimization reference:** [baseline](../performance/CPU_OPT_REFERENCE.md) compares original portable byte counting with libc memchr; no imports or production ABI change.

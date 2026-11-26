@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "205b4f57647ba5b39fdd28b950248b5276ac5dc3",
+  "snapshot_main_sha": "05a0e688965fc2a61cf6d980bf9e67b0e48a29fe",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "UPSTREAM-COMPAT-01",
   "features": [
@@ -1064,12 +1064,13 @@
       "status": "ACTIVE",
       "prs": [
         266,
-        267
+        267,
+        268
       ],
-      "summary": "#266 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70, Clang production builds and CLI checks C11/C17/C23 PASS. Second full Clang C17 Release candidate registered as #267 (2/5); local tests NOT RUN; CI pending.",
-      "last_merged_pr": 266,
-      "merge_sha": "205b4f57647ba5b39fdd28b950248b5276ac5dc3",
-      "tested_head_sha": "310246c34312ce535ad250bccb738180e6f4cf95"
+      "summary": "#267 merged; #268 initial Ubuntu image job 139925552427 failed linking missing Clang ASan archives; Release 69 passed/1 skipped. Same-PR correction runs Debug on existing hosted runner with clang-18 and fail-closed link/run probe; local tests NOT RUN; exact-head CI pending. No new packages or production changes.",
+      "last_merged_pr": 267,
+      "merge_sha": "05a0e688965fc2a61cf6d980bf9e67b0e48a29fe",
+      "tested_head_sha": "daab93ad73eae9ed097d6e59a02f17205c6a1cb8"
     }
   ]
 }

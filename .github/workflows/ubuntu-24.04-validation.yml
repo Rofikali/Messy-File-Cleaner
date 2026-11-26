@@ -118,6 +118,35 @@ jobs:
               printf "clang_c17_release_suite=PASS\n"
             '
 
+      - name: Verify full Clang C17 Debug suite on existing hosted runner
+        timeout-minutes: 8
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(id -u)" -ne 0
+          work=$(mktemp -d)
+          trap 'rm -rf "$work"' EXIT
+          compiler=$(command -v clang-18)
+          "$compiler" --version
+          cmake --version
+          uname -srm
+          getconf GNU_LIBC_VERSION
+          export ASAN_OPTIONS=halt_on_error=1
+          export UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+          printf 'int main(void) { return 0; }\n' > "$work/probe.c"
+          "$compiler" -std=c17 -fsanitize=address,undefined \
+            -fno-sanitize-recover=all "$work/probe.c" -o "$work/probe"
+          "$work/probe"
+          printf 'clang_sanitizer_runtime=PASS\n'
+          mkdir "$work/source"
+          git archive HEAD | tar -x -C "$work/source"
+          cmake -S "$work/source" -B "$work/build" -G Ninja \
+            -DCMAKE_C_COMPILER="$compiler" -DCMAKE_BUILD_TYPE=Debug \
+            -DBUILD_TESTING=ON -DFC_C_STANDARD=17
+          cmake --build "$work/build" --parallel 2
+          ctest --test-dir "$work/build" --no-tests=error --output-on-failure
+          printf 'clang_c17_debug_suite=PASS environment=hosted_runner\n'
+
       - name: Build production image
         run: docker build --pull -t messy-file-cleaner:ci .
 

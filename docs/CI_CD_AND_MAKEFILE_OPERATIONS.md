@@ -1,5 +1,9 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Clang Debug correction:** move only Debug step to existing hosted Ubuntu runner with preinstalled clang-18 and explicit sanitizer link/run probe; original container Release isolation unchanged; host Debug not container-isolated.
+
+**Clang Debug suite:** existing Ubuntu development image, same isolation, eight-minute step, target-specific sanitizer instrumentation, halt-on-error and full registered CTest suite. No new runner or packages.
+
 **Clang C17 Release suite:** reuse the existing development container with the same isolation, eight-minute step, actual registered CTest suite and no exclusions. No new runner/packages.
 
 **Clang production compatibility:** existing Ubuntu container-build job reuses development image for three network-isolated read-only-source Clang builds and CLI help tests; five-minute step, no new runner/packages.

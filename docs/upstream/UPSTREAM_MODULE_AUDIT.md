@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**io_uring NOP reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) uses bounded raw UAPI shared ring mappings and acquire/release ownership for non-file NOP requests only. No copied source, liburing install or runtime adapter.
+
 **io_uring reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) uses installed Linux UAPI for bounded setup/probe only before optional liburing assessment; no source import or package dependency.
 
 **Linux I/O offset comparison:** [baseline](../performance/LINUX_IO_REFERENCE.md) retains existing production buffered transfer after measured reference results; adds explicit range/EOF semantics using installed libc only.

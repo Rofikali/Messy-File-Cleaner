@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Clang C17 Release suite:** reuse the existing development container with the same isolation, eight-minute step, actual registered CTest suite and no exclusions. No new runner/packages.
+
 **Clang production compatibility:** existing Ubuntu container-build job reuses development image for three network-isolated read-only-source Clang builds and CLI help tests; five-minute step, no new runner/packages.
 
 **Direct pin enforcement and regression:** existing feature-budget job tests actual inventory gate with 11 isolated temporary Git fixtures, then checks real tracked references. No extra runner or remote workflow execution.

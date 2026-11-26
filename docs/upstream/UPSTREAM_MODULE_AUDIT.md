@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Clang compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) records production C11/C17/C23 success; full C17 Release suite candidate pending CI.
+
 **Compiler compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) reuses existing Clang in development image; no imported code or new library.
 
 **Final supply-chain reference:** [acceptance](../security/SUPPLY_CHAIN_REFERENCE.md) enforces literal direct full-SHA action form and tests drift independently of inventory updates; no source import.

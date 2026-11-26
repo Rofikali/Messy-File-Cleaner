@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Scanner reporting acceptance:** [reference baseline](performance/SCANNER_REFERENCE_BASELINE.md) requires successful existing C17 Release smoke, verbose sample evidence and environment identification; keep production scanner until trust and resource equivalence are established.
+
 **Scanner stop acceptance:** [reference baseline](performance/SCANNER_REFERENCE_BASELINE.md) requires 18 deterministic stop/rescan pairs with exact unique partial callbacks, native errno, nftw callback return, descriptor restoration and complete recovery set.
 
 **Scanner descriptor acceptance:** [reference baseline](performance/SCANNER_REFERENCE_BASELINE.md) requires all eight untimed traversals, exact callback sets, scanner callback-visible deltas 2 wide/13 deep and baseline restoration. nftw budget is observational, not a process-wide cap.

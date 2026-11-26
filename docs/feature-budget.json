@@ -1063,9 +1063,10 @@
       "title": "Bounded upstream compiler and platform compatibility evaluation",
       "status": "ACTIVE",
       "prs": [
-        266
+        266,
+        267
       ],
-      "summary": "#266 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70, Clang production builds and CLI checks C11/C17/C23 PASS. Second full Clang C17 Release candidate awaiting registration; local tests NOT RUN; CI pending.",
+      "summary": "#266 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70, Clang production builds and CLI checks C11/C17/C23 PASS. Second full Clang C17 Release candidate registered as #267 (2/5); local tests NOT RUN; CI pending.",
       "last_merged_pr": 266,
       "merge_sha": "205b4f57647ba5b39fdd28b950248b5276ac5dc3",
       "tested_head_sha": "310246c34312ce535ad250bccb738180e6f4cf95"

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**io_uring synchronization/error reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) evaluates installed UAPI mixed completion semantics with private anonymous files. No source imports, liburing install or production adapter.
+
 **io_uring vectored reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) uses installed Linux UAPI with bounded private anonymous files; no upstream code import, liburing install or production adapter.
 
 **io_uring NOP reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) uses bounded raw UAPI shared ring mappings and acquire/release ownership for non-file NOP requests only. No copied source, liburing install or runtime adapter.

@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**io_uring synchronization/error reference:** [baseline](LINUX_URING_REFERENCE.md) checks mixed completion results and subsequent valid reads, not timing, power-loss durability or production transfer performance.
+
 **io_uring vectored reference:** [baseline](LINUX_URING_REFERENCE.md) checks eight actual file-operation completions and 128 exact bytes, not throughput or durable transfer.
 
 **io_uring NOP reference:** [baseline](LINUX_URING_REFERENCE.md) verifies four batches of four NOP completions and ring reuse; no throughput, latency or actual file transfer measurement.

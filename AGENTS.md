@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+**Public API synthetic ownership:** [API roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md). #273 merged, 13/13 returned PR-head jobs and 60 synthetic scenario executions PASS. #274 models heap ownership, matching release and positive retries in test-local mock only, plus hosted ASan/UBSan leak checks; CI pending. No production ABI/FFI approval.
+
 **Public API mock caller:** [API roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md). #272 merged, 13/13 returned PR-head jobs PASS. #273 tests ten caller scenarios against a test-local synthetic stub only, not the real engine. Six compiler-mode executions pending; no production ABI/FFI approval.
 
 **Public API consumer boundary:** [API roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md). #271 merged, 13/13 returned PR-head jobs PASS. #272 models the existing batch-preview CLI as a proposed internal consumer: only a complete compatible result is published, acquired handle cleanup after preview, no actual runtime or production ABI/FFI approval.

@@ -1050,9 +1050,10 @@
         261,
         262,
         263,
-        264
+        264,
+        265
       ],
-      "summary": "#264 merged, 15/15 returned exact-head jobs, C17 Debug/Release 70/70, seven APT cases and 35 references/11 files PASS; pinned checkout/build-push execution, Rust test support and FCJ4 TSan PASS. Final pin-form/drift acceptance candidate awaiting registration; local tests NOT RUN; CI pending.",
+      "summary": "#264 merged, 15/15 returned exact-head jobs, C17 Debug/Release 70/70, seven APT cases and 35 references/11 files PASS; pinned checkout/build-push execution, Rust test support and FCJ4 TSan PASS. Final pin-form/drift acceptance candidate registered as #265 (5/5); local tests NOT RUN; CI pending.",
       "last_merged_pr": 264,
       "merge_sha": "5e44a01d5ac0c3500a3a292e3491e6d4e551fc21",
       "tested_head_sha": "38440304559d9a6e033582821581c0b8d7921ed9"

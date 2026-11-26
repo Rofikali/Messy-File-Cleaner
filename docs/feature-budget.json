@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "12f50b5f75a2f71c9730896fc235cd9a8603f039",
+  "snapshot_main_sha": "777ffcebc653de43ca76431e3f085e1e2bc759c5",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "UPSTREAM-FAULT-01",
   "features": [
@@ -1031,9 +1031,13 @@
       "title": "Independent deterministic libc-boundary fault injection reference",
       "status": "ACTIVE",
       "prs": [
-        256
+        256,
+        257
       ],
-      "summary": "First post-open configuration stream fault candidate registered as #256 (1/5); local tests NOT RUN, CI pending; no production changes."
+      "summary": "#256 merged, 14/14 exact-head jobs, 70/70 C17 Debug/Release, 12 read fault, rollback, close and recovery cases PASS. Second close fault candidate registered as #257 (2/5); local tests NOT RUN; CI pending; no production change.",
+      "last_merged_pr": 256,
+      "merge_sha": "777ffcebc653de43ca76431e3f085e1e2bc759c5",
+      "tested_head_sha": "8540beeb7161fff5c0bd5d486baa59dbdbc98c6d"
     }
   ]
 }

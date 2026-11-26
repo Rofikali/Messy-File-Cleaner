@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Close fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) extends isolated GNU stream callbacks to distinguish EOF and close report, no production modification.
+
 **Fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) uses test-only linker wrapping and GNU libc stream callbacks, not upstream source imports.
 
 **Linux final selftest reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) tests deliberate child-only deepest inode inheritance and rejection oracle; no external source imported.

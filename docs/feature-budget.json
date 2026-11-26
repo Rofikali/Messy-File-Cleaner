@@ -982,8 +982,10 @@
       "id": "CACHE-LAYOUT-EVAL-01",
       "title": "Bounded event representation and cache-locality reference evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First fixed FileEvent versus packed path/index logical footprint and equivalence; prior queue padding inconclusive, local tests NOT RUN, CI pending, production unchanged."
+      "prs": [
+        241
+      ],
+      "summary": "PR #241 registered (1/5); first fixed FileEvent versus packed path/index logical footprint and equivalence; prior queue padding inconclusive, local tests NOT RUN, CI pending, production unchanged."
     }
   ]
 }

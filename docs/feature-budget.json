@@ -1015,9 +1015,10 @@
       "title": "Linux selftest-style actual kernel descriptor lifecycle security regressions",
       "status": "ACTIVE",
       "prs": [
-        251
+        251,
+        252
       ],
-      "summary": "#251 merged, 14/14 exact-head jobs, C17 Debug/Release 69/69 incl scanner CLOEXEC PASS; prior #250 Ubuntu image now PASS. Second exec inheritance candidate awaiting registration; local tests NOT RUN, CI pending; no production change.",
+      "summary": "#251 merged, 14/14 exact-head jobs, C17 Debug/Release 69/69 incl scanner CLOEXEC PASS; prior #250 Ubuntu image now PASS. Second exec inheritance candidate registered as #252 (2/5); local tests NOT RUN, CI pending; no production change.",
       "last_merged_pr": 251,
       "merge_sha": "a50d283385fea988edf91c8fe0f20e82021f8e92",
       "tested_head_sha": "2a7c0bd1cb18889c6b10e07577b52dffb81a64fe"

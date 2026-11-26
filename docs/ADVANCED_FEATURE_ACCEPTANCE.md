@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Cache-layout ownership acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires malformed input rejection, two injected allocation failures, occupied-output rejection, source-free lifetime, seven corrupted representations rejected and repeatable cleanup.
+
 **Cache-layout timing acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires six original footprint cases and 36 verified timing rows, independent ownership, bounded packed offsets and full-content equivalence; no latency threshold.
 
 **Cache-layout acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires exact ordered path/type contents, bounded offsets, NUL terminators, matching full-byte digests and reported storage for all six cases.

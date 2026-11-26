@@ -42,6 +42,109 @@ static int64_t elapsed_ns(struct timespec start, struct timespec end)
            + (int64_t)end.tv_nsec - (int64_t)start.tv_nsec;
 }
 
+/* Test-only owned representation. Output must be empty on entry.
+ * Reject malformed input before allocating; publish only after both
+ * allocations and copies complete. No borrowed source pointers. */
+struct snapshot {
+    struct packed_event *index;
+    char *paths;
+    size_t count, bytes;
+};
+
+static void snapshot_free(struct snapshot *out)
+{
+    free(out->paths);
+    free(out->index);
+    *out = (struct snapshot){0};
+}
+
+static int event_type_valid(EventType type)
+{
+    return type == FILE_CREATED || type == FILE_FOUND;
+}
+
+static int snapshot_build(const FileEvent *input, size_t count,
+                          struct snapshot *out, unsigned int fail_at)
+{
+    if (!out || out->index || out->paths || out->count || out->bytes ||
+        !input || count == 0 || count > 4096U ||
+        count > SIZE_MAX / sizeof(struct packed_event))
+        return -1;
+    size_t bytes = 0;
+    for (size_t i = 0; i < count; ++i)
+    {
+        const char *end = memchr(input[i].path, '\0', sizeof input[i].path);
+        if (!end || end == input[i].path || !event_type_valid(input[i].type))
+            return -1;
+        size_t n = (size_t)(end - input[i].path);
+        if (n + 1U > SIZE_MAX - bytes)
+            return -1;
+        bytes += n + 1U;
+    }
+    if (bytes > SIZE_MAX - count * sizeof(struct packed_event))
+        return -1;
+    struct snapshot tmp = {0};
+    tmp.index = fail_at == 1 ? NULL : malloc(count * sizeof *tmp.index);
+    if (!tmp.index)
+        return -1;
+    tmp.paths = fail_at == 2 ? NULL : malloc(bytes);
+    if (!tmp.paths)
+    {
+        snapshot_free(&tmp);
+        return -1;
+    }
+    size_t cursor = 0;
+    for (size_t i = 0; i < count; ++i)
+    {
+        const char *end = memchr(input[i].path, '\0', sizeof input[i].path);
+        if (!end || end == input[i].path || !event_type_valid(input[i].type))
+            goto reject;
+        size_t n = (size_t)(end - input[i].path);
+        if (cursor >= bytes || n >= bytes - cursor)
+            goto reject;
+        tmp.index[i] = (struct packed_event){cursor, n, input[i].type};
+        memcpy(tmp.paths + cursor, input[i].path, n + 1U);
+        cursor += n + 1U;
+    }
+    if (cursor != bytes)
+        goto reject;
+    tmp.count = count;
+    tmp.bytes = bytes;
+    *out = tmp;
+    return 0;
+reject:
+    snapshot_free(&tmp);
+    return -1;
+}
+
+/* Validate entire ordered representation before returning a digest.
+ * Never form an out-of-range pointer from untrusted index metadata. */
+static int snapshot_digest(const struct snapshot *in, uint64_t *out)
+{
+    if (!in || !out || !in->index || !in->paths ||
+        in->count == 0 || in->count > 4096U || in->bytes == 0)
+        return -1;
+    size_t cursor = 0;
+    uint64_t hash = UINT64_C(14695981039346656037);
+    for (size_t i = 0; i < in->count; ++i)
+    {
+        const struct packed_event *e = &in->index[i];
+        if (e->offset != cursor || cursor >= in->bytes || e->length == 0 ||
+            e->length >= sizeof(((FileEvent *)0)->path) ||
+            e->length >= in->bytes - cursor || !event_type_valid(e->type))
+            return -1;
+        const char *path = in->paths + cursor;
+        if (path[e->length] != '\0' || memchr(path, '\0', e->length))
+            return -1;
+        hash = accumulate(hash, path, e->type);
+        cursor += e->length + 1U;
+    }
+    if (cursor != in->bytes)
+        return -1;
+    *out = hash;
+    return 0;
+}
+
 /* Build an independently owned snapshot from the same validated fixed
  * input. Compare full fixed copies against packed allocation and copying,
  * including sizing in the packed construction interval. */
@@ -67,32 +170,12 @@ static int measure(const FileEvent *input, size_t count, int mixed,
     }
     else
     {
-        for (size_t i = 0; i < count; ++i)
-        {
-            /* Input is already bounded and validated by sample(). */
-            size_t n = strlen(input[i].path);
-            if (n >= sizeof input[i].path || n + 1U > SIZE_MAX - bytes)
-                goto cleanup;
-            bytes += n + 1U;
-        }
-        if (bytes > SIZE_MAX - count * sizeof *index)
+        struct snapshot owned = {0};
+        if (snapshot_build(input, count, &owned, 0) != 0)
             goto cleanup;
-        index = malloc(count * sizeof *index);
-        paths = malloc(bytes);
-        if (!index || !paths)
-            goto cleanup;
-        size_t cursor = 0;
-        for (size_t i = 0; i < count; ++i)
-        {
-            size_t n = strlen(input[i].path);
-            if (cursor >= bytes || n >= bytes - cursor)
-                goto cleanup;
-            index[i] = (struct packed_event){cursor, n, input[i].type};
-            memcpy(paths + cursor, input[i].path, n + 1U);
-            cursor += n + 1U;
-        }
-        if (cursor != bytes)
-            goto cleanup;
+        index = owned.index;
+        paths = owned.paths;
+        bytes = owned.bytes;
     }
     if (clock_gettime(CLOCK_MONOTONIC, &build_end) != 0)
         goto cleanup;
@@ -223,6 +306,111 @@ cleanup:
     return result;
 }
 
+static int rejected(const struct snapshot *in)
+{
+    uint64_t output = UINT64_C(0x123456789abcdef0);
+    return snapshot_digest(in, &output) != 0 &&
+           output == UINT64_C(0x123456789abcdef0);
+}
+
+static int ownership_tests(void)
+{
+    enum { COUNT = 3 };
+    FileEvent *input = calloc(COUNT, sizeof *input);
+    struct snapshot owned = {0}, empty = {0};
+    int result = 1;
+    if (!input)
+        return 1;
+    const size_t lengths[] = {1, 63, 1023};
+    uint64_t expected = UINT64_C(14695981039346656037);
+    for (size_t i = 0; i < COUNT; ++i)
+    {
+        input[i].type = i % 2U ? FILE_CREATED : FILE_FOUND;
+        memset(input[i].path, (int)('a' + i), lengths[i]);
+        expected = accumulate(expected, input[i].path, input[i].type);
+    }
+    if (snapshot_build(NULL, COUNT, &empty, 0) == 0 ||
+        snapshot_build(input, 0, &empty, 0) == 0 ||
+        snapshot_build(input, SIZE_MAX, &empty, 0) == 0 ||
+        snapshot_build(input, COUNT, NULL, 0) == 0)
+        goto cleanup;
+    FileEvent saved = input[0];
+    memset(input[0].path, 'x', sizeof input[0].path);
+    if (snapshot_build(input, COUNT, &empty, 0) == 0)
+        goto cleanup;
+    input[0] = saved;
+    input[0].path[0] = '\0';
+    if (snapshot_build(input, COUNT, &empty, 0) == 0)
+        goto cleanup;
+    input[0] = saved;
+    input[0].type = (EventType)99;
+    if (snapshot_build(input, COUNT, &empty, 0) == 0)
+        goto cleanup;
+    input[0] = saved;
+    for (unsigned int failure = 1; failure <= 2; ++failure)
+        if (snapshot_build(input, COUNT, &empty, failure) == 0 ||
+            empty.index || empty.paths || empty.count || empty.bytes)
+            goto cleanup;
+    if (snapshot_build(input, COUNT, &owned, 0) != 0)
+        goto cleanup;
+    struct packed_event *old_index = owned.index;
+    char *old_paths = owned.paths;
+    if (snapshot_build(input, COUNT, &owned, 0) == 0 ||
+        owned.index != old_index || owned.paths != old_paths ||
+        owned.count != COUNT)
+        goto cleanup;
+    memset(input, 0, COUNT * sizeof *input);
+    free(input);
+    input = NULL;
+    uint64_t hash = 0;
+    if (snapshot_digest(&owned, &hash) != 0 || hash != expected)
+        goto cleanup;
+    struct packed_event original = owned.index[1];
+    owned.index[1].offset = SIZE_MAX;
+    if (!rejected(&owned))
+        goto cleanup;
+    owned.index[1] = original;
+    owned.index[1].length = SIZE_MAX;
+    if (!rejected(&owned))
+        goto cleanup;
+    owned.index[1] = original;
+    owned.index[1].offset = 0;
+    if (!rejected(&owned))
+        goto cleanup;
+    owned.index[1] = original;
+    owned.index[1].type = (EventType)99;
+    if (!rejected(&owned))
+        goto cleanup;
+    owned.index[1] = original;
+    size_t terminator = original.offset + original.length;
+    owned.paths[terminator] = 'x';
+    if (!rejected(&owned))
+        goto cleanup;
+    owned.paths[terminator] = '\0';
+    char first = owned.paths[original.offset];
+    owned.paths[original.offset] = '\0';
+    if (!rejected(&owned))
+        goto cleanup;
+    owned.paths[original.offset] = first;
+    --owned.bytes;
+    if (!rejected(&owned))
+        goto cleanup;
+    ++owned.bytes;
+    if (snapshot_digest(&owned, &hash) != 0 || hash != expected)
+        goto cleanup;
+    snapshot_free(&owned);
+    snapshot_free(&owned);
+    if (owned.index || owned.paths || owned.count || owned.bytes)
+        goto cleanup;
+    puts("cache_layout_safety=PASS invalid_inputs=7 injected_alloc_failures=2 occupied_output=1 corruptions=7 source_freed=1 idempotent_cleanup=1");
+    result = 0;
+cleanup:
+    free(input);
+    snapshot_free(&owned);
+    snapshot_free(&empty);
+    return result;
+}
+
 int main(void)
 {
     const size_t counts[] = {64, 1024, 4096};
@@ -235,5 +423,7 @@ int main(void)
                 return 1;
     puts("cache_layout_reference=PASS samples=6");
     puts("cache_layout_timing=PASS samples=36");
+    if (ownership_tests() != 0)
+        return 1;
     return 0;
 }

@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Clang production compatibility:** existing Ubuntu container-build job reuses development image for three network-isolated read-only-source Clang builds and CLI help tests; five-minute step, no new runner/packages.
+
 **Direct pin enforcement and regression:** existing feature-budget job tests actual inventory gate with 11 isolated temporary Git fixtures, then checks real tracked references. No extra runner or remote workflow execution.
 
 **Action reference pinning:** existing nine workflows use four official full-SHA action references in 18 declarations; same inventory and review update policy. No new jobs or manual scale dispatch.

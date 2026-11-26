@@ -76,6 +76,28 @@ jobs:
             cppcheck --version
           '
 
+      - name: Verify Clang production compatibility in development image
+        timeout-minutes: 5
+        run: |
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            --user vscode --mount "type=bind,source=$PWD,target=/source,readonly" \
+            --entrypoint /bin/sh messy-file-cleaner-dev:ci -ec '
+              work=$(mktemp -d)
+              trap "rm -rf \"$work\"" EXIT
+              clang --version
+              cmake --version
+              uname -srm
+              getconf GNU_LIBC_VERSION
+              for standard in 11 17 23; do
+                cmake -S /source -B "$work/c$standard" -G Ninja \
+                  -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release \
+                  -DBUILD_TESTING=OFF -DFC_C_STANDARD="$standard"
+                cmake --build "$work/c$standard" --parallel 2
+                python3 /source/tests/integration/test_cli_help.py "$work/c$standard/file-cleaner"
+                printf "clang_production_compat=PASS c_standard=%s\n" "$standard"
+              done
+            '
+
       - name: Build production image
         run: docker build --pull -t messy-file-cleaner:ci .
 

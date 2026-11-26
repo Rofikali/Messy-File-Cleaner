@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Watcher batch comparison:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) uses raw inotify records as inputs to the actual parser and dry-run workers. No kernel source import, production change or alternate event backend.
+
 **Linux watcher reference:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) examines real inotify root invalidation and watch-object identity rather than reimplementing or importing kernel source. Existing terminal policy retained.
 
 **Path fail-closed reference:** [baseline](../performance/LINUX_PATH_REFERENCE.md) characterizes invalid openat2 requests on private fixtures, with explicit errno checks; no source imported, no production fallback.

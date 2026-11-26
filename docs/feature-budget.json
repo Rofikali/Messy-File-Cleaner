@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "a732b82372ac95cb1b64da44b75ed847c57cc829",
+  "snapshot_main_sha": "a2b5f47d9186c296f76f9674d542a9d8e4a07c1c",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-WATCH-EVAL-01",
   "features": [
@@ -926,9 +926,13 @@
       "title": "Bounded real Linux watcher event and identity evaluation",
       "status": "ACTIVE",
       "prs": [
-        228
+        228,
+        229
       ],
-      "summary": "PR #228 registered (1/5); first real kernel root invalidation and raw watch identity comparison; local tests NOT RUN; CI pending; production unchanged."
+      "summary": "PR #229 registered (2/5); #228 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and real watcher invalidation PASS. Integrated-main partial; native benchmark push failure unresolved. Real kernel batch candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "last_merged_pr": 228,
+      "merge_sha": "a2b5f47d9186c296f76f9674d542a9d8e4a07c1c",
+      "tested_head_sha": "93f7d25bd47ddf07a189227aa2e20d579e158cf5"
     }
   ]
 }

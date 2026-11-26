@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "454ccd24fb6d12ec1ddae2e2ad6d98a5cbea0a47",
+  "snapshot_main_sha": "e07deee9a0430b1c7af7d498a15b3d3ee38c730e",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SUPPLY-CHAIN-01",
   "features": [
@@ -1051,10 +1051,10 @@
         262,
         263
       ],
-      "summary": "#262 merged, 13/13 returned exact-head jobs, C17 Debug/Release 70/70, seven APT retry scenarios PASS. Third build-reference inventory candidate registered as #263 (3/5); local tests NOT RUN; CI pending.",
-      "last_merged_pr": 262,
-      "merge_sha": "454ccd24fb6d12ec1ddae2e2ad6d98a5cbea0a47",
-      "tested_head_sha": "6048989004a8c3e0a8a9e7a879f3d5458dbb9db3"
+      "summary": "#263 merged, 13/13 returned exact-head jobs, C17 Debug/Release 70/70, seven APT cases and 35 references across 11 files PASS. Fourth immutable action pin candidate awaiting registration; local tests NOT RUN; CI pending.",
+      "last_merged_pr": 263,
+      "merge_sha": "e07deee9a0430b1c7af7d498a15b3d3ee38c730e",
+      "tested_head_sha": "7c7f1a37d094ce361e1fab9e15965fa44584a102"
     }
   ]
 }

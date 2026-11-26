@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**CPU timing reference:** [baseline](CPU_OPT_REFERENCE.md) measures absent/sparse/dense byte counts, rotated order and verified output; no threshold or production claim.
+
 **CPU optimization reference:** [baseline](CPU_OPT_REFERENCE.md) begins length-bounded scalar/libc comparisons; no timing or explicit ISA claim.
 
 **Cache-layout final candidate:** [baseline](CACHE_LAYOUT_REFERENCE.md) instruments the reference target itself in Debug; retain fixed production layout and distinguish logical bytes from RSS.

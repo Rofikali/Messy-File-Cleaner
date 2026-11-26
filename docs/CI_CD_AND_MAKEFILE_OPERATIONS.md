@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**CPU reference evidence:** C17 Release matrix leg emits verbose `cpu_opt_reference` output and `objdump` of `scalar_count`; GNU Release reports auto-vectorization diagnostics. No extra workflow dispatch.
+
 **Cache-layout evidence:** existing C17 Release verbose reporting also selects cache_layout_reference exactly; reports representation sizes and verified content equivalence. No new runner, dependency or scale dispatch.
 
 **Batch I/O evidence:** existing C17 Release verbose reporting also selects batch_io_reference exactly, exposing actual syscall counts and verification; no new runner, workflow or scale dispatch.
@@ -81,3 +83,6 @@ For GitHub CI, report exact head SHA, workflow, status/conclusion, link, and NOT
 Companion policies: [Makefile safety](quality/MAKEFILE-SAFETY.md), [engineering model](ENGINEERING_OPERATING_MODEL.md), [continuation](AGENT_CONTINUATION_AND_HANDOFF.md), [next](../next.md), [threat model](security/THREAT_MODEL.md).
 
 PR #224 same-PR repair: keep the anchored CTest selector and all flags on one YAML-indented command line; initial CMake workflow did not start jobs. Exact corrected-head execution required; no additional workflow dispatch or PR attempt.
+
+
+PR #247 same-PR correction: both cache_layout_reference and cpu_opt_reference selectors must remain on single lines with complete anchored regex and shell quotes. Earlier exact head returned seven passing jobs but no CMake workflow; corrected-head matrix mandatory. No check removed or bypassed.

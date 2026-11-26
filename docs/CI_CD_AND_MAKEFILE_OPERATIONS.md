@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Build reference drift gate:** existing feature-budget job checks direct literal workflow/Dockerfile declarations against reviewed inventory; no new runner, packages or workflow.
+
 **APT retry regression:** existing feature-budget job runs isolated shell oracle with seven deterministic cases; no real APT/network in the test.
 
 **APT mirror retry:** [build integrity](security/SUPPLY_CHAIN_REFERENCE.md) records exact failed Docker job and successful retry, adds bounded clean strict index refresh in production-image build; package authentication remains enabled.

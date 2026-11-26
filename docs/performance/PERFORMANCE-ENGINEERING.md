@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Path identity reference:** [baseline](LINUX_PATH_REFERENCE.md) adds untimed stable rename/replacement checks, not syscall timing or concurrent race proof.
+
 **Path resolution reference:** [baseline](LINUX_PATH_REFERENCE.md) is an untimed Linux capability/semantics test, not lexical normalization, syscall timing or production speed evidence.
 
 **Scanner CI samples:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) captures all existing scanner reference sample rows and descriptor/stop checks in one C17 Release job; no speed threshold or representative workload claim.

@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**CPU reference evidence:** C17 Release matrix leg emits verbose `cpu_opt_reference` output and `objdump` of `scalar_count`; GNU Release reports auto-vectorization diagnostics. No extra workflow dispatch.
+
 **Cache-layout evidence:** existing C17 Release verbose reporting also selects cache_layout_reference exactly; reports representation sizes and verified content equivalence. No new runner, dependency or scale dispatch.
 
 **Batch I/O evidence:** existing C17 Release verbose reporting also selects batch_io_reference exactly, exposing actual syscall counts and verification; no new runner, workflow or scale dispatch.

@@ -927,9 +927,10 @@
       "status": "ACTIVE",
       "prs": [
         228,
-        229
+        229,
+        230
       ],
-      "summary": "PR #229 merged, 13/13 returned PR-head jobs; C17 Release 63/63 and real event batch PASS. Integrated-main in progress; native benchmark push failure unresolved. Third actual lifecycle candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "summary": "PR #230 registered (3/5); #229 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and real event batch PASS. Integrated-main in progress; native benchmark push failure unresolved. Repeated watcher lifecycle candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 229,
       "merge_sha": "82c20e1ec2d6f9e82cf19e75ad76a4f5dc024fab",
       "tested_head_sha": "f9ab5a0903afaf48342518f9a5e83d0aab8141db"

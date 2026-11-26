@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **BATCH-IO-EVAL-01 (0/5 prior opened; first PR candidate)** | Scalar 32/128 KiB versus four-segment vectored I/O, byte correctness and call counts | Local tests NOT RUN; CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **BATCH-IO-EVAL-01 (1/5; PR #238 OPEN (draft))** | Scalar 32/128 KiB versus four-segment vectored I/O, byte correctness and call counts | Local tests NOT RUN; CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **LIBURING-EVAL-01 (4/5; #237 merged)** | 13/13 returned PR-head jobs; 65/65 and 32 raw UAPI completions PASS | Actual liburing integration NOT EVALUATED; no production speedup or durability proof |
 | **DONE** | **LINUX-IO-EVAL-01 (3/5; #233 merged)** | 13/13 returned PR-head jobs; 64/64 and explicit offsets PASS; retain buffered transfer | Integrated-main in progress; no production speedup/durability/retirement proof |
 | **DONE** | **LINUX-WATCH-EVAL-01 (3/5; #230 merged)** | 13/13 returned PR-head jobs; 63/63 tests and lifecycle PASS | Integrated-main in progress; real overflow/recovery NOT VERIFIED; retain watcher |

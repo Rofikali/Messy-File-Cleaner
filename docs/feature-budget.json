@@ -968,8 +968,10 @@
       "id": "BATCH-IO-EVAL-01",
       "title": "Bounded synchronous vectored I/O and syscall-count comparison",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First scalar/vectored content reference; local tests NOT RUN; CI pending; production unchanged."
+      "prs": [
+        238
+      ],
+      "summary": "PR #238 registered (1/5); first scalar/vectored content reference; local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

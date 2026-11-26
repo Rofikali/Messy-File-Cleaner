@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**CPU optimization reference acceptance:** [baseline](performance/CPU_OPT_REFERENCE.md) requires 165120 exact scalar/libc comparisons and zero-length NULL checks, directly instrumented Debug, portable Release; no performance or explicit SIMD claim.
+
 **Cache-layout final candidate:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires directly instrumented Debug reference execution with fatal ASan/UBSan and ordinary Release checks; no production adoption or packed TSan claim.
 
 **Cache-layout capacity acceptance:** [baseline](performance/CACHE_LAYOUT_REFERENCE.md) requires oversized logical count/bytes rejection before access and four immutable readers with 64 exact digests each; no concurrent reclamation claim.

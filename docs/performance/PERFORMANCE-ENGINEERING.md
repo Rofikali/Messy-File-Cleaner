@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**CPU optimization reference:** [baseline](CPU_OPT_REFERENCE.md) begins length-bounded scalar/libc comparisons; no timing or explicit ISA claim.
+
 **Cache-layout final candidate:** [baseline](CACHE_LAYOUT_REFERENCE.md) instruments the reference target itself in Debug; retain fixed production layout and distinguish logical bytes from RSS.
 
 **Cache-layout capacity and concurrency:** [baseline](CACHE_LAYOUT_REFERENCE.md) adds two oversized logical extent checks and four immutable readers; no new throughput or RSS claim.

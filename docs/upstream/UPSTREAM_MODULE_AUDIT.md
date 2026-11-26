@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**CPU optimization reference:** [baseline](../performance/CPU_OPT_REFERENCE.md) compares original portable byte counting with libc memchr; no imports or production ABI change.
+
 **Cache-layout final candidate:** [baseline](../performance/CACHE_LAYOUT_REFERENCE.md) adds direct sanitizer instrumentation only; no external implementation, ABI or production change.
 
 **Cache-layout capacity reference:** [baseline](../performance/CACHE_LAYOUT_REFERENCE.md) uses trusted owner extents and POSIX readers in test-only research; no external implementation or ABI change.

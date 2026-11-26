@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**CPU optimization checkpoint:** cache layout scoped DONE 5/5 (#245 merged, 14/14 returned jobs; C17 Debug/Release 67/67); retain fixed layout. [Next CPU reference](performance/CPU_OPT_REFERENCE.md) is pending CI; no release claim.
+
 **Cache-layout checkpoint:** [evidence](performance/CACHE_LAYOUT_REFERENCE.md) records #244 merged, 14/14 returned PR-head jobs and 67/67 C17 Release tests; final direct sanitizer candidate pending, retain production layout. No release or source-retirement safety claim.
 
 **26 November 2026 — batch I/O scoped evaluation:** #240 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and three controlled partial/error scenarios PASS. Scoped evaluation DONE 3/5; production scalar128k retained. [Batch evidence](performance/BATCH_IO_REFERENCE.md); next [cache layout](performance/CACHE_LAYOUT_REFERENCE.md). Native benchmark failure unresolved.

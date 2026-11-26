@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Public API consumer boundary:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing six strict syntax probes compile the revised consumer only; no job, runner, dependency, linking or runtime test added.
+
 **Public API design fixture:** existing Ubuntu image job compiles a test-only header consumer across GCC/Clang C11/C17/C2x with -fsyntax-only and -Werror; no link, execution or install.
 
 **Explicit capability outcomes:** existing Clang Release and Debug steps rerun five exact-name CTest fixtures with verbose output; skipped means NOT_VERIFIED and any missing/failing/ambiguous outcome fails report. No new jobs.

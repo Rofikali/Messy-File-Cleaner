@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Compatibility checkpoint:** #266 merged, 13/13 returned jobs, GNU C17 Debug/Release 70/70, Clang three production builds and CLI checks PASS. [Full Clang suite candidate](upstream/UPSTREAM_COMPAT_REFERENCE.md) pending CI.
+
 **Supply-chain closure:** #265 merged, 13/13 returned jobs, 70/70 C17 Debug/Release, seven APT and 11 gate fixtures PASS. [Compatibility candidate](upstream/UPSTREAM_COMPAT_REFERENCE.md) pending CI.
 
 **Supply-chain checkpoint:** #264 merged, 15/15 returned jobs, 70/70 C17 Debug/Release, pinned checkout/build-push execution, seven APT cases and 35 references PASS. [Final candidate](security/SUPPLY_CHAIN_REFERENCE.md) pending CI.

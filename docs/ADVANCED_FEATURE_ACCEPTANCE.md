@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Clang suite acceptance:** [compatibility reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) records three passed production builds and requires the full Clang C17 Release registered suite; no exclusions, inspect skips and capability evidence.
+
 **Compiler compatibility acceptance:** [reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) requires three actual Clang production builds and CLI help controls under C11/C17/C23; full alternate compiler suite pending.
 
 **Final scoped supply-chain acceptance:** [reference](security/SUPPLY_CHAIN_REFERENCE.md) requires seven APT controls, 35 inventory references, 18 action pins and 11 direct gate fixture cases; broader provenance and mutable inputs remain outside accepted scope.

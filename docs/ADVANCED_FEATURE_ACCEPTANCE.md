@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Linux I/O range acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires three explicit offset cases, unchanged descriptor positions, exact source and destination bytes, and unchanged destination length. No production fallback or durability claim.
+
 **Linux I/O timing acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires all six original boundary cases and six repeated comparison pairs, raw timings with exact contents/offset verification; skipped capability NOT VERIFIED.
 
 **Linux I/O acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires complete independent byte verification of source and both destinations on six sizes; unsupported candidate NOT VERIFIED, no fallback or source retirement.

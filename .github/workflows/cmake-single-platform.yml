@@ -49,3 +49,4 @@ jobs:
           ctest --test-dir build-c17-Release -R '^linux_io_reference$' --no-tests=error --verbose --output-on-failure
           ctest --test-dir build-c17-Release -R '^linux_uring_capability$' --no-tests=error --verbose --output-on-failure
           ctest --test-dir build-c17-Release -R '^batch_io_reference$' --no-tests=error --verbose --output-on-failure
+          ctest --test-dir build-c17-Release -R '^cache_layout_reference$' --no-tests=error --verbose --output-on-failure

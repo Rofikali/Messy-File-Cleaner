@@ -913,9 +913,10 @@
       "status": "ACTIVE",
       "prs": [
         225,
-        226
+        226,
+        227
       ],
-      "summary": "PR #226 merged, 13/13 returned PR-head jobs; C17 Release 63/63 and path identity PASS. FCJ4 TSan not returned, integrated-main in progress at inspection, native benchmark push failure unresolved. Third real UAPI error candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "summary": "PR #227 registered (3/5); #226 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and path identity PASS. FCJ4 TSan not returned, integrated-main in progress at inspection, native benchmark push failure unresolved. Real UAPI error candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 226,
       "merge_sha": "52bd65c7cb9eb977a4122d7b6266d000a740bf1f",
       "tested_head_sha": "1078f00fdd9519e7cab7a8abac31042da2ad8e1e"

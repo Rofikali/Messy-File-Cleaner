@@ -1,5 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 #include <stdint.h>
+#include <pthread.h>
 #include <time.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -49,6 +50,8 @@ struct snapshot {
     struct packed_event *index;
     char *paths;
     size_t count, bytes;
+    /* Trusted owner allocation extents, not serialized metadata. */
+    size_t index_capacity, path_capacity;
 };
 
 static void snapshot_free(struct snapshot *out)
@@ -67,6 +70,7 @@ static int snapshot_build(const FileEvent *input, size_t count,
                           struct snapshot *out, unsigned int fail_at)
 {
     if (!out || out->index || out->paths || out->count || out->bytes ||
+        out->index_capacity || out->path_capacity ||
         !input || count == 0 || count > 4096U ||
         count > SIZE_MAX / sizeof(struct packed_event))
         return -1;
@@ -110,6 +114,8 @@ static int snapshot_build(const FileEvent *input, size_t count,
         goto reject;
     tmp.count = count;
     tmp.bytes = bytes;
+    tmp.index_capacity = count;
+    tmp.path_capacity = bytes;
     *out = tmp;
     return 0;
 reject:
@@ -122,7 +128,8 @@ reject:
 static int snapshot_digest(const struct snapshot *in, uint64_t *out)
 {
     if (!in || !out || !in->index || !in->paths ||
-        in->count == 0 || in->count > 4096U || in->bytes == 0)
+        in->count == 0 || in->count > 4096U || in->bytes == 0 ||
+        in->count != in->index_capacity || in->bytes != in->path_capacity)
         return -1;
     size_t cursor = 0;
     uint64_t hash = UINT64_C(14695981039346656037);
@@ -313,6 +320,57 @@ static int rejected(const struct snapshot *in)
            output == UINT64_C(0x123456789abcdef0);
 }
 
+/* Immutable snapshot is published before thread creation and kept alive
+ * until every started reader joins. Each reader owns its result. */
+struct reader_case {
+    const struct snapshot *snapshot;
+    uint64_t expected;
+    int failed;
+};
+
+static void *reader_run(void *arg)
+{
+    struct reader_case *reader = arg;
+    for (unsigned int i = 0; i < 64U; ++i)
+    {
+        uint64_t digest = 0;
+        if (snapshot_digest(reader->snapshot, &digest) != 0 ||
+            digest != reader->expected)
+        {
+            reader->failed = 1;
+            break;
+        }
+    }
+    return NULL;
+}
+
+static int concurrent_readers(const struct snapshot *snapshot, uint64_t expected)
+{
+    enum { READERS = 4 };
+    pthread_t threads[READERS];
+    struct reader_case cases[READERS];
+    size_t started = 0;
+    int failed = 0;
+    for (; started < READERS; ++started)
+    {
+        cases[started] = (struct reader_case){snapshot, expected, 0};
+        if (pthread_create(&threads[started], NULL, reader_run, &cases[started]) != 0)
+        {
+            failed = 1;
+            break;
+        }
+    }
+    for (size_t i = 0; i < started; ++i)
+    {
+        /* A join failure cannot safely release stack or snapshot storage. */
+        if (pthread_join(threads[i], NULL) != 0)
+            abort();
+        if (cases[i].failed)
+            failed = 1;
+    }
+    return failed;
+}
+
 static int ownership_tests(void)
 {
     enum { COUNT = 3 };
@@ -349,7 +407,8 @@ static int ownership_tests(void)
     input[0] = saved;
     for (unsigned int failure = 1; failure <= 2; ++failure)
         if (snapshot_build(input, COUNT, &empty, failure) == 0 ||
-            empty.index || empty.paths || empty.count || empty.bytes)
+            empty.index || empty.paths || empty.count || empty.bytes ||
+            empty.index_capacity || empty.path_capacity)
             goto cleanup;
     if (snapshot_build(input, COUNT, &owned, 0) != 0)
         goto cleanup;
@@ -357,7 +416,8 @@ static int ownership_tests(void)
     char *old_paths = owned.paths;
     if (snapshot_build(input, COUNT, &owned, 0) == 0 ||
         owned.index != old_index || owned.paths != old_paths ||
-        owned.count != COUNT)
+        owned.count != COUNT || owned.index_capacity != COUNT ||
+        owned.path_capacity != owned.bytes)
         goto cleanup;
     memset(input, 0, COUNT * sizeof *input);
     free(input);
@@ -396,13 +456,25 @@ static int ownership_tests(void)
     if (!rejected(&owned))
         goto cleanup;
     ++owned.bytes;
+    ++owned.count;
+    if (!rejected(&owned))
+        goto cleanup;
+    --owned.count;
+    ++owned.bytes;
+    if (!rejected(&owned))
+        goto cleanup;
+    --owned.bytes;
+    if (concurrent_readers(&owned, expected) != 0)
+        goto cleanup;
     if (snapshot_digest(&owned, &hash) != 0 || hash != expected)
         goto cleanup;
     snapshot_free(&owned);
     snapshot_free(&owned);
-    if (owned.index || owned.paths || owned.count || owned.bytes)
+    if (owned.index || owned.paths || owned.count || owned.bytes ||
+        owned.index_capacity || owned.path_capacity)
         goto cleanup;
     puts("cache_layout_safety=PASS invalid_inputs=7 injected_alloc_failures=2 occupied_output=1 corruptions=7 source_freed=1 idempotent_cleanup=1");
+    puts("cache_layout_capacity_readers=PASS oversized_count=1 oversized_bytes=1 readers=4 digests_per_reader=64");
     result = 0;
 cleanup:
     free(input);

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Batch I/O reference:** [baseline](../performance/BATCH_IO_REFERENCE.md) evaluates installed POSIX readv/writev APIs and scalar references; no imported source or production adapter.
+
 **io_uring synchronization/error reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) evaluates installed UAPI mixed completion semantics with private anonymous files. No source imports, liburing install or production adapter.
 
 **io_uring vectored reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) uses installed Linux UAPI with bounded private anonymous files; no upstream code import, liburing install or production adapter.

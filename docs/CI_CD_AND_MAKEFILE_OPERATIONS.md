@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Batch I/O evidence:** existing C17 Release verbose reporting also selects batch_io_reference exactly, exposing actual syscall counts and verification; no new runner, workflow or scale dispatch.
+
 **io_uring capability evidence:** existing C17 Release verbose reporting also selects linux_uring_capability exactly; build/runtime capability skip is NOT VERIFIED, never an executed operation pass. No new runner, dependency install or security-policy change.
 
 **Linux I/O evidence:** existing C17 Release reporting step also selects linux_io_reference exactly and exposes verbose rows; missing test fails the evidence step, skipped capability remains NOT VERIFIED. No new workflow or scale dispatch.

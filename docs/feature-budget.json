@@ -955,9 +955,10 @@
       "status": "ACTIVE",
       "prs": [
         234,
-        235
+        235,
+        236
       ],
-      "summary": "PR #235 merged, 14/14 PR-head jobs, 65/65 C17 Release and 16 NOP completions PASS on Linux 7.0.0-1020-azure. Integrated-main partial; native benchmark failure unresolved. Third vectored file I/O candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "summary": "PR #236 registered (3/5); #235 merged, 14/14 PR-head jobs, 65/65 C17 Release and 16 NOP completions PASS on Linux 7.0.0-1020-azure. Integrated-main partial; native benchmark failure unresolved. Vectored file I/O candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 235,
       "merge_sha": "70f7812f2572e52ea9d71dbe44f35058685389d4",
       "tested_head_sha": "05931639410a302fef390d4a5c2a50221a842732"

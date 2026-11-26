@@ -911,8 +911,10 @@
       "id": "LINUX-PATH-EVAL-01",
       "title": "Bounded Linux path resolution capability comparison",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First test-only openat2 confinement reference; local tests NOT RUN; CI pending; production unchanged."
+      "prs": [
+        225
+      ],
+      "summary": "PR #225 registered (1/5); first test-only openat2 confinement reference, local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

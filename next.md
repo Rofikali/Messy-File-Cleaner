@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **LINUX-PATH-EVAL-01 (0/5 prior opened; first PR candidate)** | Test-only Linux openat2 confinement reference | Local tests NOT RUN; CI pending; unsupported capability NOT VERIFIED; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **LINUX-PATH-EVAL-01 (1/5; PR #225 OPEN (draft))** | Test-only Linux openat2 confinement reference | Local tests NOT RUN; CI pending; unsupported capability NOT VERIFIED; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **LINUX-SCANNER-EVAL-01 (4/5; #224 merged)** | 13/13 returned PR-head jobs; full and verbose scanner smoke PASS; retain production scanner | Integrated-main partial; native benchmark push failure unresolved; representative throughput/trust equivalence NOT established |
 | **DONE** | **STRING-EVAL-01 (3/5; #220 merged)** | 13/13 returned exact-head checks; standalone C11/C17/C23 and ASan/UBSan evidence; retain libc | FCJ4 TSan and integrated-main CI NOT VERIFIED; representative throughput/target host NOT established |
 | **DONE** | **MEMORY-POOL-EVAL-01 (4/5; #217 merged)** | 13/13 returned exact-head checks; arena smoke and unwind checks PASS; production allocator retained | FCJ4 TSan and integrated-main CI NOT VERIFIED; real scanner lifetime/RSS and throughput NOT established |

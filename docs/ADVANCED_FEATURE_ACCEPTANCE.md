@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Batch I/O failure acceptance:** [baseline](performance/BATCH_IO_REFERENCE.md) requires interrupted/short-write completion, zero-progress and permanent-EIO termination, exact committed prefix and original source preservation. Injected returns are not kernel fault evidence.
+
 **Batch I/O timing acceptance:** [baseline](performance/BATCH_IO_REFERENCE.md) requires all 21 original content/call-count comparisons and 18 additional verified transfer timing rows, no latency threshold or production speedup claim.
 
 **Batch I/O acceptance:** [baseline](performance/BATCH_IO_REFERENCE.md) requires 21 complete independent transfers, exact bytes and offsets, bounded iovecs and partial write handling; actual call counts are observational.

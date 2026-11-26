@@ -97,6 +97,46 @@ static int make_vectors(struct iovec v[SEGMENTS], size_t offset, size_t length)
     return count;
 }
 
+/* Exercise the same remaining-vector construction and write loop with
+ * controlled test-only returns. Positive short writes are real writev
+ * calls with deliberately shortened requests; failures are injected. */
+enum fault_mode { NO_FAULT, SHORT_AND_EINTR, ZERO_WRITE, ERROR_WRITE };
+struct write_trace {
+    enum fault_mode fault;
+    size_t attempts, kernel_calls, committed;
+};
+
+static ssize_t vector_write(int fd, size_t offset, size_t length,
+                            struct write_trace *trace)
+{
+    if (trace)
+    {
+        ++trace->attempts;
+        if (trace->attempts == 1 && trace->fault == SHORT_AND_EINTR)
+        {
+            errno = EINTR;
+            return -1;
+        }
+        if (trace->fault == ZERO_WRITE && trace->committed != 0)
+            return 0;
+        if (trace->fault == ERROR_WRITE && trace->committed != 0)
+        {
+            errno = EIO;
+            return -1;
+        }
+        size_t limit = trace->committed == 0 ? SEGMENT - 1U : SEGMENT + 3U;
+        if (trace->fault != NO_FAULT && length > limit)
+            length = limit;
+        ++trace->kernel_calls;
+    }
+    struct iovec v[SEGMENTS];
+    int count = make_vectors(v, offset, length);
+    ssize_t n = writev(fd, v, count);
+    if (trace && n > 0)
+        trace->committed += (size_t)n;
+    return n;
+}
+
 enum mode { SMALL, LARGE, VECTOR };
 static int64_t elapsed_ns(struct timespec start, struct timespec end)
 {
@@ -104,7 +144,8 @@ static int64_t elapsed_ns(struct timespec start, struct timespec end)
            + (int64_t)end.tv_nsec - (int64_t)start.tv_nsec;
 }
 
-static int transfer(int in, int out, enum mode mode, size_t size, unsigned int round)
+static int transfer(int in, int out, enum mode mode, size_t size, unsigned int round,
+                    struct write_trace *trace)
 {
     size_t reads = 0, writes = 0, total = 0;
     size_t request = mode == SMALL ? SEGMENT : CAPACITY;
@@ -139,13 +180,17 @@ static int transfer(int in, int out, enum mode mode, size_t size, unsigned int r
                 ++writes;
                 if (mode == VECTOR)
                 {
-                    int count = make_vectors(v, done, (size_t)n - done);
-                    w = writev(out, v, count);
+                    w = vector_write(out, done, (size_t)n - done, trace);
                 }
                 else
                     w = write(out, buffer + done, (size_t)n - done);
             } while (w < 0 && errno == EINTR);
-            if (w <= 0 || (size_t)w > (size_t)n - done)
+            if (w == 0)
+            {
+                errno = EIO;
+                return -1;
+            }
+            if (w < 0 || (size_t)w > (size_t)n - done)
                 return -1;
             done += (size_t)w;
         }
@@ -161,6 +206,8 @@ static int transfer(int in, int out, enum mode mode, size_t size, unsigned int r
         return -1;
     const char *label = mode == SMALL ? "scalar32k" :
                         mode == LARGE ? "scalar128k" : "vector4x32k";
+    if (trace)
+        return 0;
     if (round == 0)
         printf("batch_io bytes=%zu mode=%s reads=%zu writes=%zu total_calls=%zu PASS\n",
                size, label, reads, writes, reads + writes);
@@ -184,7 +231,51 @@ static int sample(size_t size, enum mode mode, unsigned int round)
         return -1;
     out = fixture();
     if (out >= 0 && populate(in, size) == 0)
-        result = transfer(in, out, mode, size, round);
+        result = transfer(in, out, mode, size, round, NULL);
+    if (out >= 0 && close(out) != 0)
+        result = -1;
+    if (close(in) != 0)
+        result = -1;
+    return result;
+}
+
+static int fault_sample(enum fault_mode fault)
+{
+    const size_t size = CAPACITY;
+    struct write_trace trace = {.fault = fault};
+    int in = fixture(), out = -1, result = -1;
+    if (in < 0)
+        return -1;
+    out = fixture();
+    if (out < 0 || populate(in, size) != 0)
+        goto cleanup;
+    errno = 0;
+    int rc = transfer(in, out, VECTOR, size, 0, &trace);
+    int saved = errno;
+    if (fault == SHORT_AND_EINTR)
+    {
+        /* One injected interruption plus four real bounded writes:
+         * 32767 + 32771 + 32771 + 32763 = 131072. */
+        if (rc != 0 || trace.attempts != 5 || trace.kernel_calls != 4 ||
+            trace.committed != size)
+            goto cleanup;
+    }
+    else
+    {
+        /* Fail after a real 32767-byte prefix. Source stays intact,
+         * no retry after zero progress or permanent EIO. */
+        if (rc != -1 || saved != EIO || trace.attempts != 2 ||
+            trace.kernel_calls != 1 || trace.committed != SEGMENT - 1U ||
+            lseek(out, 0, SEEK_CUR) != (off_t)trace.committed ||
+            verify(out, trace.committed) != 0 || verify(in, size) != 0)
+            goto cleanup;
+    }
+    printf("batch_io_fault mode=%s attempts=%zu kernel_calls=%zu committed=%zu PASS\n",
+           fault == SHORT_AND_EINTR ? "short_eintr" :
+           fault == ZERO_WRITE ? "zero_write" : "error_write",
+           trace.attempts, trace.kernel_calls, trace.committed);
+    result = 0;
+cleanup:
     if (out >= 0 && close(out) != 0)
         result = -1;
     if (close(in) != 0)
@@ -213,5 +304,9 @@ int main(void)
                     return 1;
             }
     puts("batch_io_timing=PASS samples=18 backing_bytes=131072");
+    if (fault_sample(SHORT_AND_EINTR) != 0 ||
+        fault_sample(ZERO_WRITE) != 0 || fault_sample(ERROR_WRITE) != 0)
+        return 1;
+    puts("batch_io_faults=PASS scenarios=3");
     return 0;
 }

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "25745200468e5b2ebf01306f87208a451a8b9816",
+  "snapshot_main_sha": "4ebec8a3c1c72a03a7e61f8dbad909e3e7bd4a87",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "BATCH-IO-EVAL-01",
   "features": [
@@ -970,12 +970,13 @@
       "status": "ACTIVE",
       "prs": [
         238,
-        239
+        239,
+        240
       ],
-      "summary": "PR #239 registered (2/5); #238 merged, 14/14 PR-head jobs, 66/66 C17 Release and 21 comparisons PASS; scalar128k and vectored syscall counts equal. Integrated-main in progress; native benchmark failure unresolved. Wall/CPU timing candidate; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 238,
-      "merge_sha": "25745200468e5b2ebf01306f87208a451a8b9816",
-      "tested_head_sha": "df7fc9125de7537740c276b97ff09e923d5e434d"
+      "summary": "PR #240 registered (3/5); #239 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and 39 comparisons PASS; scalar128k/vectored equal calls, small timing differences, retain buffered mover. Integrated-main partial; native benchmark failure unresolved. Controlled partial/error candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "last_merged_pr": 239,
+      "merge_sha": "4ebec8a3c1c72a03a7e61f8dbad909e3e7bd4a87",
+      "tested_head_sha": "bdd32734c1464617acb51253b8d74df755b00351"
     }
   ]
 }

@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Scanner CI samples:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) captures all existing scanner reference sample rows and descriptor/stop checks in one C17 Release job; no speed threshold or representative workload claim.
+
 **Scanner early-stop checks:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) keeps stop and rescan validation outside timed traversal measurements; no asynchronous cancellation, race or end-to-end performance claim.
 
 **Scanner FD observation:** [reference baseline](SCANNER_REFERENCE_BASELINE.md) separates procfs callback-visible descriptor high-water from uninstrumented timing and continuous process peak. No system-wide resource-limit change or scale dispatch.

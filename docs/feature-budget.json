@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "d45c084b5806c873240fd6fcbb629f35606c6f2a",
+  "snapshot_main_sha": "f5b2c15ef80f3d05e6013b0c9bd38ad8ea3131f6",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-SCANNER-EVAL-01",
   "features": [
@@ -899,12 +899,13 @@
       "prs": [
         221,
         222,
-        223
+        223,
+        224
       ],
-      "summary": "PR #223 registered (3/5); #222 merged, 13/13 returned exact-head jobs, C17 Release 62/62 tests and descriptor smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Early-stop/rescan contracts; local tests NOT RUN at creation; CI pending; production unchanged.",
-      "last_merged_pr": 222,
-      "merge_sha": "d45c084b5806c873240fd6fcbb629f35606c6f2a",
-      "tested_head_sha": "5970c88e968cd459bf104567bd2e95233564109f"
+      "summary": "PR #224 registered (4/5); #223 merged, 13/13 returned exact-head jobs, C17 Release 62/62 tests and stop/rescan smoke passed; FCJ4 TSan/integrated-main CI NOT VERIFIED. Bounded verbose reporting step not run at creation; production unchanged. Initial #224 CMake YAML failure (run 45744293325, zero jobs) repaired within same PR; exact corrected-head CI pending.",
+      "last_merged_pr": 223,
+      "merge_sha": "f5b2c15ef80f3d05e6013b0c9bd38ad8ea3131f6",
+      "tested_head_sha": "adf0719aa73df1707e87a4ff8e0dfa8735699328"
     }
   ]
 }

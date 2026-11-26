@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Scanner evidence reporting:** [reference baseline](../performance/SCANNER_REFERENCE_BASELINE.md) exposes bounded reference measurements in existing CI; no external code imported, no scanner replacement.
+
 **Scanner stop comparison:** [reference baseline](../performance/SCANNER_REFERENCE_BASELINE.md) distinguishes native cooperative cancellation and callback errno propagation from nftw's synchronous callback stop. No equivalent security or cancellation guarantee inferred; production scanner retained.
 
 **Scanner descriptor comparison:** [reference baseline](../performance/SCANNER_REFERENCE_BASELINE.md) evaluates libc nftw budgets 1/4/16 against native ancestor retention on bounded fixtures. Descriptor reuse does not establish directory identity or race/cancellation equivalence; retain production scanner.

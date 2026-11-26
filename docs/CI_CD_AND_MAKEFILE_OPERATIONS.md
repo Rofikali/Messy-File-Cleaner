@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Scanner reference evidence:** CMake matrix C17 Release only runs the existing bounded scanner reference smoke once more with verbose output and kernel/compiler/libc context. Exact test selector and --no-tests=error ensure missing test fails. No additional workflow or scale dispatch. See [baseline](performance/SCANNER_REFERENCE_BASELINE.md).
+
 **CI scope:** existing required Five-PR feature delivery contract job also runs the upstream import-lock validator and unit tests. No extra runner/job, network dependency, production Python or branch-rule context. Structural guard cannot detect arbitrary copied snippets or all linkage; exact-head CI and human/agent source review remain necessary.
 
 **Owner-approved upstream-first policy (2026-11-25):** Follow [reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](upstream/UPSTREAM_MASTER_PLAN.md). Prefer supported Linux/POSIX APIs and mature compatible components; retain working code unless comparative evidence justifies change. External source imports and new third-party dependencies are BLOCKED pending explicit owner license decision and component acceptance. C17, C11/C23 CI, FS-01B/REL-01, no-spend and five-PR constraints remain binding.
@@ -69,3 +71,5 @@ For GitHub CI, report exact head SHA, workflow, status/conclusion, link, and NOT
 `BASE_SHA`, `PR_HEAD_SHA`, files changed, scoped tests, exact commands and exit statuses, selected CI runs, missing checks, production-link/packaging impact, security/failure cases, rollback, owner approval. If no actual execution evidence exists, say **NOT RUN**. Tests from prior PRs are historical baselines, not new evidence.
 
 Companion policies: [Makefile safety](quality/MAKEFILE-SAFETY.md), [engineering model](ENGINEERING_OPERATING_MODEL.md), [continuation](AGENT_CONTINUATION_AND_HANDOFF.md), [next](../next.md), [threat model](security/THREAT_MODEL.md).
+
+PR #224 same-PR repair: keep the anchored CTest selector and all flags on one YAML-indented command line; initial CMake workflow did not start jobs. Exact corrected-head execution required; no additional workflow dispatch or PR attempt.

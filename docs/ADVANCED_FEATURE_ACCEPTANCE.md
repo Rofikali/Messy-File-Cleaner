@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**CPU guard-page acceptance:** [baseline](performance/CPU_OPT_REFERENCE.md) requires 82560 checks at both Linux guard-page edges with read-only input; non-Linux SKIP is not a pass; retain production classifier.
+
 **CPU dispatch acceptance:** [baseline](performance/CPU_OPT_REFERENCE.md) requires 32 independent policy cases, all four allowed-mask selections on 165120 inputs each, forced portable identity and capability-tagged timing.
 
 **CPU explicit vector acceptance:** [baseline](performance/CPU_OPT_REFERENCE.md) requires both wrappers equal libc across all 165120 cases each, capability-tagged execution, safe tails and 54–108 checked timing rows.

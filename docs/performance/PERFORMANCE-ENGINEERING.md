@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**CPU final reference:** [baseline](CPU_OPT_REFERENCE.md) adds guarded read-only page boundary testing; no universal winner or production SIMD adoption.
+
 **CPU dispatch reference:** [baseline](CPU_OPT_REFERENCE.md) selects a direct function once using real capabilities and caller restrictions; adds dispatch timing without repeated detection.
 
 **CPU explicit vector reference:** [baseline](CPU_OPT_REFERENCE.md) adds bounded SSE2/AVX2, generic x86-64 baseline and runtime checks; no production speedup claim.

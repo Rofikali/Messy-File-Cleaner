@@ -1,4 +1,7 @@
 /* Independent, bounded byte-count reference; not production classification. */
+#if defined(__linux__)
+#define _GNU_SOURCE
+#endif
 #define _POSIX_C_SOURCE 200809L
 #include <stddef.h>
 #include <stdint.h>
@@ -8,6 +11,10 @@
 #include <time.h>
 #include <inttypes.h>
 #include "cpu_opt_kernels.h"
+#if defined(__linux__)
+#include <sys/mman.h>
+#include <unistd.h>
+#endif
 
 static unsigned char fixture(size_t i, unsigned int pattern)
 {
@@ -128,6 +135,71 @@ static int dispatch_policy_tests(void)
     return 0;
 }
 
+/* Guard both ends of a read-only middle page. A kernel that reads past
+ * either page boundary or writes to the input fails the process. */
+static int guard_page_tests(void)
+{
+#if defined(__linux__)
+    const long page_value = sysconf(_SC_PAGESIZE);
+    if (page_value < 258 || (uintmax_t)page_value > SIZE_MAX / 3U)
+        return 1;
+    const size_t page = (size_t)page_value;
+    unsigned char *mapping = mmap(NULL, page * 3U, PROT_NONE,
+                                  MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (mapping == MAP_FAILED)
+        return 1;
+    unsigned char *middle = mapping + page;
+    const unsigned char needles[] = {0, '/', '.', 0x80, 0xff};
+    const count_fn modes[] = {
+        scalar_count, libc_count, sse2_count, avx2_count,
+        cpu_select_count(0, NULL), cpu_select_count(CPU_ALLOW_SSE2, NULL),
+        cpu_select_count(CPU_ALLOW_AVX2, NULL), cpu_select_count(CPU_ALLOW_ALL, NULL)
+    };
+    size_t checks = 0;
+    int result = 1;
+    for (unsigned int pattern = 0; pattern < 4U; ++pattern)
+    {
+        if (mprotect(middle, page, PROT_READ | PROT_WRITE) != 0)
+            goto cleanup;
+        for (size_t i = 0; i < page; ++i)
+            middle[i] = fixture(i, pattern);
+        if (mprotect(middle, page, PROT_READ) != 0)
+            goto cleanup;
+        for (unsigned int edge = 0; edge < 2U; ++edge)
+            for (size_t length = 0; length <= 257U; ++length)
+            {
+                const size_t start = edge ? page - length : 0;
+                const unsigned char *data = middle + start;
+                for (size_t n = 0; n < sizeof needles / sizeof needles[0]; ++n)
+                {
+                    size_t expected = 0;
+                    for (size_t i = 0; i < length; ++i)
+                        expected += (size_t)(fixture(start + i, pattern) == needles[n]);
+                    for (size_t mode = 0; mode < sizeof modes / sizeof modes[0]; ++mode)
+                    {
+                        if (modes[mode](data, length, needles[n]) != expected)
+                            goto cleanup;
+                        ++checks;
+                    }
+                }
+            }
+    }
+    if (checks != 2U * 258U * 4U * 5U * 8U)
+        goto cleanup;
+    result = 0;
+cleanup:
+    if (munmap(mapping, page * 3U) != 0)
+        return 1;
+    if (result == 0)
+        printf("cpu_opt_guard_pages=PASS checks=%zu edges=2 lengths=258 patterns=4 needles=5 modes=8 page_bytes=%zu\n",
+               checks, page);
+    return result;
+#else
+    puts("cpu_opt_guard_pages=SKIP reason=non_linux");
+    return 0;
+#endif
+}
+
 int main(void)
 {
     const unsigned char needles[] = {0, '/', '.', 0x80, 0xff};
@@ -197,5 +269,7 @@ int main(void)
     printf("cpu_opt_reference=PASS cases=%zu offsets=32 lengths=258 patterns=4 needles=5\n", cases);
     printf("cpu_opt_x86_reference=PASS sse2_wrapper_cases=%zu avx2_wrapper_cases=%zu sse2_native=%d avx2_native=%d\n", cases, cases, has_sse2, has_avx2);
     printf("cpu_opt_dispatch=PASS masks=4 cases_per_mask=%zu forced_portable=%zu\n", cases, cases);
-    return cases == 32U * 258U * 4U * 5U ? timing_tests() : 1;
+    if (cases != 32U * 258U * 4U * 5U || guard_page_tests() != 0)
+        return 1;
+    return timing_tests();
 }

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Watcher batch acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires 64 distinct real file events, one ignored directory, multi-record read, exact raw membership, matching app counter deltas and unchanged file contents.
+
 **Linux watcher real-event acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires actual production ESTALE after root rename, no new app events, and raw watch identity evidence after former path replacement. No production recovery or real queue-overflow proof.
 
 **Path error acceptance:** [baseline](performance/LINUX_PATH_REFERENCE.md) requires nine exact error comparisons and a subsequent valid identity comparison, with no unrestricted fallback. Unsupported capability stays NOT VERIFIED.

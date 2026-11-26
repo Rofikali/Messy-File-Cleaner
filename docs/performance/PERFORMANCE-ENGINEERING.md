@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Watcher batch reference:** [baseline](LINUX_WATCH_REFERENCE.md) adds bounded real-record batching with observed read/record counts; no timing, throughput or queue-overflow claim.
+
 **Linux watcher kernel reference:** [baseline](LINUX_WATCH_REFERENCE.md) adds untimed real-event identity and terminal behavior validation, not throughput or event-loss recovery evidence.
 
 **Path error reference:** [baseline](LINUX_PATH_REFERENCE.md) adds ten untimed Linux request/error/recovery comparisons; not a syscall benchmark or a production fallback implementation.

@@ -261,6 +261,133 @@ static void test_real_root_invalidation(void)
     puts("watcher_real_root_invalidation=PASS; production ESTALE; raw original identity");
 }
 
+/* Capture actual kernel records before draining, independently verify their
+ * names and masks, then submit the same bytes to the production parser.
+ * The real worker runs in dry-run mode; no production watcher read-loop claim. */
+enum { BATCH_FILES = 64 };
+static void test_real_event_batch(void)
+{
+    char parent[] = "/tmp/fc-watch-batch-XXXXXX";
+    assert(mkdtemp(parent) != NULL);
+    char root[256], staging[256], folder[256], names[BATCH_FILES][32];
+    char paths[BATCH_FILES][256];
+    int n = snprintf(root, sizeof root, "%s/root", parent);
+    assert(n > 0 && (size_t)n < sizeof root);
+    n = snprintf(staging, sizeof staging, "%s/staging", parent);
+    assert(n > 0 && (size_t)n < sizeof staging);
+    n = snprintf(folder, sizeof folder, "%s/ignored-directory", root);
+    assert(n > 0 && (size_t)n < sizeof folder);
+    assert(mkdir(root, 0700) == 0 && mkdir(staging, 0700) == 0);
+    int raw = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
+    assert(raw >= 0);
+    int wd = inotify_add_watch(raw, root, IN_CREATE | IN_MOVED_TO |
+                               IN_DELETE_SELF | IN_MOVE_SELF | IN_UNMOUNT |
+                               IN_ONLYDIR | IN_DONT_FOLLOW);
+    assert(wd >= 0);
+
+    for (size_t i = 0; i < BATCH_FILES; ++i)
+    {
+        n = snprintf(names[i], sizeof names[i], "batch-%02zu.txt", i);
+        assert(n > 0 && (size_t)n < sizeof names[i]);
+        n = snprintf(paths[i], sizeof paths[i], "%s/%s", root, names[i]);
+        assert(n > 0 && (size_t)n < sizeof paths[i]);
+        char source[256];
+        n = snprintf(source, sizeof source, "%s/%s", staging, names[i]);
+        assert(n > 0 && (size_t)n < sizeof source);
+        int fd = open(i % 2 ? source : paths[i],
+                      O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+        assert(fd >= 0);
+        assert(write(fd, "keep", 4) == 4);
+        assert(close(fd) == 0);
+        if (i % 2)
+            assert(rename(source, paths[i]) == 0);
+    }
+    assert(mkdir(folder, 0700) == 0);
+
+    unsigned long before_seen = atomic_load(&ctx.metrics.events_seen);
+    unsigned long before_queued = atomic_load(&ctx.metrics.events_enqueued);
+    unsigned long before_watcher = atomic_load(&ctx.metrics.watcher_events);
+    unsigned long before_dry = atomic_load(&ctx.metrics.dry_run_moves);
+    unsigned long before_moved = atomic_load(&ctx.metrics.files_moved);
+    unsigned long before_failed = atomic_load(&ctx.metrics.move_failures);
+    atomic_store(&ctx.running, 1);
+    atomic_store(&ctx.stop_signal, 0);
+    atomic_store(&ctx.watcher_error, 0);
+    assert(atomic_load(&ctx.dry_run) == 1);
+    lf_init(&ctx.queues[0]);
+    assert(start_workers(&ctx, 1) == 0);
+
+    unsigned char seen[BATCH_FILES] = {0};
+    size_t files = 0, directories = 0, reads = 0, max_records = 0;
+    char buffer[4096];
+    for (;;)
+    {
+        ssize_t count = read(raw, buffer, sizeof buffer);
+        if (count < 0 && errno == EINTR)
+            continue;
+        if (count < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            break;
+        assert(count > 0);
+        ++reads;
+        size_t offset = 0, length = (size_t)count, records = 0;
+        while (offset < length)
+        {
+            struct inotify_event event;
+            assert(length - offset >= sizeof event);
+            memcpy(&event, buffer + offset, sizeof event);
+            assert((size_t)event.len <= length - offset - sizeof event);
+            assert(event.wd == wd && event.len > 0);
+            const char *name = buffer + offset + sizeof event;
+            assert(strnlen(name, event.len) < event.len);
+            if (event.mask == (IN_CREATE | IN_ISDIR))
+            {
+                assert(strcmp(name, "ignored-directory") == 0);
+                ++directories;
+            }
+            else
+            {
+                size_t i = 0;
+                while (i < BATCH_FILES && strcmp(name, names[i]) != 0)
+                    ++i;
+                assert(i < BATCH_FILES && seen[i] == 0);
+                assert(event.mask == (i % 2 ? IN_MOVED_TO : IN_CREATE));
+                seen[i] = 1;
+                ++files;
+            }
+            ++records;
+            offset += sizeof event + (size_t)event.len;
+        }
+        if (records > max_records)
+            max_records = records;
+        assert(fc_test_process_watcher_buffer(buffer, length, root, &ctx) == 0);
+    }
+    assert(reads > 0 && max_records > 1);
+    assert(files == BATCH_FILES && directories == 1);
+    for (size_t i = 0; i < BATCH_FILES; ++i)
+        assert(seen[i] == 1);
+    assert(join_workers(&ctx) == 0);
+    assert(atomic_load(&ctx.metrics.events_seen) == before_seen + BATCH_FILES);
+    assert(atomic_load(&ctx.metrics.events_enqueued) == before_queued + BATCH_FILES);
+    assert(atomic_load(&ctx.metrics.watcher_events) == before_watcher + BATCH_FILES);
+    assert(atomic_load(&ctx.metrics.dry_run_moves) == before_dry + BATCH_FILES);
+    assert(atomic_load(&ctx.metrics.files_moved) == before_moved);
+    assert(atomic_load(&ctx.metrics.move_failures) == before_failed);
+    assert(atomic_load(&ctx.watcher_error) == 0 && lf_is_empty(&ctx.queues[0]));
+    assert(inotify_rm_watch(raw, wd) == 0 && close(raw) == 0);
+    for (size_t i = 0; i < BATCH_FILES; ++i)
+    {
+        char bytes[5] = {0};
+        int fd = open(paths[i], O_RDONLY | O_CLOEXEC);
+        assert(fd >= 0 && read(fd, bytes, sizeof bytes) == 4);
+        assert(memcmp(bytes, "keep", 4) == 0 && close(fd) == 0);
+        assert(unlink(paths[i]) == 0);
+    }
+    assert(rmdir(folder) == 0 && rmdir(root) == 0);
+    assert(rmdir(staging) == 0 && rmdir(parent) == 0);
+    printf("watcher_batch_files=%d ignored_dirs=%zu reads=%zu max_records=%zu dry_run=PASS\n",
+           BATCH_FILES, directories, reads, max_records);
+}
+
 int main(void)
 {
     test_dispatch_bounds();
@@ -379,6 +506,7 @@ int main(void)
     assert(rmdir(test_root) == 0);
 
     test_real_root_invalidation();
+    test_real_event_batch();
 
     puts("watcher integration tests passed");
     return 0;

@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CPU-OPT-EVAL-01 (2/5; PR #247 OPEN (draft))** | 54 timing rows and GNU vectorization/disassembly evidence | #246 14/14 jobs; candidate local tests NOT RUN; CI pending; no explicit SIMD or speedup claim; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CPU-OPT-EVAL-01 (2/5; PR #247 OPEN (draft))** | 54 timing rows and GNU vectorization/disassembly evidence | #246 14/14 jobs; same-PR workflow selector correction; prior head Ubuntu C17 68/68, GCC 16-byte vectors; corrected-head CI pending; no explicit SIMD or speedup claim; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **CACHE-LAYOUT-EVAL-01 (5/5; #245 merged)** | 14/14 exact-head jobs, 67/67 C17 Debug and Release, instrumented reference PASS; retain fixed layout | RSS/cache counters/packed TSan, representative workloads and native benchmark not verified; no sixth PR |
 | **DONE** | **BATCH-IO-EVAL-01 (3/5; #240 merged)** | 13/13 returned PR-head jobs; 66/66 and controlled fault evidence PASS | Retain scalar128k; no production speedup or durability claim |
 | **DONE** | **LIBURING-EVAL-01 (4/5; #237 merged)** | 13/13 returned PR-head jobs; 65/65 and 32 raw UAPI completions PASS | Actual liburing integration NOT EVALUATED; no production speedup or durability proof |

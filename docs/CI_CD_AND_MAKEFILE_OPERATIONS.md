@@ -83,3 +83,6 @@ For GitHub CI, report exact head SHA, workflow, status/conclusion, link, and NOT
 Companion policies: [Makefile safety](quality/MAKEFILE-SAFETY.md), [engineering model](ENGINEERING_OPERATING_MODEL.md), [continuation](AGENT_CONTINUATION_AND_HANDOFF.md), [next](../next.md), [threat model](security/THREAT_MODEL.md).
 
 PR #224 same-PR repair: keep the anchored CTest selector and all flags on one YAML-indented command line; initial CMake workflow did not start jobs. Exact corrected-head execution required; no additional workflow dispatch or PR attempt.
+
+
+PR #247 same-PR correction: both cache_layout_reference and cpu_opt_reference selectors must remain on single lines with complete anchored regex and shell quotes. Earlier exact head returned seven passing jobs but no CMake workflow; corrected-head matrix mandatory. No check removed or bypassed.

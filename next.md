@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SUPPLY-CHAIN-01 (fourth candidate awaiting registration)** | Pin 18 direct GitHub Actions uses to four official upstream resolved full SHAs; inventory synchronized | #263 13/13 returned jobs, inventory 35/11 PASS; local tests NOT RUN; CI pending; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SUPPLY-CHAIN-01 (4/5; PR #264 OPEN (draft))** | Pin 18 direct GitHub Actions uses to four official upstream resolved full SHAs; inventory synchronized | #263 13/13 returned jobs, inventory 35/11 PASS; local tests NOT RUN; CI pending; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **UPSTREAM-FAULT-01 (5/5; #260 merged)** | 36 fault scenarios and recoveries, 70/70 C17 Debug/Release, 13/13 returned jobs after Docker retry | Scoped evaluation complete; retain loader; no sixth PR |
 | **DONE** | **LINUX-SELFTEST-01 (5/5; #255 merged)** | 13/13 returned jobs, 69/69 C17 Debug/Release, 30 exec probes incl 3 leak rejections | Scoped evaluation complete; retain scanner; no sixth PR |
 | **DONE** | **CPU-OPT-EVAL-01 (5/5; #250 merged)** | 68/68 C17 Debug/Release, 82560 guard-page checks PASS | Scoped research complete; Ubuntu image job now PASS; no production SIMD adoption or sixth PR |

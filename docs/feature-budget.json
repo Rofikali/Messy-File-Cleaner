@@ -1067,7 +1067,7 @@
         267,
         268
       ],
-      "summary": "#267 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70; Clang production C11/C17/C23 PASS; full C17 Release 69 passed, 1 io_uring capability skipped, 0 failed. Third Clang Debug suite candidate registered as #268 (3/5); local tests NOT RUN; CI pending.",
+      "summary": "#267 merged; #268 initial Ubuntu image job 139925552427 failed linking missing Clang ASan archives; Release 69 passed/1 skipped. Same-PR correction runs Debug on existing hosted runner with clang-18 and fail-closed link/run probe; local tests NOT RUN; exact-head CI pending. No new packages or production changes.",
       "last_merged_pr": 267,
       "merge_sha": "05a0e688965fc2a61cf6d980bf9e67b0e48a29fe",
       "tested_head_sha": "daab93ad73eae9ed097d6e59a02f17205c6a1cb8"

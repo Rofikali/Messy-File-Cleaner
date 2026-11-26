@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**#268 correction:** missing Clang runtime archives prevented container Debug linkage; existing hosted clang-18 candidate with preflight, no new dependencies.
+
 **Compiler compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) records full Clang Release suite 69 passed/1 skipped; Debug sanitizer candidate pending CI.
 
 **Clang compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) records production C11/C17/C23 success; full C17 Release suite candidate pending CI.

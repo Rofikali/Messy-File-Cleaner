@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**#268 correction:** hosted-runner Clang Debug requires explicit runtime link/run probe and full suite; container Debug remains NOT VERIFIED because compiler runtime was missing.
+
 **Clang Debug acceptance:** [compatibility reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) requires actual full Debug suite with existing target-specific ASan/UBSan instrumentation, halt-on-error, explicit skip reconciliation; Release 69 passed/1 skipped.
 
 **Clang suite acceptance:** [compatibility reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) records three passed production builds and requires the full Clang C17 Release registered suite; no exclusions, inspect skips and capability evidence.

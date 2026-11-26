@@ -104,3 +104,35 @@ size_t avx2_count(const unsigned char *data, size_t length, unsigned char needle
     return scalar_count(data, length, needle);
 }
 #endif
+
+/* Pure policy: only the intersection of known detected and allowed bits. */
+enum cpu_backend cpu_choose_backend(unsigned int detected, unsigned int allowed)
+{
+    const unsigned int usable = detected & allowed & CPU_ALLOW_ALL;
+    if (usable & CPU_ALLOW_AVX2)
+        return CPU_BACKEND_AVX2;
+    if (usable & CPU_ALLOW_SSE2)
+        return CPU_BACKEND_SSE2;
+    return CPU_BACKEND_PORTABLE;
+}
+
+/* Select once, before publishing a function pointer to consumers.
+ * The real detector is never replaced with caller-provided capabilities. */
+cpu_count_fn cpu_select_count(unsigned int allowed, enum cpu_backend *selected)
+{
+    unsigned int detected = 0;
+    if (cpu_has_sse2())
+        detected |= CPU_ALLOW_SSE2;
+    if (cpu_has_avx2())
+        detected |= CPU_ALLOW_AVX2;
+    const enum cpu_backend backend = cpu_choose_backend(detected, allowed);
+    if (selected)
+        *selected = backend;
+#if defined(__x86_64__) && (defined(__GNUC__) || defined(__clang__))
+    if (backend == CPU_BACKEND_AVX2)
+        return avx2_kernel;
+    if (backend == CPU_BACKEND_SSE2)
+        return sse2_kernel;
+#endif
+    return scalar_count;
+}

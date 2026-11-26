@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Linux I/O acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires complete independent byte verification of source and both destinations on six sizes; unsupported candidate NOT VERIFIED, no fallback or source retirement.
+
 **Watcher lifecycle acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires four actual watcher cycles, two cooperative stops, two root deletions, four failed registrations and descriptor-count restoration with no additional file handoff.
 
 **Watcher batch acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires 64 distinct real file events, one ignored directory, multi-record read, exact raw membership, matching app counter deltas and unchanged file contents.

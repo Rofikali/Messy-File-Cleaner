@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**io_uring capability acceptance:** [baseline](performance/LINUX_URING_REFERENCE.md) requires actual setup and valid operation probe with NOP/READV/WRITEV/FSYNC support; unsupported build/runtime explicitly NOT VERIFIED, no security-policy bypass.
+
 **Linux I/O range acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires three explicit offset cases, unchanged descriptor positions, exact source and destination bytes, and unchanged destination length. No production fallback or durability claim.
 
 **Linux I/O timing acceptance:** [baseline](performance/LINUX_IO_REFERENCE.md) requires all six original boundary cases and six repeated comparison pairs, raw timings with exact contents/offset verification; skipped capability NOT VERIFIED.

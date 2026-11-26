@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**io_uring capability:** [baseline](LINUX_URING_REFERENCE.md) reports ring setup and operation availability only, not submitted operations, async throughput or latency.
+
 **Linux I/O range evidence:** [baseline](LINUX_IO_REFERENCE.md) records actual prior transfer samples and adds untimed explicit offset/EOF cases with exact untouched byte verification.
 
 **Linux I/O timing:** [baseline](LINUX_IO_REFERENCE.md) records transfer-loop elapsed ns for three repetitions per mode at two sizes, validates bytes outside timing, and excludes fsync, setup and production mover costs.

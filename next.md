@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CPU-OPT-EVAL-01 (third candidate awaiting registration)** | Guarded SSE2/AVX2 kernels, portable fallback, exact byte counts and timings | #247 14/14 jobs; candidate local tests NOT RUN; CI pending; no production speedup claim; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **CPU-OPT-EVAL-01 (3/5; PR #248 OPEN (draft))** | Guarded SSE2/AVX2 kernels, portable fallback, exact byte counts and timings | #247 14/14 jobs; candidate local tests NOT RUN; CI pending; no production speedup claim; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **CACHE-LAYOUT-EVAL-01 (5/5; #245 merged)** | 14/14 exact-head jobs, 67/67 C17 Debug and Release, instrumented reference PASS; retain fixed layout | RSS/cache counters/packed TSan, representative workloads and native benchmark not verified; no sixth PR |
 | **DONE** | **BATCH-IO-EVAL-01 (3/5; #240 merged)** | 13/13 returned PR-head jobs; 66/66 and controlled fault evidence PASS | Retain scalar128k; no production speedup or durability claim |
 | **DONE** | **LIBURING-EVAL-01 (4/5; #237 merged)** | 13/13 returned PR-head jobs; 65/65 and 32 raw UAPI completions PASS | Actual liburing integration NOT EVALUATED; no production speedup or durability proof |

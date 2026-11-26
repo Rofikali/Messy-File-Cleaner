@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Public API design fixture:** existing Ubuntu image job compiles a test-only header consumer across GCC/Clang C11/C17/C2x with -fsyntax-only and -Werror; no link, execution or install.
+
 **Explicit capability outcomes:** existing Clang Release and Debug steps rerun five exact-name CTest fixtures with verbose output; skipped means NOT_VERIFIED and any missing/failing/ambiguous outcome fails report. No new jobs.
 
 **Internal header syntax gate:** existing Ubuntu image job runs standalone duplicate-inclusion checks with GCC/Clang, three language modes and test macros; no extra runner/packages.

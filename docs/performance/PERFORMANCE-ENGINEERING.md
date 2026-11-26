@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Linux I/O reference:** [baseline](LINUX_IO_REFERENCE.md) validates exact bytes, size, offsets and EOF across six boundary sizes before any timing or integration claim.
+
 **Watcher lifecycle reference:** [baseline](LINUX_WATCH_REFERENCE.md) observes procfs descriptor counts at readiness and joined boundaries, not continuous peak consumption or latency.
 
 **Watcher batch reference:** [baseline](LINUX_WATCH_REFERENCE.md) adds bounded real-record batching with observed read/record counts; no timing, throughput or queue-overflow claim.

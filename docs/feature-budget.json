@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "82c20e1ec2d6f9e82cf19e75ad76a4f5dc024fab",
+  "snapshot_main_sha": "b892ca2b8f15ece8f9a6e73858f5e4001793f46a",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "LINUX-WATCH-EVAL-01",
+  "active_feature_id": "LINUX-IO-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -924,16 +924,23 @@
     {
       "id": "LINUX-WATCH-EVAL-01",
       "title": "Bounded real Linux watcher event and identity evaluation",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         228,
         229,
         230
       ],
-      "summary": "PR #230 registered (3/5); #229 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and real event batch PASS. Integrated-main in progress; native benchmark push failure unresolved. Repeated watcher lifecycle candidate; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 229,
-      "merge_sha": "82c20e1ec2d6f9e82cf19e75ad76a4f5dc024fab",
-      "tested_head_sha": "f9ab5a0903afaf48342518f9a5e83d0aab8141db"
+      "summary": "PR #230 merged, 13/13 returned PR-head jobs; C17 Release 63/63 and real watcher lifecycle PASS. Scoped evaluation DONE 3/5; retain production watcher. Integrated-main in progress, native benchmark push failure unresolved.",
+      "last_merged_pr": 230,
+      "merge_sha": "b892ca2b8f15ece8f9a6e73858f5e4001793f46a",
+      "tested_head_sha": "05941a73c7b39a8d083b100d865da7c0ebe850c2"
+    },
+    {
+      "id": "LINUX-IO-EVAL-01",
+      "title": "Bounded Linux content-transfer reference comparison",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "First independent buffered vs copy_file_range byte correctness reference; local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

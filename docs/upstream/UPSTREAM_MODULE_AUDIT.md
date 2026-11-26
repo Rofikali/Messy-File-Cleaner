@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Linux I/O reference:** [baseline](../performance/LINUX_IO_REFERENCE.md) evaluates installed libc copy_file_range API only; no kernel/GNU source imports or production adoption.
+
 **Watcher lifecycle comparison:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) checks actual inotify descriptor lifecycle and terminal root deletion, without kernel source import or alternate backend.
 
 **Watcher batch comparison:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) uses raw inotify records as inputs to the actual parser and dry-run workers. No kernel source import, production change or alternate event backend.

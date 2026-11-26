@@ -925,8 +925,10 @@
       "id": "LINUX-WATCH-EVAL-01",
       "title": "Bounded real Linux watcher event and identity evaluation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First real kernel root invalidation and raw watch identity comparison; local tests NOT RUN; CI pending; production unchanged."
+      "prs": [
+        228
+      ],
+      "summary": "PR #228 registered (1/5); first real kernel root invalidation and raw watch identity comparison; local tests NOT RUN; CI pending; production unchanged."
     }
   ]
 }

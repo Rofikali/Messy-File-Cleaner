@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Cache-layout final candidate:** [baseline](CACHE_LAYOUT_REFERENCE.md) instruments the reference target itself in Debug; retain fixed production layout and distinguish logical bytes from RSS.
+
 **Cache-layout capacity and concurrency:** [baseline](CACHE_LAYOUT_REFERENCE.md) adds two oversized logical extent checks and four immutable readers; no new throughput or RSS claim.
 
 **Cache-layout safety:** [baseline](CACHE_LAYOUT_REFERENCE.md) records previous construction/traversal medians and adds checked packed construction; timing implementation changes, so do not assume prior timings persist.

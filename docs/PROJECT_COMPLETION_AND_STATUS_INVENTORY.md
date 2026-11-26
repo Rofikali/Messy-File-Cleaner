@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Cache-layout checkpoint:** [evidence](performance/CACHE_LAYOUT_REFERENCE.md) records #244 merged, 14/14 returned PR-head jobs and 67/67 C17 Release tests; final direct sanitizer candidate pending, retain production layout. No release or source-retirement safety claim.
+
 **26 November 2026 — batch I/O scoped evaluation:** #240 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and three controlled partial/error scenarios PASS. Scoped evaluation DONE 3/5; production scalar128k retained. [Batch evidence](performance/BATCH_IO_REFERENCE.md); next [cache layout](performance/CACHE_LAYOUT_REFERENCE.md). Native benchmark failure unresolved.
 
 **26 November 2026 — async I/O scoped evaluation:** #237 merged, 13/13 returned PR-head jobs, 65/65 C17 Release and 32 raw io_uring completions PASS. Scoped raw UAPI evaluation DONE 4/5; actual liburing integration NOT EVALUATED. Production buffered mover retained. [Async evidence](performance/LINUX_URING_REFERENCE.md); next [batch I/O](performance/BATCH_IO_REFERENCE.md). Native benchmark push failure unresolved.

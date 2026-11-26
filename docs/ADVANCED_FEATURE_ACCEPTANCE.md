@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Batch I/O timing acceptance:** [baseline](performance/BATCH_IO_REFERENCE.md) requires all 21 original content/call-count comparisons and 18 additional verified transfer timing rows, no latency threshold or production speedup claim.
+
 **Batch I/O acceptance:** [baseline](performance/BATCH_IO_REFERENCE.md) requires 21 complete independent transfers, exact bytes and offsets, bounded iovecs and partial write handling; actual call counts are observational.
 
 **io_uring mixed completion acceptance:** [baseline](performance/LINUX_URING_REFERENCE.md) requires completed write batch before FSYNC, exact negative EBADF/zero EOF results, untouched sentinel buffers, and four valid recovery READV completions.

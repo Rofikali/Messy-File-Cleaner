@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "6b079defdd3ad59a884d9f621245b7993acd45ef",
+  "snapshot_main_sha": "25745200468e5b2ebf01306f87208a451a8b9816",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "BATCH-IO-EVAL-01",
   "features": [
@@ -971,7 +971,10 @@
       "prs": [
         238
       ],
-      "summary": "PR #238 registered (1/5); first scalar/vectored content reference; local tests NOT RUN; CI pending; production unchanged."
+      "summary": "PR #238 merged, 14/14 PR-head jobs, 66/66 C17 Release and 21 comparisons PASS; scalar128k and vectored syscall counts equal. Integrated-main in progress; native benchmark failure unresolved. Second bounded wall/CPU timing candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "last_merged_pr": 238,
+      "merge_sha": "25745200468e5b2ebf01306f87208a451a8b9816",
+      "tested_head_sha": "df7fc9125de7537740c276b97ff09e923d5e434d"
     }
   ]
 }

@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Cache-layout timing:** [baseline](CACHE_LAYOUT_REFERENCE.md) records verified logical bytes and adds allocation/construction and full-path digest traversal elapsed time for three counts, two distributions, two modes and three repetitions.
+
 **Cache-layout reference:** [baseline](CACHE_LAYOUT_REFERENCE.md) reports exact logical allocation requests in bytes and full path/type equivalence across six synthetic layouts; not RSS, cache misses or speed.
 
 **Batch I/O failure reference:** [baseline](BATCH_IO_REFERENCE.md) records prior measured wall/CPU results and exercises controlled remaining-vector reconstruction and failure boundaries; no production performance claim.

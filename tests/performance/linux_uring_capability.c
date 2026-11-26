@@ -7,6 +7,9 @@
 #ifdef FC_HAVE_URING_PROBE
 #include <linux/io_uring.h>
 #include <sys/syscall.h>
+#include <sys/mman.h>
+#include <stdint.h>
+#include <string.h>
 
 /* Test-only capability discovery. No submission, mappings or file I/O. */
 enum { PROBE_OPS = 64 };
@@ -17,6 +20,137 @@ static int supports(const struct io_uring_probe *probe, unsigned int op)
         if (probe->ops[i].op == op)
             return (probe->ops[i].flags & IO_URING_OP_SUPPORTED) != 0;
     return 0;
+}
+
+/* Bounded test-only shared-ring access; no file operations, SQPOLL, or
+ * registered resources. Acquire/release pairs with kernel ring ownership. */
+static unsigned int load_acquire(const unsigned int *p)
+{
+    return __atomic_load_n(p, __ATOMIC_ACQUIRE);
+}
+static void store_release(unsigned int *p, unsigned int v)
+{
+    __atomic_store_n(p, v, __ATOMIC_RELEASE);
+}
+static int field_ok(size_t offset, size_t bytes, size_t align, size_t length)
+{
+    return offset % align == 0 && offset <= length && bytes <= length - offset;
+}
+
+static int nop_batches(int fd, const struct io_uring_params *p)
+{
+    enum { BATCH = 4, ROUNDS = 4, LIMIT = 1024 * 1024 };
+    if (p->sq_entries < BATCH || p->sq_entries > 64 ||
+        p->cq_entries < BATCH || p->cq_entries > 128 ||
+        p->sq_off.array > LIMIT || p->cq_off.cqes > LIMIT)
+        return 1;
+    size_t sq_len = (size_t)p->sq_off.array + p->sq_entries * sizeof(unsigned int);
+    size_t cq_len = (size_t)p->cq_off.cqes + p->cq_entries * sizeof(struct io_uring_cqe);
+    size_t entries_len = p->sq_entries * sizeof(struct io_uring_sqe);
+    int shared = (p->features & IORING_FEAT_SINGLE_MMAP) != 0;
+    if (shared)
+        sq_len = cq_len = sq_len > cq_len ? sq_len : cq_len;
+    if (sq_len > LIMIT || cq_len > LIMIT)
+        return 1;
+#define CHECK_FIELD(offset, length) \
+    field_ok((offset), sizeof(unsigned int), _Alignof(unsigned int), (length))
+    if (!CHECK_FIELD(p->sq_off.head, sq_len) ||
+        !CHECK_FIELD(p->sq_off.tail, sq_len) ||
+        !CHECK_FIELD(p->sq_off.ring_mask, sq_len) ||
+        !CHECK_FIELD(p->sq_off.ring_entries, sq_len) ||
+        !CHECK_FIELD(p->sq_off.dropped, sq_len) ||
+        !CHECK_FIELD(p->cq_off.head, cq_len) ||
+        !CHECK_FIELD(p->cq_off.tail, cq_len) ||
+        !CHECK_FIELD(p->cq_off.ring_mask, cq_len) ||
+        !CHECK_FIELD(p->cq_off.ring_entries, cq_len) ||
+        !CHECK_FIELD(p->cq_off.overflow, cq_len) ||
+        !field_ok(p->sq_off.array, p->sq_entries * sizeof(unsigned int),
+                  _Alignof(unsigned int), sq_len) ||
+        !field_ok(p->cq_off.cqes, p->cq_entries * sizeof(struct io_uring_cqe),
+                  _Alignof(struct io_uring_cqe), cq_len))
+        return 1;
+#undef CHECK_FIELD
+    int result = 1;
+    char *sq = mmap(NULL, sq_len, PROT_READ | PROT_WRITE, MAP_SHARED,
+                    fd, IORING_OFF_SQ_RING);
+    char *cq = MAP_FAILED;
+    struct io_uring_sqe *entries = MAP_FAILED;
+    if (sq == MAP_FAILED)
+        goto cleanup;
+    cq = shared ? sq : mmap(NULL, cq_len, PROT_READ | PROT_WRITE, MAP_SHARED,
+                            fd, IORING_OFF_CQ_RING);
+    if (cq == MAP_FAILED)
+        goto cleanup;
+    entries = mmap(NULL, entries_len, PROT_READ | PROT_WRITE, MAP_SHARED,
+                   fd, IORING_OFF_SQES);
+    if (entries == MAP_FAILED)
+        goto cleanup;
+#define PTR(base, offset) ((unsigned int *)((base) + (offset)))
+    unsigned int *sh = PTR(sq, p->sq_off.head), *st = PTR(sq, p->sq_off.tail);
+    unsigned int *ch = PTR(cq, p->cq_off.head), *ct = PTR(cq, p->cq_off.tail);
+    unsigned int *array = PTR(sq, p->sq_off.array);
+    struct io_uring_cqe *completions = (void *)(cq + p->cq_off.cqes);
+    unsigned int sm = load_acquire(PTR(sq, p->sq_off.ring_mask));
+    unsigned int cm = load_acquire(PTR(cq, p->cq_off.ring_mask));
+    if (load_acquire(PTR(sq, p->sq_off.ring_entries)) != p->sq_entries ||
+        load_acquire(PTR(cq, p->cq_off.ring_entries)) != p->cq_entries ||
+        sm != p->sq_entries - 1 || cm != p->cq_entries - 1 ||
+        (p->sq_entries & sm) || (p->cq_entries & cm))
+        goto cleanup;
+    for (unsigned int round = 0; round < ROUNDS; ++round)
+    {
+        unsigned int tail = load_acquire(st), head = load_acquire(sh);
+        unsigned int c_head = load_acquire(ch);
+        if (tail != head || load_acquire(ct) != c_head)
+            goto cleanup;
+        for (unsigned int i = 0; i < BATCH; ++i)
+        {
+            unsigned int slot = (tail + i) & sm;
+            memset(&entries[slot], 0, sizeof entries[slot]);
+            entries[slot].opcode = IORING_OP_NOP;
+            entries[slot].user_data = (uint64_t)round * BATCH + i + 1;
+            array[slot] = slot;
+        }
+        store_release(st, tail + BATCH);
+        /* Without SQPOLL, enter submits explicitly. A short submit is a
+         * failed test, never silently accepted. CTest bounds blocking. */
+        long rc = syscall(SYS_io_uring_enter, fd, BATCH, BATCH,
+                          IORING_ENTER_GETEVENTS, NULL, 0U);
+        if (rc != BATCH)
+            goto cleanup;
+        if (load_acquire(sh) != tail + BATCH ||
+            load_acquire(ct) - c_head != BATCH ||
+            load_acquire(PTR(sq, p->sq_off.dropped)) != 0 ||
+            load_acquire(PTR(cq, p->cq_off.overflow)) != 0)
+            goto cleanup;
+        unsigned int seen = 0;
+        for (unsigned int i = 0; i < BATCH; ++i)
+        {
+            struct io_uring_cqe c = completions[(c_head + i) & cm];
+            uint64_t first = (uint64_t)round * BATCH + 1;
+            if (c.res != 0 || c.flags != 0 || c.user_data < first ||
+                c.user_data - first >= BATCH)
+                goto cleanup;
+            unsigned int bit = 1U << (unsigned int)(c.user_data - first);
+            if (seen & bit)
+                goto cleanup;
+            seen |= bit;
+        }
+        if (seen != (1U << BATCH) - 1U)
+            goto cleanup;
+        store_release(ch, c_head + BATCH);
+    }
+    puts("uring_nop=PASS batches=4 completions=16");
+    result = 0;
+#undef PTR
+cleanup:
+    if (entries != MAP_FAILED && munmap(entries, entries_len) != 0)
+        result = 1;
+    if (!shared && cq != MAP_FAILED && munmap(cq, cq_len) != 0)
+        result = 1;
+    if (sq != MAP_FAILED && munmap(sq, sq_len) != 0)
+        result = 1;
+    return result;
 }
 
 static int probe_ring(void)
@@ -79,6 +213,8 @@ static int probe_ring(void)
     result = nop && readv && writev && sync ? 0 : 77;
     if (result == 77)
         puts("uring_required_ops=NOT_VERIFIED");
+    else if (result == 0)
+        result = nop_batches(fd, &params);
 cleanup:
     free(probe);
     if (close(fd) != 0)

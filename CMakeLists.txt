@@ -226,7 +226,8 @@ if(BUILD_TESTING)
         struct io_uring_params params = {0};
         struct io_uring_probe probe = {0};
         return (int)(params.sq_entries + probe.ops_len +
-          SYS_io_uring_setup + SYS_io_uring_register + IORING_REGISTER_PROBE +
+          SYS_io_uring_setup + SYS_io_uring_register + SYS_io_uring_enter +
+          IORING_FEAT_SINGLE_MMAP + IORING_ENTER_GETEVENTS + IORING_REGISTER_PROBE +
           IORING_OP_NOP + IORING_OP_READV + IORING_OP_WRITEV + IORING_OP_FSYNC +
           IO_URING_OP_SUPPORTED);
       }

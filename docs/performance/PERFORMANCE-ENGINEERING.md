@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**io_uring NOP reference:** [baseline](LINUX_URING_REFERENCE.md) verifies four batches of four NOP completions and ring reuse; no throughput, latency or actual file transfer measurement.
+
 **io_uring capability:** [baseline](LINUX_URING_REFERENCE.md) reports ring setup and operation availability only, not submitted operations, async throughput or latency.
 
 **Linux I/O range evidence:** [baseline](LINUX_IO_REFERENCE.md) records actual prior transfer samples and adds untimed explicit offset/EOF cases with exact untouched byte verification.

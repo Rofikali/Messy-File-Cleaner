@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "8d44fe8cc33e55ecd8b091b58b57b015c94c283b",
+  "snapshot_main_sha": "ec0ebbc03e3241f8abcd8b5ae8b358063ff0e056",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LIBURING-EVAL-01",
   "features": [
@@ -954,9 +954,13 @@
       "title": "Bounded Linux asynchronous I/O capability and liburing reference evaluation",
       "status": "ACTIVE",
       "prs": [
-        234
+        234,
+        235
       ],
-      "summary": "PR #234 registered (1/5); first raw Linux UAPI setup/operation probe; no liburing dependency; local tests NOT RUN; CI pending; production unchanged."
+      "summary": "PR #235 registered (2/5); #234 merged, 14/14 PR-head jobs, 65/65 C17 Release and verbose capability PASS; integrated-main partial, native benchmark failure unresolved. Actual NOP candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "last_merged_pr": 234,
+      "merge_sha": "ec0ebbc03e3241f8abcd8b5ae8b358063ff0e056",
+      "tested_head_sha": "b3b324bc82f47fedd2e7cb727171a7ecbd2d6248"
     }
   ]
 }

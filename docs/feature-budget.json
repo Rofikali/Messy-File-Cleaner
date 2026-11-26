@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "7d76d2917c8f096182f4b474a6364c076036b476",
+  "snapshot_main_sha": "9dbc39cdf57ebc924e5965ccc6c8e8b3f2c73b83",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-PATH-EVAL-01",
   "features": [
@@ -914,7 +914,10 @@
       "prs": [
         225
       ],
-      "summary": "PR #225 registered (1/5); first test-only openat2 confinement reference, local tests NOT RUN; CI pending; production unchanged."
+      "summary": "PR #225 merged, 14/14 PR-head jobs; C17 Release 63/63 and openat2 capability PASS not skipped. Integrated-main in progress at inspection, native benchmark push failure unresolved. Second deterministic identity candidate; local tests NOT RUN, CI pending; production unchanged.",
+      "last_merged_pr": 225,
+      "merge_sha": "9dbc39cdf57ebc924e5965ccc6c8e8b3f2c73b83",
+      "tested_head_sha": "3f65beb16a21c79f04b695bcfc6a7e41ed4fcf56"
     }
   ]
 }

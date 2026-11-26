@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Path identity comparison:** [baseline](../performance/LINUX_PATH_REFERENCE.md) distinguishes openat2 resolution constraints from immutable pathname identity using a private rename/replacement fixture; no kernel source imported or production adoption.
+
 **Path resolution candidate:** [baseline](../performance/LINUX_PATH_REFERENCE.md) examines Linux openat2 UAPI confinement relative to openat O_NOFOLLOW; no kernel source imported or production adoption.
 
 **Scanner evidence reporting:** [reference baseline](../performance/SCANNER_REFERENCE_BASELINE.md) exposes bounded reference measurements in existing CI; no external code imported, no scanner replacement.

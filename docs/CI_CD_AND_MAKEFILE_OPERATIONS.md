@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Direct pin enforcement and regression:** existing feature-budget job tests actual inventory gate with 11 isolated temporary Git fixtures, then checks real tracked references. No extra runner or remote workflow execution.
+
 **Action reference pinning:** existing nine workflows use four official full-SHA action references in 18 declarations; same inventory and review update policy. No new jobs or manual scale dispatch.
 
 **Build reference drift gate:** existing feature-budget job checks direct literal workflow/Dockerfile declarations against reviewed inventory; no new runner, packages or workflow.

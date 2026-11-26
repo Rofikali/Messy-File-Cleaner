@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Final supply-chain reference:** [acceptance](../security/SUPPLY_CHAIN_REFERENCE.md) enforces literal direct full-SHA action form and tests drift independently of inventory updates; no source import.
+
 **Action pin reference:** [supply-chain reference](../security/SUPPLY_CHAIN_REFERENCE.md) pins existing official action revisions only, no dependency addition or source import.
 
 **Build-input inventory:** [supply-chain reference](../security/SUPPLY_CHAIN_REFERENCE.md) records mutable CI/container inputs and existing dependency-free Rust test support; no source import.

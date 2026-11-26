@@ -17,11 +17,22 @@ while IFS= read -r path; do
             sub(/^[[:space:]]+/, "", line)
             sub(/^- +/, "", line)
             sub(/[[:space:]]+$/, "", line)
+            if (line ~ /^uses:([[:space:]]|$)/) {
+                ref=line
+                sub(/^uses:[[:space:]]*/, "", ref)
+                sub(/[[:space:]]+#.*$/, "", ref)
+                n=split(ref, parts, "@")
+                if (n != 2 || parts[1] !~ /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/ ||
+                    length(parts[2]) != 40 || parts[2] !~ /^[0-9a-f]+$/) {
+                    print path ": direct action must use owner/repo@full lowercase commit SHA: " line > "/dev/stderr"
+                    exit 2
+                }
+            }
             if (line ~ /^(uses:|runs-on:|python-version:)[[:space:]]/ ||
                 line ~ /^FROM[[:space:]]/)
                 print path " | " line
         }
-    ' "$path"
+    ' "$path" || exit 2
 done < "$tmp/paths" > "$tmp/actual"
 sort "$tmp/actual" > "$tmp/sorted"
 if ! diff -u docs/security/build-inputs.inventory "$tmp/sorted"; then

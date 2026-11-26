@@ -57,6 +57,19 @@ static int timing_tests(void)
 {
     const size_t lengths[] = {64, 1024, 65536};
     unsigned int rows = 0;
+    count_fn modes[4] = {scalar_count, libc_count, NULL, NULL};
+    const char *names[4] = {"portable", "libc", NULL, NULL};
+    unsigned int mode_count = 2;
+    if (cpu_has_sse2())
+    {
+        modes[mode_count] = sse2_count;
+        names[mode_count++] = "sse2";
+    }
+    if (cpu_has_avx2())
+    {
+        modes[mode_count] = avx2_count;
+        names[mode_count++] = "avx2";
+    }
     for (size_t n = 0; n < sizeof lengths / sizeof lengths[0]; ++n)
     {
         size_t length = lengths[n];
@@ -73,12 +86,11 @@ static int timing_tests(void)
                 expected += (size_t)match;
             }
             for (unsigned int round = 0; round < 3U; ++round)
-                for (unsigned int pos = 0; pos < 2U; ++pos)
+                for (unsigned int pos = 0; pos < mode_count; ++pos)
                 {
-                    unsigned int mode = (round + pos) % 2U;
-                    if (timed_count(mode ? libc_count : scalar_count, data,
-                                    length, expected, density, round,
-                                    mode ? "libc" : "portable") != 0)
+                    unsigned int mode = (round + pos) % mode_count;
+                    if (timed_count(modes[mode], data, length, expected, density,
+                                    round, names[mode]) != 0)
                     {
                         free(data);
                         return 1;
@@ -89,14 +101,17 @@ static int timing_tests(void)
         free(data);
     }
     printf("cpu_opt_timing=PASS rows=%u\n", rows);
-    return rows == 54U ? 0 : 1;
+    return rows == 27U * mode_count ? 0 : 1;
 }
 
 int main(void)
 {
     const unsigned char needles[] = {0, '/', '.', 0x80, 0xff};
     size_t cases = 0;
-    if (scalar_count(NULL, 0, 0) != 0 || libc_count(NULL, 0, 0) != 0)
+    const int has_sse2 = cpu_has_sse2(), has_avx2 = cpu_has_avx2();
+    printf("cpu_opt_capabilities sse2=%d avx2=%d\n", has_sse2, has_avx2);
+    if (scalar_count(NULL, 0, 0) != 0 || libc_count(NULL, 0, 0) != 0 ||
+        sse2_count(NULL, 0, 0) != 0 || avx2_count(NULL, 0, 0) != 0)
         return 1;
     for (size_t offset = 0; offset < 32U; ++offset)
         for (size_t length = 0; length <= 257U; ++length)
@@ -116,6 +131,8 @@ int main(void)
                     size_t expected = libc_count(data, length, needles[n]);
                     size_t actual = scalar_count(data, length, needles[n]);
                     if (actual != expected ||
+                        sse2_count(data, length, needles[n]) != expected ||
+                        avx2_count(data, length, needles[n]) != expected ||
                         (pattern == 0U && expected != (needles[n] == '/' ? length : 0U)) ||
                         (pattern == 1U && expected != (needles[n] == '.' ? length : 0U)))
                     {
@@ -128,5 +145,6 @@ int main(void)
             free(storage);
         }
     printf("cpu_opt_reference=PASS cases=%zu offsets=32 lengths=258 patterns=4 needles=5\n", cases);
+    printf("cpu_opt_x86_reference=PASS sse2_wrapper_cases=%zu avx2_wrapper_cases=%zu sse2_native=%d avx2_native=%d\n", cases, cases, has_sse2, has_avx2);
     return cases == 32U * 258U * 4U * 5U ? timing_tests() : 1;
 }

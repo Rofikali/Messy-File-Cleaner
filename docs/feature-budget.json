@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ba6c69a0b76514a13d302c0b5d77e555a722db95",
+  "snapshot_main_sha": "2b80366a7133d37e84ed3358c0d3e7b34cf2c205",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "CPU-OPT-EVAL-01",
   "features": [
@@ -1000,12 +1000,13 @@
       "status": "ACTIVE",
       "prs": [
         246,
-        247
+        247,
+        248
       ],
-      "summary": "#246 merged, 14/14 returned exact-head jobs, C17 Debug/Release 68/68 PASS. Second timing/vectorization candidate registered as #247 (2/5); local tests NOT RUN, CI pending; no explicit SIMD or production changes. Same-PR correction restores two malformed workflow selectors; previous head Ubuntu C17 68/68 and GCC 16-byte loop vectorization. Corrected-head CI pending.",
-      "last_merged_pr": 246,
-      "merge_sha": "ba6c69a0b76514a13d302c0b5d77e555a722db95",
-      "tested_head_sha": "f68c2e4cfd1f07af3ed31af157615f6daf7e7d52"
+      "summary": "#247 merged, 14/14 exact-head jobs, 68/68 C17 Debug/Release, 165120 cases and 54 timing rows PASS; 128/256-bit disassembly observed. Third guarded SSE2/AVX2 candidate registered as #248 (3/5); local tests NOT RUN, CI pending; no production change.",
+      "last_merged_pr": 247,
+      "merge_sha": "2b80366a7133d37e84ed3358c0d3e7b34cf2c205",
+      "tested_head_sha": "b10983c973ae94bfdc691af4772b8d6ba8c0f098"
     }
   ]
 }

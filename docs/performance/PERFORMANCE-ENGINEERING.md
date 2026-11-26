@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Batch I/O failure reference:** [baseline](BATCH_IO_REFERENCE.md) records prior measured wall/CPU results and exercises controlled remaining-vector reconstruction and failure boundaries; no production performance claim.
+
 **Batch I/O timing:** [baseline](BATCH_IO_REFERENCE.md) retains seven-size call-count evidence and adds elapsed/process CPU time across two sizes, three methods and three rotated repetitions; excludes verification, preparation and durability.
 
 **Batch I/O reference:** [baseline](BATCH_IO_REFERENCE.md) records actual transfer syscall counts and verifies bytes/offsets across seven sizes; no timing or production speedup claim.

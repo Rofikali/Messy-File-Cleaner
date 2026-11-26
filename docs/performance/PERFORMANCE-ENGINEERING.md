@@ -1,5 +1,7 @@
 # Performance Engineering Policy
 
+**Watcher lifecycle reference:** [baseline](LINUX_WATCH_REFERENCE.md) observes procfs descriptor counts at readiness and joined boundaries, not continuous peak consumption or latency.
+
 **Watcher batch reference:** [baseline](LINUX_WATCH_REFERENCE.md) adds bounded real-record batching with observed read/record counts; no timing, throughput or queue-overflow claim.
 
 **Linux watcher kernel reference:** [baseline](LINUX_WATCH_REFERENCE.md) adds untimed real-event identity and terminal behavior validation, not throughput or event-loss recovery evidence.

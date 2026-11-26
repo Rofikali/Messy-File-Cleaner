@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <assert.h>
+#include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <pthread.h>
@@ -388,6 +389,80 @@ static void test_real_event_batch(void)
            BATCH_FILES, directories, reads, max_records);
 }
 
+/* Single-process descriptor-count observation, including the observer fd
+ * consistently in each sample. Compare only quiescent lifecycle boundaries. */
+static size_t watcher_fd_count(void)
+{
+    DIR *directory = opendir("/proc/self/fd");
+    assert(directory != NULL);
+    size_t count = 0;
+    struct dirent *entry;
+    errno = 0;
+    while ((entry = readdir(directory)) != NULL)
+        if (strcmp(entry->d_name, ".") != 0 && strcmp(entry->d_name, "..") != 0)
+            ++count;
+    assert(errno == 0);
+    assert(closedir(directory) == 0);
+    return count;
+}
+
+/* No active worker or file event producer; actual watcher poll loop.
+ * Alternate cooperative stop and real root deletion, then register again. */
+static void test_watcher_lifecycle(void)
+{
+    char parent[] = "/tmp/fc-watch-lifecycle-XXXXXX";
+    assert(mkdtemp(parent) != NULL);
+    char root[256];
+    int n = snprintf(root, sizeof root, "%s/root", parent);
+    assert(n > 0 && (size_t)n < sizeof root);
+    size_t baseline = watcher_fd_count();
+    unsigned long seen = atomic_load(&ctx.metrics.events_seen);
+    unsigned long queued = atomic_load(&ctx.metrics.events_enqueued);
+    unsigned long dry = atomic_load(&ctx.metrics.dry_run_moves);
+    assert(ctx.num_workers == 0);
+    for (int cycle = 0; cycle < 4; ++cycle)
+    {
+        assert(mkdir(root, 0700) == 0);
+        atomic_store(&ctx.running, 1);
+        atomic_store(&ctx.stop_signal, 0);
+        atomic_store(&ctx.watcher_error, 0);
+        atomic_store(&ctx.metrics.watcher_idle_polls, 0);
+        pthread_t watcher;
+        assert(pthread_create(&watcher, NULL, watcher_entry, root) == 0);
+        for (int i = 0; i < 3000 &&
+             atomic_load(&ctx.metrics.watcher_idle_polls) == 0 &&
+             atomic_load(&ctx.watcher_error) == 0; ++i)
+            sleep_milliseconds(1);
+        assert(atomic_load(&ctx.watcher_error) == 0);
+        assert(atomic_load(&ctx.metrics.watcher_idle_polls) > 0);
+        size_t active = watcher_fd_count();
+        assert(active == baseline + 1);
+        if (cycle % 2 == 0)
+            atomic_store(&ctx.stop_signal, 1);
+        else
+            assert(rmdir(root) == 0);
+        assert(pthread_join(watcher, NULL) == 0);
+        assert(atomic_load(&ctx.watcher_error) == (cycle % 2 ? ESTALE : 0));
+        atomic_store(&ctx.running, 0);
+        if (cycle % 2 == 0)
+            assert(rmdir(root) == 0);
+        size_t after = watcher_fd_count();
+        assert(after == baseline);
+
+        /* The former pathname is absent. A failed registration must not
+         * leak its newly created inotify descriptor. */
+        errno = 0;
+        assert(start_watcher(root, &ctx) == -1 && errno == ENOENT);
+        assert(watcher_fd_count() == baseline);
+        assert(atomic_load(&ctx.metrics.events_seen) == seen);
+        assert(atomic_load(&ctx.metrics.events_enqueued) == queued);
+        assert(atomic_load(&ctx.metrics.dry_run_moves) == dry);
+        printf("watcher_lifecycle cycle=%d mode=%s baseline=%zu active=%zu after=%zu\n",
+               cycle + 1, cycle % 2 ? "delete" : "stop", baseline, active, after);
+    }
+    assert(rmdir(parent) == 0);
+}
+
 int main(void)
 {
     test_dispatch_bounds();
@@ -507,6 +582,7 @@ int main(void)
 
     test_real_root_invalidation();
     test_real_event_batch();
+    test_watcher_lifecycle();
 
     puts("watcher integration tests passed");
     return 0;

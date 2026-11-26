@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Watcher lifecycle comparison:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) checks actual inotify descriptor lifecycle and terminal root deletion, without kernel source import or alternate backend.
+
 **Watcher batch comparison:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) uses raw inotify records as inputs to the actual parser and dry-run workers. No kernel source import, production change or alternate event backend.
 
 **Linux watcher reference:** [baseline](../performance/LINUX_WATCH_REFERENCE.md) examines real inotify root invalidation and watch-object identity rather than reimplementing or importing kernel source. Existing terminal policy retained.

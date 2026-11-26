@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Watcher lifecycle acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires four actual watcher cycles, two cooperative stops, two root deletions, four failed registrations and descriptor-count restoration with no additional file handoff.
+
 **Watcher batch acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires 64 distinct real file events, one ignored directory, multi-record read, exact raw membership, matching app counter deltas and unchanged file contents.
 
 **Linux watcher real-event acceptance:** [baseline](performance/LINUX_WATCH_REFERENCE.md) requires actual production ESTALE after root rename, no new app events, and raw watch identity evidence after former path replacement. No production recovery or real queue-overflow proof.

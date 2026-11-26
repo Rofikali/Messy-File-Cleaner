@@ -1,5 +1,7 @@
 # Engineering Skills and Contributor Workflow
 
+**Public API mock caller:** [API roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md). #272 merged, 13/13 returned PR-head jobs PASS. #273 tests ten caller scenarios against a test-local synthetic stub only, not the real engine. Six compiler-mode executions pending; no production ABI/FFI approval.
+
 **Public API consumer boundary:** [API roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md). #271 merged, 13/13 returned PR-head jobs PASS. #272 models the existing batch-preview CLI as a proposed internal consumer: only a complete compatible result is published, acquired handle cleanup after preview, no actual runtime or production ABI/FFI approval.
 
 **Public C API design candidate:** [API/ABI roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md) starts PUBLIC-API-01 as design/compile-only preview consumer evidence, not production API, library or FFI approval. UPSTREAM-COMPAT-01 scoped DONE 5/5; #270 reports container 4 passed/1 skipped and host 5 passed, 324 header probes. Existing global lifecycle and approval gates remain.

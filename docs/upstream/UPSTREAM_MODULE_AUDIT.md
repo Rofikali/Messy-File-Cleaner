@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Fault reference:** [fault acceptance](../security/UPSTREAM_FAULT_REFERENCE.md) uses test-only linker wrapping and GNU libc stream callbacks, not upstream source imports.
+
 **Linux final selftest reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) tests deliberate child-only deepest inode inheritance and rejection oracle; no external source imported.
 
 **Linux deep descriptor reference:** [scanner security](../security/FILESYSTEM-SCANNER-SECURITY.md) evaluates real descriptor lifecycle across scanner frame growth, no external source import.

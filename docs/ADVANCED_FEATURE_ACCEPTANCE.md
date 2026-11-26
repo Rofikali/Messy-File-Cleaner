@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Upstream fault acceptance:** [fault reference](security/UPSTREAM_FAULT_REFERENCE.md) requires 12 post-open read faults with real stdio error, exact cut, full rollback, close and successful retry.
+
 **Linux final leak oracle acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires three deepest-inode positive controls and three explicit zero-inheritance rejections with reserved exit 42 after exact leak identification, all prior cases retained.
 
 **Linux deep descriptor acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires 20 distinct live directory identities across frame growth, both exec controls, cancellation, restoration and rescan.

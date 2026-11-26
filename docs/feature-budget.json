@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "0b8dddf02e4445627e482a02287f7a18044ab59a",
+  "snapshot_main_sha": "12f50b5f75a2f71c9730896fc235cd9a8603f039",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "LINUX-SELFTEST-01",
+  "active_feature_id": "UPSTREAM-FAULT-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1013,7 +1013,7 @@
     {
       "id": "LINUX-SELFTEST-01",
       "title": "Linux selftest-style actual kernel descriptor lifecycle security regressions",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         251,
         252,
@@ -1021,10 +1021,19 @@
         254,
         255
       ],
-      "summary": "#254 merged, 13/13 returned exact-head jobs, C17 Debug/Release 69/69, depth 20, 60 live identities, 6 deep exec probes, 3 restorations and cancellation recovery PASS; #253 Ubuntu image PASS. Final leak oracle candidate registered as #255 (5/5); local tests NOT RUN, CI pending; no production change.",
-      "last_merged_pr": 254,
-      "merge_sha": "0b8dddf02e4445627e482a02287f7a18044ab59a",
-      "tested_head_sha": "e2465b4c23f9ae756c86c4ed5e1074d4c2f03aee"
+      "summary": "Scoped DONE 5/5; #255 merged, 13/13 returned exact-head jobs, 69/69 C17 Debug/Release, 30 exec probes incl 3 explicit deepest leak rejections PASS. FCJ4 TSan not returned; retain scanner; no broader security or release claim.",
+      "last_merged_pr": 255,
+      "merge_sha": "12f50b5f75a2f71c9730896fc235cd9a8603f039",
+      "tested_head_sha": "f1870233ad400a4180119e3a361075c1e21325bc"
+    },
+    {
+      "id": "UPSTREAM-FAULT-01",
+      "title": "Independent deterministic libc-boundary fault injection reference",
+      "status": "ACTIVE",
+      "prs": [
+        256
+      ],
+      "summary": "First post-open configuration stream fault candidate registered as #256 (1/5); local tests NOT RUN, CI pending; no production changes."
     }
   ]
 }

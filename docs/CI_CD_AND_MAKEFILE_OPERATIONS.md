@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Fault evidence:** Linux GNU/Clang isolated config stream test uses linker wrap only in test target, direct Debug sanitizer and C17 Release verbose CTest.
+
 **Linux scanner exec evidence:** C17 Release matrix emits verbose `linux_scanner_cloexec` output; existing timeout and direct Debug sanitizer checks retained.
 
 **CPU reference evidence:** C17 Release matrix leg emits verbose `cpu_opt_reference` output and `objdump` of `scalar_count`; GNU Release reports auto-vectorization diagnostics. No extra workflow dispatch.

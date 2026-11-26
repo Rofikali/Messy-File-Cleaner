@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**26 November 2026 — batch I/O scoped evaluation:** #240 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and three controlled partial/error scenarios PASS. Scoped evaluation DONE 3/5; production scalar128k retained. [Batch evidence](performance/BATCH_IO_REFERENCE.md); next [cache layout](performance/CACHE_LAYOUT_REFERENCE.md). Native benchmark failure unresolved.
+
 **26 November 2026 — async I/O scoped evaluation:** #237 merged, 13/13 returned PR-head jobs, 65/65 C17 Release and 32 raw io_uring completions PASS. Scoped raw UAPI evaluation DONE 4/5; actual liburing integration NOT EVALUATED. Production buffered mover retained. [Async evidence](performance/LINUX_URING_REFERENCE.md); next [batch I/O](performance/BATCH_IO_REFERENCE.md). Native benchmark push failure unresolved.
 
 **26 November 2026 — Linux I/O scoped evaluation:** #233 merged, 13/13 returned PR-head jobs, 64/64 C17 Release and explicit-offset evidence PASS. Scoped evaluation DONE 3/5, production buffered transfer retained. [I/O evidence](performance/LINUX_IO_REFERENCE.md); next [io_uring capability](performance/LINUX_URING_REFERENCE.md). Integrated-main in progress; native benchmark push failure unresolved.

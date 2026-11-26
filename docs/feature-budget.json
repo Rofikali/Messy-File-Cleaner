@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "4ebec8a3c1c72a03a7e61f8dbad909e3e7bd4a87",
+  "snapshot_main_sha": "c98967b0cfd8188cecb29ebf980ab767626c888d",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "BATCH-IO-EVAL-01",
+  "active_feature_id": "CACHE-LAYOUT-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -967,16 +967,25 @@
     {
       "id": "BATCH-IO-EVAL-01",
       "title": "Bounded synchronous vectored I/O and syscall-count comparison",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         238,
         239,
         240
       ],
-      "summary": "PR #240 registered (3/5); #239 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and 39 comparisons PASS; scalar128k/vectored equal calls, small timing differences, retain buffered mover. Integrated-main partial; native benchmark failure unresolved. Controlled partial/error candidate; local tests NOT RUN; CI pending; production unchanged.",
-      "last_merged_pr": 239,
-      "merge_sha": "4ebec8a3c1c72a03a7e61f8dbad909e3e7bd4a87",
-      "tested_head_sha": "bdd32734c1464617acb51253b8d74df755b00351"
+      "summary": "PR #240 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and 21+18+3 controlled comparisons PASS. Scoped evaluation DONE 3/5; retain scalar128k. Integrated-main partial, native benchmark failure unresolved.",
+      "last_merged_pr": 240,
+      "merge_sha": "c98967b0cfd8188cecb29ebf980ab767626c888d",
+      "tested_head_sha": "afda1dbb7c1a841e7d37071248f5e1c6345ad999"
+    },
+    {
+      "id": "CACHE-LAYOUT-EVAL-01",
+      "title": "Bounded event representation and cache-locality reference evaluation",
+      "status": "ACTIVE",
+      "prs": [
+        241
+      ],
+      "summary": "PR #241 registered (1/5); first fixed FileEvent versus packed path/index logical footprint and equivalence; prior queue padding inconclusive, local tests NOT RUN, CI pending, production unchanged."
     }
   ]
 }

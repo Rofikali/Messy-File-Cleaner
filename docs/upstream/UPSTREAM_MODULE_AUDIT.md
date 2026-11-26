@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Cache-layout reference:** [baseline](../performance/CACHE_LAYOUT_REFERENCE.md) is independent read-only packed path/index research; no repeated SPSC padding feature, imported source or production queue ABI change.
+
 **Batch I/O failure comparison:** [baseline](../performance/BATCH_IO_REFERENCE.md) uses installed writev with deliberately shortened requests and test-only injected errors; no production adapter or imported source.
 
 **Batch I/O measured reference:** [baseline](../performance/BATCH_IO_REFERENCE.md) compares installed scalar and vectored APIs, recording equal call counts for 128 KiB backing models and measuring bounded wall/CPU times. No import or production adoption.

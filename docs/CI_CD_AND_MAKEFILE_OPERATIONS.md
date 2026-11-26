@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Cache-layout evidence:** existing C17 Release verbose reporting also selects cache_layout_reference exactly; reports representation sizes and verified content equivalence. No new runner, dependency or scale dispatch.
+
 **Batch I/O evidence:** existing C17 Release verbose reporting also selects batch_io_reference exactly, exposing actual syscall counts and verification; no new runner, workflow or scale dispatch.
 
 **io_uring capability evidence:** existing C17 Release verbose reporting also selects linux_uring_capability exactly; build/runtime capability skip is NOT VERIFIED, never an executed operation pass. No new runner, dependency install or security-policy change.

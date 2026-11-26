@@ -970,9 +970,10 @@
       "status": "ACTIVE",
       "prs": [
         238,
-        239
+        239,
+        240
       ],
-      "summary": "PR #239 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and 39 comparisons PASS; scalar128k/vectored equal calls, small timing differences, retain buffered mover. Integrated-main partial; native benchmark failure unresolved. Third controlled partial/error candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "summary": "PR #240 registered (3/5); #239 merged, 13/13 returned PR-head jobs, 66/66 C17 Release and 39 comparisons PASS; scalar128k/vectored equal calls, small timing differences, retain buffered mover. Integrated-main partial; native benchmark failure unresolved. Controlled partial/error candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 239,
       "merge_sha": "4ebec8a3c1c72a03a7e61f8dbad909e3e7bd4a87",
       "tested_head_sha": "bdd32734c1464617acb51253b8d74df755b00351"

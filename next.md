@@ -12,7 +12,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **BATCH-IO-EVAL-01 (2/5 prior opened; third PR candidate)** | Controlled short write, injected EINTR/zero/EIO and prefix preservation | #239 returned CI PASS; local tests NOT RUN; new CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **BATCH-IO-EVAL-01 (3/5; PR #240 OPEN (draft))** | Controlled short write, injected EINTR/zero/EIO and prefix preservation | #239 returned CI PASS; local tests NOT RUN; new CI pending; production unchanged; imports/license, FS-01B/REL-01 blocked |
 | **DONE** | **LIBURING-EVAL-01 (4/5; #237 merged)** | 13/13 returned PR-head jobs; 65/65 and 32 raw UAPI completions PASS | Actual liburing integration NOT EVALUATED; no production speedup or durability proof |
 | **DONE** | **LINUX-IO-EVAL-01 (3/5; #233 merged)** | 13/13 returned PR-head jobs; 64/64 and explicit offsets PASS; retain buffered transfer | Integrated-main in progress; no production speedup/durability/retirement proof |
 | **DONE** | **LINUX-WATCH-EVAL-01 (3/5; #230 merged)** | 13/13 returned PR-head jobs; 63/63 tests and lifecycle PASS | Integrated-main in progress; real overflow/recovery NOT VERIFIED; retain watcher |

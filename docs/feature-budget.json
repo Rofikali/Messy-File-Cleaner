@@ -940,9 +940,10 @@
       "title": "Bounded Linux content-transfer reference comparison",
       "status": "ACTIVE",
       "prs": [
-        231
+        231,
+        232
       ],
-      "summary": "PR #231 merged, 14/14 PR-head jobs; C17 Release 64/64 and Linux I/O capability PASS not skipped. Integrated-main in progress; native benchmark push failure unresolved. Second bounded timing candidate; local tests NOT RUN; CI pending; production unchanged.",
+      "summary": "PR #232 registered (2/5); #231 merged, 14/14 PR-head jobs, C17 Release 64/64 and Linux I/O capability PASS not skipped. Integrated-main in progress; native benchmark push failure unresolved. Bounded timing candidate; local tests NOT RUN; CI pending; production unchanged.",
       "last_merged_pr": 231,
       "merge_sha": "410ad28292c738c1a7706c01f33e80cd2a6ede1f",
       "tested_head_sha": "2af529623f61f90d34a5d90bb0f08163dd77956c"

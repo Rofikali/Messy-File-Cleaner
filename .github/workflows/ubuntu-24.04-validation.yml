@@ -88,12 +88,33 @@ jobs:
               cmake --version
               uname -srm
               getconf GNU_LIBC_VERSION
+              clang -std=c17 -Wall -Wextra -Wpedantic -Werror \
+                /source/tests/reference/public_api_candidate.c \
+                /source/tests/reference/public_api_candidate_mock_test.c \
+                -o "$work/api-mock"
               for standard in 11 17 23; do
                 cmake -S /source -B "$work/c$standard" -G Ninja \
                   -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release \
                   -DBUILD_TESTING=OFF -DFC_C_STANDARD="$standard"
                 cmake --build "$work/c$standard" --parallel 2
                 python3 /source/tests/integration/test_cli_help.py "$work/c$standard/file-cleaner"
+                stage="$work/install$standard"
+                cmake --install "$work/c$standard" --prefix "$stage"
+                gate=/source/scripts/tests/check_public_api_isolation.sh
+                sh "$gate" "$work/c$standard/file-cleaner" "$work/api-mock" "$stage"
+                if sh "$gate" "$work/api-mock" "$work/api-mock" "$stage" > "$work/negative" 2>&1; then
+                  echo "candidate symbol negative control unexpectedly passed" >&2
+                  exit 1
+                fi
+                grep -Fx "candidate symbol leaked into production" "$work/negative"
+                touch "$stage/unexpected-header.h"
+                if sh "$gate" "$work/c$standard/file-cleaner" "$work/api-mock" "$stage" > "$work/negative" 2>&1; then
+                  echo "install negative control unexpectedly passed" >&2
+                  exit 1
+                fi
+                grep -Fx "unexpected staged install content" "$work/negative"
+                rm "$stage/unexpected-header.h"
+                printf "public_api_isolation_controls=PASS c_standard=%s\n" "$standard"
                 printf "clang_production_compat=PASS c_standard=%s\n" "$standard"
               done
             '

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Linux selftest checkpoint:** #253 merged, 12 completed jobs PASS, Ubuntu image running, C17 Debug/Release 69/69 and 18 exec probes PASS. [Deep lifecycle candidate](security/FILESYSTEM-SCANNER-SECURITY.md) pending; production unchanged.
+
 **Linux selftest checkpoint:** #252 merged, 13/13 returned exact-head jobs, 69/69 C17 Debug/Release, three negative and three positive real exec probes PASS. [Abort lifecycle candidate](security/FILESYSTEM-SCANNER-SECURITY.md) pending; production unchanged.
 
 **Linux selftest checkpoint:** #251 merged, 14/14 exact-head jobs and 69/69 C17 Debug/Release; prior #250 Ubuntu image PASS. [Actual exec inheritance candidate](security/FILESYSTEM-SCANNER-SECURITY.md) pending CI; production unchanged.

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "482bdcdc6f028065cb1af949a2aaec842c0f7530",
+  "snapshot_main_sha": "589fb430d83af5cae716e97b23b579d804a77d58",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LINUX-SELFTEST-01",
   "features": [
@@ -1017,12 +1017,13 @@
       "prs": [
         251,
         252,
-        253
+        253,
+        254
       ],
-      "summary": "#252 merged, 13/13 returned exact-head jobs, C17 Debug/Release 69/69, three negative/positive exec controls each PASS. Third abort lifecycle candidate registered as #253 (3/5); local tests NOT RUN, CI pending; no production change.",
-      "last_merged_pr": 252,
-      "merge_sha": "482bdcdc6f028065cb1af949a2aaec842c0f7530",
-      "tested_head_sha": "fb9bc1d83b903014642fb4a8521de5e61e080fa7"
+      "summary": "#253 merged, 12 completed exact-head jobs PASS, Ubuntu image running, FCJ4 TSan not returned; 69/69 C17 Debug/Release, 18 exec probes, 9 restorations, 3 recovery scans PASS. Fourth deep lifecycle candidate registered as #254 (4/5); local tests NOT RUN, CI pending; no production change.",
+      "last_merged_pr": 253,
+      "merge_sha": "589fb430d83af5cae716e97b23b579d804a77d58",
+      "tested_head_sha": "d0dbe2fec208e74da232c686134e50c90ec23997"
     }
   ]
 }

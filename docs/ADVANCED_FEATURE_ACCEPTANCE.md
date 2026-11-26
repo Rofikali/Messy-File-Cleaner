@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Linux deep descriptor acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires 20 distinct live directory identities across frame growth, both exec controls, cancellation, restoration and rescan.
+
 **Linux scanner abort lifecycle acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires EACCES/EIO and ECANCELED after real exec controls, exact first error, inode-specific cleanup and successful immediate rescans.
 
 **Linux scanner exec acceptance:** [scanner security](security/FILESYSTEM-SCANNER-SECURITY.md) requires three negative and three positive real exec probes, inode-specific inventory, child exit status and parent restoration.

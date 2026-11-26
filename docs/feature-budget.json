@@ -1066,9 +1066,10 @@
         266,
         267,
         268,
-        269
+        269,
+        270
       ],
-      "summary": "#269 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70, hosted Clang Debug 70/70, sanitizer preflight PASS, container Release 69 passed/1 io_uring skipped; 324/324 header syntax probes PASS. Final explicit capability report candidate awaiting registration; local tests NOT RUN, CI pending.",
+      "summary": "#269 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70, hosted Clang Debug 70/70, sanitizer preflight PASS, container Release 69 passed/1 io_uring skipped; 324/324 header syntax probes PASS. Final explicit capability report candidate registered as #270 (5/5); local tests NOT RUN, CI pending.",
       "last_merged_pr": 269,
       "merge_sha": "e59df66c6907a998956de1d028a71af2a49d9418",
       "tested_head_sha": "dc1f2c0714e7a2b792bd6ea1cd10189f23245616"

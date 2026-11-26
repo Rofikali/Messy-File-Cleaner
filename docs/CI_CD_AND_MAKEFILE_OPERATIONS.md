@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Public API synthetic ownership:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing six compiler modes retain synthetic caller checks; existing hosted Clang 18 job adds ASan/UBSan and leak detection, no new runner or dependency. CI pending.
+
 **Public API mock caller:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing isolated Ubuntu development image runs the separate synthetic mock caller under GCC/Clang C11/C17/C2x; ten scenarios per build, no real engine, new runner or dependency. CI pending.
 
 **Public API consumer boundary:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing six strict syntax probes compile the revised consumer only; no job, runner, dependency, linking or runtime test added.

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "1071b60baf6be4768e70f45932d133429068a8ab",
+  "snapshot_main_sha": "0e72e1d60e5032563548f453f2ea00fefc6d08e1",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "PUBLIC-API-01",
   "features": [
@@ -1081,12 +1081,13 @@
       "prs": [
         271,
         272,
-        273
+        273,
+        274
       ],
-      "summary": "#272 merged, 13/13 returned PR-head jobs PASS; independent formal review not verified. #273 (3/5) ten synthetic mock caller scenarios across six compiler modes; local NOT RUN, CI pending. No real engine implementation/runtime, external consumer approval or ABI/FFI authorization.",
-      "last_merged_pr": 272,
-      "merge_sha": "1071b60baf6be4768e70f45932d133429068a8ab",
-      "tested_head_sha": "39e7143d3799f9db513eaf0b04701ed02a970ff0"
+      "summary": "#273 merged, 13/13 returned PR-head jobs, six mock builds x ten scenarios PASS; formal independent review not verified. #274 (4/5) synthetic heap ownership and ten positive retries, 16 matching allocations/releases, hosted ASan/UBSan leak detection; CI pending. No real engine runtime, external consumer or production ABI/FFI authorization.",
+      "last_merged_pr": 273,
+      "merge_sha": "0e72e1d60e5032563548f453f2ea00fefc6d08e1",
+      "tested_head_sha": "fc8f596b694a6882927fdb67611d63d404ff85e6"
     }
   ]
 }

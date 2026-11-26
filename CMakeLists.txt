@@ -217,6 +217,29 @@ if(BUILD_TESTING)
   add_test(NAME scanner_reference_benchmark_smoke COMMAND scanner-reference-benchmark)
   set_tests_properties(scanner_reference_benchmark_smoke PROPERTIES TIMEOUT 15)
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    include(CheckCSourceCompiles)
+    check_c_source_compiles([=[
+      #define _GNU_SOURCE
+      #include <linux/io_uring.h>
+      #include <sys/syscall.h>
+      int main(void) {
+        struct io_uring_params params = {0};
+        struct io_uring_probe probe = {0};
+        return (int)(params.sq_entries + probe.ops_len +
+          SYS_io_uring_setup + SYS_io_uring_register + IORING_REGISTER_PROBE +
+          IORING_OP_NOP + IORING_OP_READV + IORING_OP_WRITEV + IORING_OP_FSYNC +
+          IO_URING_OP_SUPPORTED);
+      }
+    ]=] FC_HAVE_URING_PROBE)
+    add_executable(linux-uring-capability tests/performance/linux_uring_capability.c)
+    if(FC_HAVE_URING_PROBE)
+      target_compile_definitions(linux-uring-capability PRIVATE FC_HAVE_URING_PROBE)
+    endif()
+    target_compile_options(linux-uring-capability PRIVATE -Wall -Wextra -Wpedantic -Wformat=2 -Wshadow -Wstrict-prototypes)
+    add_test(NAME linux_uring_capability COMMAND linux-uring-capability)
+    set_tests_properties(linux_uring_capability PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+  endif()
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include(CheckSymbolExists)
     set(CMAKE_REQUIRED_DEFINITIONS "-D_GNU_SOURCE")
     check_symbol_exists(copy_file_range "unistd.h" FC_HAVE_COPY_FILE_RANGE)

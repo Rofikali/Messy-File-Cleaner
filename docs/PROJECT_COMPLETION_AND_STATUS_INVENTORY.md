@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**26 November 2026 — Linux I/O scoped evaluation:** #233 merged, 13/13 returned PR-head jobs, 64/64 C17 Release and explicit-offset evidence PASS. Scoped evaluation DONE 3/5, production buffered transfer retained. [I/O evidence](performance/LINUX_IO_REFERENCE.md); next [io_uring capability](performance/LINUX_URING_REFERENCE.md). Integrated-main in progress; native benchmark push failure unresolved.
+
 **26 November 2026 — watcher scoped evaluation:** #230 merged, 13/13 returned PR-head jobs, 63/63 C17 Release and watcher lifecycle PASS. Scoped evaluation DONE 3/5, production watcher retained. [Watcher evidence](performance/LINUX_WATCH_REFERENCE.md); next [I/O reference](performance/LINUX_IO_REFERENCE.md). Integrated-main in progress at inspection; separate native benchmark push failure unresolved.
 
 **26 November 2026 — path scoped evaluation:** #227 merged, 13/13 returned PR-head jobs, C17 Release 63/63 and real UAPI error reference PASS (not skipped). Scoped evaluation DONE 3/5; production path handling retained. [Path evidence](performance/LINUX_PATH_REFERENCE.md); next [watcher reference](performance/LINUX_WATCH_REFERENCE.md). Integrated-main in progress at inspection, separate native benchmark push failure unresolved; FS-01B/REL-01 blocked.

@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**io_uring reference:** [baseline](../performance/LINUX_URING_REFERENCE.md) uses installed Linux UAPI for bounded setup/probe only before optional liburing assessment; no source import or package dependency.
+
 **Linux I/O offset comparison:** [baseline](../performance/LINUX_IO_REFERENCE.md) retains existing production buffered transfer after measured reference results; adds explicit range/EOF semantics using installed libc only.
 
 **Linux I/O measured reference:** [baseline](../performance/LINUX_IO_REFERENCE.md) uses installed libc copy_file_range and independent buffered model, with bounded comparative timing only. No source import or production adoption.

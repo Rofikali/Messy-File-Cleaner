@@ -47,3 +47,4 @@ jobs:
           getconf GNU_LIBC_VERSION
           ctest --test-dir build-c17-Release -R '^scanner_reference_benchmark_smoke$' --no-tests=error --verbose --output-on-failure
           ctest --test-dir build-c17-Release -R '^linux_io_reference$' --no-tests=error --verbose --output-on-failure
+          ctest --test-dir build-c17-Release -R '^linux_uring_capability$' --no-tests=error --verbose --output-on-failure

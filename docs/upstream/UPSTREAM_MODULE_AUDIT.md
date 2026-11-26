@@ -1,5 +1,7 @@
 # UPSTREAM-AUDIT-01 — Initial reference-only module assessment
 
+**Compiler compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) records full Clang Release suite 69 passed/1 skipped; Debug sanitizer candidate pending CI.
+
 **Clang compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) records production C11/C17/C23 success; full C17 Release suite candidate pending CI.
 
 **Compiler compatibility:** [reference](UPSTREAM_COMPAT_REFERENCE.md) reuses existing Clang in development image; no imported code or new library.

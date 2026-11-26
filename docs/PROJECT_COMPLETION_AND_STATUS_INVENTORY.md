@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Compatibility checkpoint:** #267 merged, 13/13 returned jobs, GNU C17 Debug/Release 70/70, Clang C17 Release 69 passed/1 io_uring capability skipped. [Debug candidate](upstream/UPSTREAM_COMPAT_REFERENCE.md) pending CI.
+
 **Compatibility checkpoint:** #266 merged, 13/13 returned jobs, GNU C17 Debug/Release 70/70, Clang three production builds and CLI checks PASS. [Full Clang suite candidate](upstream/UPSTREAM_COMPAT_REFERENCE.md) pending CI.
 
 **Supply-chain closure:** #265 merged, 13/13 returned jobs, 70/70 C17 Debug/Release, seven APT and 11 gate fixtures PASS. [Compatibility candidate](upstream/UPSTREAM_COMPAT_REFERENCE.md) pending CI.

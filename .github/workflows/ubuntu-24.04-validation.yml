@@ -118,6 +118,28 @@ jobs:
               printf "clang_c17_release_suite=PASS\n"
             '
 
+      - name: Verify full Clang C17 Debug test suite
+        timeout-minutes: 8
+        run: |
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            --user vscode --mount "type=bind,source=$PWD,target=/source,readonly" \
+            --entrypoint /bin/sh messy-file-cleaner-dev:ci -ec '
+              work=$(mktemp -d)
+              trap "rm -rf \"$work\"" EXIT
+              clang --version
+              cmake --version
+              uname -srm
+              getconf GNU_LIBC_VERSION
+              export ASAN_OPTIONS=halt_on_error=1
+              export UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1
+              cmake -S /source -B "$work/build" -G Ninja \
+                -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Debug \
+                -DBUILD_TESTING=ON -DFC_C_STANDARD=17
+              cmake --build "$work/build" --parallel 2
+              ctest --test-dir "$work/build" --no-tests=error --output-on-failure
+              printf "clang_c17_debug_suite=PASS\n"
+            '
+
       - name: Build production image
         run: docker build --pull -t messy-file-cleaner:ci .
 

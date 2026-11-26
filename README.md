@@ -1,5 +1,7 @@
 # Messy File Cleaner
 
+**Compiler compatibility:** [evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) records #267 merged, full Clang C17 Release CTest 69 passed, one io_uring capability skip, zero failures; third candidate runs full Clang Debug suite with existing ASan/UBSan target instrumentation and halt-on-error, same isolation. No new packages or runtime/API changes.
+
 **Upstream compatibility:** [compiler evidence](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) records merged #266: Clang production C11/C17/C23 and CLI controls PASS; second candidate runs the full existing C17 Release suite with Clang in the same isolated development image. No new dependencies or runtime/API change.
 
 **Upstream compatibility reference:** [compiler compatibility](docs/upstream/UPSTREAM_COMPAT_REFERENCE.md) starts UPSTREAM-COMPAT-01 with Clang production C11/C17/C23 compile/link and existing CLI help acceptance inside the already built Ubuntu development image. SUPPLY-CHAIN-01 scoped DONE 5/5; no new packages, runner, production source or public ABI changes.

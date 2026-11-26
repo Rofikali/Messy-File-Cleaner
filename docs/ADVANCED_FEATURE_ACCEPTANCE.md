@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Internal header acceptance:** [compatibility reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) requires independent repeated inclusion across both compilers, three language modes and normal/test macros; syntax-only, not public ABI.
+
 **#268 correction:** hosted-runner Clang Debug requires explicit runtime link/run probe and full suite; container Debug remains NOT VERIFIED because compiler runtime was missing.
 
 **Clang Debug acceptance:** [compatibility reference](upstream/UPSTREAM_COMPAT_REFERENCE.md) requires actual full Debug suite with existing target-specific ASan/UBSan instrumentation, halt-on-error, explicit skip reconciliation; Release 69 passed/1 skipped.

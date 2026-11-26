@@ -118,6 +118,14 @@ jobs:
               printf "clang_c17_release_suite=PASS\n"
             '
 
+      - name: Verify internal header self-containment with GCC and Clang
+        timeout-minutes: 5
+        run: |
+          docker run --rm --network none --cap-drop ALL --security-opt no-new-privileges \
+            --user vscode --mount "type=bind,source=$PWD,target=/source,readonly" \
+            --entrypoint /bin/sh messy-file-cleaner-dev:ci \
+            /source/scripts/tests/test_internal_headers.sh
+
       - name: Verify full Clang C17 Debug suite on existing hosted runner
         timeout-minutes: 8
         shell: bash

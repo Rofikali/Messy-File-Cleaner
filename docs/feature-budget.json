@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "05a0e688965fc2a61cf6d980bf9e67b0e48a29fe",
+  "snapshot_main_sha": "f0853041f55fcada530a5c13412d60b2247f52e2",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "UPSTREAM-COMPAT-01",
   "features": [
@@ -1067,10 +1067,10 @@
         267,
         268
       ],
-      "summary": "#267 merged; #268 initial Ubuntu image job 139925552427 failed linking missing Clang ASan archives; Release 69 passed/1 skipped. Same-PR correction runs Debug on existing hosted runner with clang-18 and fail-closed link/run probe; local tests NOT RUN; exact-head CI pending. No new packages or production changes.",
-      "last_merged_pr": 267,
-      "merge_sha": "05a0e688965fc2a61cf6d980bf9e67b0e48a29fe",
-      "tested_head_sha": "daab93ad73eae9ed097d6e59a02f17205c6a1cb8"
+      "summary": "#268 merged, 13/13 returned exact-head jobs, GNU C17 Debug/Release 70/70; hosted Clang Debug 70/70 and ASan/UBSan preflight PASS, container Release 69 passed/1 io_uring capability skip. Fourth header compatibility candidate awaiting registration; local tests NOT RUN, CI pending.",
+      "last_merged_pr": 268,
+      "merge_sha": "f0853041f55fcada530a5c13412d60b2247f52e2",
+      "tested_head_sha": "92b57f2e919d9eb4b3ae7ca697c693273f5b787a"
     }
   ]
 }

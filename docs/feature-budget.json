@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "f0f95f66bc9800ba4e9fea87ef9e512f84446681",
+  "snapshot_main_sha": "cbf8b068564cb493213cfa55fef8ac9a262b07c5",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "UPSTREAM-COST-01",
   "features": [
@@ -1155,9 +1155,13 @@
       "title": "Measured upstream maintenance cost baseline and comparable TCO",
       "status": "ACTIVE",
       "prs": [
-        292
+        292,
+        293
       ],
-      "summary": "#292 (1/5) observed CI log spans and suite timings, cost-input contract and alternatives; no billing or ROI claim; CI pending."
+      "summary": "#292 merged; 13/13 returned exact-head jobs PASS including restored Ubuntu validation, formal review and TSan workflow unverified. #293 (2/5) test-only C integer TCO comparison: equal currency/horizon, unknown distinct from zero, checked arithmetic and 17 synthetic scenarios. CI pending; no actual billing, ROI, spend, import or production changes.",
+      "last_merged_pr": 292,
+      "merge_sha": "cbf8b068564cb493213cfa55fef8ac9a262b07c5",
+      "tested_head_sha": "29ac7703fb87cc720fd99e11d59beecc710074be"
     }
   ]
 }

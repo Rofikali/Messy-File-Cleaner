@@ -83,6 +83,12 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # UPSTREAM-MAINT-01: record observed environment, not version-based capability.
+  add_test(NAME upstream_environment_report
+    COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/report_upstream_environment.sh"
+            "${CMAKE_COMMAND}" "${CMAKE_C_COMPILER}" "${CMAKE_LINKER}")
+  set_tests_properties(upstream_environment_report PROPERTIES TIMEOUT 10)
+
   # STATIC-LIB-01: private reference archive of existing pure modules.
   # Never install, export, or link this target into the production CLI.
   add_library(fc_classifier_reference STATIC

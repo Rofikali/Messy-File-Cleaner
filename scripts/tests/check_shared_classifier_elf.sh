@@ -24,6 +24,15 @@ check_exports "$library" || { echo "unexpected dynamic export set" >&2; exit 1; 
 readelf -hW "$library" > "$work/header"
 grep -Eq 'Type:[[:space:]]+DYN([[:space:]]|$)' "$work/header"
 readelf -dW "$library" > "$work/dynamic"
+# Assert observed hardening on this private DSO, not just compiler flags.
+readelf -lW "$library" > "$work/program"
+grep -Eq '^[[:space:]]*GNU_RELRO[[:space:]]' "$work/program"
+awk '$1 == "GNU_STACK" {
+    count++
+    if ($(NF-1) != "RW") bad=1
+} END { exit (count != 1 || bad) }' "$work/program"
+grep -Eq '\(FLAGS\).*BIND_NOW|\(FLAGS_1\).*NOW' "$work/dynamic"
+printf 'shared_classifier_hardening=PASS relro=1 bind_now=1 noexecstack=1\n'
 check_soname() {
     awk '$2 == "(SONAME)" {print $NF}' "$1" > "$work/soname"
     printf '%s\n' '[libfc_classifier_shared_reference.so.0]' > "$work/expected"

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "258299171e2a8d45caa3057f3c586228b27c307e",
+  "snapshot_main_sha": "c91e4cf326a3cc7fa887495517bf0339d3266590",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SHARED-LIB-01",
   "features": [
@@ -1113,12 +1113,13 @@
       "prs": [
         281,
         282,
-        283
+        283,
+        284
       ],
-      "summary": "#282 merged; 10/10 returned PR-head jobs, GCC C17 Release 75/75 and Debug 72/72; ELF metadata and two negative controls PASS. Ubuntu workflow and formal review unverified. #283 (3/5) explicit runtime loading, 16 cycles with four route cases and six rejected lookups each, and observed ELF hardening. CI pending; no production library or ABI approval.",
-      "last_merged_pr": 282,
-      "merge_sha": "258299171e2a8d45caa3057f3c586228b27c307e",
-      "tested_head_sha": "0f2b683475c49207e58e8c4ee1fa14188e05f76b"
+      "summary": "#283 merged; 10/10 returned PR-head jobs, GCC C17 Release 76/76 and Debug 73/73; runtime loader and ELF hardening PASS. Ubuntu workflow and formal review unverified. #284 (4/5) Debug ASan/UBSan DSO and both consumers, explicit leak/fatal checks, mutable caller-owned input in 16 cycles. Clang Debug sanitizer-specific linker exception; Release gates unchanged. CI pending; no production library or ABI approval.",
+      "last_merged_pr": 283,
+      "merge_sha": "c91e4cf326a3cc7fa887495517bf0339d3266590",
+      "tested_head_sha": "caf9d214f80a2f049d0d05e6a29029c6a772a66a"
     }
   ]
 }

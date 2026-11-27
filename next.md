@@ -1,6 +1,8 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-**Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #276 remains the single active PR (1/5). Initial Clang Release failed on missing terminal newlines; same-PR correction and private archive repeatability/member-order check added. New-head CI pending. Future logical modules and shared/FFI work remain gated; no sixth API PR.
+**Owner release/distribution direction (2026-11-27):** [Release roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md). The manual keyword `go ahead` (also continue/next/next milestone) and hourly autopilot use the single NOW row below. #296 is merged at `caf3056bc09854a8846a7409c91ba1ef1de893f3`; no open PR was observed before this governance change. FS-01B-FIX is the critical release prerequisite; production correction requires approved trust/crash design. CI-RECONCILIATION-01 is the independent eligible release-baseline incident. Roadmap planning is not release authorization.
+
+**Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Historical #276 checkpoint superseded by merged private library research through #285; production SDK and FFI remain gated.
 
 **Owner-approved future direction (2026-11-25):** [upstream master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md) and [reuse policy](docs/upstream/UPSTREAM_REUSE_POLICY.md). After current PR completes, reference-only module audit is eligible; license decision and external import remain BLOCKED. Preserve one active feature, historical budgets, working code, FS-01B and REL-01. No automatic benchmark dispatch.
 
@@ -14,7 +16,11 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-COST-01 (5/5; PR #296 OPEN (draft))** | [Final adoption decision gate](docs/upstream/UPSTREAM_ADOPTION_DECISION.md); private TCO Debug ASan/UBSan | #295 merged at `577677c02145daf207f9a884b01229aa948330a4`; 13/13 returned jobs, C17 Release 82/82 and Debug 78/78; #296 CI pending; no sixth PR, actual billing/ROI claims, imports or spend |
+| **NOW — SAFE FEATURE SELECTION** | **CI-RECONCILIATION-01 (0/5; READY)** | Diagnose Ubuntu C23 APT 403 and native scanner workflow failure; reconcile exact-head/base evidence; [release roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md) | No C23 compile failure inferred; no signature bypass, release, spend or automatic scale run |
+| **PARTIAL** | **UPSTREAM-COST-01 (5/5; #296 merged)** | Final evidence-first decision gate; PR-head Ubuntu/CMake/Docker/Makefile/TSan PASS; native scanner workflow failed; integrated Ubuntu failed dependency install | Actual billing/ROI and independent review unverified; no sixth PR |
+| **NEXT — gated** | **LICENSE-01** | Owner license decision, SPDX/provenance inventory | No license selection or imports automatically |
+| **LATER** | **PACKAGING-01 / RELEASE-PIPELINE-01** | Local archive/.deb, versioning, SBOM, checksum, signing, unpublished build | No tags or public assets before REL-01 |
+| **LATER** | **GHCR-01 / PRODUCTION-SDK-01 / PRODUCT-ADOPTION-01** | OCI staging, real consumer-backed SDK and adoption | Publication, FFI, actual usage and commercial claims remain gated |
 | **PARTIAL** | **UPSTREAM-MAINT-01 (5/5; #291 merged)** | 13/13 returned latest jobs PASS after APT retry; Ubuntu workflow restored, hosted Clang Debug 77/77, container Clang Release 80 pass/1 skip | Formal review and TSan workflow unverified; no sixth PR |
 | **BLOCKED** | **RUST-FFI-EVAL-01 (1/5; #286 merged)** | [Design-only proposal](docs/architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md); 9/9 returned jobs PASS | Explicit owner scope approval and staged ADR review required before new FFI; preserve budget and FCJ4 crate; formal review unverified |
 | **PARTIAL** | **SHARED-LIB-01 (5/5; #285 merged)** | 10/10 returned jobs; GCC C17 Release 77/77, Debug 73/73; final artifact isolation PASS | Ubuntu/Clang and formal review unverified; exhausted, no sixth PR; no production library approval |

@@ -181,3 +181,7 @@ Read [project identity and business strategy](docs/PRODUCT_AND_BUSINESS_STRATEGY
 ## No automation illusion
 
 A committed agent instruction is not an always-running agent. At a new session: read current GitHub/main, `next.md`, relevant contracts, select one READY item, prepare one bounded PR, inspect exact-SHA CI, and leave a checkpoint. Never merge, deploy, charge, delete branches or modify real user data without explicit approval. Use [continuation runbook](docs/AGENT_CONTINUATION_AND_HANDOFF.md).
+
+## 2026-11-27 — Owner-directed distribution roadmap
+
+Verified #296 merged at `caf3056bc09854a8846a7409c91ba1ef1de893f3`, head `87dfd1a1404d571d98c8ad6f93ee8b2cff7ced77`; UPSTREAM-COST-01 PARTIAL 5/5 (native scanner failure, integrated Ubuntu C23 APT 403, independent review/billing unknown). Selected CI-RECONCILIATION-01 0/5, not a sixth cost PR. [New roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md) records future packaging, GHCR, licensing, release and SDK/adoption gates. FS-01B-FIX/REL-01 remain blocked. No code, release, spend or schedule modification.

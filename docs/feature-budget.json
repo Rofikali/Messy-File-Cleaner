@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "577677c02145daf207f9a884b01229aa948330a4",
+  "snapshot_main_sha": "caf3056bc09854a8846a7409c91ba1ef1de893f3",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "UPSTREAM-COST-01",
+  "active_feature_id": "CI-RECONCILIATION-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1153,7 +1153,7 @@
     {
       "id": "UPSTREAM-COST-01",
       "title": "Measured upstream maintenance cost baseline and comparable TCO",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         292,
         293,
@@ -1161,10 +1161,73 @@
         295,
         296
       ],
-      "summary": "#295 merged; 13/13 returned exact-head jobs PASS including Ubuntu, GCC C17 Release 82/82 and Debug 78/78, 39 synthetic TCO checks. Formal review and TSan workflow not returned. #296 (5/5) final evidence-first adoption decision gate and private Debug ASan/UBSan; CI pending. Actual billing, owner-time rates and ROI unknown. No sixth PR, spend, imports or production change.",
-      "last_merged_pr": 295,
-      "merge_sha": "577677c02145daf207f9a884b01229aa948330a4",
-      "tested_head_sha": "673ed6279d2239d3579702f1dd774ae55a9c5f7a"
+      "summary": "#296 merged; PR-head CMake, Ubuntu, Docker, Makefile and FCJ4 TSan passed; native scanner workflow returned failure. Integrated main CMake, Makefile, Docker and performance passed; Ubuntu C23 dependency install failed (Microsoft APT 403). Actual billing, owner-time rates, ROI and independent review unverified. Five attempts exhausted; no sixth PR, import, spend or production change.",
+      "last_merged_pr": 296,
+      "merge_sha": "caf3056bc09854a8846a7409c91ba1ef1de893f3",
+      "tested_head_sha": "87dfd1a1404d571d98c8ad6f93ee8b2cff7ced77"
+    },
+    {
+      "id": "CI-RECONCILIATION-01",
+      "title": "Release baseline CI incident and evidence reconciliation",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "Restore exact-main/PR Ubuntu C23 dependency-install evidence and classify native scanner workflow failure; new release-baseline incident, not a sixth upstream-cost/maintenance PR. Read-only diagnostics and bounded CI fixes; no release."
+    },
+    {
+      "id": "FS-01B-FIX",
+      "title": "Source-retirement safety and recovery",
+      "status": "BLOCKED",
+      "prs": [],
+      "summary": "Existing P0; approved trust/crash design, positive unrelated-file preservation, no-clobber, recovery and manual acceptance; no destructive production correction without approval."
+    },
+    {
+      "id": "LICENSE-01",
+      "title": "Owner licensing and upstream redistribution decision",
+      "status": "BLOCKED",
+      "prs": [],
+      "summary": "Prepare license/provenance inventory and options; owner selects terms before redistribution or imports."
+    },
+    {
+      "id": "PACKAGING-01",
+      "title": "Local Linux archive and Debian packaging",
+      "status": "PLANNED",
+      "prs": [],
+      "summary": "CPack/install/uninstall tests on disposable fixtures; no publication; dependency and license metadata, preview-only safety enforced if needed."
+    },
+    {
+      "id": "RELEASE-PIPELINE-01",
+      "title": "Versioned release build and supply-chain provenance",
+      "status": "PLANNED",
+      "prs": [],
+      "summary": "Test unpublished tag/build contract, checksums, SBOM, signing/attestations, permission minimization and rollback."
+    },
+    {
+      "id": "GHCR-01",
+      "title": "Versioned OCI container distribution",
+      "status": "PLANNED",
+      "prs": [],
+      "summary": "Build/test locally or in CI without push until release authorization; non-root, immutable digest, verified smoke, package visibility and no-spend gate."
+    },
+    {
+      "id": "REL-01",
+      "title": "Manual acceptance and authorized release",
+      "status": "BLOCKED",
+      "prs": [],
+      "summary": "Existing release gate; FS-01B, licensing, supported host/filesystems, recovery and explicit exact-version owner GO."
+    },
+    {
+      "id": "PRODUCTION-SDK-01",
+      "title": "Production C API/ABI and SDK readiness",
+      "status": "PLANNED",
+      "prs": [],
+      "summary": "Concrete consumer, ownership, symbol/SONAME/versioning, C .a/.so packages; preserve existing private library budgets and blocked Rust FFI."
+    },
+    {
+      "id": "PRODUCT-ADOPTION-01",
+      "title": "Safe early adoption and business validation",
+      "status": "PLANNED",
+      "prs": [],
+      "summary": "After authorized release, onboarding, feedback, support and cost evidence; no paid services or telemetry without approval."
     }
   ]
 }

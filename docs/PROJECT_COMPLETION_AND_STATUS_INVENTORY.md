@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Cash versus noncash TCO:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #294 merged; 13/13 returned jobs, GCC C17 Release 82/82 and Debug 78/78, 29 synthetic TCO checks passed. #295 (4/5) adds ten cash/noncash checks; CI pending. Formal review and TSan workflow unverified.
+
 **Bounded upstream TCO sensitivity:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #293 merged; 14/14 returned jobs, GCC C17 Release 82/82 and Debug 78/78, TCO reference PASS. #294 (3/5) adds 12 synthetic horizon checks; CI pending. Formal review unverified.
 
 **Checked upstream TCO reference:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #292 merged; 13/13 returned jobs PASS. #293 (2/5) private integer TCO comparison and synthetic checks, CI pending; formal review and TSan workflow unverified.

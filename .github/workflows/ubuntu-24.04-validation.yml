@@ -169,6 +169,28 @@ jobs:
               fi
               grep -Fx "unexpected archive global definitions" "$work/negative"
               printf "static_classifier_symbol_controls=PASS controls=2\n"
+              dep_gate=/source/scripts/tests/check_static_classifier_dependencies.sh
+              sh "$dep_gate" "$archive"
+              mkdir "$work/dependency-control"
+              printf "extern void fc_unapproved_dependency(void); void fc_probe(void) { fc_unapproved_dependency(); }\n" > "$work/dependency-control/probe.c"
+              clang -std=c17 -Wall -Wextra -Wpedantic -Werror -c "$work/dependency-control/probe.c" -o "$work/dependency-control/classifier.c.o"
+              cp "$archive" "$work/bad-dependency.a"
+              ar r "$work/bad-dependency.a" "$work/dependency-control/classifier.c.o"
+              if sh "$dep_gate" "$work/bad-dependency.a" > "$work/negative" 2>&1; then
+                echo "unexpected dependency control passed" >&2
+                exit 1
+              fi
+              grep -Fx "unexpected archive dependency: classifier.c.o" "$work/negative"
+              printf "extern void classify(void); void fc_probe(void) { classify(); }\n" > "$work/dependency-control/probe.c"
+              clang -std=c17 -Wall -Wextra -Wpedantic -Werror -c "$work/dependency-control/probe.c" -o "$work/dependency-control/hashmap.c.o"
+              cp "$archive" "$work/reverse-dependency.a"
+              ar r "$work/reverse-dependency.a" "$work/dependency-control/hashmap.c.o"
+              if sh "$dep_gate" "$work/reverse-dependency.a" > "$work/negative" 2>&1; then
+                echo "reverse dependency control passed" >&2
+                exit 1
+              fi
+              grep -Fx "unexpected archive dependency: hashmap.c.o" "$work/negative"
+              printf "static_classifier_dependency_controls=PASS controls=2\n"
               sh /source/scripts/tests/report_platform_capabilities.sh "$work/build" container_release
             '
 
@@ -249,6 +271,20 @@ jobs:
           cmake --build "$work/build" --parallel 2
           ctest --test-dir "$work/build" --no-tests=error --output-on-failure
           printf 'clang_c17_debug_suite=PASS environment=hosted_runner\n'
+          ASAN_OPTIONS=halt_on_error=1:detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
+            ctest --test-dir "$work/build" -R '^static_classifier_consumer          sh "$work/source/scripts/tests/report_platform_capabilities.sh" "$work/build" hosted_debug
+
+      - name: Build production image
+        run: docker build --pull -t messy-file-cleaner:ci .
+
+      - name: Verify production image is non-root
+        run: |
+          docker run --rm --entrypoint /bin/sh messy-file-cleaner:ci -ec '
+            test "$(id -u)" = "10001"
+            test -x /usr/local/bin/file-cleaner
+          '
+ --no-tests=error --verbose
+          printf 'static_classifier_sanitizer_consumer=PASS\n'
           sh "$work/source/scripts/tests/report_platform_capabilities.sh" "$work/build" hosted_debug
 
       - name: Build production image

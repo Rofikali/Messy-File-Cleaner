@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Private static archive reference:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Private archive and eight independent consumer checks establish only test-local static-link feasibility; no production ABI, consumer approval, license or release acceptance.
+
 **Public API final isolation candidate:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Final candidate requires production symbol and private install isolation plus negative controls; design acceptance only, not actual engine lifecycle, ABI, external consumer or release approval.
 
 **Public API synthetic ownership:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Synthetic heap ownership, matching release and retry oracle only; actual engine lifecycle, external consumer, ABI and release remain unverified.

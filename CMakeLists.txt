@@ -856,6 +856,26 @@ if(BUILD_TESTING)
   add_test(NAME otmpfile_capability COMMAND test_otmpfile_capability)
   set_tests_properties(otmpfile_capability PROPERTIES SKIP_RETURN_CODE 77 TIMEOUT 10)
 
+  # Pair the running environment with actual disposable capability probes.
+  # Missing compile-time optional targets are not successful runtime probes.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    set(maintenance_io "-")
+    set(maintenance_path "-")
+    if(TARGET linux-io-reference)
+      set(maintenance_io "$<TARGET_FILE:linux-io-reference>")
+    endif()
+    if(TARGET linux-path-reference)
+      set(maintenance_path "$<TARGET_FILE:linux-path-reference>")
+    endif()
+    add_test(NAME upstream_capability_correlation
+      COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/report_upstream_capabilities.sh"
+              "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_COMMAND}" "${CMAKE_C_COMPILER}"
+              "${CMAKE_LINKER}" $<TARGET_FILE:linux-uring-capability>
+              "${maintenance_io}" "${maintenance_path}" $<TARGET_FILE:test_fcj3_writer>
+              $<TARGET_FILE:test_otmpfile_capability>)
+    set_tests_properties(upstream_capability_correlation PROPERTIES TIMEOUT 75 RUN_SERIAL TRUE)
+  endif()
+
   add_executable(test_worker_lifecycle
     tests/integration/test_worker_lifecycle.c
     src/core/thread_pool.c

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Private shared library reference:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). STATIC-LIB-01 PARTIAL 5/5 due to unverified final Ubuntu and independent review evidence; SHARED-LIB-01 independent test-only feasibility does not clear production gates.
+
 **Final private static archive acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Final static reference acceptance requires actual artifact evidence and scoped DONE/PARTIAL/BLOCKED decision at five PRs; no sixth PR or production ABI/FFI approval.
 
 **Static archive matrix and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private ownership and Release dependency acceptance require exact-head CI; no real engine API or concurrency proof.

@@ -88,6 +88,11 @@ if(BUILD_TESTING)
     COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/report_upstream_environment.sh"
             "${CMAKE_COMMAND}" "${CMAKE_C_COMPILER}" "${CMAKE_LINKER}")
   set_tests_properties(upstream_environment_report PROPERTIES TIMEOUT 10)
+  add_test(NAME upstream_environment_comparison
+    COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/test_upstream_environment_comparison.sh"
+            "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_COMMAND}"
+            "${CMAKE_C_COMPILER}" "${CMAKE_LINKER}")
+  set_tests_properties(upstream_environment_comparison PROPERTIES TIMEOUT 10)
 
   # STATIC-LIB-01: private reference archive of existing pure modules.
   # Never install, export, or link this target into the production CLI.

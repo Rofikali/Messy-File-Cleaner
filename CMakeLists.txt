@@ -86,6 +86,11 @@ if(BUILD_TESTING)
   # UPSTREAM-COST-01: synthetic integer cost reference, never a product target.
   add_executable(upstream_tco_reference tests/reference/upstream_tco_reference.c)
   target_compile_options(upstream_tco_reference PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    target_compile_options(upstream_tco_reference PRIVATE
+      -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer)
+    target_link_options(upstream_tco_reference PRIVATE -fsanitize=address,undefined)
+  endif()
   add_test(NAME upstream_tco_reference COMMAND upstream_tco_reference)
   set_tests_properties(upstream_tco_reference PROPERTIES TIMEOUT 10)
 

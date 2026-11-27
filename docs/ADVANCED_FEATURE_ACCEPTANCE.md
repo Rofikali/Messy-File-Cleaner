@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Upstream maintenance environment evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). FFI implementation BLOCKED 1/5 pending explicit scope approval and staged review. Independent maintenance report requires actual exact-head CI; no auto-update or import.
+
 **Private Rust FFI feasibility proposal:** [Design and approval gate](architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). Shared reference PARTIAL 5/5; no sixth PR. Private classifier FFI implementation blocked pending explicit owner scope approval and staged ADR review; no public ABI or production FFI approval.
 
 **Final private shared-library acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Final shared reference acceptance requires actual evidence and scoped DONE/PARTIAL/BLOCKED decision at five PRs; no sixth PR, production ABI or FFI approval.

@@ -124,14 +124,23 @@ if(BUILD_TESTING)
     tests/reference/shared_classifier_reference.c)
   target_include_directories(fc_classifier_shared_reference PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   set_target_properties(fc_classifier_shared_reference PROPERTIES
-    POSITION_INDEPENDENT_CODE ON C_VISIBILITY_PRESET hidden)
+    POSITION_INDEPENDENT_CODE ON C_VISIBILITY_PRESET hidden
+    VERSION 0.1.0 SOVERSION 0)
   target_compile_options(fc_classifier_shared_reference PRIVATE -Wall -Wextra -Wpedantic -Werror)
   target_link_options(fc_classifier_shared_reference PRIVATE -Wl,--no-undefined)
   add_executable(shared_classifier_consumer tests/reference/shared_classifier_consumer.c)
   target_compile_options(shared_classifier_consumer PRIVATE -Wall -Wextra -Wpedantic -Werror)
   target_link_libraries(shared_classifier_consumer PRIVATE fc_classifier_shared_reference)
+  set_target_properties(shared_classifier_consumer PROPERTIES BUILD_RPATH_USE_ORIGIN TRUE)
   add_test(NAME shared_classifier_consumer COMMAND shared_classifier_consumer)
   set_tests_properties(shared_classifier_consumer PROPERTIES TIMEOUT 10)
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_test(NAME shared_classifier_elf_boundary
+      COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/check_shared_classifier_elf.sh"
+              $<TARGET_FILE:fc_classifier_shared_reference>
+              $<TARGET_FILE:shared_classifier_consumer> "${CMAKE_C_COMPILER}")
+    set_tests_properties(shared_classifier_elf_boundary PROPERTIES TIMEOUT 15)
+  endif()
 
   # PLAN-REPORT-01: opt-in aggregate JSON with disposable preservation checks.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)

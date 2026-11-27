@@ -1,5 +1,7 @@
 # Engineering Skills and Contributor Workflow
 
+**Upstream maintenance cost evidence:** [TCO baseline](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #291 merged; 13/13 returned latest jobs PASS after retry. UPSTREAM-MAINT-01 PARTIAL 5/5; no sixth PR. #292 begins measured cost baseline and TCO contract; billing unknown, no imports, production FFI or spend.
+
 **Final upstream maintenance evidence:** [Master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md). #290 merged, 10/10 returned jobs and controls PASS. #291 repairs the Ubuntu workflow defect introduced in #278 and adds verbose capability evidence. CI pending; no sixth maintenance PR, production change, automatic update or new FFI.
 
 **Upstream capability reporter controls:** [Master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md). #289 merged; 10/10 returned jobs and capability correlation PASS. #290 adds mixed outcome and five rejection controls, required probe enforcement and bounded timeout escalation. CI pending; no production changes or new FFI.

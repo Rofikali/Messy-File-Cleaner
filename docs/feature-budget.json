@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "dca2d627d531406800bfb0826a3985436dc8515b",
+  "snapshot_main_sha": "f0f95f66bc9800ba4e9fea87ef9e512f84446681",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "UPSTREAM-MAINT-01",
+  "active_feature_id": "UPSTREAM-COST-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1101,7 +1101,7 @@
         279,
         280
       ],
-      "summary": "5/5 exhausted; #280 merged, 10/10 returned exact-head jobs, GCC C17 Release 73/73 and Debug 71/71; artifact isolation PASS. Earlier same-environment Clang archive repeatability and symbol tests PASS. Final Ubuntu-specific workflow and independent formal review not returned; PARTIAL, no sixth PR, no production library authorization.",
+      "summary": "5/5 exhausted; #280 merged, 10/10 returned exact-head jobs, GCC C17 Release 73/73 and Debug 71/71; artifact isolation PASS. Earlier same-environment Clang archive repeatability and symbol tests PASS. Final Ubuntu-specific workflow and independent formal review not returned; PARTIAL, no sixth PR, no production library authorization. Later #291 Ubuntu job 140303431369 verified Clang static/shared sanitizer consumers and Release suite with one io_uring skip; historical exact-head gaps and formal review remain; no budget reset.",
       "last_merged_pr": 280,
       "merge_sha": "7173dadf41fd624baff4eb89fc871e2f7f3521ad",
       "tested_head_sha": "7884cd87ca57b4c4fece98a4db5b0eb38f553184"
@@ -1117,7 +1117,7 @@
         284,
         285
       ],
-      "summary": "5/5 exhausted; #285 merged, 10/10 returned exact-head jobs, GCC C17 Release 77/77 and Debug 73/73, final artifact isolation PASS. Ubuntu/Clang final evidence and formal review not returned; PARTIAL, no sixth PR or production library approval.",
+      "summary": "5/5 exhausted; #285 merged, 10/10 returned exact-head jobs, GCC C17 Release 77/77 and Debug 73/73, final artifact isolation PASS. Ubuntu/Clang final evidence and formal review not returned; PARTIAL, no sixth PR or production library approval. Later #291 Ubuntu job 140303431369 verified Clang static/shared sanitizer consumers and Release suite with one io_uring skip; historical exact-head gaps and formal review remain; no budget reset.",
       "last_merged_pr": 285,
       "merge_sha": "2c5942cf5a7db41cc185197bc58c93a403892d0f",
       "tested_head_sha": "51a53665b886ff464a5fac2cf43dc85c83d89a63"
@@ -1137,7 +1137,7 @@
     {
       "id": "UPSTREAM-MAINT-01",
       "title": "Observed upstream environment evidence and maintenance impact assessment",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         287,
         288,
@@ -1145,10 +1145,19 @@
         290,
         291
       ],
-      "summary": "#290 merged; 10/10 returned jobs PASS, GCC C17 Release 81/81 and Debug 77/77, reporter controls PASS. #291 (5/5) repairs malformed Ubuntu 24.04 validation workflow introduced in #278, retains intended static sanitizer and production checks, adds verbose capability correlation and shared sanitizer reruns. Structural inspection complete; exact-head CI and formal review pending. No sixth PR; no automatic updates or production changes.",
-      "last_merged_pr": 290,
-      "merge_sha": "dca2d627d531406800bfb0826a3985436dc8515b",
-      "tested_head_sha": "9be8b323faddc24aba08c163ae2f0f82e0c431ee"
+      "summary": "5/5 exhausted; #291 merged, 13/13 returned latest jobs PASS after APT 403 retries; restored Ubuntu host GCC C11/C17/C23 81/81, hosted Clang Debug 77/77, container Clang Release 80 pass/1 io_uring skip; formal independent review and TSan workflow not returned. PARTIAL, no sixth PR or production approval.",
+      "last_merged_pr": 291,
+      "merge_sha": "f0f95f66bc9800ba4e9fea87ef9e512f84446681",
+      "tested_head_sha": "105c13e1ff521b859a47a3c361edc1506fce24b5"
+    },
+    {
+      "id": "UPSTREAM-COST-01",
+      "title": "Measured upstream maintenance cost baseline and comparable TCO",
+      "status": "ACTIVE",
+      "prs": [
+        292
+      ],
+      "summary": "#292 (1/5) observed CI log spans and suite timings, cost-input contract and alternatives; no billing or ROI claim; CI pending."
     }
   ]
 }

@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Upstream maintenance cost evidence:** [TCO baseline](upstream/UPSTREAM_TCO_EVIDENCE.md). #291 restored Ubuntu validation; 13/13 returned latest jobs passed after retry. #292 records selected log spans and CTest times, not billable minutes; no CI configuration change.
+
 **Final upstream maintenance evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #291 repairs the malformed Ubuntu 24.04 workflow tail introduced in #278, restores static sanitizer execution, retains existing checks and adds verbose capability/shared sanitizer evidence. Structural check only; exact-head CI pending.
 
 **Upstream capability reporter controls:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #290 CTest exercises mixed capability outcomes, five failure controls, required-probe enforcement and actual timeout; CI pending.

@@ -2,6 +2,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include <dlfcn.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 typedef int (*route_fn)(const char *);
@@ -24,6 +25,7 @@ static int exercise(const char *path)
     }
 
     int ok = 0;
+    char *owned = NULL;
     (void)dlerror();
     void *symbol = dlsym(handle, "fc_shared_reference_route");
     const char *error = dlerror();
@@ -37,6 +39,21 @@ static int exercise(const char *path)
         route(NULL) != -1 || route("") != -1)
         goto cleanup;
 
+    /* The caller owns the mutable filename. The adapter must not retain it. */
+    owned = malloc(sizeof("a.jpg"));
+    if (!owned)
+        goto cleanup;
+    memcpy(owned, "a.jpg", sizeof("a.jpg"));
+    if (route(owned) != 1)
+        goto cleanup;
+    memcpy(owned, "a.txt", sizeof("a.txt"));
+    if (route(owned) != 0)
+        goto cleanup;
+    free(owned);
+    owned = NULL;
+    if (route("again.jpg") != 1)
+        goto cleanup;
+
     const char *hidden[] = {
         "classifier_init", "classify", "hashmap_init",
         "hashmap_put", "hashmap_get", "fc_missing_reference_symbol"
@@ -47,6 +64,7 @@ static int exercise(const char *path)
 
     ok = 1;
 cleanup:
+    free(owned);
     /* Neither the function pointer nor a borrowed loader error survives close. */
     if (dlclose(handle) != 0)
         ok = 0;
@@ -63,6 +81,6 @@ int main(int argc, char **argv)
             return 1;
         }
     }
-    puts("shared_classifier_runtime=PASS cycles=16 routes_per_cycle=4 rejected_symbols_per_cycle=6");
+    puts("shared_classifier_runtime=PASS cycles=16 routes_per_cycle=7 rejected_symbols_per_cycle=6");
     return 0;
 }

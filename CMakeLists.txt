@@ -128,7 +128,12 @@ if(BUILD_TESTING)
     VERSION 0.1.0 SOVERSION 0)
   target_compile_options(fc_classifier_shared_reference PRIVATE -Wall -Wextra -Wpedantic -Werror)
   target_link_options(fc_classifier_shared_reference PRIVATE
-    -Wl,--no-undefined -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack)
+    -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack)
+  # Clang's Debug DSO resolves sanitizer hooks from its instrumented host.
+  # Keep the undefined-symbol link gate for all other configurations.
+  if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" AND CMAKE_C_COMPILER_ID MATCHES "Clang"))
+    target_link_options(fc_classifier_shared_reference PRIVATE -Wl,--no-undefined)
+  endif()
   add_executable(shared_classifier_consumer tests/reference/shared_classifier_consumer.c)
   target_compile_options(shared_classifier_consumer PRIVATE -Wall -Wextra -Wpedantic -Werror)
   target_link_libraries(shared_classifier_consumer PRIVATE fc_classifier_shared_reference)
@@ -142,6 +147,16 @@ if(BUILD_TESTING)
   add_test(NAME shared_classifier_runtime
     COMMAND shared_classifier_runtime $<TARGET_FILE:fc_classifier_shared_reference>)
   set_tests_properties(shared_classifier_runtime PROPERTIES TIMEOUT 10)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    foreach(target fc_classifier_shared_reference shared_classifier_consumer shared_classifier_runtime)
+      target_compile_options(${target} PRIVATE
+        -g -fsanitize=address,undefined -fno-sanitize-recover=all
+        -fno-omit-frame-pointer)
+      target_link_options(${target} PRIVATE -fsanitize=address,undefined)
+    endforeach()
+    set_tests_properties(shared_classifier_consumer shared_classifier_runtime PROPERTIES
+      ENVIRONMENT "ASAN_OPTIONS=halt_on_error=1:detect_leaks=1;UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1")
+  endif()
   if(CMAKE_BUILD_TYPE STREQUAL "Release")
     add_test(NAME shared_classifier_elf_boundary
       COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/check_shared_classifier_elf.sh"

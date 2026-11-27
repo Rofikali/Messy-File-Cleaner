@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Private shared sanitizer and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #283 merged; 10/10 returned jobs, C17 Release 76/76 and Debug 73/73, runtime and ELF hardening PASS; Ubuntu workflow and formal review unverified. #284 (4/5) sanitizer/ownership candidate pending.
+
 **Private shared runtime and hardening:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #282 merged; 10/10 returned jobs, C17 Release 75/75, Debug 72/72 and ELF controls PASS. #283 (3/5) runtime/hardening checks pending; Ubuntu workflow and formal review unverified.
 
 **Private shared ELF boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #281 merged; 10/10 returned jobs, C17 Release 74/74, Debug 72/72, eight consumer scenarios PASS. #282 (2/5) ELF metadata and two negative controls pending; Ubuntu workflow and formal review unverified.

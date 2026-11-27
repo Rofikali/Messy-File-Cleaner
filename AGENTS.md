@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+**Upstream capability reporter controls:** [Master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md). #289 merged; 10/10 returned jobs and capability correlation PASS. #290 adds mixed outcome and five rejection controls, required probe enforcement and bounded timeout escalation. CI pending; no production changes or new FFI.
+
 **Upstream capability correlation:** [Master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md). #288 merged; 10/10 returned jobs and comparison PASS. #289 adds environment identity plus actual runtime capability outcomes; CI pending. No automatic update, production change or new FFI.
 
 **Upstream environment drift comparison:** [Master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md). #287 merged; 10/10 returned jobs and environment report PASS. #288 adds strict environment drift comparison and malformed controls; CI pending. No automatic upstream update, production change or new FFI.

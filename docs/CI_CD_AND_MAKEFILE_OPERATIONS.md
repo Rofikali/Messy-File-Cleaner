@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Final private shared-library acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Final Release CTest checks no private DSO dependency in production or runtime-only consumer, three absent targets, both CLI-only stages and three negative controls; no new dependencies. CI pending.
+
 **Private shared sanitizer and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Debug instrumented DSO and both consumers with fatal ASan/UBSan/leak checks; Clang Debug alone permits host-resolved sanitizer hooks; Release linker/ELF gates unchanged. CI pending.
 
 **Private shared runtime and hardening:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Existing CTest matrix adds private runtime loader cycles; Release ELF gate inspects RELRO, eager binding and non-executable stack. CI pending.

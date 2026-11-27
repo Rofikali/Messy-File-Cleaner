@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Final upstream adoption decision:** [Evidence-first gate](upstream/UPSTREAM_ADOPTION_DECISION.md). Final cost acceptance requires evidence-first adoption gate, exact-head validation and explicit unknowns; no sixth PR or gate waiver for financial savings.
+
 **Cash versus noncash TCO:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). Require exact-head evidence for known cash, unknown noncash, equal currency/horizon, checked combined total and atomic rejection. Synthetic comparisons are not actual expenses or ROI.
 
 **Bounded upstream TCO sensitivity:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). Require exact-head evidence for equal/lower/higher horizons, crossover and atomic rejection of unknown/overflow. Synthetic comparisons are not actual savings or ROI.

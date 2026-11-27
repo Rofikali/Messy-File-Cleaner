@@ -14,7 +14,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SHARED-LIB-01 (1/5; PR #281 OPEN (draft))** | Private PIC shared reference, hidden default visibility and one test adapter, eight dynamic consumer scenarios | CI pending; no production linkage, installed SDK, real external consumer, license or ABI/FFI approval; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SHARED-LIB-01 (2/5; PR #282 OPEN (draft))** | Private SONAME and relative RUNPATH; exact ELF exports, dependency metadata and two negative controls | #281 merged at `d6e1c6a9104156d5d302300327a9bcf08663408c`; 10/10 returned jobs, C17 Release 74/74 and Debug 72/72; Ubuntu workflow and formal review unverified; #282 CI pending; no production SDK/ABI/FFI approval |
 | **PARTIAL** | **STATIC-LIB-01 (5/5; #280 merged)** | 10/10 returned jobs; GCC C17 Release 73/73, Debug 71/71; final artifact gate PASS | Ubuntu-specific CI and formal review unverified; exhausted, no sixth PR; no production library approval |
 | **DONE** | **PUBLIC-API-01 (5/5; #275 merged)** | 13/13 returned PR-head jobs; three artifact isolation checks and six negative controls PASS; #274 140 synthetic calls, 112 matched allocations/releases and hosted sanitizers PASS | Scoped design only; formal independent review not verified; no actual engine API, no sixth PR |
 | **DONE** | **UPSTREAM-COMPAT-01 (5/5; #270 merged)** | 324 header probes; host Clang Debug 70/70, container Release 69 passed/1 skipped; host 5/container 4 capability passes, container io_uring EPERM | Scoped acceptance only; no sixth PR |

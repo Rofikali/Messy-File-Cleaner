@@ -103,6 +103,13 @@ if(BUILD_TESTING)
   endif()
   add_test(NAME static_classifier_consumer COMMAND static_classifier_consumer)
   set_tests_properties(static_classifier_consumer PROPERTIES TIMEOUT 10)
+  if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    # Repeat the existing binary dependency oracle in the standard CTest matrix.
+    add_test(NAME static_classifier_dependency_boundary
+      COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/check_static_classifier_dependencies.sh"
+              $<TARGET_FILE:fc_classifier_reference>)
+    set_tests_properties(static_classifier_dependency_boundary PROPERTIES TIMEOUT 10)
+  endif()
 
   # PLAN-REPORT-01: opt-in aggregate JSON with disposable preservation checks.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)

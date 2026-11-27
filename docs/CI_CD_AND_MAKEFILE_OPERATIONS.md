@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Private shared library reference:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private PIC DSO and separate consumer use existing CTest matrix, hidden default visibility and linker resolution gate; no install/export or new dependency. CI pending.
+
 **Final private static archive acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Release CTest final artifact gate checks five symbols, fresh BUILD_TESTING=OFF build and missing private targets, CLI-only staged install and two negative controls; no added dependencies; CI pending.
 
 **Static archive matrix and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Release CTest adds the existing dependency oracle to the normal matrix; Debug instrumented consumer exercises caller-owned heap storage. CI pending.

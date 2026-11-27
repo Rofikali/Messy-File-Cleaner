@@ -137,6 +137,19 @@ jobs:
               cmake --build "$work/build" --parallel 2
               ctest --test-dir "$work/build" --no-tests=error --output-on-failure
               printf "clang_c17_release_suite=PASS\n"
+              # Compare independent Release builds of the same private archive.
+              cmake -S /source -B "$work/repeat" -G Ninja \
+                -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release \
+                -DBUILD_TESTING=ON -DFC_C_STANDARD=17
+              cmake --build "$work/repeat" --target fc_classifier_reference --parallel 2
+              archive="$work/build/libfc_classifier_reference.a"
+              repeat="$work/repeat/libfc_classifier_reference.a"
+              ar t "$archive" > "$work/members"
+              printf "%s\n" classifier.c.o hashmap.c.o > "$work/expected-members"
+              cmp "$work/members" "$work/expected-members"
+              cmp "$archive" "$repeat"
+              sha256sum "$archive" "$repeat"
+              printf "static_archive_repeatability=PASS members=2 compiler=clang standard=c17\n"
               sh /source/scripts/tests/report_platform_capabilities.sh "$work/build" container_release
             '
 

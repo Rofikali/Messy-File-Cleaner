@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Upstream environment drift comparison:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #288 CTest compares raw six-field environment reports, including actual self-comparison and synthetic drift, reorder and malformed controls; no network or update. CI pending.
+
 **Upstream maintenance environment evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). Read-only six-field environment CTest report; verbose CTest/LastTest.log exposes observed kernel and toolchain identities, not security or capability conclusions. CI pending.
 
 **Private Rust FFI feasibility proposal:** [Design and approval gate](architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). Design-only proposal; no CI build configuration, toolchain or code change. Future isolated offline pinned Rust tests and C evidence require explicit owner scope approval and staged ADR review.

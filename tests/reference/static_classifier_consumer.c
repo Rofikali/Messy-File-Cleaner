@@ -1,6 +1,7 @@
 /* Internal archive reference consumer; not an SDK or public ABI. */
 #include "classifier/classifier.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 static int equal(const char *actual, const char *expected)
@@ -35,6 +36,47 @@ int main(void)
         !equal(classify(&right, "a.jpg"), "images"))
         return 1;
 
-    puts("static_classifier_consumer=PASS checks=8");
+    /* A separate owner exercises copied input and borrowed result lifetimes. */
+    HashEntry *owned = calloc(2, sizeof(*owned));
+    if (!owned)
+        return 1;
+    HashMap small_map;
+    Classifier small;
+    char key[] = ".txt";
+    char value[] = "notes";
+    char fallback[] = "other";
+    int ok = 0;
+    hashmap_init(&small_map, owned, 2);
+    classifier_init(&small, &small_map, fallback);
+    if (hashmap_put(&small_map, key, value) != 0)
+        goto cleanup;
+    key[1] = 'x';
+    value[0] = 'X';
+    if (!equal(classify(&small, "a.txt"), "notes"))
+        goto cleanup;
+    if (classify(&small, "a.bin") != fallback)
+        goto cleanup;
+    if (hashmap_put(&small_map, ".bin", "binary") != 0)
+        goto cleanup;
+    if (hashmap_put(&small_map, ".new", "rejected") == 0)
+        goto cleanup;
+    if (small_map.size != 2 || hashmap_get(&small_map, ".new") != NULL)
+        goto cleanup;
+    if (!equal(classify(&small, "a.txt"), "notes") ||
+        !equal(classify(&small, "a.bin"), "binary"))
+        goto cleanup;
+    if (hashmap_put(&small_map, ".txt", "updated") != 0 ||
+        !equal(classify(&small, "a.txt"), "updated"))
+        goto cleanup;
+    if (!equal(classify(&left, "a.jpg"), "changed") ||
+        !equal(classify(&right, "a.jpg"), "images"))
+        goto cleanup;
+    ok = 1;
+cleanup:
+    /* All borrowers cease use before the owner releases its storage. */
+    free(owned);
+    if (!ok)
+        return 1;
+    puts("static_classifier_consumer=PASS base_checks=8 ownership_scenarios=8");
     return 0;
 }

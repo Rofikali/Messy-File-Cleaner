@@ -163,6 +163,14 @@ if(BUILD_TESTING)
               $<TARGET_FILE:fc_classifier_shared_reference>
               $<TARGET_FILE:shared_classifier_consumer> "${CMAKE_C_COMPILER}")
     set_tests_properties(shared_classifier_elf_boundary PROPERTIES TIMEOUT 15)
+    add_test(NAME shared_classifier_artifact_isolation
+      COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/check_shared_classifier_artifacts.sh"
+              "${CMAKE_COMMAND}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}"
+              $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_FILE:fc_classifier_shared_reference>
+              $<TARGET_FILE:shared_classifier_runtime> "${CMAKE_GENERATOR}"
+              "${CMAKE_C_COMPILER}" "${FC_C_STANDARD}")
+    set_tests_properties(shared_classifier_artifact_isolation PROPERTIES
+      TIMEOUT 60 RUN_SERIAL TRUE)
   endif()
 
   # PLAN-REPORT-01: opt-in aggregate JSON with disposable preservation checks.

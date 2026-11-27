@@ -53,6 +53,8 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+      - name: Record environment and capability evidence
+        run: ctest --test-dir build -R '^upstream_capability_correlation$' --no-tests=error --verbose
 
   container-build:
     name: Build Ubuntu development and production images
@@ -137,6 +139,7 @@ jobs:
               cmake --build "$work/build" --parallel 2
               ctest --test-dir "$work/build" --no-tests=error --output-on-failure
               printf "clang_c17_release_suite=PASS\n"
+              ctest --test-dir "$work/build" -R "^upstream_capability_correlation$" --no-tests=error --verbose
               # Compare independent Release builds of the same private archive.
               cmake -S /source -B "$work/repeat" -G Ninja \
                 -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release \
@@ -272,19 +275,10 @@ jobs:
           ctest --test-dir "$work/build" --no-tests=error --output-on-failure
           printf 'clang_c17_debug_suite=PASS environment=hosted_runner\n'
           ASAN_OPTIONS=halt_on_error=1:detect_leaks=1 UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1 \
-            ctest --test-dir "$work/build" -R '^static_classifier_consumer          sh "$work/source/scripts/tests/report_platform_capabilities.sh" "$work/build" hosted_debug
-
-      - name: Build production image
-        run: docker build --pull -t messy-file-cleaner:ci .
-
-      - name: Verify production image is non-root
-        run: |
-          docker run --rm --entrypoint /bin/sh messy-file-cleaner:ci -ec '
-            test "$(id -u)" = "10001"
-            test -x /usr/local/bin/file-cleaner
-          '
- --no-tests=error --verbose
+            ctest --test-dir "$work/build" -R '^static_classifier_consumer$' --no-tests=error --verbose
           printf 'static_classifier_sanitizer_consumer=PASS\n'
+          ctest --test-dir "$work/build" -R '^shared_classifier_(consumer|runtime)$' --no-tests=error --verbose
+          ctest --test-dir "$work/build" -R '^upstream_capability_correlation$' --no-tests=error --verbose
           sh "$work/source/scripts/tests/report_platform_capabilities.sh" "$work/build" hosted_debug
 
       - name: Build production image

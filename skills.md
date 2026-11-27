@@ -1,5 +1,7 @@
 # Engineering Skills and Contributor Workflow
 
+**Upstream environment drift comparison:** [Master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md). #287 merged; 10/10 returned jobs and environment report PASS. #288 adds strict environment drift comparison and malformed controls; CI pending. No automatic upstream update, production change or new FFI.
+
 **Upstream maintenance environment evidence:** [Master plan](docs/upstream/UPSTREAM_MASTER_PLAN.md). #286 design merged, 9/9 returned jobs; FFI implementation remains BLOCKED at 1/5 until explicit owner scope approval and staged review. #287 begins independent upstream maintenance reference work, read-only environment report; CI pending. No production dependency or import.
 
 **Private Rust FFI feasibility proposal:** [Design and approval gate](docs/architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). #285 merged, 10/10 returned jobs and artifact isolation PASS; Ubuntu/Clang final evidence and independent review unverified. SHARED-LIB-01 PARTIAL 5/5. #286 proposes a private classifier FFI consumer; implementation requires explicit scope approval and staged ADR review. Existing FCJ4 crate unchanged; no new FFI or production SDK.

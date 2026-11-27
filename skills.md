@@ -1,5 +1,7 @@
 # Engineering Skills and Contributor Workflow
 
+**Static archive dependency and sanitizer boundary:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #277 merged, 13/13 returned jobs and five archive definitions plus two negative controls PASS. #278 tests per-member dependency direction and Debug sanitizer-instrumented consumer; CI pending. No production ABI/FFI or library approval.
+
 **Static archive symbol boundary:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #276 merged, 14/14 returned jobs and same-environment archive repeatability PASS. #277 enforces five global definitions with extra/missing controls; CI pending, no production ABI/FFI or library approval.
 
 **Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Required skills: ar/nm/linker artifact inspection, reproducibility, dependency direction, API/ABI ownership, visibility, sanitizer/fault testing and measured optimization; no unsupported kernel-grade claim.

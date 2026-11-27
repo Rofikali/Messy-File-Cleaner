@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Private shared ELF boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #281 merged; 10/10 returned jobs, C17 Release 74/74, Debug 72/72, eight consumer scenarios PASS. #282 (2/5) ELF metadata and two negative controls pending; Ubuntu workflow and formal review unverified.
+
 **Private shared library reference:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #280 merged; 10/10 returned jobs, C17 Release 73/73, Debug 71/71 and final artifact gate PASS; STATIC-LIB-01 PARTIAL 5/5. #281 starts SHARED-LIB-01 (1/5), CI pending.
 
 **Final private static archive acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #279 merged; 10/10 returned jobs, C17 Release 72/72 and Debug 71/71, extended consumer and dependency test PASS. Ubuntu workflow and independent review unverified; #280 (5/5) final artifact gate pending.

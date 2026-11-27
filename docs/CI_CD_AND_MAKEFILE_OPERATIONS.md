@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Cash versus noncash TCO:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #295 extends the existing private CTest with ten synthetic cash/noncash separation checks; no workflow or toolchain changes. Exact-head CI pending.
+
 **Bounded upstream TCO sensitivity:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #294 extends the existing private CTest with 12 synthetic bounded-horizon checks; no workflow or toolchain changes. Exact-head CI pending.
 
 **Checked upstream TCO reference:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #293 registers a private CTest integer TCO reference with 17 synthetic checks; exact-head CI pending. No billing ingestion or new dependencies.

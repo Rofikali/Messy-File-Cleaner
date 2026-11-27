@@ -91,6 +91,26 @@ static enum result sweep(const struct option *a, const struct option *b,
     return TCO_OK;
 }
 
+/* Each cost is assigned once by the caller: cash or noncash owner time.
+ * Unknown owner time never makes a known cash estimate unknown. */
+struct cost_split { struct option cash, noncash; };
+struct economic_total { uint64_t cash, noncash, combined; };
+static enum result economic_total(const struct cost_split *s,
+                                  struct economic_total *out)
+{
+    if (!s || !out || memcmp(s->cash.currency, s->noncash.currency, 4) ||
+        s->cash.months != s->noncash.months) return TCO_INVALID;
+    struct economic_total t;
+    enum result rc = total(&s->cash, &t.cash);
+    if (rc != TCO_OK) return rc;
+    rc = total(&s->noncash, &t.noncash);
+    if (rc != TCO_OK) return rc;
+    if (t.noncash > UINT64_MAX - t.cash) return TCO_OVERFLOW;
+    t.combined = t.cash + t.noncash;
+    *out = t;
+    return TCO_OK;
+}
+
 static struct option fixture(void)
 {
     struct option o = { .currency = "INR", .months = 12,
@@ -171,5 +191,30 @@ int main(void)
     CHECK(sweep(&a,&b,121,&s)==TCO_INVALID);
     CHECK(sweep(&a,&b,120,NULL)==TCO_INVALID);
     printf("upstream_tco_sensitivity=PASS scenarios=12 max_months=120 synthetic_only=1\n");
+
+    struct cost_split split = {fixture(), fixture()};
+    struct economic_total e = {0};
+    CHECK(economic_total(&split,&e)==TCO_OK && e.cash==3700 &&
+          e.noncash==3700 && e.combined==7400);
+    for (unsigned i=0; i<ONE_TIME; ++i) split.cash.once[i].value=0;
+    for (unsigned i=0; i<MONTHLY; ++i) split.cash.month[i].value=0;
+    CHECK(economic_total(&split,&e)==TCO_OK && e.cash==0 &&
+          e.noncash==3700 && e.combined==3700);
+    split.noncash.month[0]=(struct amount){0,0};
+    uint64_t cash_only=UINT64_MAX;
+    CHECK(total(&split.cash,&cash_only)==TCO_OK && cash_only==0);
+    CHECK(economic_total(&split,&e)==TCO_UNKNOWN && e.cash==0 &&
+          e.noncash==3700 && e.combined==3700);
+    split.noncash=fixture(); split.noncash.months=13;
+    CHECK(economic_total(&split,&e)==TCO_INVALID);
+    split.noncash=fixture(); memcpy(split.noncash.currency,"USD",4);
+    CHECK(economic_total(&split,&e)==TCO_INVALID);
+    split.noncash=fixture(); split.cash.once[0].value=UINT64_MAX;
+    CHECK(economic_total(&split,&e)==TCO_OVERFLOW && e.combined==3700);
+    split.cash.once[0]=(struct amount){0,0};
+    CHECK(economic_total(&split,&e)==TCO_UNKNOWN);
+    CHECK(economic_total(NULL,&e)==TCO_INVALID);
+    CHECK(economic_total(&split,NULL)==TCO_INVALID);
+    printf("upstream_tco_cash_economic=PASS scenarios=10 synthetic_only=1\n");
     return 0;
 }

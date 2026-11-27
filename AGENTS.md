@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+**Cash versus noncash TCO:** [Evidence and decision contract](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #294 merged; 13/13 returned jobs PASS including Ubuntu. #295 separates cash expenditure and noncash economic estimates with checked arithmetic, CI pending. No actual billing, production change, imports or spend.
+
 **Bounded upstream TCO sensitivity:** [Evidence and decision contract](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #293 merged; 14/14 returned jobs PASS including Ubuntu and TSan. #294 adds bounded 1–120 month cost sensitivity with atomic error handling, CI pending. No actual billing, production change, import or spend.
 
 **Checked upstream TCO reference:** [Evidence and decision contract](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #292 merged; 13/13 returned jobs PASS. #293 adds a test-only integer TCO reference with explicit unknown and overflow handling; CI pending. No production changes, spend, actual billing or ROI claim.

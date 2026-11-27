@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Private shared runtime and hardening:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Runtime consumer and observed ELF hardening require exact-head evidence; not hostile-plugin isolation, public ABI or production approval.
+
 **Private shared ELF boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). ELF boundary acceptance requires exact-head evidence; private SONAME is not a stable ABI promise or production approval.
 
 **Private shared library reference:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). STATIC-LIB-01 PARTIAL 5/5 due to unverified final Ubuntu and independent review evidence; SHARED-LIB-01 independent test-only feasibility does not clear production gates.

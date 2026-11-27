@@ -80,3 +80,8 @@ Suggested KPIs after instrumenting honest data:
 For every next task: *What loss or user friction does it prevent? What measurable outcome will establish success? What maintenance cost does it create? Does it change data-liability, licensing, privacy or user expectations?* Record answers without inventing numeric ROI.
 
 Pricing, SaaS accounts, telemetry, analytics, updater/installer, signed release and public APIs require separate accepted decisions and specific security/privacy review. Use [next.md](../next.md) for execution order.
+
+
+## Maintenance reconciliation and measured TCO baseline
+
+#291 merged at `f0f95f66bc9800ba4e9fea87ef9e512f84446681`, tested head `105c13e1ff521b859a47a3c361edc1506fce24b5`. 13/13 returned latest jobs PASS after APT HTTP 403 retries (Makefile 140303420197; Ubuntu C23 140303430639). Ubuntu GCC C11/C17/C23 Release 81/81; hosted Clang Debug 77/77 and static/shared sanitizer consumers PASS (job 140303431369), isolated Clang Release 80 pass/1 io_uring skip, correlation 4 pass/1 unverified versus hosted 5/5. Historical static/shared acceptance stays PARTIAL; later evidence does not rewrite historical exact-head checks. Formal independent review and TSan workflow not returned. UPSTREAM-MAINT-01 PARTIAL 5/5, no sixth PR. #292 begins distinct [measured cost baseline](upstream/UPSTREAM_TCO_EVIDENCE.md) with actual selected CI log spans, comparable-horizon TCO and explicit unknown billing/owner time; no ROI claim or automatic spending. Design only, CI pending; license/import, FFI, FS-01B/REL-01 and production ABI gates unchanged.

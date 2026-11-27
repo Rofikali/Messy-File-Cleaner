@@ -38,3 +38,8 @@ CI acceptance after approval: pinned compiler identity, cargo fmt --check, clipp
 Owner decision needed: authorize **only** a private classifier test shim and isolated Rust consumer with the pointer/length contract above, minimal unsafe module, existing pinned toolchain, no third-party crates, no production linkage/install/public ABI and no paid services. Review the staged ADR and exact scope before any implementation. A general go-ahead or roadmap listing is not blanket FFI approval. No new Rust code, C shim, build target or FFI connection is introduced by this proposal. If owner declines or evidence is inadequate, close PARTIAL/BLOCKED and select independent safe work; do not exhaust slots by default. Production FFI/SDK, license, external import, FS-01B and REL-01 stay blocked.
 
 Rollback: revert this design PR (preserve actual PR history and consumed budget when reconciling ledger); no runtime effect. Subsequent implementation rollback must remove only isolated test artifacts and keep C production unchanged.
+
+
+## Reconciliation after proposal merge
+
+#286 merged at `15e720b63f897709b31623c9cbea2cc081602c52` (tested head `1eee3583dd10fb42b7d021dc27825324a044238a`), 9/9 returned exact-head jobs PASS; formal review not returned. Proposal merge is not implementation scope approval. RUST-FFI-EVAL-01 is BLOCKED at 1/5 pending explicit owner scope approval and staged ADR review. No new Rust FFI, crate, C shim or unsafe code. Preserve the stable ID and consumed slot if later resumed. Independent upstream maintenance can proceed without weakening this gate.

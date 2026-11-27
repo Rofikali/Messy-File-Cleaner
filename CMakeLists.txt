@@ -118,6 +118,21 @@ if(BUILD_TESTING)
       TIMEOUT 60 RUN_SERIAL TRUE)
   endif()
 
+  # SHARED-LIB-01: private PIC shared reference; never install or export.
+  add_library(fc_classifier_shared_reference SHARED
+    src/classifier/classifier.c src/utils/hashmap.c
+    tests/reference/shared_classifier_reference.c)
+  target_include_directories(fc_classifier_shared_reference PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  set_target_properties(fc_classifier_shared_reference PROPERTIES
+    POSITION_INDEPENDENT_CODE ON C_VISIBILITY_PRESET hidden)
+  target_compile_options(fc_classifier_shared_reference PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_link_options(fc_classifier_shared_reference PRIVATE -Wl,--no-undefined)
+  add_executable(shared_classifier_consumer tests/reference/shared_classifier_consumer.c)
+  target_compile_options(shared_classifier_consumer PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_link_libraries(shared_classifier_consumer PRIVATE fc_classifier_shared_reference)
+  add_test(NAME shared_classifier_consumer COMMAND shared_classifier_consumer)
+  set_tests_properties(shared_classifier_consumer PROPERTIES TIMEOUT 10)
+
   # PLAN-REPORT-01: opt-in aggregate JSON with disposable preservation checks.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   add_test(NAME plan_report_json

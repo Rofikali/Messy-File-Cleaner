@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "f7ae637aea60eb831dede7fd89b0a809bc551d1e",
+  "snapshot_main_sha": "f77a47765a2907757aab74d209a5cb0a374e860f",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "UPSTREAM-COST-01",
   "features": [
@@ -1157,12 +1157,13 @@
       "prs": [
         292,
         293,
-        294
+        294,
+        295
       ],
-      "summary": "#293 merged; 14/14 returned exact-head jobs PASS including Ubuntu and TSan, GCC C17 Release 82/82 and Debug 78/78, 17 synthetic TCO checks. Formal independent review unverified. #294 (3/5) bounded horizon sensitivity with 12 additional synthetic checks and atomic failure. CI pending; no actual billing, ROI, spend, import or production change.",
-      "last_merged_pr": 293,
-      "merge_sha": "f7ae637aea60eb831dede7fd89b0a809bc551d1e",
-      "tested_head_sha": "c22f4457091c655006d277814cf6b1490bb35220"
+      "summary": "#294 merged; 13/13 returned exact-head jobs PASS including Ubuntu, GCC C17 Release 82/82 and Debug 78/78, 29 synthetic TCO checks. Formal review and TSan workflow not returned. #295 (4/5) separates cash and noncash costs, checked combined total, ten additional synthetic checks. CI pending; no actual billing, ROI, spend, imports or production change.",
+      "last_merged_pr": 294,
+      "merge_sha": "f77a47765a2907757aab74d209a5cb0a374e860f",
+      "tested_head_sha": "71000f1d27d8b7f62354ed62b5d112534ce3b260"
     }
   ]
 }

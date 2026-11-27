@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+**Final private static archive acceptance:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #279 merged, 10/10 returned jobs, C17 Release 72/72 and Debug 71/71; Ubuntu workflow unverified. #280 is the final private archive artifact acceptance candidate; no sixth PR or production library/ABI/FFI approval. CI pending.
+
 **Static archive matrix and ownership:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #278 merged; 10/10 returned jobs and targeted exact-blob local dependency/sanitizer checks PASS; Ubuntu-specific CI unverified. #279 extends Release CTest coverage and caller-owned storage checks; CI pending, no production SDK or ABI/FFI approval.
 
 **Static archive dependency and sanitizer boundary:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #277 merged, 13/13 returned jobs and five archive definitions plus two negative controls PASS. #278 tests per-member dependency direction and Debug sanitizer-instrumented consumer; CI pending. No production ABI/FFI or library approval.

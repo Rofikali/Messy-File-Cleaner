@@ -14,7 +14,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-MAINT-01 (4/5; PR #290 OPEN (draft))** | Capability reporter mixed outcome and five rejection controls; required-probe enforcement and timeout escalation | #289 merged at `c8967aafc7025cba75e34d9607a9c68a9757e2c4`; 10/10 returned jobs, C17 Release 80/80 and Debug 76/76; dedicated Ubuntu 24.04 and formal review unverified; #290 CI pending; no automatic update, import or security verdict |
+| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-MAINT-01 (5/5; PR #291 OPEN (draft))** | Restore malformed Ubuntu 24.04 workflow, retain static sanitizer checks and expose capability evidence | #290 merged at `dca2d627d531406800bfb0826a3985436dc8515b`; 10/10 returned jobs, C17 Release 81/81 and Debug 77/77; #291 exact-head CI pending; no sixth PR, automatic update, import or security verdict |
 | **BLOCKED** | **RUST-FFI-EVAL-01 (1/5; #286 merged)** | [Design-only proposal](docs/architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md); 9/9 returned jobs PASS | Explicit owner scope approval and staged ADR review required before new FFI; preserve budget and FCJ4 crate; formal review unverified |
 | **PARTIAL** | **SHARED-LIB-01 (5/5; #285 merged)** | 10/10 returned jobs; GCC C17 Release 77/77, Debug 73/73; final artifact isolation PASS | Ubuntu/Clang and formal review unverified; exhausted, no sixth PR; no production library approval |
 | **PARTIAL** | **STATIC-LIB-01 (5/5; #280 merged)** | 10/10 returned jobs; GCC C17 Release 73/73, Debug 71/71; final artifact gate PASS | Ubuntu-specific CI and formal review unverified; exhausted, no sixth PR; no production library approval |

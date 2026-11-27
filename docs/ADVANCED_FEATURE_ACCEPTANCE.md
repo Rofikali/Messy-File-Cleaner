@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Static archive matrix and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private ownership and Release dependency acceptance require exact-head CI; no real engine API or concurrency proof.
+
 **Static archive dependency and sanitizer boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Accept dependency direction and instrumented consumer only on exact-head evidence; not a public ABI, source-level dependency proof or production security certification.
 
 **Static archive symbol boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Archive definition boundary is exactly five global text definitions; extra and missing definitions must be rejected. Not public ABI or undefined-dependency acceptance.

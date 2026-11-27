@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Final upstream maintenance evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #291 repairs the malformed Ubuntu 24.04 workflow tail introduced in #278, restores static sanitizer execution, retains existing checks and adds verbose capability/shared sanitizer evidence. Structural check only; exact-head CI pending.
+
 **Upstream capability reporter controls:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #290 CTest exercises mixed capability outcomes, five failure controls, required-probe enforcement and actual timeout; CI pending.
 
 **Upstream capability correlation:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #289 adds a Linux CTest correlation report for six environment fields and five existing disposable probes, bounded timeouts, explicit skipped/not-built states and failure propagation. CI pending.

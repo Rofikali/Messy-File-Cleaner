@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Final upstream maintenance evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). Final maintenance acceptance requires actual Ubuntu/Clang job evidence, no sixth PR; completed correlation reports do not certify production safety.
+
 **Upstream capability reporter controls:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). Require exact-head evidence for reporter controls; skipped and not-built never establish capability success or production safety.
 
 **Upstream capability correlation:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). A completed correlation report does not certify every probe or production safety; skipped and not-built outcomes are unverified. Exact-head execution required.

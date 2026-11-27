@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Bounded upstream TCO sensitivity:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #294 extends the existing private CTest with 12 synthetic bounded-horizon checks; no workflow or toolchain changes. Exact-head CI pending.
+
 **Checked upstream TCO reference:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #293 registers a private CTest integer TCO reference with 17 synthetic checks; exact-head CI pending. No billing ingestion or new dependencies.
 
 **Upstream maintenance cost evidence:** [TCO baseline](upstream/UPSTREAM_TCO_EVIDENCE.md). #291 restored Ubuntu validation; 13/13 returned latest jobs passed after retry. #292 records selected log spans and CTest times, not billable minutes; no CI configuration change.

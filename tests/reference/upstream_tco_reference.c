@@ -63,6 +63,34 @@ static enum result compare(const struct option *a, const struct option *b,
     return TCO_OK;
 }
 
+/* Evaluate every integer horizon in the bounded planning range. No
+ * extrapolation beyond the range, discounting, or financial recommendation. */
+struct sensitivity {
+    unsigned lower, equal, higher, first_lower;
+};
+static enum result sweep(const struct option *a, const struct option *b,
+                         unsigned limit, struct sensitivity *out)
+{
+    if (!a || !b || !out || limit == 0 || limit > MAX_MONTHS ||
+        a->months != b->months || a->months == 0 || a->months > MAX_MONTHS)
+        return TCO_INVALID;
+    struct option x = *a, y = *b;
+    struct sensitivity result = {0};
+    for (unsigned h = 1; h <= limit; ++h) {
+        struct comparison c;
+        x.months = y.months = h;
+        enum result rc = compare(&x, &y, &c);
+        if (rc != TCO_OK) return rc;
+        if (c.difference == 0) ++result.equal;
+        else if (c.candidate_lower) {
+            ++result.lower;
+            if (result.first_lower == 0) result.first_lower = h;
+        } else ++result.higher;
+    }
+    *out = result;
+    return TCO_OK;
+}
+
 static struct option fixture(void)
 {
     struct option o = { .currency = "INR", .months = 12,
@@ -110,5 +138,38 @@ int main(void)
     CHECK(compare(NULL,&b,&c)==TCO_INVALID);
     CHECK(compare(&a,&b,NULL)==TCO_INVALID);
     printf("upstream_tco_reference=PASS scenarios=17 synthetic_only=1\n");
+
+    a=fixture(); b=a;
+    struct sensitivity s = {0};
+    CHECK(sweep(&a,&b,120,&s)==TCO_OK && s.equal==120 &&
+          s.lower==0 && s.higher==0 && s.first_lower==0);
+    /* Initial premium 600, monthly savings 50: equal at month 12. */
+    b.once[0].value+=600; b.month[0].value-=50;
+    CHECK(sweep(&a,&b,120,&s)==TCO_OK && s.higher==11 &&
+          s.equal==1 && s.lower==108 && s.first_lower==13);
+    CHECK(sweep(&b,&a,120,&s)==TCO_OK && s.lower==11 &&
+          s.equal==1 && s.higher==108 && s.first_lower==1);
+    CHECK(sweep(&a,&b,11,&s)==TCO_OK && s.higher==11 &&
+          s.lower==0 && s.equal==0 && s.first_lower==0);
+    b.once[0].value+=1;
+    CHECK(sweep(&a,&b,120,&s)==TCO_OK && s.higher==12 &&
+          s.equal==0 && s.lower==108 && s.first_lower==13);
+    b=a; b.month[0].value=0;
+    CHECK(sweep(&a,&b,120,&s)==TCO_OK && s.lower==120 &&
+          s.equal==0 && s.higher==0 && s.first_lower==1);
+    /* A later arithmetic failure must not publish a partial sweep. */
+    b=a; b.once[0].value=0;
+    b.month[0].value=UINT64_MAX/2;
+    CHECK(sweep(&a,&b,3,&s)==TCO_OVERFLOW && s.lower==120 &&
+          s.equal==0 && s.higher==0 && s.first_lower==1);
+    b=a; b.month[0]=(struct amount){0,0};
+    CHECK(sweep(&a,&b,120,&s)==TCO_UNKNOWN && s.lower==120);
+    b=a; b.months=13;
+    CHECK(sweep(&a,&b,120,&s)==TCO_INVALID);
+    b=a;
+    CHECK(sweep(&a,&b,0,&s)==TCO_INVALID);
+    CHECK(sweep(&a,&b,121,&s)==TCO_INVALID);
+    CHECK(sweep(&a,&b,120,NULL)==TCO_INVALID);
+    printf("upstream_tco_sensitivity=PASS scenarios=12 max_months=120 synthetic_only=1\n");
     return 0;
 }

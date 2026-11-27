@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+**Bounded upstream TCO sensitivity:** [Evidence and decision contract](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #293 merged; 14/14 returned jobs PASS including Ubuntu and TSan. #294 adds bounded 1–120 month cost sensitivity with atomic error handling, CI pending. No actual billing, production change, import or spend.
+
 **Checked upstream TCO reference:** [Evidence and decision contract](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #292 merged; 13/13 returned jobs PASS. #293 adds a test-only integer TCO reference with explicit unknown and overflow handling; CI pending. No production changes, spend, actual billing or ROI claim.
 
 **Upstream maintenance cost evidence:** [TCO baseline](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #291 merged; 13/13 returned latest jobs PASS after retry. UPSTREAM-MAINT-01 PARTIAL 5/5; no sixth PR. #292 begins measured cost baseline and TCO contract; billing unknown, no imports, production FFI or spend.

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Upstream environment drift comparison:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #287 merged; 10/10 returned jobs, C17 Release 78/78 and Debug 74/74, environment report PASS; dedicated Ubuntu 24.04 and formal review unverified. #288 (2/5) comparator pending.
+
 **Upstream maintenance environment evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #286 design merged; 9/9 returned jobs PASS; FFI implementation BLOCKED 1/5. #287 (1/5) upstream maintenance environment evidence pending.
 
 **Private Rust FFI feasibility proposal:** [Design and approval gate](architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). #285 merged; 10/10 returned jobs, C17 Release 77/77 and Debug 73/73, artifact isolation PASS. Ubuntu/Clang and formal review unverified; SHARED-LIB-01 PARTIAL 5/5. #286 (1/5) FFI design only.

@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Upstream maintenance environment evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). Read-only six-field environment CTest report; verbose CTest/LastTest.log exposes observed kernel and toolchain identities, not security or capability conclusions. CI pending.
+
 **Private Rust FFI feasibility proposal:** [Design and approval gate](architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). Design-only proposal; no CI build configuration, toolchain or code change. Future isolated offline pinned Rust tests and C evidence require explicit owner scope approval and staged ADR review.
 
 **Final private shared-library acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Final Release CTest checks no private DSO dependency in production or runtime-only consumer, three absent targets, both CLI-only stages and three negative controls; no new dependencies. CI pending.

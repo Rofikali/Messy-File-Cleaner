@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Private shared runtime and hardening:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Existing CTest matrix adds private runtime loader cycles; Release ELF gate inspects RELRO, eager binding and non-executable stack. CI pending.
+
 **Private shared ELF boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Release CTest inspects dynamic exports, private SONAME, relative consumer RUNPATH, NEEDED and text relocations, with two disposable negative controls; existing binutils only. CI pending.
 
 **Private shared library reference:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private PIC DSO and separate consumer use existing CTest matrix, hidden default visibility and linker resolution gate; no install/export or new dependency. CI pending.

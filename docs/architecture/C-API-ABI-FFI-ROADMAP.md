@@ -1,5 +1,7 @@
 # C API, ABI, and Rust FFI Roadmap
 
+**Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). This owner-approved architecture governs static/shared/FFI acceptance; logical module boundaries do not require separate physical archives. Initial #276 Clang Release failure (job 140235055451) corrected by EOF newline-only changes; independent same-environment C17 Release builds will compare archive bytes and member order, CI pending.
+
 **Upstream strategy:** [Master plan](../upstream/UPSTREAM_MASTER_PLAN.md) proposes static/shared libraries behind stable versioned C contracts. No exposed kernel internals, new ABI commitment or production Rust/FFI authorization; reconcile existing ABI roadmap first and review static/shared license obligations.
 
 **Planning cross-reference (2026-11-22):** the [advanced feature roadmap](../ADVANCED_FEATURE_ROADMAP.md) puts a public C `.a` / `.so`, ABI stabilization and Rust FFI in a **future gated stage**; the [acceptance matrix](../ADVANCED_FEATURE_ACCEPTANCE.md) requires a real consumer, licensing, ABI/ownership tests, security review and explicit owner approval. This document is **DESIGN ONLY**, not permission for production FFI or SDK release. See the [live board](../../next.md) and [test-only Rust boundary](RUST_TEST_SUPPORT_BOUNDARY.md).

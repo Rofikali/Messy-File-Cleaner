@@ -1,5 +1,7 @@
 # Release, Packaging, Distribution and Adoption Roadmap
 
+**Release baseline CI incident (CI-RECONCILIATION-01, 1/5 candidate):** #297 merged at `d2c0727d8305fd7f73f61e108f7faf918a3a3511`; its PR-head Ubuntu, Docker and CMake passed, Makefile was still running at inspection, independent review unverified. The prior integrated Ubuntu C23 APT 403 was from the unrelated Microsoft repository. Scope both hosted Ubuntu update and install to the runner's `/etc/apt/sources.list.d/ubuntu.sources`, require nonempty source configuration and strict update errors, keep signature verification and all existing matrix/tests. No fallback to third-party sources; exact-head CI must verify runner layout and actual install. Native scanner run 45943422309 returned push event/failure and zero jobs; declared workflow is manual-only. Classify as workflow-level failure of unknown cause, not benchmark execution; do not dispatch automatically. FS-01B/REL-01 remain blocked; no publication/spend.
+
 **Owner direction, 27 November 2026.** Future work requested after the A–Z audit. Planning authorization only: no license selection, publication, tag, package push, new FFI, external source import, paid service, or destructive file operation is authorized. [Live selector](../next.md) and [feature ledger](feature-budget.json) remain authoritative; this document is not a second execution queue.
 
 ## Verified starting evidence

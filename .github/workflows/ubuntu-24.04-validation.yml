@@ -37,8 +37,18 @@ jobs:
 
       - name: Install build dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends cmake ninja-build build-essential python3
+          set -euo pipefail
+          # Hosted Ubuntu 24.04: use its signed distro source configuration only.
+          # Do not refresh unrelated third-party repositories or weaken signature checks.
+          source_file=/etc/apt/sources.list.d/ubuntu.sources
+          test -s "$source_file"
+          apt_options=(-o "Dir::Etc::sourcelist=$source_file" -o Dir::Etc::sourceparts=-)
+          sudo apt-get "${apt_options[@]}" -o APT::Update::Error-Mode=any update
+          sudo apt-get "${apt_options[@]}" install -y --no-install-recommends cmake ninja-build build-essential python3
+          gcc --version
+          cmake --version
+          ninja --version
+          python3 --version
 
       - name: Configure
         run: >-

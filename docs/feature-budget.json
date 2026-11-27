@@ -1170,8 +1170,10 @@
       "id": "CI-RECONCILIATION-01",
       "title": "Release baseline CI incident and evidence reconciliation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Restore exact-main/PR Ubuntu C23 dependency-install evidence and classify native scanner workflow failure; new release-baseline incident, not a sixth upstream-cost/maintenance PR. Read-only diagnostics and bounded CI fixes; no release."
+      "prs": [
+        298
+      ],
+      "summary": "PR #298 candidate: isolate hosted Ubuntu APT to signed distro source configuration; strict refresh, same source scope for install; native scanner push failure has zero jobs, cause unknown; no automatic dispatch. Exact-head CI pending."
     },
     {
       "id": "FS-01B-FIX",

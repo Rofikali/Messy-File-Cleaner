@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Checked upstream TCO reference:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #292 merged; 13/13 returned jobs PASS. #293 (2/5) private integer TCO comparison and synthetic checks, CI pending; formal review and TSan workflow unverified.
+
 **Upstream maintenance cost evidence:** [TCO baseline](upstream/UPSTREAM_TCO_EVIDENCE.md). #291 merged; 13/13 returned latest jobs PASS; Ubuntu GCC C11/C17/C23 81/81, Clang Debug 77/77; container 80 pass/1 skip. #292 (1/5) cost evidence design, CI pending.
 
 **Final upstream maintenance evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #290 merged; 10/10 returned jobs, C17 Release 81/81 and Debug 77/77, controls PASS. #291 (5/5) repairs malformed Ubuntu workflow and exposes evidence, exact-head CI pending.

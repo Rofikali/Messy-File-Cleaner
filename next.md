@@ -14,7 +14,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-COST-01 (1/5; PR #292 OPEN (draft))** | [Measured CI and TCO baseline](docs/upstream/UPSTREAM_TCO_EVIDENCE.md); compare alternatives with actual inputs | CI pending; no billing/ROI claims, imports or spend |
+| **NOW — SAFE FEATURE SELECTION** | **UPSTREAM-COST-01 (2/5; PR #293 OPEN (draft))** | [Checked integer TCO reference](docs/upstream/UPSTREAM_TCO_EVIDENCE.md): equal horizon/currency, unknown and overflow handling, 17 synthetic checks | #292 merged at `cbf8b068564cb493213cfa55fef8ac9a262b07c5`; 13/13 returned CI jobs PASS; #293 CI pending; no billing/ROI claims, imports or spend |
 | **PARTIAL** | **UPSTREAM-MAINT-01 (5/5; #291 merged)** | 13/13 returned latest jobs PASS after APT retry; Ubuntu workflow restored, hosted Clang Debug 77/77, container Clang Release 80 pass/1 skip | Formal review and TSan workflow unverified; no sixth PR |
 | **BLOCKED** | **RUST-FFI-EVAL-01 (1/5; #286 merged)** | [Design-only proposal](docs/architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md); 9/9 returned jobs PASS | Explicit owner scope approval and staged ADR review required before new FFI; preserve budget and FCJ4 crate; formal review unverified |
 | **PARTIAL** | **SHARED-LIB-01 (5/5; #285 merged)** | 10/10 returned jobs; GCC C17 Release 77/77, Debug 73/73; final artifact isolation PASS | Ubuntu/Clang and formal review unverified; exhausted, no sixth PR; no production library approval |

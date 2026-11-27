@@ -1,5 +1,7 @@
 # Engineering Skills Catalogue
 
+**Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Required skills: ar/nm/linker artifact inspection, reproducibility, dependency direction, API/ABI ownership, visibility, sanitizer/fault testing and measured optimization; no unsupported kernel-grade claim.
+
 **Private static archive reference:** [API roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md). PUBLIC-API-01 scoped DONE 5/5; #275 13/13 returned exact-head jobs and three artifact isolation checks plus six negative controls PASS. #276 starts STATIC-LIB-01 with a BUILD_TESTING-only classifier/hashmap archive and separate internal consumer, not a production SDK; CI pending. No sixth API PR or production ABI/FFI approval.
 
 **Public API final isolation candidate:** [API roadmap](docs/architecture/C-API-ABI-FFI-ROADMAP.md). #274 merged, 13/13 returned jobs, 140 synthetic calls, 112 matched allocations/releases and hosted ASan/UBSan leak checks PASS. #275 final scoped candidate checks production symbol/install isolation; CI pending, no sixth PR or production ABI/FFI approval.

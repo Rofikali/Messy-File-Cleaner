@@ -874,6 +874,11 @@ if(BUILD_TESTING)
               "${maintenance_io}" "${maintenance_path}" $<TARGET_FILE:test_fcj3_writer>
               $<TARGET_FILE:test_otmpfile_capability>)
     set_tests_properties(upstream_capability_correlation PROPERTIES TIMEOUT 75 RUN_SERIAL TRUE)
+    add_test(NAME upstream_capability_controls
+      COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/test_upstream_capability_controls.sh"
+              "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_COMMAND}" "${CMAKE_C_COMPILER}"
+              "${CMAKE_LINKER}")
+    set_tests_properties(upstream_capability_controls PROPERTIES TIMEOUT 30 RUN_SERIAL TRUE)
   endif()
 
   add_executable(test_worker_lifecycle

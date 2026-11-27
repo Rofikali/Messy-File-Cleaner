@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "696eff11165e9ed90049eabe81e32f6430650d2c",
+  "snapshot_main_sha": "f8c54bfa1485a21a4b57e66d0c3e15fe2bff7972",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "STATIC-LIB-01",
   "features": [
@@ -1096,12 +1096,13 @@
       "status": "ACTIVE",
       "prs": [
         276,
-        277
+        277,
+        278
       ],
-      "summary": "#276 merged, 14/14 returned PR-head jobs PASS; GCC C17 Release 71/71, two identical same-environment Clang Release archives and two expected members PASS. #277 (2/5) exact five global text definitions and two negative controls; CI pending. No production library or ABI approval.",
-      "last_merged_pr": 276,
-      "merge_sha": "696eff11165e9ed90049eabe81e32f6430650d2c",
-      "tested_head_sha": "bbbc2df9e4036f873c5f28c167fc3c5d8fd7ec31"
+      "summary": "#277 merged; 13/13 returned PR-head jobs, GCC C17 Release 71/71, five global definitions and extra/missing controls PASS. #278 (3/5) member dependency direction and two negative controls, Debug archive/consumer ASan/UBSan; CI pending. No production library or ABI approval.",
+      "last_merged_pr": 277,
+      "merge_sha": "f8c54bfa1485a21a4b57e66d0c3e15fe2bff7972",
+      "tested_head_sha": "7e0ac2c97126ecc0739225fa4108c859d13370f5"
     }
   ]
 }

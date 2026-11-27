@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Static archive dependency and sanitizer boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Existing Clang C17 Release step checks per-member undefined dependencies and two disposable negative controls; Debug archive and consumer ASan/UBSan enabled; hosted Clang leak-check rerun. CI pending.
+
 **Static archive symbol boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Existing isolated Clang C17 Release step adds nm definition allowlist and two disposable archive negative controls; CI pending.
 
 **Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #276 adds independent same-environment Clang C17 Release archive comparison (ar member order, cmp and SHA-256), preserves strict warnings after EOF-only corrections; pending exact-head CI.

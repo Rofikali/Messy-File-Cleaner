@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Private static archive reference:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #275 merged at f000517ef7ad81934cfed141e05489831833c82a; 13/13 returned jobs and three artifact isolation checks plus six negative controls PASS; PUBLIC-API-01 scoped DONE 5/5. #276 STATIC-LIB-01 (1/5) private archive CI pending.
+
 **Public API final isolation candidate:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #274 merged at 84ea67e73cd93ad2fe3e5b5595d7f60072b78ce0; 13/13 returned jobs, 140 synthetic calls, 112 matched allocations/releases and hosted sanitizer checks PASS. #275 (5/5) final candidate CI pending.
 
 **Public API synthetic ownership:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #273 merged at 0e72e1d60e5032563548f453f2ea00fefc6d08e1; 13/13 returned jobs and 60 mock scenarios PASS; formal independent review not verified. #274 (4/5) adds synthetic heap ownership and recovery; CI pending.

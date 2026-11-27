@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "84ea67e73cd93ad2fe3e5b5595d7f60072b78ce0",
+  "snapshot_main_sha": "f000517ef7ad81934cfed141e05489831833c82a",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "PUBLIC-API-01",
+  "active_feature_id": "STATIC-LIB-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1077,7 +1077,7 @@
     {
       "id": "PUBLIC-API-01",
       "title": "Design-only public C preview interface and consumer contract evaluation",
-      "status": "ACTIVE",
+      "status": "DONE",
       "prs": [
         271,
         272,
@@ -1085,10 +1085,19 @@
         274,
         275
       ],
-      "summary": "#274 merged, 13/13 returned PR-head jobs, 140 synthetic calls and 112 matching allocations/releases, hosted ASan/UBSan with leak detection PASS; formal independent review not verified. #275 (5/5) final candidate: production symbol and staged CLI-only install isolation with positive mock and negative controls in three standards; CI pending. No sixth PR; no real engine API, external consumer, license or production ABI/FFI authorization.",
-      "last_merged_pr": 274,
-      "merge_sha": "84ea67e73cd93ad2fe3e5b5595d7f60072b78ce0",
-      "tested_head_sha": "d1a89864f51708372d164b5240b1f85e5bfbec8f"
+      "summary": "Scoped design DONE 5/5; #275 merged, 13/13 returned exact-head jobs, three production artifact isolation checks plus six negative controls PASS. #274 140 synthetic calls and 112 matched allocations/releases, hosted sanitizer PASS. Formal independent review not verified; no actual engine API, public ABI/FFI, external consumer or release approval.",
+      "last_merged_pr": 275,
+      "merge_sha": "f000517ef7ad81934cfed141e05489831833c82a",
+      "tested_head_sha": "1aa97d59198a4eb2105b5fef7b2c40692129fa1a"
+    },
+    {
+      "id": "STATIC-LIB-01",
+      "title": "Private static archive and independent internal consumer reference evaluation",
+      "status": "ACTIVE",
+      "prs": [
+        276
+      ],
+      "summary": "#276 (1/5) private classifier/hashmap archive; initial Clang Release job 140235055451 failed on three missing EOF newlines. Same-PR newline-only correction, owner-approved Linux-inspired architecture and same-environment C17 Clang Release archive byte/member-order comparison added. New head CI pending; no production relink, installed SDK, imports, external consumer or ABI/FFI approval."
     }
   ]
 }

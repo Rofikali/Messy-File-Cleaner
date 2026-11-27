@@ -83,6 +83,19 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # STATIC-LIB-01: private reference archive of existing pure modules.
+  # Never install, export, or link this target into the production CLI.
+  add_library(fc_classifier_reference STATIC
+    src/classifier/classifier.c src/utils/hashmap.c)
+  target_include_directories(fc_classifier_reference PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(fc_classifier_reference PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  add_executable(static_classifier_consumer tests/reference/static_classifier_consumer.c)
+  target_include_directories(static_classifier_consumer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
+  target_compile_options(static_classifier_consumer PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  target_link_libraries(static_classifier_consumer PRIVATE fc_classifier_reference)
+  add_test(NAME static_classifier_consumer COMMAND static_classifier_consumer)
+  set_tests_properties(static_classifier_consumer PROPERTIES TIMEOUT 10)
+
   # PLAN-REPORT-01: opt-in aggregate JSON with disposable preservation checks.
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   add_test(NAME plan_report_json

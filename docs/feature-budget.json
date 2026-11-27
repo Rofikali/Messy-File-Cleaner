@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "c79157c217bb171507ee4e27f9bd7ca8029e9697",
+  "snapshot_main_sha": "45d4898aed6383b84863f34358562f909bb53249",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "STATIC-LIB-01",
   "features": [
@@ -1098,12 +1098,13 @@
         276,
         277,
         278,
-        279
+        279,
+        280
       ],
-      "summary": "#278 merged; 10/10 returned PR-head jobs, GCC C17 Debug/Release 71/71; Ubuntu workflow and formal review not verified. Six exact blobs reconstructed locally, Clang 17 dependency controls and sanitizer consumer PASS; GCC/Clang six Release modes dependency checks PASS. #279 (4/5) Release CTest dependency oracle and caller-owned bounded heap consumer; CI pending. No production library or ABI approval.",
-      "last_merged_pr": 278,
-      "merge_sha": "c79157c217bb171507ee4e27f9bd7ca8029e9697",
-      "tested_head_sha": "dded04eaa3b8fc32395c6267aff031f54fac2176"
+      "summary": "#279 merged; 10/10 returned PR-head jobs, GCC C17 Release 72/72 and Debug 71/71; extended consumer and Release dependency oracle PASS. Ubuntu workflow and independent review unverified. #280 (5/5) final artifact isolation: private target absence, CLI-only staged installation, two negative controls and five-symbol oracle in Release CTest. CI pending; no sixth PR or production library approval.",
+      "last_merged_pr": 279,
+      "merge_sha": "45d4898aed6383b84863f34358562f909bb53249",
+      "tested_head_sha": "f5ce5075ff62596cf51fede05807d14ca40f4af8"
     }
   ]
 }

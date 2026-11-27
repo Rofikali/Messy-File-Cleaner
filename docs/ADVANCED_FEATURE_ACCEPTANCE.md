@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Final private static archive acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Final static reference acceptance requires actual artifact evidence and scoped DONE/PARTIAL/BLOCKED decision at five PRs; no sixth PR or production ABI/FFI approval.
+
 **Static archive matrix and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private ownership and Release dependency acceptance require exact-head CI; no real engine API or concurrency proof.
 
 **Static archive dependency and sanitizer boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Accept dependency direction and instrumented consumer only on exact-head evidence; not a public ABI, source-level dependency proof or production security certification.

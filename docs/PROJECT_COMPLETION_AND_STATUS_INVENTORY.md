@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Final private static archive acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #279 merged; 10/10 returned jobs, C17 Release 72/72 and Debug 71/71, extended consumer and dependency test PASS. Ubuntu workflow and independent review unverified; #280 (5/5) final artifact gate pending.
+
 **Static archive matrix and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #278 merged; 10/10 returned jobs, C17 Debug/Release 71/71; Ubuntu workflow and formal review unverified. Local exact-blob checks PASS. #279 (4/5) matrix ownership candidate pending.
 
 **Static archive dependency and sanitizer boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #277 merged at f8c54bfa1485a21a4b57e66d0c3e15fe2bff7972; 13/13 returned jobs, GCC C17 Release 71/71, five definitions and two negative controls PASS. #278 (3/5) dependency checks and sanitizer consumer pending.

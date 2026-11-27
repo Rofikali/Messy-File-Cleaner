@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Final private static archive acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Release CTest final artifact gate checks five symbols, fresh BUILD_TESTING=OFF build and missing private targets, CLI-only staged install and two negative controls; no added dependencies; CI pending.
+
 **Static archive matrix and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Release CTest adds the existing dependency oracle to the normal matrix; Debug instrumented consumer exercises caller-owned heap storage. CI pending.
 
 **Static archive dependency and sanitizer boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Existing Clang C17 Release step checks per-member undefined dependencies and two disposable negative controls; Debug archive and consumer ASan/UBSan enabled; hosted Clang leak-check rerun. CI pending.

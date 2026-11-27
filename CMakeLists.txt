@@ -93,6 +93,14 @@ if(BUILD_TESTING)
   target_include_directories(static_classifier_consumer PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
   target_compile_options(static_classifier_consumer PRIVATE -Wall -Wextra -Wpedantic -Werror)
   target_link_libraries(static_classifier_consumer PRIVATE fc_classifier_reference)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    foreach(target fc_classifier_reference static_classifier_consumer)
+      target_compile_options(${target} PRIVATE
+        -g -fsanitize=address,undefined -fno-sanitize-recover=all
+        -fno-omit-frame-pointer)
+    endforeach()
+    target_link_options(static_classifier_consumer PRIVATE -fsanitize=address,undefined)
+  endif()
   add_test(NAME static_classifier_consumer COMMAND static_classifier_consumer)
   set_tests_properties(static_classifier_consumer PROPERTIES TIMEOUT 10)
 

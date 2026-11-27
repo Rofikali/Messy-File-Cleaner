@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Final upstream adoption decision:** [Evidence-first gate](upstream/UPSTREAM_ADOPTION_DECISION.md). #296 adds ASan/UBSan in Debug for the existing private TCO test target; no new workflow or toolchain. Exact-head CI pending.
+
 **Cash versus noncash TCO:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #295 extends the existing private CTest with ten synthetic cash/noncash separation checks; no workflow or toolchain changes. Exact-head CI pending.
 
 **Bounded upstream TCO sensitivity:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #294 extends the existing private CTest with 12 synthetic bounded-horizon checks; no workflow or toolchain changes. Exact-head CI pending.

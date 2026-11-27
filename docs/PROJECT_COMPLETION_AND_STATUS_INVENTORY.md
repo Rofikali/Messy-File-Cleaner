@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Final upstream adoption decision:** [Evidence-first gate](upstream/UPSTREAM_ADOPTION_DECISION.md). #295 merged; 13/13 returned jobs, GCC C17 Release 82/82 and Debug 78/78, 39 synthetic checks passed. #296 (5/5) final adoption gate and private Debug instrumentation, CI pending. Formal review and TSan workflow unverified.
+
 **Cash versus noncash TCO:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #294 merged; 13/13 returned jobs, GCC C17 Release 82/82 and Debug 78/78, 29 synthetic TCO checks passed. #295 (4/5) adds ten cash/noncash checks; CI pending. Formal review and TSan workflow unverified.
 
 **Bounded upstream TCO sensitivity:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). #293 merged; 14/14 returned jobs, GCC C17 Release 82/82 and Debug 78/78, TCO reference PASS. #294 (3/5) adds 12 synthetic horizon checks; CI pending. Formal review unverified.

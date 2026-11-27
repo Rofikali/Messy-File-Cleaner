@@ -1,5 +1,7 @@
 # Messy File Cleaner
 
+**Final upstream adoption decision:** [Evidence-first gate](docs/upstream/UPSTREAM_ADOPTION_DECISION.md). #295 merged; 13/13 returned jobs PASS including Ubuntu. #296 finalizes evidence-first upstream adoption and instruments private Debug TCO tests. CI pending; actual billing and ROI unknown; no sixth cost PR, imports, production changes or spend.
+
 **Cash versus noncash TCO:** [Evidence and decision contract](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #294 merged; 13/13 returned jobs PASS including Ubuntu. #295 separates cash expenditure and noncash economic estimates with checked arithmetic, CI pending. No actual billing, production change, imports or spend.
 
 **Bounded upstream TCO sensitivity:** [Evidence and decision contract](docs/upstream/UPSTREAM_TCO_EVIDENCE.md). #293 merged; 14/14 returned jobs PASS including Ubuntu and TSan. #294 adds bounded 1–120 month cost sensitivity with atomic error handling, CI pending. No actual billing, production change, import or spend.

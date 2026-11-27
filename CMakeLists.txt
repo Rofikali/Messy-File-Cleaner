@@ -109,6 +109,13 @@ if(BUILD_TESTING)
       COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/check_static_classifier_dependencies.sh"
               $<TARGET_FILE:fc_classifier_reference>)
     set_tests_properties(static_classifier_dependency_boundary PROPERTIES TIMEOUT 10)
+    add_test(NAME static_classifier_artifact_isolation
+      COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/check_static_classifier_artifacts.sh"
+              "${CMAKE_COMMAND}" "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_BINARY_DIR}"
+              $<TARGET_FILE:${PROJECT_NAME}> $<TARGET_FILE:fc_classifier_reference>
+              "${CMAKE_GENERATOR}" "${CMAKE_C_COMPILER}" "${FC_C_STANDARD}")
+    set_tests_properties(static_classifier_artifact_isolation PROPERTIES
+      TIMEOUT 60 RUN_SERIAL TRUE)
   endif()
 
   # PLAN-REPORT-01: opt-in aggregate JSON with disposable preservation checks.

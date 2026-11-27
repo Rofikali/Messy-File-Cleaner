@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Upstream capability reporter controls:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #289 merged; 10/10 returned jobs, C17 Release 80/80 and Debug 76/76; five individual probes and correlation PASS. Dedicated Ubuntu 24.04 and formal review unverified. #290 (4/5) controls pending.
+
 **Upstream capability correlation:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #288 merged; 10/10 returned jobs, C17 Release 79/79 and Debug 75/75, comparator PASS. Dedicated Ubuntu 24.04 workflow and formal review unverified. #289 (3/5) correlation pending.
 
 **Upstream environment drift comparison:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #287 merged; 10/10 returned jobs, C17 Release 78/78 and Debug 74/74, environment report PASS; dedicated Ubuntu 24.04 and formal review unverified. #288 (2/5) comparator pending.

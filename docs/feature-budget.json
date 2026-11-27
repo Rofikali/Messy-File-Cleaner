@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "7173dadf41fd624baff4eb89fc871e2f7f3521ad",
+  "snapshot_main_sha": "d6e1c6a9104156d5d302300327a9bcf08663408c",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SHARED-LIB-01",
   "features": [
@@ -1111,9 +1111,13 @@
       "title": "Private PIC shared library and controlled dynamic consumer reference evaluation",
       "status": "ACTIVE",
       "prs": [
-        281
+        281,
+        282
       ],
-      "summary": "#281 (1/5) BUILD_TESTING-only PIC DSO using existing classifier/hashmap, hidden default visibility and one explicit test-only adapter, eight consumer scenarios; CI pending. No production SDK, ABI/FFI, external imports or release approval."
+      "summary": "#281 merged; 10/10 returned PR-head jobs, GCC C17 Release 74/74 and Debug 72/72; eight consumer scenarios PASS. Ubuntu workflow and formal review unverified. #282 (2/5) private SONAME, relative consumer RUNPATH and ELF export/dependency/relocation policy, two negative controls in Release CTest. CI pending; no production library or ABI approval.",
+      "last_merged_pr": 281,
+      "merge_sha": "d6e1c6a9104156d5d302300327a9bcf08663408c",
+      "tested_head_sha": "4c8f659a0d99b88bfbbd4f6253afd41bfcc32601"
     }
   ]
 }

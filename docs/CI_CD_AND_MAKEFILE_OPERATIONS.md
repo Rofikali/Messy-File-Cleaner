@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Upstream capability reporter controls:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #290 CTest exercises mixed capability outcomes, five failure controls, required-probe enforcement and actual timeout; CI pending.
+
 **Upstream capability correlation:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #289 adds a Linux CTest correlation report for six environment fields and five existing disposable probes, bounded timeouts, explicit skipped/not-built states and failure propagation. CI pending.
 
 **Upstream environment drift comparison:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). #288 CTest compares raw six-field environment reports, including actual self-comparison and synthetic drift, reorder and malformed controls; no network or update. CI pending.

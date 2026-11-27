@@ -83,6 +83,12 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # UPSTREAM-COST-01: synthetic integer cost reference, never a product target.
+  add_executable(upstream_tco_reference tests/reference/upstream_tco_reference.c)
+  target_compile_options(upstream_tco_reference PRIVATE -Wall -Wextra -Wpedantic -Werror)
+  add_test(NAME upstream_tco_reference COMMAND upstream_tco_reference)
+  set_tests_properties(upstream_tco_reference PROPERTIES TIMEOUT 10)
+
   # UPSTREAM-MAINT-01: record observed environment, not version-based capability.
   add_test(NAME upstream_environment_report
     COMMAND sh "${CMAKE_CURRENT_SOURCE_DIR}/scripts/tests/report_upstream_environment.sh"

@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Private static archive reference:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing CMake/CTest matrix builds and exercises a private STATIC target only when BUILD_TESTING is enabled; no install/export or production CLI linkage. CI pending.
+
 **Public API final isolation candidate:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing isolated Clang production-only C11/C17/C23 builds check symbol and staged CLI-only install isolation with positive mock and two negative controls per mode; no new runner or package. CI pending.
 
 **Public API synthetic ownership:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing six compiler modes retain synthetic caller checks; existing hosted Clang 18 job adds ASan/UBSan and leak detection, no new runner or dependency. CI pending.

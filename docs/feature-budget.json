@@ -1097,7 +1097,7 @@
       "prs": [
         276
       ],
-      "summary": "#276 (1/5) BUILD_TESTING-only classifier/hashmap archive and independent consumer, eight routing/isolation/invalid-input checks; local NOT RUN, CI pending. No production linking, installed SDK, real external consumer, license decision or ABI/FFI authorization."
+      "summary": "#276 (1/5) private classifier/hashmap archive; initial Clang Release job 140235055451 failed on three missing EOF newlines. Same-PR newline-only correction, owner-approved Linux-inspired architecture and same-environment C17 Clang Release archive byte/member-order comparison added. New head CI pending; no production relink, installed SDK, imports, external consumer or ABI/FFI approval."
     }
   ]
 }

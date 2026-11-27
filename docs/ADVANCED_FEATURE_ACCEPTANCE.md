@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Bounded upstream TCO sensitivity:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). Require exact-head evidence for equal/lower/higher horizons, crossover and atomic rejection of unknown/overflow. Synthetic comparisons are not actual savings or ROI.
+
 **Checked upstream TCO reference:** [Evidence and decision contract](upstream/UPSTREAM_TCO_EVIDENCE.md). Require exact-head evidence for equal currency/horizon, known versus unknown, checked arithmetic and rejection controls; synthetic results are not actual savings or ROI.
 
 **Upstream maintenance cost evidence:** [TCO baseline](upstream/UPSTREAM_TCO_EVIDENCE.md). Maintenance PARTIAL 5/5, formal review and TSan evidence unverified. Cost acceptance requires comparable horizons, actual inputs or explicit unknowns; no ROI or release claim.

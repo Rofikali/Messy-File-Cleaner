@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Upstream capability correlation:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). A completed correlation report does not certify every probe or production safety; skipped and not-built outcomes are unverified. Exact-head execution required.
+
 **Upstream environment drift comparison:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). Maintenance comparator evidence requires actual exact-head execution; drift signals require matched capability/regression evidence, not version-only security claims.
 
 **Upstream maintenance environment evidence:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). FFI implementation BLOCKED 1/5 pending explicit scope approval and staged review. Independent maintenance report requires actual exact-head CI; no auto-update or import.

@@ -18,7 +18,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **CI-RECONCILIATION-01 (1/5 candidate; PR number pending)** | Scope hosted Ubuntu APT sources; classify native scanner zero-job push failure; verify exact-head/base evidence; [release roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md) | No C23 compile failure inferred; no signature bypass, release, spend or automatic scale run |
+| **NOW — SAFE FEATURE SELECTION** | **CI-RECONCILIATION-01 (1/5; PR #298 open)** | Scope hosted Ubuntu APT sources; classify native scanner zero-job push failure; verify exact-head/base evidence; [release roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md) | No C23 compile failure inferred; no signature bypass, release, spend or automatic scale run |
 | **PARTIAL** | **UPSTREAM-COST-01 (5/5; #296 merged)** | Final evidence-first decision gate; PR-head Ubuntu/CMake/Docker/Makefile/TSan PASS; native scanner workflow failed; integrated Ubuntu failed dependency install | Actual billing/ROI and independent review unverified; no sixth PR |
 | **NEXT — gated** | **LICENSE-01** | Owner license decision, SPDX/provenance inventory | No license selection or imports automatically |
 | **LATER** | **PACKAGING-01 / RELEASE-PIPELINE-01** | Local archive/.deb, versioning, SBOM, checksum, signing, unpublished build | No tags or public assets before REL-01 |

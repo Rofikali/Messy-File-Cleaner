@@ -20,6 +20,10 @@ probe() {
     binary=$2
     limit=$3
     if [ "$binary" = "-" ]; then
+        case "$name" in
+            linux_io_reference|linux_path_reference) ;;
+            *) echo "required probe cannot be NOT_BUILT: $name" >&2; exit 2 ;;
+        esac
         not_built=$((not_built + 1))
         printf 'upstream_capability=%s status=NOT_BUILT\n' "$name"
         return
@@ -32,7 +36,7 @@ probe() {
         echo "configured probe executable missing: $name" >&2
         exit 1
     }
-    if timeout "$limit" "$binary" > "$work/result" 2>&1; then
+    if timeout -k 2 "$limit" "$binary" > "$work/result" 2>&1; then
         status=0
     else
         status=$?

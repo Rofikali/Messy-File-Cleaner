@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Private shared ELF boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Release CTest inspects dynamic exports, private SONAME, relative consumer RUNPATH, NEEDED and text relocations, with two disposable negative controls; existing binutils only. CI pending.
+
 **Private shared library reference:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private PIC DSO and separate consumer use existing CTest matrix, hidden default visibility and linker resolution gate; no install/export or new dependency. CI pending.
 
 **Final private static archive acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Release CTest final artifact gate checks five symbols, fresh BUILD_TESTING=OFF build and missing private targets, CLI-only staged install and two negative controls; no added dependencies; CI pending.

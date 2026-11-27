@@ -1,5 +1,7 @@
 # Engineering Skills Catalogue
 
+**Private shared runtime and hardening:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #282 merged, 10/10 returned jobs and ELF metadata controls PASS; #283 adds explicit loader cycles, hidden lookup rejection and private DSO hardening. CI pending; no production SDK or ABI/FFI approval.
+
 **Private shared ELF boundary:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #281 merged, 10/10 returned jobs and eight consumer scenarios PASS; #282 adds private SONAME, relative RUNPATH, dynamic export and dependency metadata gates. CI pending; no production SDK or ABI/FFI approval.
 
 **Private shared library reference:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). STATIC-LIB-01 PARTIAL 5/5, no sixth PR; returned final artifact tests PASS, Ubuntu workflow and formal review unverified. #281 starts private PIC shared reference with hidden default visibility and eight consumer scenarios; CI pending, no production SDK or ABI/FFI approval.

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Private shared sanitizer and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private DSO sanitizer and caller-owned input evidence requires exact-head execution; no public ABI, production memory-safety or thread-safety acceptance.
+
 **Private shared runtime and hardening:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Runtime consumer and observed ELF hardening require exact-head evidence; not hostile-plugin isolation, public ABI or production approval.
 
 **Private shared ELF boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). ELF boundary acceptance requires exact-head evidence; private SONAME is not a stable ABI promise or production approval.

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Documentation Map and Authority
 
+**Owner-directed release and distribution phase (2026-11-27):** [Release, packaging and distribution roadmap](RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md). `go ahead` / `continue` / `next` / `next milestone` resumes the next eligible bounded job in the live board after GitHub reconciliation; same rules for hourly agents and engineers. CI-RECONCILIATION-01 is selected for the release-baseline incident; FS-01B-FIX remains the critical blocked safety prerequisite. LICENSE-01, PACKAGING-01, RELEASE-PIPELINE-01, GHCR-01, REL-01, PRODUCTION-SDK-01 and PRODUCT-ADOPTION-01 are gated future work, not implemented or release authorization. Preserve five-PR ceilings, no-spend, no external import, no automatic tag/publish, and the existing Rust FFI gate. Apply L1–L7 engineering, CISSP/security, CCIE/networking, Linux/POSIX, SRE/DevOps, CA/CFO, MBA/product and management review lenses; synchronize core and affected docs with evidence, not claims.
+
 **Hash-map performance:** [bounded lookup baseline](performance/HASHMAP_BASELINE.md) documents synthetic occupancy and hit/miss evidence. Queue baseline evaluation complete at four PRs.
 
 **In-memory queue measurement:** [Queue baseline](performance/QUEUE_BASELINE.md) describes separate bounded sequential and concurrent test-only native C workloads, their limitations and reproduction commands. Not a filesystem scale benchmark or speedup claim.

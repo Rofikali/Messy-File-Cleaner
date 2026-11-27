@@ -1,5 +1,7 @@
 # Five-PR Feature Delivery and Acceptance — Messy-File-Cleaner
 
+**Owner-directed release and distribution phase (2026-11-27):** [Release, packaging and distribution roadmap](RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md). `go ahead` / `continue` / `next` / `next milestone` resumes the next eligible bounded job in the live board after GitHub reconciliation; same rules for hourly agents and engineers. CI-RECONCILIATION-01 is selected for the release-baseline incident; FS-01B-FIX remains the critical blocked safety prerequisite. LICENSE-01, PACKAGING-01, RELEASE-PIPELINE-01, GHCR-01, REL-01, PRODUCTION-SDK-01 and PRODUCT-ADOPTION-01 are gated future work, not implemented or release authorization. Preserve five-PR ceilings, no-spend, no external import, no automatic tag/publish, and the existing Rust FFI gate. Apply L1–L7 engineering, CISSP/security, CCIE/networking, Linux/POSIX, SRE/DevOps, CA/CFO, MBA/product and management review lenses; synchronize core and affected docs with evidence, not claims.
+
 **Upstream-first owner amendment (2026-11-25):** [Reuse policy](upstream/UPSTREAM_REUSE_POLICY.md) and [master plan](upstream/UPSTREAM_MASTER_PLAN.md) govern upstream candidate intake. License and component review precede imports; proposed stages do not reset consumed PR budgets. Existing selector and gates unchanged.
 
 ## Cross-contributor execution contract (24 November 2026)

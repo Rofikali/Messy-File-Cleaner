@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Static archive symbol boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #276 merged at 696eff11165e9ed90049eabe81e32f6430650d2c; 14/14 returned jobs, GCC C17 Release 71/71 and identical archive pair PASS. #277 (2/5) symbol boundary pending.
+
 **Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #276 initial Clang Release failure on three missing terminal newlines corrected on same PR; repeat-build archive comparison pending. Production library remains gated.
 
 **Private static archive reference:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). #275 merged at f000517ef7ad81934cfed141e05489831833c82a; 13/13 returned jobs and three artifact isolation checks plus six negative controls PASS; PUBLIC-API-01 scoped DONE 5/5. #276 STATIC-LIB-01 (1/5) private archive CI pending.

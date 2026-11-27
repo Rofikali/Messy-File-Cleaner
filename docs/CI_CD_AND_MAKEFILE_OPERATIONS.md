@@ -1,5 +1,7 @@
 # CI/CD, Makefile and Evidence Operations
 
+**Static archive symbol boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Existing isolated Clang C17 Release step adds nm definition allowlist and two disposable archive negative controls; CI pending.
+
 **Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #276 adds independent same-environment Clang C17 Release archive comparison (ar member order, cmp and SHA-256), preserves strict warnings after EOF-only corrections; pending exact-head CI.
 
 **Private static archive reference:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Existing CMake/CTest matrix builds and exercises a private STATIC target only when BUILD_TESTING is enabled; no install/export or production CLI linkage. CI pending.

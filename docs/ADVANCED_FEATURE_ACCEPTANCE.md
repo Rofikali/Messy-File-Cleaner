@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Static archive symbol boundary:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Archive definition boundary is exactly five global text definitions; extra and missing definitions must be rejected. Not public ABI or undefined-dependency acceptance.
+
 **Owner-approved Linux-inspired library architecture (2026-11-27):** [Engineering requirements](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Require scoped reproducibility, archive members and dependencies, symbol namespace/export boundaries, independent consumer and isolation tests; later shared ABI/SONAME and Rust safety gates; no unsupported certification or production performance claim.
 
 **Private static archive reference:** [API roadmap](architecture/C-API-ABI-FFI-ROADMAP.md). Private archive and eight independent consumer checks establish only test-local static-link feasibility; no production ABI, consumer approval, license or release acceptance.

@@ -150,6 +150,25 @@ jobs:
               cmp "$archive" "$repeat"
               sha256sum "$archive" "$repeat"
               printf "static_archive_repeatability=PASS members=2 compiler=clang standard=c17\n"
+              gate=/source/scripts/tests/check_static_classifier_symbols.sh
+              sh "$gate" "$archive"
+              printf "int fc_unexpected_symbol(void) { return 0; }\n" > "$work/unexpected.c"
+              clang -std=c17 -Wall -Wextra -Wpedantic -Werror -c "$work/unexpected.c" -o "$work/unexpected.o"
+              cp "$archive" "$work/extra.a"
+              ar r "$work/extra.a" "$work/unexpected.o"
+              if sh "$gate" "$work/extra.a" > "$work/negative" 2>&1; then
+                echo "extra symbol control unexpectedly passed" >&2
+                exit 1
+              fi
+              grep -Fx "unexpected archive global definitions" "$work/negative"
+              cp "$archive" "$work/missing.a"
+              ar d "$work/missing.a" hashmap.c.o
+              if sh "$gate" "$work/missing.a" > "$work/negative" 2>&1; then
+                echo "missing symbol control unexpectedly passed" >&2
+                exit 1
+              fi
+              grep -Fx "unexpected archive global definitions" "$work/negative"
+              printf "static_classifier_symbol_controls=PASS controls=2\n"
               sh /source/scripts/tests/report_platform_capabilities.sh "$work/build" container_release
             '
 

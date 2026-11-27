@@ -14,7 +14,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **STATIC-LIB-01 (1/5; PR #276 OPEN (draft))** | Private BUILD_TESTING-only classifier/hashmap archive, eight consumer checks and same-environment Clang C17 Release repeatability/member order check | Initial Clang Release failed on EOF newlines; corrected on same PR, new-head CI pending; no production CLI relink, installed SDK, real external consumer, license or ABI/FFI approval; FS-01B/REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **STATIC-LIB-01 (2/5; PR #277 OPEN (draft))** | Private archive exact global definition allowlist (five symbols), reject added/missing definitions | #276 merged at `696eff11165e9ed90049eabe81e32f6430650d2c`; 14/14 returned jobs, GCC C17 Release 71/71 and same-environment Clang archive repeatability PASS; #277 CI pending; no production linking, SDK, imports, ABI/FFI or release approval |
 | **DONE** | **PUBLIC-API-01 (5/5; #275 merged)** | 13/13 returned PR-head jobs; three artifact isolation checks and six negative controls PASS; #274 140 synthetic calls, 112 matched allocations/releases and hosted sanitizers PASS | Scoped design only; formal independent review not verified; no actual engine API, no sixth PR |
 | **DONE** | **UPSTREAM-COMPAT-01 (5/5; #270 merged)** | 324 header probes; host Clang Debug 70/70, container Release 69 passed/1 skipped; host 5/container 4 capability passes, container io_uring EPERM | Scoped acceptance only; no sixth PR |
 | **DONE** | **SUPPLY-CHAIN-01 (5/5; #265 merged)** | Seven APT controls, 35 direct references, 18 action pins and 11 gate fixtures PASS | Scoped acceptance; no sixth PR; mutable base/APT/runner, SBOM and provenance unresolved |

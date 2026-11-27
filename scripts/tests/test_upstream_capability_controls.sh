@@ -55,9 +55,11 @@ reject 'configured probe executable missing: linux_uring_capability' \
     "$work/missing" "$work/unreachable" "$work/pass" "$work/pass" "$work/pass"
 reject 'probe path must be absolute' \
     relative "$work/unreachable" "$work/pass" "$work/pass" "$work/pass"
+reject 'required probe cannot be NOT_BUILT: linux_uring_capability' \
+    - "$work/unreachable" "$work/pass" "$work/pass" "$work/pass"
 # A genuine timeout: sleep is longer than the reporter's first probe deadline.
 printf '#!/bin/sh\nexec sleep 30\n' > "$work/slow"
 chmod 700 "$work/slow"
 reject 'upstream_capability=linux_uring_capability status=FAIL exit=124' \
     "$work/slow" "$work/unreachable" "$work/pass" "$work/pass" "$work/pass"
-printf 'upstream_capability_controls=PASS mixed=1 rejected=4\n'
+printf 'upstream_capability_controls=PASS mixed=1 rejected=5\n'

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Component Completion and Decision Inventory
 
+**Private Rust FFI feasibility proposal:** [Design and approval gate](architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). #285 merged; 10/10 returned jobs, C17 Release 77/77 and Debug 73/73, artifact isolation PASS. Ubuntu/Clang and formal review unverified; SHARED-LIB-01 PARTIAL 5/5. #286 (1/5) FFI design only.
+
 **Final private shared-library acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #284 merged; 10/10 returned jobs, C17 Release 76/76 and Debug 73/73, sanitizer consumers PASS. Ubuntu workflow, Clang sanitizer execution and formal review unverified; #285 (5/5) final artifact gate pending.
 
 **Private shared sanitizer and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #283 merged; 10/10 returned jobs, C17 Release 76/76 and Debug 73/73, runtime and ELF hardening PASS; Ubuntu workflow and formal review unverified. #284 (4/5) sanitizer/ownership candidate pending.

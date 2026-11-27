@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Private Rust FFI feasibility proposal:** [Design and approval gate](architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). Shared reference PARTIAL 5/5; no sixth PR. Private classifier FFI implementation blocked pending explicit owner scope approval and staged ADR review; no public ABI or production FFI approval.
+
 **Final private shared-library acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Final shared reference acceptance requires actual evidence and scoped DONE/PARTIAL/BLOCKED decision at five PRs; no sixth PR, production ABI or FFI approval.
 
 **Private shared sanitizer and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private DSO sanitizer and caller-owned input evidence requires exact-head execution; no public ABI, production memory-safety or thread-safety acceptance.

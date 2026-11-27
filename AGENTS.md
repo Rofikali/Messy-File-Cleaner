@@ -1,5 +1,7 @@
 # Repository Engineering Rules
 
+**Private Rust FFI feasibility proposal:** [Design and approval gate](docs/architecture/RUST_CLASSIFIER_FFI_FEASIBILITY.md). #285 merged, 10/10 returned jobs and artifact isolation PASS; Ubuntu/Clang final evidence and independent review unverified. SHARED-LIB-01 PARTIAL 5/5. #286 proposes a private classifier FFI consumer; implementation requires explicit scope approval and staged ADR review. Existing FCJ4 crate unchanged; no new FFI or production SDK.
+
 **Final private shared-library acceptance:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #284 merged, 10/10 returned jobs, instrumented consumers PASS; Ubuntu workflow, Clang sanitizer execution and formal review unverified. #285 final private shared artifact candidate, CI pending; no sixth PR or production SDK/ABI/FFI approval.
 
 **Private shared sanitizer and ownership:** [Linux-inspired architecture](docs/architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). #283 merged, 10/10 returned jobs and runtime/ELF hardening PASS. #284 adds Debug DSO and consumer sanitizers, mutable caller-owned input; CI pending, Clang Debug sanitizer-specific linker exception only. No production SDK or ABI/FFI approval.

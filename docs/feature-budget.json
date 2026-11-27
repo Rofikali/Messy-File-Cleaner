@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "0c8b376b25e1eef3f8a77feb00f4a653d41c6931",
+  "snapshot_main_sha": "2c5942cf5a7db41cc185197bc58c93a403892d0f",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SHARED-LIB-01",
+  "active_feature_id": "RUST-FFI-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1109,7 +1109,7 @@
     {
       "id": "SHARED-LIB-01",
       "title": "Private PIC shared library and controlled dynamic consumer reference evaluation",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         281,
         282,
@@ -1117,10 +1117,19 @@
         284,
         285
       ],
-      "summary": "#284 merged; 10/10 returned PR-head jobs, GCC C17 Release 76/76 and Debug 73/73; Debug instrumented consumers and mutable heap input PASS. Ubuntu workflow, Clang sanitizer execution and formal review unverified. #285 (5/5) final Release artifact isolation: production CLI and runtime-only dependency isolation, three absent private targets, both staged installs and three negative controls. CI pending; no sixth PR or production library approval.",
-      "last_merged_pr": 284,
-      "merge_sha": "0c8b376b25e1eef3f8a77feb00f4a653d41c6931",
-      "tested_head_sha": "9ca88d292d260cc36e997ce3788f713187f8ca8e"
+      "summary": "5/5 exhausted; #285 merged, 10/10 returned exact-head jobs, GCC C17 Release 77/77 and Debug 73/73, final artifact isolation PASS. Ubuntu/Clang final evidence and formal review not returned; PARTIAL, no sixth PR or production library approval.",
+      "last_merged_pr": 285,
+      "merge_sha": "2c5942cf5a7db41cc185197bc58c93a403892d0f",
+      "tested_head_sha": "51a53665b886ff464a5fac2cf43dc85c83d89a63"
+    },
+    {
+      "id": "RUST-FFI-EVAL-01",
+      "title": "Private Rust classifier FFI feasibility and scoped owner decision",
+      "status": "ACTIVE",
+      "prs": [
+        286
+      ],
+      "summary": "#286 (1/5) design-only proposal. Implementation BLOCKED pending explicit owner scope approval and staged ADR review; existing FCJ4 Rust crate unchanged. No new FFI, unsafe Rust, production SDK/ABI or release. CI pending."
     }
   ]
 }

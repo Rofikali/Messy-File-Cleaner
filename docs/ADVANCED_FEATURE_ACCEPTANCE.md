@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Upstream capability reporter controls:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). Require exact-head evidence for reporter controls; skipped and not-built never establish capability success or production safety.
+
 **Upstream capability correlation:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). A completed correlation report does not certify every probe or production safety; skipped and not-built outcomes are unverified. Exact-head execution required.
 
 **Upstream environment drift comparison:** [Master plan](upstream/UPSTREAM_MASTER_PLAN.md). Maintenance comparator evidence requires actual exact-head execution; drift signals require matched capability/regression evidence, not version-only security claims.

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "c8ce7dd68fc0f20d092ac7151dd83f79584c0269",
+  "snapshot_main_sha": "c8967aafc7025cba75e34d9607a9c68a9757e2c4",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "UPSTREAM-MAINT-01",
   "features": [
@@ -1141,12 +1141,13 @@
       "prs": [
         287,
         288,
-        289
+        289,
+        290
       ],
-      "summary": "#288 merged; 10/10 returned jobs PASS, GCC C17 Release 79/79 and Debug 75/75, environment comparator PASS; dedicated Ubuntu 24.04 workflow and formal review unverified. #289 (3/5) correlates six environment fields with five bounded existing runtime probes, distinguishes skipped and not-built from pass; CI pending. No automatic update, import, dependency or production change.",
-      "last_merged_pr": 288,
-      "merge_sha": "c8ce7dd68fc0f20d092ac7151dd83f79584c0269",
-      "tested_head_sha": "c0017770fafc98a056d32e2a314c4afd7c602be6"
+      "summary": "#289 merged; 10/10 returned jobs PASS, GCC C17 Release 80/80 and Debug 76/76, all five individual capability tests and correlation PASS; dedicated Ubuntu 24.04 workflow and formal review unverified. #290 (4/5) mixed outcome and five rejection controls; required-target sentinel rejection and timeout escalation. CI pending. No automatic update, import, dependency or production change.",
+      "last_merged_pr": 289,
+      "merge_sha": "c8967aafc7025cba75e34d9607a9c68a9757e2c4",
+      "tested_head_sha": "75f567b5f4fcfa70f56456792bb00c236995d817"
     }
   ]
 }

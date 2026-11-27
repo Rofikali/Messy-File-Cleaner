@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "d6e1c6a9104156d5d302300327a9bcf08663408c",
+  "snapshot_main_sha": "258299171e2a8d45caa3057f3c586228b27c307e",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SHARED-LIB-01",
   "features": [
@@ -1112,12 +1112,13 @@
       "status": "ACTIVE",
       "prs": [
         281,
-        282
+        282,
+        283
       ],
-      "summary": "#281 merged; 10/10 returned PR-head jobs, GCC C17 Release 74/74 and Debug 72/72; eight consumer scenarios PASS. Ubuntu workflow and formal review unverified. #282 (2/5) private SONAME, relative consumer RUNPATH and ELF export/dependency/relocation policy, two negative controls in Release CTest. CI pending; no production library or ABI approval.",
-      "last_merged_pr": 281,
-      "merge_sha": "d6e1c6a9104156d5d302300327a9bcf08663408c",
-      "tested_head_sha": "4c8f659a0d99b88bfbbd4f6253afd41bfcc32601"
+      "summary": "#282 merged; 10/10 returned PR-head jobs, GCC C17 Release 75/75 and Debug 72/72; ELF metadata and two negative controls PASS. Ubuntu workflow and formal review unverified. #283 (3/5) explicit runtime loading, 16 cycles with four route cases and six rejected lookups each, and observed ELF hardening. CI pending; no production library or ABI approval.",
+      "last_merged_pr": 282,
+      "merge_sha": "258299171e2a8d45caa3057f3c586228b27c307e",
+      "tested_head_sha": "0f2b683475c49207e58e8c4ee1fa14188e05f76b"
     }
   ]
 }

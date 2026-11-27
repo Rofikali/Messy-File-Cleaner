@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "c91e4cf326a3cc7fa887495517bf0339d3266590",
+  "snapshot_main_sha": "0c8b376b25e1eef3f8a77feb00f4a653d41c6931",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SHARED-LIB-01",
   "features": [
@@ -1114,12 +1114,13 @@
         281,
         282,
         283,
-        284
+        284,
+        285
       ],
-      "summary": "#283 merged; 10/10 returned PR-head jobs, GCC C17 Release 76/76 and Debug 73/73; runtime loader and ELF hardening PASS. Ubuntu workflow and formal review unverified. #284 (4/5) Debug ASan/UBSan DSO and both consumers, explicit leak/fatal checks, mutable caller-owned input in 16 cycles. Clang Debug sanitizer-specific linker exception; Release gates unchanged. CI pending; no production library or ABI approval.",
-      "last_merged_pr": 283,
-      "merge_sha": "c91e4cf326a3cc7fa887495517bf0339d3266590",
-      "tested_head_sha": "caf9d214f80a2f049d0d05e6a29029c6a772a66a"
+      "summary": "#284 merged; 10/10 returned PR-head jobs, GCC C17 Release 76/76 and Debug 73/73; Debug instrumented consumers and mutable heap input PASS. Ubuntu workflow, Clang sanitizer execution and formal review unverified. #285 (5/5) final Release artifact isolation: production CLI and runtime-only dependency isolation, three absent private targets, both staged installs and three negative controls. CI pending; no sixth PR or production library approval.",
+      "last_merged_pr": 284,
+      "merge_sha": "0c8b376b25e1eef3f8a77feb00f4a653d41c6931",
+      "tested_head_sha": "9ca88d292d260cc36e997ce3788f713187f8ca8e"
     }
   ]
 }

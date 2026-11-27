@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Advanced Feature Acceptance and Review Matrix
 
+**Final private shared-library acceptance:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Final shared reference acceptance requires actual evidence and scoped DONE/PARTIAL/BLOCKED decision at five PRs; no sixth PR, production ABI or FFI approval.
+
 **Private shared sanitizer and ownership:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Private DSO sanitizer and caller-owned input evidence requires exact-head execution; no public ABI, production memory-safety or thread-safety acceptance.
 
 **Private shared runtime and hardening:** [Linux-inspired architecture](architecture/LINUX_INSPIRED_LIBRARY_ARCHITECTURE.md). Runtime consumer and observed ELF hardening require exact-head evidence; not hostile-plugin isolation, public ABI or production approval.

@@ -1321,9 +1321,10 @@
         324,
         325,
         326,
-        327
+        327,
+        328
       ],
-      "summary": "PR #327 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 108 passed/2 skipped, four PIDFD references PASS; zero changed files in main comparison, integrated-main CI NOT VERIFIED. Fifth candidate 32 normal/unwind cycles with fd balance and ECHILD each time; CI pending; actual PR number to register. No sixth PR; production DEFER.",
+      "summary": "PR #327 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 108 passed/2 skipped, four PIDFD references PASS; zero changed files in main comparison, integrated-main CI NOT VERIFIED. Fifth candidate 32 normal/unwind cycles with fd balance and ECHILD each time; CI pending; PR #328 (5/5). No sixth PR; production DEFER.",
       "last_merged_pr": 327,
       "last_merge_sha": "2dc2d0caaaf5f03de59a867cd44da231dca77aea",
       "tested_head_sha": "a43fdf6d48c2d7f3283a650b681e46c5ee7d2db7"

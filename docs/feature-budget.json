@@ -1274,9 +1274,10 @@
       "prs": [
         310,
         311,
-        312
+        312,
+        313
       ],
-      "summary": "#312 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 95 passed/1 skipped, all three Inotify references PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. Fourth candidate fresh-instance restart with old queue discard; no production recovery, CI pending.",
+      "summary": "#312 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 95 passed/1 skipped, all three Inotify references PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #313 (4/5) fresh-instance restart with old queue discard; no production recovery, CI pending.",
       "last_merged_pr": 312,
       "last_merge_sha": "23edab1ac888cae370d2f43c38c03a5aef7e0551",
       "tested_head_sha": "6ecd7175f5d08eb19ff57232606fad557cacab34"

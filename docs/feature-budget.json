@@ -1272,9 +1272,10 @@
       "title": "Bounded actual inotify overflow and read-only reconciliation",
       "status": "ACTIVE",
       "prs": [
-        310
+        310,
+        311
       ],
-      "summary": "#310 corrected and merged; exact-head and integrated-main 14/14 PASS; C17 Release and Ubuntu C17 93 passed/1 skipped, real overflow PASS. Second candidate bounded read-only rescan of quiescent private fixture; no production recovery, CI pending.",
+      "summary": "#310 corrected and merged; exact-head and integrated-main 14/14 PASS; C17 Release and Ubuntu C17 93 passed/1 skipped, real overflow PASS. PR #311 (2/5) bounded read-only rescan of quiescent private fixture; no production recovery, CI pending.",
       "last_merged_pr": 310,
       "last_merge_sha": "b9e2b8f27d2eeefa051668fa7e770bd4f68b9b97",
       "tested_head_sha": "4354965e190c950b850f083d6a2b74ff44f027c2"

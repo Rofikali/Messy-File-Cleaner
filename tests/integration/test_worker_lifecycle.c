@@ -391,6 +391,74 @@ int main(void)
     assert(atomic_load(&ctx.metrics.dry_run_moves) == moves_before + 3);
     puts("eventfd_saturation=PASS notify_coalesced=PASS live_drain=PASS rearm=PASS queue_drained=PASS");
 
+    /* Distinct worker eventfds must retain independent readiness even
+     * when one counter is saturated. Both consumers are held at the
+     * existing gate after dequeuing their initial dry-run items. */
+    atomic_store(&ctx.running, 1);
+    lf_init(&ctx.queues[0]);
+    lf_init(&ctx.queues[1]);
+    const uint64_t isolation_before = atomic_load(&ctx.metrics.dry_run_moves);
+    fc_test_pause_worker_before_process();
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(lf_enqueue(&ctx.queues[1], &active_event) == 1);
+    assert(start_workers(&ctx, 2) == 0);
+    assert(fc_test_wait_for_worker_pause(2000) == 0);
+    for (int i = 0; i < 2000 && atomic_load(&ctx.active_workers) != 2; ++i)
+        sleep_milliseconds(1);
+    assert(atomic_load(&ctx.active_workers) == 2);
+    assert(ctx.efd[0] >= 0 && ctx.efd[1] >= 0 && ctx.efd[0] != ctx.efd[1]);
+    struct pollfd independent[2] = {
+        { .fd = ctx.efd[0], .events = POLLIN | POLLOUT },
+        { .fd = ctx.efd[1], .events = POLLIN | POLLOUT }
+    };
+    assert(poll(independent, 2, 0) == 2);
+    assert(independent[0].revents == POLLOUT);
+    assert(independent[1].revents == POLLOUT);
+    assert(write(ctx.efd[0], &limit, sizeof(limit)) == (ssize_t)sizeof(limit));
+    assert(poll(independent, 2, 0) == 2);
+    assert(independent[0].revents == POLLIN);
+    assert(independent[1].revents == POLLOUT);
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(lf_enqueue(&ctx.queues[1], &active_event) == 1);
+    assert(notify_worker(&ctx, 0) == 0);
+    assert(poll(independent, 2, 0) == 2);
+    assert(independent[0].revents == POLLIN);
+    assert(independent[1].revents == POLLOUT);
+    assert(notify_worker(&ctx, 1) == 0);
+    assert(poll(independent, 2, 0) == 2);
+    assert(independent[0].revents == POLLIN);
+    assert(independent[1].revents == (POLLIN | POLLOUT));
+    errno = 0;
+    assert(write(ctx.efd[0], &increment, sizeof(increment)) == -1 &&
+           errno == EAGAIN);
+    fc_test_release_worker();
+    int independent_drained = 0;
+    independent[0].events = POLLIN;
+    independent[1].events = POLLIN;
+    for (int i = 0; i < 2000; ++i) {
+        assert(atomic_load(&ctx.running) == 1);
+        assert(atomic_load(&ctx.worker_error) == 0);
+        int ready = poll(independent, 2, 0);
+        assert(ready >= 0);
+        assert(!(independent[0].revents & (POLLERR | POLLHUP | POLLNVAL)));
+        assert(!(independent[1].revents & (POLLERR | POLLHUP | POLLNVAL)));
+        if (ready == 0 &&
+            atomic_load(&ctx.metrics.dry_run_moves) == isolation_before + 4 &&
+            atomic_load(&ctx.active_workers) == 0) {
+            independent_drained = 1;
+            break;
+        }
+        sleep_milliseconds(1);
+    }
+    assert(independent_drained == 1);
+    assert(lf_is_empty(&ctx.queues[0]) && lf_is_empty(&ctx.queues[1]));
+    assert(join_workers(&ctx) == 0);
+    assert(ctx.num_workers == 0 && ctx.efd[0] == -1 && ctx.efd[1] == -1);
+    assert(atomic_load(&ctx.worker_error) == 0);
+    assert(atomic_load(&ctx.active_workers) == 0);
+    assert(atomic_load(&ctx.metrics.dry_run_moves) == isolation_before + 4);
+    puts("eventfd_worker_isolation=PASS distinct_readiness=PASS live_drain=PASS");
+
     puts("worker lifecycle tests passed");
     return 0;
 }

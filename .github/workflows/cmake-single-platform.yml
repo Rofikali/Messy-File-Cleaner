@@ -59,4 +59,7 @@ jobs:
           ctest --test-dir build-c17-Release -R '^cpu_opt_reference$' --no-tests=error --verbose --output-on-failure
           objdump -d --disassemble=scalar_count build-c17-Release/cpu-opt-reference
           ctest --test-dir build-c17-Release -R '^linux_scanner_cloexec$' --no-tests=error --verbose --output-on-failure
-          ctest --test-dir build-c17-Release -R '^config_stream_fault$' --no-tests=error --verbose --output-on-failure
+          ctest --test-dir build-c17-Release -R '^config_stream_fault
+ --no-tests=error --verbose --output-on-failure
+          ctest --test-dir build-c17-Release -R '^statx_timing_reference
+ --no-tests=error --verbose --output-on-failure

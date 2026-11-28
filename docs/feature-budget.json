@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "0b42b91bc264dc1e215477232668c6216a0033ff",
+  "snapshot_main_sha": "6444f02cf9323a26668dc9e460ca5ed49c414a69",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "STATX-MOUNT-EVAL-01",
   "features": [
@@ -1260,10 +1260,10 @@
         306,
         307
       ],
-      "summary": "#306 merged; 14/14 exact-head checks, C17 Release 89/89 and both statx references PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #307 (3/5) adds error-path and procfs fdinfo consistency tests; no production change, CI pending.",
-      "last_merged_pr": 306,
-      "last_merge_sha": "0b42b91bc264dc1e215477232668c6216a0033ff",
-      "tested_head_sha": "065af9a5db721ad53ea562d6074123c022a1d43e"
+      "summary": "#307 merged; 14/14 exact-head checks, C17 Release 91/91 and all four statx references PASS; integrated-main 11/14 checks PASS, 3 pending at inspection. Fourth candidate paired warm metadata timing and CI evidence; no production claim, CI pending.",
+      "last_merged_pr": 307,
+      "last_merge_sha": "6444f02cf9323a26668dc9e460ca5ed49c414a69",
+      "tested_head_sha": "7fb43fd9e30e0bd469ec95b145ce11a815e5e70d"
     }
   ]
 }

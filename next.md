@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-**Linux-native next research (2026-11-28):** #306 merged at `0b42b91bc264dc1e215477232668c6216a0033ff`; 14/14 exact-head checks PASS, GCC C17 Release and hosted Ubuntu C17 89/89, both statx references PASS (not skipped); integrated-main 10/14 checks PASS, 4 pending at inspection; independent review unverified. STATX-MOUNT-EVAL-01 (3/5; PR #307 open) adds distinct private error-path and procfs fdinfo mount-ID consistency references. No source import, production change, privileged mount, bind-mount proof, release/spend or FS-01B closure. Candidate CI pending. [Hypotheses and evidence](docs/upstream/LINUX_NEXT_HYPOTHESES.md).
+**Linux-native next research (2026-11-28):** #307 merged at `6444f02cf9323a26668dc9e460ca5ed49c414a69`; 14/14 exact-head checks PASS, GCC C17 Release and hosted Ubuntu C17 91/91, all four statx references PASS (not skipped); integrated-main 11/14 checks PASS, 3 pending at inspection; independent review unverified. STATX-MOUNT-EVAL-01 fourth candidate adds bounded paired warm-descriptor timing for fstat versus statx (type/inode/mount ID), validates metadata throughout and emits raw samples in existing C17 Release CI. No production performance claim, source import, privileged mounts, dependencies, release/spend or FS-01B closure. Candidate CI pending. [Hypotheses and evidence](docs/upstream/LINUX_NEXT_HYPOTHESES.md).
 
 **Owner release/distribution direction (2026-11-27):** [Release roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md). The manual keyword `go ahead` (also continue/next/next milestone) and hourly autopilot use the single NOW row below. #296 is merged at `caf3056bc09854a8846a7409c91ba1ef1de893f3`; no open PR was observed before this governance change. FS-01B-FIX is the critical release prerequisite; production correction requires approved trust/crash design. CI-RECONCILIATION-01 is the independent eligible release-baseline incident. Roadmap planning is not release authorization.
 
@@ -18,7 +18,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **STATX-MOUNT-EVAL-01 (3/5; #306 merged; #307 open)** | Error semantics and procfs fdinfo consistency; [hypotheses](docs/upstream/LINUX_NEXT_HYPOTHESES.md) | Candidate CI pending; no confinement or production claim |
+| **NOW — SAFE FEATURE SELECTION** | **STATX-MOUNT-EVAL-01 (#307 merged; fourth candidate)** | Paired metadata timing; [hypotheses](docs/upstream/LINUX_NEXT_HYPOTHESES.md) | Candidate CI pending; no production performance or confinement claim |
 | **PARTIAL** | **LANDLOCK-PREVIEW-EVAL-01 (5/5; #304 merged)** | 14/14 exact-head checks and five reference tests PASS; retain research | Independent review unverified; production DEFER; no sixth PR |
 | **PARTIAL** | **CI-RECONCILIATION-01 (2/5; #299 merged)** | 13/13 exact-head and integrated-main checks PASS; native push failure not returned | Independent review and manual benchmark not verified |
 | **PARTIAL** | **UPSTREAM-COST-01 (5/5; #296 merged)** | Final evidence-first decision gate; PR-head Ubuntu/CMake/Docker/Makefile/TSan PASS; native scanner workflow failed; integrated Ubuntu failed dependency install | Actual billing/ROI and independent review unverified; no sixth PR |

@@ -1275,9 +1275,10 @@
         310,
         311,
         312,
-        313
+        313,
+        314
       ],
-      "summary": "#313 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 96 passed/1 skipped, four Inotify references PASS; integrated-main 12/14 checks PASS, 2 pending at inspection. Final candidate gap creation invalidation and adoption decision; retain fail-closed watcher, no sixth PR. CI pending.",
+      "summary": "#313 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 96 passed/1 skipped, four Inotify references PASS; integrated-main 12/14 checks PASS, 2 pending at inspection. PR #314 (5/5) gap creation invalidation and adoption decision; retain fail-closed watcher, no sixth PR. CI pending.",
       "last_merged_pr": 313,
       "last_merge_sha": "c3d0d9513a3dff49ecb03d26e6c14e44f3d81d8e",
       "tested_head_sha": "3340e5a0998220bf414591199aa8969b2f17b1d7"

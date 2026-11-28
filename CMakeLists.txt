@@ -89,6 +89,10 @@ if(BUILD_TESTING)
     target_compile_options(timerfd-deadline-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME timerfd_deadline_reference COMMAND timerfd-deadline-reference)
     set_tests_properties(timerfd_deadline_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+    add_executable(timerfd-rearm-reference tests/integration/test_timerfd_rearm_reference.c)
+    target_compile_options(timerfd-rearm-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME timerfd_rearm_reference COMMAND timerfd-rearm-reference)
+    set_tests_properties(timerfd_rearm_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
   endif()
 
   # PIDFD-LIFECYCLE-EVAL-01: owned child, test-only lifecycle reference.

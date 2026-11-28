@@ -40,7 +40,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **REFLINK-EVAL-01 (third candidate)** | #322 merged; narrow fallback error policy and actual invalid descriptor preservation | Clone NOT VERIFIED; local NOT RUN; CI pending; no production adoption |
+| **NOW — SAFE FEATURE SELECTION** | **REFLINK-EVAL-01 (3/5; PR #323 open)** | #322 merged; narrow fallback error policy and actual invalid descriptor preservation | Clone NOT VERIFIED; local NOT RUN; CI pending; no production adoption |
 | **PARTIAL** | **SPARSE-EXTENT-EVAL-01 (5/5; #320 merged)** | Five references PASS; fixture-only 18.7x median time and 99.80% fewer submitted bytes | Production DEFER; independent review unverified; no sixth PR |
 | **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |
 | **PARTIAL** | **STATX-MOUNT-EVAL-01 (5/5; #309 merged)** | 14/14 exact-head checks; 92 passed/1 skipped; retain fstat | Same-device topology and independent review unverified; no sixth PR |

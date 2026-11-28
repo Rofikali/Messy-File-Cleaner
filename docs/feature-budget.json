@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "11278c4f9bc77c380231b06ea26d7e81e7d8c2fb",
+  "snapshot_main_sha": "ae2554740c2cecbeafa36738f92a371194c98f27",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "SPARSE-EXTENT-EVAL-01",
+  "active_feature_id": "REFLINK-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1286,7 +1286,7 @@
     {
       "id": "SPARSE-EXTENT-EVAL-01",
       "title": "Disposable Linux sparse extent preservation reference",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         316,
         317,
@@ -1294,10 +1294,17 @@
         319,
         320
       ],
-      "summary": "#319 merged; five workflow families PASS, C17 Release and Ubuntu C17 101 passed/1 skipped, four sparse references PASS. Fifth candidate rejection controls and verbose measurement output; production DEFER. Local NOT RUN; CI pending; independent review and integrated-main unverified. No sixth PR. PR #320 (5/5).",
-      "last_merged_pr": 319,
-      "last_merge_sha": "11278c4f9bc77c380231b06ea26d7e81e7d8c2fb",
-      "tested_head_sha": "b1563d9a357d4d67bbb07973284bb2aee1262b48"
+      "summary": "5/5 exhausted; #320 merged; five exact-head workflow families PASS, C17 Release 102 passed/1 skipped, five sparse references PASS. Four 4 MiB trials: 8192 vs 4194304 submitted bytes, 16 vs 8192 blocks, median 0.1845 vs 3.448 ms. Fixture-only, retain reference, production DEFER, independent review and integrated-main unverified; no sixth PR.",
+      "last_merged_pr": 320,
+      "last_merge_sha": "ae2554740c2cecbeafa36738f92a371194c98f27",
+      "tested_head_sha": "e8d9ef7076e3378fd61b124093e8c65a31fa1338"
+    },
+    {
+      "id": "REFLINK-EVAL-01",
+      "title": "Disposable Linux whole-file reflink and copy-on-write semantics",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "First isolated FICLONE candidate, full 64 KiB byte oracle and bidirectional write isolation; actual PR to register, CI pending. No production integration."
     }
   ]
 }

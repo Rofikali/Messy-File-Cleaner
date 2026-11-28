@@ -1351,9 +1351,10 @@
       "status": "ACTIVE",
       "prs": [
         334,
-        335
+        335,
+        336
       ],
-      "summary": "PR #335 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 111 passed/2 skipped, both TimerFD references PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Third candidate verifies periodic expiration coalescing against monotonic count bounds and cleanup; CI pending; actual PR number to register.",
+      "summary": "PR #335 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 111 passed/2 skipped, both TimerFD references PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Third candidate verifies periodic expiration coalescing against monotonic count bounds and cleanup; CI pending; PR #336 (3/5).",
       "last_merged_pr": 335,
       "last_merge_sha": "5be759f6c6746eda04456b067b1c47ed6f5d921c",
       "tested_head_sha": "4624df578ba308ad271a0f72b68ef658e55cec29"

@@ -103,7 +103,9 @@ if(BUILD_TESTING)
     endif()
     target_compile_options(statx-mount-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME statx_mount_reference COMMAND statx-mount-reference)
-    set_tests_properties(statx_mount_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+    add_test(NAME statx_cross_mount_reference COMMAND statx-mount-reference --cross-mount)
+    set_tests_properties(statx_mount_reference statx_cross_mount_reference
+      PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
   endif()
 
   # LANDLOCK-PREVIEW-EVAL-01: test-only installed UAPI and child restriction.

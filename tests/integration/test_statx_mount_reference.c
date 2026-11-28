@@ -12,6 +12,9 @@ int main(void)
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
+#include <linux/magic.h>
+#include <sys/vfs.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <unistd.h>
@@ -39,8 +42,55 @@ static int query(int fd, struct statx *value, int initial)
     return 0;
 }
 
-int main(void)
+/* Read metadata only on fixed, already existing mount roots. */
+static int cross_mount_reference(void)
 {
+    int root = open("/", O_PATH | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (root < 0)
+        return 1;
+    int proc = open("/proc", O_PATH | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    int result = 1;
+    if (proc < 0) {
+        if (errno == ENOENT || errno == ENOTDIR || errno == EACCES || errno == EPERM)
+            result = 77;
+        goto cleanup;
+    }
+    struct statfs root_fs, proc_fs;
+    if (fstatfs(root, &root_fs) != 0 || fstatfs(proc, &proc_fs) != 0)
+        goto cleanup;
+    if (proc_fs.f_type != PROC_SUPER_MAGIC || root_fs.f_type == proc_fs.f_type) {
+        result = 77;
+        goto cleanup;
+    }
+    struct statx a = {0}, b = {0};
+    result = query(root, &a, 1);
+    if (result != 0)
+        goto cleanup;
+    result = 1;
+    if (query(proc, &b, 0) != 0 ||
+        !S_ISDIR(a.stx_mode) || !S_ISDIR(b.stx_mode) ||
+        a.stx_mnt_id == b.stx_mnt_id ||
+        (a.stx_dev_major == b.stx_dev_major && a.stx_dev_minor == b.stx_dev_minor))
+        goto cleanup;
+    result = 0;
+cleanup:
+    if (proc >= 0 && close(proc) != 0)
+        result = 1;
+    if (close(root) != 0)
+        result = 1;
+    if (result == 0)
+        puts("PASS: existing root/procfs mount IDs and device identities differ");
+    else if (result == 77)
+        puts("NOT VERIFIED: distinct root/procfs or statx mount metadata unavailable");
+    return result;
+}
+
+int main(int argc, char **argv)
+{
+    if (argc == 2 && strcmp(argv[1], "--cross-mount") == 0)
+        return cross_mount_reference();
+    if (argc != 1)
+        return 1;
     char path[] = "/tmp/fc-statx-mount-XXXXXX";
     if (mkdtemp(path) == NULL)
         return 1;

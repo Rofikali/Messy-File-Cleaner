@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ca4f8dd48bc3206c0eff66b6cecefbf3ddea6614",
+  "snapshot_main_sha": "101620482fe837ecc27c726238d5ec50c249d8fc",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "TIMERFD-DEADLINE-EVAL-01",
   "features": [
@@ -1352,7 +1352,10 @@
       "prs": [
         334
       ],
-      "summary": "First isolated reference: empty nonblocking read, independent eventfd readiness, absolute monotonic one-shot expiry, count and cleanup. No production polling replacement; CI pending; PR #334 (1/5)."
+      "summary": "PR #334 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 110 passed/2 skipped, timerfd_deadline_reference PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Second candidate disarms unread expiry, rejects invalid nanoseconds and verifies exact new monotonic expiry; CI pending; actual PR number to register.",
+      "last_merged_pr": 334,
+      "last_merge_sha": "101620482fe837ecc27c726238d5ec50c249d8fc",
+      "tested_head_sha": "41a7e15fa26ceda03b670ae863ac0ed9d3c74023"
     }
   ]
 }

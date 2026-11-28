@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "fabf43680422765e0842eeb5e1f40afd4725e6bc",
+  "snapshot_main_sha": "b9e2b8f27d2eeefa051668fa7e770bd4f68b9b97",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "WATCH-OVERFLOW-EVAL-01",
   "features": [
@@ -1272,9 +1272,13 @@
       "title": "Bounded actual inotify overflow and read-only reconciliation",
       "status": "ACTIVE",
       "prs": [
-        310
+        310,
+        311
       ],
-      "summary": "PR #310 (1/5): First private raw kernel overflow reference; bounded event generation, marker and missed late event observation. No production recovery; CI pending. PR #310 same-slot correction: head b92fa09 had six optimized-build failures from GCC -Werror=maybe-uninitialized on limit; eight checks passed, C17 Debug actual overflow reference PASS (0.05 s). Initialize limit to zero, publish parsed queue limit only after successful stream cleanup, and reject a zero/out-of-cap result before generation. Keep -Werror and all CI gates. Corrected exact-head CI pending; no new PR slot."
+      "summary": "#310 corrected and merged; exact-head and integrated-main 14/14 PASS; C17 Release and Ubuntu C17 93 passed/1 skipped, real overflow PASS. PR #311 (2/5) bounded read-only rescan of quiescent private fixture; no production recovery, CI pending.",
+      "last_merged_pr": 310,
+      "last_merge_sha": "b9e2b8f27d2eeefa051668fa7e770bd4f68b9b97",
+      "tested_head_sha": "4354965e190c950b850f083d6a2b74ff44f027c2"
     }
   ]
 }

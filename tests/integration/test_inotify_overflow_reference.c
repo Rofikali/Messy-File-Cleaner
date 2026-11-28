@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <errno.h>
+#include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -91,8 +92,65 @@ static int observe(int fd, int wd, unsigned int *overflow, unsigned int *late)
     return 1;
 }
 
-int main(void)
+static int same_regular(const struct stat *a, const struct stat *b)
 {
+    return S_ISREG(a->st_mode) && S_ISREG(b->st_mode) &&
+           a->st_dev == b->st_dev && a->st_ino == b->st_ino &&
+           a->st_size == 0 && b->st_size == 0;
+}
+
+/* Fixed-fixture oracle, not a general or atomic snapshot API. */
+static int rescan(int root, const struct stat *stable, const struct stat *late)
+{
+    int fd = openat(root, ".", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+    if (fd < 0)
+        return 1;
+    DIR *dir = fdopendir(fd);
+    if (!dir) {
+        (void)close(fd);
+        return 1;
+    }
+    unsigned int seen = 0, entries = 0, reads = 0;
+    int result = 1;
+    while (++reads <= 32) {
+        errno = 0;
+        struct dirent *entry = readdir(dir);
+        if (!entry) {
+            if (errno == 0 && seen == 15U && entries == 4U)
+                result = 0;
+            break;
+        }
+        const char *name = entry->d_name;
+        if (strcmp(name, ".") == 0 || strcmp(name, "..") == 0)
+            continue;
+        if (++entries > 16)
+            break;
+        struct stat value;
+        if (fstatat(root, name, &value, AT_SYMLINK_NOFOLLOW) != 0)
+            break;
+        unsigned int bit = 0;
+        if (strcmp(name, "stable") == 0 && same_regular(&value, stable))
+            bit = 1;
+        else if (strcmp(name, "late") == 0 && same_regular(&value, late))
+            bit = 2;
+        else if (strcmp(name, "alias") == 0 && S_ISLNK(value.st_mode))
+            bit = 4;
+        else if (strcmp(name, "subdir") == 0 && S_ISDIR(value.st_mode))
+            bit = 8;
+        if (bit == 0 || (seen & bit) != 0)
+            break;
+        seen |= bit;
+    }
+    if (closedir(dir) != 0)
+        result = 1;
+    return result;
+}
+
+int main(int argc, char **argv)
+{
+    int reconcile = argc == 2 && strcmp(argv[1], "--rescan") == 0;
+    if (argc != 1 && !reconcile)
+        return 1;
     unsigned int limit = 0;
     int result = queue_limit(&limit);
     if (result != 0) {
@@ -106,9 +164,23 @@ int main(void)
         return 1;
     int root = open(path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
     int fd = -1, wd = -1, churn = 0, late = 0;
+    int stable_owned = 0, alias_owned = 0, subdir_owned = 0;
+    struct stat stable = {0};
     result = 1;
     if (root < 0)
         goto cleanup;
+    if (reconcile) {
+        if (create_empty(root, "stable", &stable_owned) ||
+            fstatat(root, "stable", &stable, AT_SYMLINK_NOFOLLOW) != 0 ||
+            !S_ISREG(stable.st_mode) || stable.st_size != 0)
+            goto cleanup;
+        if (symlinkat("stable", root, "alias") != 0)
+            goto cleanup;
+        alias_owned = 1;
+        if (mkdirat(root, "subdir", 0700) != 0)
+            goto cleanup;
+        subdir_owned = 1;
+    }
     fd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (fd < 0) {
         if (errno == ENOSYS || errno == EPERM || errno == EACCES ||
@@ -132,16 +204,22 @@ int main(void)
     if (create_empty(root, "late", &late))
         goto cleanup;
     unsigned int overflow = 0, late_events = 0;
-    struct stat value;
+    struct stat value, late_identity = {0};
     if (observe(fd, wd, &overflow, &late_events) != 0 ||
         overflow == 0 || late_events != 0 ||
-        fstatat(root, "late", &value, AT_SYMLINK_NOFOLLOW) != 0 ||
-        !S_ISREG(value.st_mode) || value.st_size != 0 ||
+        fstatat(root, "late", &late_identity, AT_SYMLINK_NOFOLLOW) != 0 ||
+        !S_ISREG(late_identity.st_mode) || late_identity.st_size != 0 ||
         fstatat(root, "churn", &value, AT_SYMLINK_NOFOLLOW) != -1 ||
         errno != ENOENT)
         goto cleanup;
     printf("inotify_overflow limit=%u generated=%u overflow=%u late_events=%u late_present=1\n",
            limit, 2 * pairs + 1, overflow, late_events);
+    if (reconcile) {
+        puts("inotify_rescan event_state=INCOMPLETE");
+        if (rescan(root, &stable, &late_identity) != 0)
+            goto cleanup;
+        puts("inotify_rescan fixture_snapshot=COMPLETE regular=2 excluded_symlink=1 excluded_directory=1");
+    }
     result = 0;
 cleanup:
     if (wd >= 0 && inotify_rm_watch(fd, wd) != 0)
@@ -151,6 +229,12 @@ cleanup:
     if (churn && unlinkat(root, "churn", 0) != 0)
         result = 1;
     if (late && unlinkat(root, "late", 0) != 0)
+        result = 1;
+    if (subdir_owned && unlinkat(root, "subdir", AT_REMOVEDIR) != 0)
+        result = 1;
+    if (alias_owned && unlinkat(root, "alias", 0) != 0)
+        result = 1;
+    if (stable_owned && unlinkat(root, "stable", 0) != 0)
         result = 1;
     if (root >= 0 && close(root) != 0)
         result = 1;

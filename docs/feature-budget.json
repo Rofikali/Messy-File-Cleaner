@@ -1255,8 +1255,10 @@
       "id": "STATX-MOUNT-EVAL-01",
       "title": "Linux statx mount identity diagnostics",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First test-only installed statx reference: returned-mask gate, same-mount descriptor metadata, hard-link and separate-file identity distinction. Cross-mount NOT RUN. No production change; CI pending."
+      "prs": [
+        305
+      ],
+      "summary": "PR #305 (1/5): First test-only installed statx reference: returned-mask gate, same-mount descriptor metadata, hard-link and separate-file identity distinction. Cross-mount NOT RUN. No production change; CI pending."
     }
   ]
 }

@@ -76,7 +76,7 @@ PR #304 consumes the fifth slot; actual PR number registered. After merge and ex
 
 ## Landlock closure and next independent feature — mount identity
 
-**Linux-native next research (2026-11-28):** #304 merged at `990f14256507cc0f3f406681545fa1676878657f`; 14/14 exact-head checks PASS, GCC C17 Release and hosted Ubuntu C17 87/87, all five Landlock references PASS (not skipped); integrated-main 11/14 checks PASS, 3 pending at inspection; independent review unverified. LANDLOCK-PREVIEW-EVAL-01 scoped PARTIAL 5/5, reference retained, production DEFER, no sixth PR. Select STATX-MOUNT-EVAL-01 for distinct read-only mount-ID diagnostics (not repeated openat2 path evaluation): disposable same-mount fixture, returned-mask gate, descriptor metadata consistency, hard-link versus separate-file distinction. No source import, production change, mounts, release/spend or FS-01B closure. Candidate CI pending.
+**Linux-native next research (2026-11-28):** #304 merged at `990f14256507cc0f3f406681545fa1676878657f`; 14/14 exact-head checks PASS, GCC C17 Release and hosted Ubuntu C17 87/87, all five Landlock references PASS (not skipped); integrated-main 11/14 checks PASS, 3 pending at inspection; independent review unverified. LANDLOCK-PREVIEW-EVAL-01 scoped PARTIAL 5/5, reference retained, production DEFER, no sixth PR. Select STATX-MOUNT-EVAL-01 (1/5; PR #305 open) for distinct read-only mount-ID diagnostics (not repeated openat2 path evaluation): disposable same-mount fixture, returned-mask gate, descriptor metadata consistency, hard-link versus separate-file distinction. No source import, production change, mounts, release/spend or FS-01B closure. Candidate CI pending.
 
 ### STATX-MOUNT-EVAL-01 — scope and hypothesis
 

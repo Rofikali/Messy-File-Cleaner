@@ -1350,9 +1350,10 @@
       "title": "Linux monotonic timerfd deadline and readiness reference",
       "status": "ACTIVE",
       "prs": [
-        334
+        334,
+        335
       ],
-      "summary": "PR #334 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 110 passed/2 skipped, timerfd_deadline_reference PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Second candidate disarms unread expiry, rejects invalid nanoseconds and verifies exact new monotonic expiry; CI pending; actual PR number to register.",
+      "summary": "PR #334 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 110 passed/2 skipped, timerfd_deadline_reference PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Second candidate disarms unread expiry, rejects invalid nanoseconds and verifies exact new monotonic expiry; CI pending; PR #335 (2/5).",
       "last_merged_pr": 334,
       "last_merge_sha": "101620482fe837ecc27c726238d5ec50c249d8fc",
       "tested_head_sha": "41a7e15fa26ceda03b670ae863ac0ed9d3c74023"

@@ -1259,9 +1259,10 @@
         305,
         306,
         307,
-        308
+        308,
+        309
       ],
-      "summary": "#308 corrected and merged; 14/14 exact-head checks, C17 Release and Ubuntu C17 92/92, five statx references PASS; integrated-main 9/14 checks PASS, 5 pending at inspection. Actual median fstat 590 vs statx 624 ns/call warm single fd with validation. Final candidate optional same-device mount observation and ADR; retain production fstat, defer statx, no sixth PR. CI pending.",
+      "summary": "#308 corrected and merged; 14/14 exact-head checks, C17 Release and Ubuntu C17 92/92, five statx references PASS; integrated-main 9/14 checks PASS, 5 pending at inspection. Actual median fstat 590 vs statx 624 ns/call warm single fd with validation. PR #309 (5/5) optional same-device mount observation and ADR; retain production fstat, defer statx, no sixth PR. CI pending.",
       "last_merged_pr": 308,
       "last_merge_sha": "c25b7b2d1a2b900ec8df7908bde83946d704fcc1",
       "tested_head_sha": "312964dc81e63adc5550f94b0692e12b3a878a4e"

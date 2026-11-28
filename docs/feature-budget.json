@@ -1243,9 +1243,10 @@
         300,
         301,
         302,
-        303
+        303,
+        304
       ],
-      "summary": "#303 merged; 14/14 exact-head checks, C17 Release 86/86, four Landlock tests PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. Final candidate exec inheritance and reference-only adoption decision; production DEFER, CI pending, no sixth PR.",
+      "summary": "#303 merged; 14/14 exact-head checks, C17 Release 86/86, four Landlock tests PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #304 (5/5) exec inheritance and reference-only adoption decision; production DEFER, CI pending, no sixth PR.",
       "last_merged_pr": 303,
       "last_merge_sha": "27a5ce5a4254d3f2df8e80c380dfe678d1e23450",
       "tested_head_sha": "715b08ab96c63983460a2b64669584c9998141f9"

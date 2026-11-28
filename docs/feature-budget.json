@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "d74eba592b21b1808167ea8c72b357894fe9a313",
+  "snapshot_main_sha": "1ee0842baa847bc21a5d7496ab89b7b9b278b1f4",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "EVENTFD-SATURATION-EVAL-01",
   "features": [
@@ -1339,10 +1339,10 @@
         331,
         332
       ],
-      "summary": "PR #331 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, two-worker isolation PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Fourth candidate tests full SPSC queue, excess rejection, live drain and recovered capacity under real eventfd saturation; CI pending; PR #332 (4/5).",
-      "last_merged_pr": 331,
-      "last_merge_sha": "d74eba592b21b1808167ea8c72b357894fe9a313",
-      "tested_head_sha": "6c695df9529a760343bbb72963c637f5ad7ea610"
+      "summary": "PR #332 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, full queue saturation PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Fifth candidate tests unique FIFO identities, rejected sentinel absence and exact trace; CI pending; actual PR number to register. No sixth PR.",
+      "last_merged_pr": 332,
+      "last_merge_sha": "1ee0842baa847bc21a5d7496ab89b7b9b278b1f4",
+      "tested_head_sha": "d7341fa5fd6cf0cb9c53e0cbb732444d8c35c040"
     }
   ]
 }

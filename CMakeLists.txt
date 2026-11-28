@@ -105,8 +105,9 @@ if(BUILD_TESTING)
     add_test(NAME landlock_preview_extended COMMAND landlock-preview-reference --extended)
     add_test(NAME landlock_descriptor_reference COMMAND landlock-preview-reference --descriptor)
     add_test(NAME landlock_descendant_reference COMMAND landlock-preview-reference --descendant)
+    add_test(NAME landlock_exec_reference COMMAND landlock-preview-reference --exec-reference)
     set_tests_properties(landlock_preview_reference landlock_preview_extended
-      landlock_descriptor_reference landlock_descendant_reference
+      landlock_descriptor_reference landlock_descendant_reference landlock_exec_reference
       PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
   endif()
 

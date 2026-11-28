@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "b9588dd697e2579a9391fd40105e5a96773ebe0d",
+  "snapshot_main_sha": "41ed88fdef6dd6ed548564f30b7ddb667f776969",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LANDLOCK-PREVIEW-EVAL-01",
   "features": [
@@ -1242,12 +1242,13 @@
       "prs": [
         300,
         301,
-        302
+        302,
+        303
       ],
-      "summary": "#301 merged; 14/14 exact-head checks, C17 Release 84/84, both Landlock tests PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #302 (3/5) tests inherited writable descriptor authority and closure; test-only, no import or release, CI pending.",
-      "last_merged_pr": 301,
-      "last_merge_sha": "b9588dd697e2579a9391fd40105e5a96773ebe0d",
-      "tested_head_sha": "28c0becb7a2ee28a8f51216e7d1f984898f4fed3"
+      "summary": "#302 merged; 14/14 exact-head checks, C17 Release 85/85, all three Landlock tests PASS; integrated-main 8/14 checks PASS, 6 pending at inspection. PR #303 (4/5) tests restriction inheritance and unrestricted parent control; test-only, CI pending.",
+      "last_merged_pr": 302,
+      "last_merge_sha": "41ed88fdef6dd6ed548564f30b7ddb667f776969",
+      "tested_head_sha": "83b0ae3d34a91f72e73de4a29074919e88b97b66"
     }
   ]
 }

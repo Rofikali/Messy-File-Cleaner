@@ -107,7 +107,13 @@ static int copy_extents(int src, int dst, off_t size, off_t *written)
     off_t pos = 0;
     unsigned char buf[CHUNK];
     *written = 0;
-    if (size < 0 || size > SIZE || ftruncate(dst, size)) return 1;
+    struct stat src_stat, dst_stat;
+    if (size < 0 || size > SIZE ||
+        fstat(src, &src_stat) || fstat(dst, &dst_stat) ||
+        !S_ISREG(src_stat.st_mode) || !S_ISREG(dst_stat.st_mode) ||
+        src_stat.st_size != size || dst_stat.st_size != 0 ||
+        (src_stat.st_dev == dst_stat.st_dev && src_stat.st_ino == dst_stat.st_ino) ||
+        ftruncate(dst, size)) return 1;
     for (unsigned i = 0; pos < size && i < 1024; ++i) {
         off_t data = lseek(src, pos, SEEK_DATA);
         if (data < 0) {
@@ -272,8 +278,41 @@ static int measurement_reference(void)
     return 0;
 }
 
+/* Rejection is tested before any destination sizing or copying. */
+static int copy_rejections(void)
+{
+    FILE *source = tmpfile(), *dest = tmpfile(), *empty = tmpfile();
+    int rc = 1;
+    off_t written = -1;
+    char a = 0, b = 0;
+    struct stat ss, ds, es;
+    if (!source || !dest || !empty) goto done;
+    int s = fileno(source), d = fileno(dest), e = fileno(empty);
+    if (s < 0 || d < 0 || e < 0 ||
+        pwrite(s, "A", 1, 0) != 1 || pwrite(d, "B", 1, 0) != 1)
+        goto done;
+    if (copy_extents(s, d, 1, &written) != 1 || written != 0 ||
+        copy_extents(s, s, 1, &written) != 1 || written != 0 ||
+        copy_extents(e, e, 0, &written) != 1 || written != 0 ||
+        copy_extents(s, e, 0, &written) != 1 || written != 0 ||
+        copy_extents(s, -1, 1, &written) != 1 || written != 0 ||
+        copy_extents(-1, e, 0, &written) != 1 || written != 0)
+        goto done;
+    if (fstat(s, &ss) || fstat(d, &ds) || fstat(e, &es) ||
+        ss.st_size != 1 || ds.st_size != 1 || es.st_size != 0 ||
+        pread(s, &a, 1, 0) != 1 || a != 'A' ||
+        pread(d, &b, 1, 0) != 1 || b != 'B') goto done;
+    rc = 0;
+done:
+    if (source && fclose(source)) rc = 1;
+    if (dest && fclose(dest)) rc = 1;
+    if (empty && fclose(empty)) rc = 1;
+    return rc;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--reject") == 0) return copy_rejections();
     if (argc == 2 && strcmp(argv[1], "--measure") == 0) return measurement_reference();
     if (argc == 2 && strcmp(argv[1], "--copy") == 0) return copy_reference();
     if (argc == 2 && strcmp(argv[1], "--boundaries") == 0) return boundaries();

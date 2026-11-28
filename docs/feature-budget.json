@@ -1304,9 +1304,10 @@
       "title": "Disposable Linux whole-file reflink and copy-on-write semantics",
       "status": "ACTIVE",
       "prs": [
-        321
+        321,
+        322
       ],
-      "summary": "#321 merged; five workflow families PASS, C17 Release and Ubuntu C17 102 passed/2 skipped, actual reflink NOT VERIFIED. Second candidate actual unsupported fallback; local NOT RUN, CI pending; independent review and integrated-main unverified.",
+      "summary": "#321 merged; five workflow families PASS, C17 Release and Ubuntu C17 102 passed/2 skipped, actual reflink NOT VERIFIED. Second candidate actual unsupported fallback; local NOT RUN, CI pending; independent review and integrated-main unverified. PR #322 (2/5).",
       "last_merged_pr": 321,
       "last_merge_sha": "ae205795daf6c629a70582a8e673824ae0e556c3",
       "tested_head_sha": "d0bb74001136265dd800773841b886c94bf5d626"

@@ -105,3 +105,36 @@ Compare the existing libc interfaces using the same held O_PATH descriptor for a
 ### PR #308 CI correction (same feature slot)
 
 PR #308 same-PR correction: head 1b52ad25 had malformed CMake YAML from a replacement-string error affecting two regex commands; workflow 46108571391 failed with zero jobs. Other seven checks passed; Ubuntu C17 92/92, timing test PASS 0.03 s (rounded CTest duration, not per-call evidence). Restore exact base workflow and append one correctly quoted timing command; new exact-head CI pending. No new feature slot or bypass.
+
+## Fifth and final statx experiment — same-device mounts and adoption decision
+
+**Linux-native next research (2026-11-28):** #308 merged at `c25b7b2d1a2b900ec8df7908bde83946d704fcc1`; corrected head 14/14 checks PASS, GCC C17 Release and Ubuntu C17 92/92, all five statx references PASS (not skipped); integrated-main 9/14 checks PASS, 5 pending at inspection; independent review unverified. Actual verbose C17 Release warm single-fd median fstat 590 ns/call vs statx 624 ns/call (validation included); all seven paired samples favor fstat, not a production speed claim. STATX-MOUNT-EVAL-01 (5/5; PR #309 open) adds optional existing same-device distinct-mount observation and adoption decision: retain fstat production baseline, defer statx integration. No source import, mount manipulation, production change, spend, release or FS-01B closure. Candidate CI pending; no sixth PR.
+
+### Exact evidence
+
+Corrected #308 head 312964dc81e63adc5550f94b0692e12b3a878a4e resolved the malformed workflow, with all five workflows and 14 returned checks passing. [CMake C17 Release job](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/46109238365/job/140868832395): Linux 7.0.0-1020-azure x86_64, glibc 2.43, seven alternating 10,000-call batches per interface.
+
+| Sample | fstat batch ns | statx batch ns |
+| --- | ---: | ---: |
+| 1 | 5992621 | 6286351 |
+| 2 | 5915075 | 6220382 |
+| 3 | 5935515 | 6225910 |
+| 4 | 5890348 | 6244878 |
+| 5 | 5901334 | 6248324 |
+| 6 | 5904008 | 6264438 |
+| 7 | 5893252 | 6270677 |
+
+Reported integer medians 590 and 624 ns/call; difference 34 ns, about 5.76% relative to fstat. Both interfaces validate device/inode/type; statx also checks mask and mount ID. Not equal metadata payloads or isolated syscall timing. Warm one-fd shared-runner results do not predict scanner throughput, cold cache or real external storage. Separate [Ubuntu 24.04 C17 job](https://github.com/Rofikali/Messy-File-Cleaner/actions/runs/46109238348/job/140868831890) passed 92/92 and timing CTest (0.03 s rounded duration, not per-call data). No claims about customer performance.
+
+### Optional same-device reference
+
+Open fixed existing /proc and candidate /proc/sys, /proc/irq, /proc/bus directories using O_PATH/O_DIRECTORY/O_NOFOLLOW/O_CLOEXEC. Check procfs type with fstatfs and metadata with statx/fstat on held descriptors. PASS only when a candidate has the same device pair as /proc but a distinct ordinary mount ID. Missing candidate paths/access, no qualifying pair, or missing initial capability => NOT VERIFIED (77). Unexpected errors or metadata inconsistency fail; close each descriptor. No enumeration of user files, mount changes, root, namespace manipulation, file writes or inference of a bind-mount mechanism. This observational reference may skip on hosts without suitable pre-existing mounts; an ordinary ID can be reused and is not durable authority. No claim of proving an actual bind mount, different namespace semantics, or mount attack resistance. Local NOT RUN; candidate CI pending.
+
+### ADR — retain baseline, defer optional diagnostic integration
+
+- Keep production fstat and current descriptor ownership rules. Do not replace ordinary metadata calls for speed. Retain statx test references.
+- Consider a separate optional read-only diagnostic feature only if a real product need demonstrates different mount IDs on the same device, measured overhead is acceptable and supported environments and semantics are reviewed. Missing returned mask/capability => explicit unknown, no silent safety inference.
+- Do not treat ordinary mount ID, inode/device or fdinfo correlation as authorization, persistent identity, immutable namespace membership or FS-01B source-retirement solution. Bind-mount-specific controlled evidence and actual external storage remain NOT RUN.
+- Future HLD: diagnostic metadata provider returns capability-qualified observations to scanner/reporting; no mover/recovery or public ABI coupling. Future LLD: descriptor ownership, error classification, feature mask, portability fallback for ordinary metadata only, bounded resources, provenance and stable reporting contract. Production implementation requires explicit bounded scope and review, C11/C17/C23, real target kernels/filesystems and container tests, scanner workload benchmark and rollback. Network N/A.
+- L1–L7: correctness and compatibility first, no blanket replacement; CISSP: no trust claims, least privilege; Linux/SRE: runtime probe and explicit skip; CCIE: no new networking; CA/CFO: zero additional authorized spend, actual CI/owner time and TCO unknown; MBA/management: prioritize verified user need and safety gate. No external source or dependency; legal import and release gates unchanged.
+- Five-slot closure: after actual PR registration and merge, reconcile exact-head evidence; close PARTIAL if optional topology or review evidence is missing; no sixth PR or reset. Next distinct eligible research is watcher overflow reconciliation if prior lifecycle coverage does not already meet that outcome. FS-01B owner-gated trust/crash decision remains P0. Rollback: revert candidate; production baseline unchanged.

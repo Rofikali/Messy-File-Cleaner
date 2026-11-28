@@ -306,8 +306,69 @@ cleanup:
     return result;
 }
 
+/* Observe existing mounts only; topology is not guaranteed by this test. */
+static int same_device_reference(void)
+{
+    static const char *const candidates[] = {"/proc/sys", "/proc/irq", "/proc/bus"};
+    int root = open("/proc", O_PATH | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (root < 0)
+        return errno == ENOENT || errno == ENOTDIR || errno == EACCES ||
+               errno == EPERM ? 77 : 1;
+    int result = 1;
+    struct statfs root_fs;
+    struct statx a = {0};
+    if (fstatfs(root, &root_fs) != 0)
+        goto cleanup;
+    if (root_fs.f_type != PROC_SUPER_MAGIC) {
+        result = 77;
+        goto cleanup;
+    }
+    result = query(root, &a, 1);
+    if (result != 0)
+        goto cleanup;
+    result = 77;
+    for (size_t i = 0; i < sizeof(candidates) / sizeof(candidates[0]); ++i) {
+        int fd = open(candidates[i], O_PATH | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+        if (fd < 0) {
+            if (errno == ENOENT || errno == ENOTDIR || errno == EACCES || errno == EPERM)
+                continue;
+            result = 1;
+            break;
+        }
+        struct statfs fs;
+        struct statx b = {0};
+        int matched = 0;
+        int valid = fstatfs(fd, &fs) == 0;
+        if (valid && fs.f_type == PROC_SUPER_MAGIC) {
+            valid = query(fd, &b, 0) == 0 && S_ISDIR(b.stx_mode);
+            if (valid)
+                matched = a.stx_dev_major == b.stx_dev_major &&
+                          a.stx_dev_minor == b.stx_dev_minor &&
+                          a.stx_mnt_id != b.stx_mnt_id;
+        }
+        if (close(fd) != 0 || !valid) {
+            result = 1;
+            break;
+        }
+        if (matched) {
+            result = 0;
+            break;
+        }
+    }
+cleanup:
+    if (close(root) != 0)
+        result = 1;
+    if (result == 0)
+        puts("PASS: existing procfs directories share device identity but differ in mount ID");
+    else if (result == 77)
+        puts("NOT VERIFIED: no qualifying existing same-device mount pair or capability");
+    return result;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--same-device") == 0)
+        return same_device_reference();
     if (argc == 2 && strcmp(argv[1], "--timing") == 0)
         return timing_reference();
     if (argc == 2 && strcmp(argv[1], "--errors") == 0)

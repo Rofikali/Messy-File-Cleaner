@@ -88,7 +88,8 @@ if(BUILD_TESTING)
     add_executable(sparse-extent-reference tests/integration/test_sparse_extent_reference.c)
     target_compile_options(sparse-extent-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME sparse_extent_reference COMMAND sparse-extent-reference)
-    set_tests_properties(sparse_extent_reference PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
+    add_test(NAME sparse_extent_boundaries COMMAND sparse-extent-reference --boundaries)
+    set_tests_properties(sparse_extent_reference sparse_extent_boundaries PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
   endif()
 
   # WATCH-OVERFLOW-EVAL-01: private Linux queue only; no sysctl writes.

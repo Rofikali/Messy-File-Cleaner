@@ -1318,9 +1318,10 @@
       "title": "Owned Linux preview helper pidfd lifecycle readiness reference",
       "status": "ACTIVE",
       "prs": [
-        324
+        324,
+        325
       ],
-      "summary": "PR #324 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 105 passed/2 skipped, pidfd lifecycle PASS; main comparison zero changed files, integrated-main CI NOT VERIFIED. Second candidate invalid flags, live self and closed descriptor negative controls; CI pending; actual new PR number to register.",
+      "summary": "PR #324 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 105 passed/2 skipped, pidfd lifecycle PASS; main comparison zero changed files, integrated-main CI NOT VERIFIED. Second candidate invalid flags, live self and closed descriptor negative controls; CI pending; PR #325 (2/5).",
       "last_merged_pr": 324,
       "last_merge_sha": "f3a9788ce603c746af2db6f12ec95e3ada25a050",
       "tested_head_sha": "5fbfd2a3bec75974052f55ac44b0288080951901"

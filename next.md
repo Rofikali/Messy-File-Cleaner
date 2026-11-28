@@ -60,7 +60,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **EVENTFD-SATURATION-EVAL-01 (fifth candidate; #332 merged)** | Unique FIFO identity oracle, rejected sentinel absence, exact output under full queue saturation | Candidate CI pending; integrated-main CI NOT VERIFIED; retain existing implementation; no sixth PR |
+| **NOW — SAFE FEATURE SELECTION** | **EVENTFD-SATURATION-EVAL-01 (5/5; PR #333 open)** | Unique FIFO identity oracle, rejected sentinel absence, exact output under full queue saturation | Candidate CI pending; integrated-main CI NOT VERIFIED; retain existing implementation; no sixth PR |
 | **PARTIAL** | **PIDFD-LIFECYCLE-EVAL-01 (5/5; #328 merged)** | All five reference tests PASS | Production supervisor DEFER; integrated-main CI NOT VERIFIED; no sixth PR |
 | **PARTIAL** | **REFLINK-EVAL-01 (3/5; #323 merged)** | Actual fallback and error policy PASS; clone NOT VERIFIED | Production DEFER; avoid repeat skips |
 | **PARTIAL** | **SPARSE-EXTENT-EVAL-01 (5/5; #320 merged)** | Five references PASS; fixture-only 18.7x median time and 99.80% fewer submitted bytes | Production DEFER; independent review unverified; no sixth PR |

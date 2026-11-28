@@ -1,5 +1,6 @@
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <string.h>
 
 #ifndef FC_HAVE_LANDLOCK_REFERENCE
 int main(void)
@@ -35,7 +36,7 @@ static int check_read(int dirfd)
     return n != 1 || value != 'X' || closed != 0;
 }
 
-static int restricted_child(int dirfd)
+static int restricted_child(int dirfd, int extended)
 {
     struct landlock_ruleset_attr rules = {
         .handled_access_fs = LANDLOCK_ACCESS_FS_WRITE_FILE |
@@ -46,6 +47,20 @@ static int restricted_child(int dirfd)
     if (abi < 1) {
         int err = errno;
         return abi < 0 && unavailable(err) ? 77 : 1;
+    }
+    if (extended) {
+#if defined(LANDLOCK_ACCESS_FS_TRUNCATE)
+        if (abi < 3)
+            return 77;
+        rules.handled_access_fs |= LANDLOCK_ACCESS_FS_MAKE_REG |
+                                   LANDLOCK_ACCESS_FS_MAKE_DIR |
+                                   LANDLOCK_ACCESS_FS_REMOVE_DIR |
+                                   LANDLOCK_ACCESS_FS_TRUNCATE;
+        if (fchdir(dirfd) != 0)
+            return 1;
+#else
+        return 77;
+#endif
     }
     long rule = syscall(SYS_landlock_create_ruleset, &rules, sizeof(rules), 0);
     if (rule < 0)
@@ -72,11 +87,31 @@ static int restricted_child(int dirfd)
         return 1;
     if (unlinkat(dirfd, "source", 0) != -1 || errno != EACCES)
         return 1;
+    if (extended) {
+        fd = openat(dirfd, "new-file", O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+        if (fd >= 0) {
+            (void)close(fd);
+            return 1;
+        }
+        if (errno != EACCES)
+            return 1;
+        if (renameat(dirfd, "source", dirfd, "renamed") != -1 || errno != EACCES)
+            return 1;
+        if (mkdirat(dirfd, "new-dir", 0700) != -1 || errno != EACCES)
+            return 1;
+        if (unlinkat(dirfd, "existing-dir", AT_REMOVEDIR) != -1 || errno != EACCES)
+            return 1;
+        if (truncate("source", 0) != -1 || errno != EACCES)
+            return 1;
+    }
     return 0;
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+    int extended = argc == 2 && strcmp(argv[1], "--extended") == 0;
+    if (argc != 1 && !extended)
+        return 1;
     char path[] = "/tmp/fc-landlock-reference-XXXXXX";
     if (mkdtemp(path) == NULL)
         return 1;
@@ -95,7 +130,11 @@ int main(void)
         goto cleanup;
     if (linkat(dirfd, "source", dirfd, "retained", 0) != 0)
         goto cleanup;
-    struct stat before, after, retained;
+    struct stat before, after, retained, directory_before, directory_after, absent;
+    if (extended &&
+        (mkdirat(dirfd, "existing-dir", 0700) != 0 ||
+         fstatat(dirfd, "existing-dir", &directory_before, AT_SYMLINK_NOFOLLOW) != 0))
+        goto cleanup;
     if (fstatat(dirfd, "source", &before, AT_SYMLINK_NOFOLLOW) != 0 ||
         before.st_nlink != 2 || check_read(dirfd) != 0)
         goto cleanup;
@@ -108,7 +147,7 @@ int main(void)
     if (child < 0)
         goto cleanup;
     if (child == 0)
-        _exit(restricted_child(dirfd));
+        _exit(restricted_child(dirfd, extended));
     int status;
     pid_t waited;
     do {
@@ -122,8 +161,34 @@ int main(void)
         after.st_dev != retained.st_dev || after.st_ino != retained.st_ino ||
         after.st_nlink != 2 || after.st_size != 1 || check_read(dirfd) != 0)
         goto cleanup;
+    if (extended) {
+        if (fstatat(dirfd, "existing-dir", &directory_after, AT_SYMLINK_NOFOLLOW) != 0 ||
+            !S_ISDIR(directory_after.st_mode) ||
+            directory_before.st_dev != directory_after.st_dev ||
+            directory_before.st_ino != directory_after.st_ino)
+            goto cleanup;
+        if (fstatat(dirfd, "new-file", &absent, AT_SYMLINK_NOFOLLOW) != -1 ||
+            errno != ENOENT)
+            goto cleanup;
+        if (fstatat(dirfd, "renamed", &absent, AT_SYMLINK_NOFOLLOW) != -1 ||
+            errno != ENOENT)
+            goto cleanup;
+        if (fstatat(dirfd, "new-dir", &absent, AT_SYMLINK_NOFOLLOW) != -1 ||
+            errno != ENOENT)
+            goto cleanup;
+    }
     result = WEXITSTATUS(status);
 cleanup:
+    if (extended) {
+        if (unlinkat(dirfd, "new-file", 0) != 0 && errno != ENOENT)
+            result = 1;
+        if (unlinkat(dirfd, "renamed", 0) != 0 && errno != ENOENT)
+            result = 1;
+        if (unlinkat(dirfd, "new-dir", AT_REMOVEDIR) != 0 && errno != ENOENT)
+            result = 1;
+        if (unlinkat(dirfd, "existing-dir", AT_REMOVEDIR) != 0 && errno != ENOENT)
+            result = 1;
+    }
     if (unlinkat(dirfd, "source", 0) != 0 && errno != ENOENT)
         result = 1;
     if (unlinkat(dirfd, "retained", 0) != 0 && errno != ENOENT)
@@ -135,7 +200,8 @@ cleanup:
     if (result == 77)
         puts("NOT VERIFIED: Landlock unavailable or restricted");
     else if (result == 0)
-        puts("PASS: read allowed, write-open and unlink denied; fixture preserved");
+        puts(extended ? "PASS: ABI 3 mutation rights denied; fixture preserved" :
+                        "PASS: read allowed, write-open and unlink denied; fixture preserved");
     return result;
 }
 #endif

@@ -70,7 +70,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — DESIGN ONLY** | **LICENSE-01 (first candidate)** | Scope-limited provenance inventory, owner licensing options and artifact clearance requirements | License selection/imports/distribution BLOCKED; CI pending; FS-01B-FIX remains P0 BLOCKED (1/5) |
+| **NOW — DESIGN ONLY** | **LICENSE-01 (1/5; PR #338 open; design only)** | Scope-limited provenance inventory, owner licensing options and artifact clearance requirements | License selection/imports/distribution BLOCKED; CI pending; FS-01B-FIX remains P0 BLOCKED (1/5) |
 | **PARTIAL** | **TIMERFD-DEADLINE-EVAL-01 (3/5; #336 merged)** | Three reference tests PASS; close early | Existing poll retained; production DEFER; integrated-main CI NOT VERIFIED |
 | **PARTIAL** | **EVENTFD-SATURATION-EVAL-01 (5/5; #333 merged)** | All scoped worker regressions PASS | Existing implementation retained; integrated-main CI NOT VERIFIED; no sixth PR |
 | **PARTIAL** | **PIDFD-LIFECYCLE-EVAL-01 (5/5; #328 merged)** | All five reference tests PASS | Production supervisor DEFER; integrated-main CI NOT VERIFIED; no sixth PR |

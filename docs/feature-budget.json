@@ -1305,9 +1305,10 @@
       "status": "ACTIVE",
       "prs": [
         321,
-        322
+        322,
+        323
       ],
-      "summary": "#322 merged; five workflow families PASS, C17 Release and Ubuntu C17 103 passed/2 skipped, actual fallback PASS, clone NOT VERIFIED; fixture magic 0xef53, EOPNOTSUPP 95. Third candidate narrow error policy and actual EBADF preservation; local NOT RUN, CI pending; independent review and integrated-main unverified.",
+      "summary": "#322 merged; five workflow families PASS, C17 Release and Ubuntu C17 103 passed/2 skipped, actual fallback PASS, clone NOT VERIFIED; fixture magic 0xef53, EOPNOTSUPP 95. Third candidate narrow error policy and actual EBADF preservation; local NOT RUN, CI pending; independent review and integrated-main unverified. PR #323 (3/5).",
       "last_merged_pr": 322,
       "last_merge_sha": "626fb5c368617d80c83a058d90dde934e1e1e029",
       "tested_head_sha": "dc3b0b0b73d27eb1903548d8f89e59ef728f7f2f"

@@ -1,5 +1,9 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
+**Owner direction (2026-11-28):** Continually identify Linux kernel and mature userspace techniques even when absent from the roadmap. Record real unmet requirement, falsifiable hypothesis, baseline, negative controls, capability/portability limits, licensing/provenance, maintenance/TCO, rejection and rollback criteria before selecting one bounded feature. Prefer native interfaces and independent designs; no blanket source-copy approval, no production safety gate bypass, no spend or release. See the Linux hypotheses and upstream reuse policy.
+
+**Live reconciliation (2026-11-28):** PR #314 merged at `22e11eabf60a5abfbd8073acb25ba685b83fd4ac`; exact head `242a2d5dc3a712e7317fddea7e42df88395c4451`, five returned PR workflow families successful (CMake, Ubuntu, Docker, Makefile, FCJ4 TSan). Individual jobs, integrated-main and independent review not verified. WATCH-OVERFLOW-EVAL-01 PARTIAL 5/5; retain fail-closed watcher, no sixth PR. FS-01B-FIX and REL-01 remain blocked.
+
 **Linux-native next research (2026-11-28):** #313 merged at `c3d0d9513a3dff49ecb03d26e6c14e44f3d81d8e`; exact-head 14/14 checks PASS, GCC C17 Release and Ubuntu C17 96 passed/1 skipped (97 registered), all four Inotify references PASS (not skipped); integrated-main 12/14 checks PASS, 2 pending at inspection; independent review unverified. WATCH-OVERFLOW-EVAL-01 (5/5; PR #314 open) adds deterministic close/register gap creation after actual overflow and requires rejection of old snapshot despite an empty new queue. Adoption decision: retain production fail-closed watcher; defer automatic recovery. No sixth PR, production recovery, dispatch, source import, spend, release or FS-01B closure. CI pending. [Hypotheses and evidence](docs/upstream/LINUX_NEXT_HYPOTHESES.md).
 
 **Owner release/distribution direction (2026-11-27):** [Release roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md). The manual keyword `go ahead` (also continue/next/next milestone) and hourly autopilot use the single NOW row below. #296 is merged at `caf3056bc09854a8846a7409c91ba1ef1de893f3`; no open PR was observed before this governance change. FS-01B-FIX is the critical release prerequisite; production correction requires approved trust/crash design. CI-RECONCILIATION-01 is the independent eligible release-baseline incident. Roadmap planning is not release authorization.
@@ -18,7 +22,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **WATCH-OVERFLOW-EVAL-01 (5/5; #313 merged; #314 open)** | Close/register gap reference and adoption decision; [hypotheses](docs/upstream/LINUX_NEXT_HYPOTHESES.md) | CI pending; retain fail-closed watcher; no sixth PR |
+| **NOW — SAFE FEATURE SELECTION** | **No active implementation; research intake** | Reconcile live CI and select distinct evidence-backed candidate; sparse/reflink first proposed | No automatic production activation; FS-01B and REL-01 blocked |
+| **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |
 | **PARTIAL** | **STATX-MOUNT-EVAL-01 (5/5; #309 merged)** | 14/14 exact-head checks; 92 passed/1 skipped; retain fstat | Same-device topology and independent review unverified; no sixth PR |
 | **PARTIAL** | **LANDLOCK-PREVIEW-EVAL-01 (5/5; #304 merged)** | 14/14 exact-head checks and five reference tests PASS; retain research | Independent review unverified; production DEFER; no sixth PR |
 | **PARTIAL** | **CI-RECONCILIATION-01 (2/5; #299 merged)** | 13/13 exact-head and integrated-main checks PASS; native push failure not returned | Independent review and manual benchmark not verified |

@@ -83,6 +83,28 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # LANDLOCK-PREVIEW-EVAL-01: test-only installed UAPI and child restriction.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    include(CheckCSourceCompiles)
+    check_c_source_compiles([=[
+      #include <linux/landlock.h>
+      #include <sys/syscall.h>
+      int main(void) {
+        struct landlock_ruleset_attr rules = {0};
+        return (int)(rules.handled_access_fs + SYS_landlock_create_ruleset +
+          SYS_landlock_restrict_self + LANDLOCK_CREATE_RULESET_VERSION +
+          LANDLOCK_ACCESS_FS_WRITE_FILE + LANDLOCK_ACCESS_FS_REMOVE_FILE);
+      }
+    ]=] FC_HAVE_LANDLOCK_REFERENCE)
+    add_executable(landlock-preview-reference tests/integration/test_landlock_preview_reference.c)
+    if(FC_HAVE_LANDLOCK_REFERENCE)
+      target_compile_definitions(landlock-preview-reference PRIVATE FC_HAVE_LANDLOCK_REFERENCE)
+    endif()
+    target_compile_options(landlock-preview-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME landlock_preview_reference COMMAND landlock-preview-reference)
+    set_tests_properties(landlock_preview_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+  endif()
+
   # UPSTREAM-COST-01: synthetic integer cost reference, never a product target.
   add_executable(upstream_tco_reference tests/reference/upstream_tco_reference.c)
   target_compile_options(upstream_tco_reference PRIVATE -Wall -Wextra -Wpedantic -Werror)

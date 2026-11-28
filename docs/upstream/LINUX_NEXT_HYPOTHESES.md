@@ -1,0 +1,34 @@
+# Linux-native next hypotheses — 28 November 2026
+
+Owner direction: investigate further Linux features using hypothesis, reasoning, and measured acceptance. No copied implementation, new dependency, kernel module, root requirement, production change, paid service or public release is approved here. The live board and feature ledger control selection. Prior completed/exhausted budgets remain intact. The kernel runs below this user-space application; using a syscall differs from copying implementation text.
+
+## Baseline and ordered new questions
+
+#299 merged at `cc0c2b849fcb9d18d3900e1c3a527640ad30181e`, tested head `0bc374b6c37d66c5b09c02965b70c4c31967339b`. Exact-head and integrated-main 13/13 checks passed; integrated runs 46104583062, 46104583046, 46104583069, 46104583099 all success. No native scanner push failure returned for this SHA. Manual benchmark NOT RUN and formal independent review unverified; CI incident PARTIAL 2/5. Existing scanner, path, watcher, I/O, memory, queue, SIMD, cache, supply-chain and API reference experiments are not to be reopened just to obtain more PRs.
+
+| Priority / candidate | Falsifiable hypothesis and evidence | Boundary / rejection criterion |
+| --- | --- | --- |
+| P1 LANDLOCK-PREVIEW-EVAL-01 (active research) | A fresh child applying Landlock filesystem restrictions can still read a private fixture yet receive EACCES on write-open and unlink. Parent retains bytes, both hardlinks and cleanup authority. Test installed UAPI, actual ABI and runtime results; compare unsandboxed parent access. | Not protection against another same-UID writer, inherited writable descriptors or all mutation classes. Unsupported/restricted environment = NOT VERIFIED (skip), never a pass. No production sandbox or FS-01B closure. |
+| P0 FS-01B-FIX (existing blocked gate) | A no-retirement policy preserves original names when identity authority is uncertain; crash-state model and positive unrelated-file preservation tests before any production move. | Requires explicit owner trust/crash decision. VFS locks are internal to kernel; userspace mutex cannot coordinate hostile actors. No unapproved quarantine or unlink. |
+| P2 mount-identity diagnostics | statx with requested mount-ID mask can classify mount-boundary evidence more precisely than st_dev alone on disposable provisioned mounts. | Missing returned mask/unsupported filesystem => unknown; not proof of confinement or inode identity. No privileged mounts or repeated path-evaluation feature. |
+| P2 read-only watcher reconciliation | Hypothesis: an explicitly incomplete snapshot plus bounded rescan after queue overflow yields consistent observable state under fixture churn. | Distinct recovery outcome, not repeat of lifecycle reference; require real overflow evidence or report NOT RUN. No destructive dispatch. |
+| P3 sparse/reflink evidence | SEEK_DATA/SEEK_HOLE and optional FICLONE on provisioned disposable files may reduce physical allocation or transfer work while preserving bytes and documented semantics. | Compare identical inputs, allocated blocks, holes, failure/fallback and CPU/wall time; reject unsupported or no benefit. No mover activation, no assumption of copy-on-write support. |
+| P3 lock-order and resource contracts | Kernel lock-order reasoning adapted into independent userspace debug assertions, fixed acquisition ordering and bounded resource budgets may detect deadlocks or leaks in actual multi-lock paths. | First identify a real graph/defect; no lockdep, scheduler, slab or workqueue source copy; no repetitive prior queue research. |
+
+Candidates other than the active reference are proposals, not an automatic queue or authorization. New IDs require distinct unmet outcomes, budget review and live selection. Preserve current C17 baseline and C11/C23 checks. Existing io_uring raw UAPI is not a proven liburing integration; no blanket replacement of buffered I/O, allocator or classifier.
+
+## First bounded experiment
+
+Build a private CTest reference only under BUILD_TESTING on Linux. Compile-time header/syscall availability is checked; absent support reports skip 77. Query actual Landlock ABI, reject unexpected errors, distinguish policy-disabled/unavailable from success. Parent makes a restrictive disposable directory and fixture with retained hardlink; confirms ordinary write-open access, closes writable descriptors, forks child, and verifies original bytes and link count after child exits. Child creates a deny-all ruleset for WRITE_FILE and REMOVE_FILE, sets no-new-privileges and restricts itself, reads via directory fd, checks EACCES on write-open and unlink. No actual user paths, root, network, dependency, privilege escalation, production binary linkage or external implementation text. Exact cleanup only. The two rights do not cover all mutation operations (e.g. truncate, rename/create, already-open writable handles); do not call this a complete sandbox. No production integration until a separate threat model, rights matrix, descriptor audit, process lifecycle, failure policy and review. CI pending; local execution NOT RUN. Rollback: revert candidate.
+
+## Reference sources
+
+- [Linux VFS](https://docs.kernel.org/filesystems/vfs.html), [directory locking](https://docs.kernel.org/filesystems/directory-locking.html): learn ordering, do not import internal locking.
+- [Landlock userspace API](https://www.man7.org/linux/man-pages/man7/landlock.7.html): runtime ABI and rights; only restrictions on participating processes.
+- [statx](https://man7.org/linux/man-pages/man2/statx.2.html): request mask, mount identity.
+- [Linux license rules](https://docs.kernel.org/process/license-rules.html): per-file SPDX and syscall exception, not blanket permission. The registry remains locked; external source import needs explicit project-license choice, exact per-component license/provenance and legal review.
+- [open and seek semantics](https://man7.org/linux/man-pages/man2/lseek.2.html), [reflink ioctl](https://man7.org/linux/man-pages/man2/ioctl_ficlone.2.html): research only.
+
+## Adoption and review
+
+L1/L2: bounded C, errors, exact disposable test; L3/L4: ownership and interface boundaries; L5/L6: threat model, syscall/ABI compatibility, process isolation, crash model; L7: reject needless dependencies and kernel internals. CISSP: defense in depth, least privilege, non-bypass claims; CCIE: local CLI requires no network; Linux/SRE: actual runtime capability, Docker host differences and explicit skip evidence; CA/CFO: no authorized cash spend, measure owner time, CI usage, maintenance/compliance and equal-scope TCO, unknown is not zero; MBA/management: prioritize safe preview and release dependencies over speculative speed; legal: component-specific clearance. No independent professional certification implied. Adopt only after evidence of benefit and rollback; no unsupported speed/ROI claims.

@@ -42,8 +42,68 @@ static int probe(int fd)
     return gap ? 0 : 77;
 }
 
-int main(void)
+/* Independent boundary control; no mutation outside an owned tmpfile. */
+static int expect_enxio(int fd, off_t offset, int whence)
 {
+    errno = 0;
+    if (lseek(fd, offset, whence) != (off_t)-1) return 1;
+    if (errno == ENXIO) return 0;
+    return unsupported(errno) ? 77 : 1;
+}
+
+static int boundaries(void)
+{
+    FILE *file = tmpfile();
+    int result = 1;
+    if (!file) return 1;
+    int fd = fileno(file);
+    if (fd < 0) goto done;
+    errno = 0;
+    if (lseek(-1, 0, SEEK_DATA) != (off_t)-1 || errno != EBADF) goto done;
+    const int modes[] = { SEEK_DATA, SEEK_HOLE };
+    for (size_t i = 0; i < sizeof modes / sizeof modes[0]; ++i) {
+        result = expect_enxio(fd, 0, modes[i]);
+        if (result) goto done;
+    }
+    result = 1;
+    if (ftruncate(fd, 2 * CHUNK) || fsync(fd)) goto done;
+    for (size_t i = 0; i < sizeof modes / sizeof modes[0]; ++i) {
+        result = expect_enxio(fd, 2 * CHUNK, modes[i]);
+        if (result) goto done;
+        result = expect_enxio(fd, 2 * CHUNK + 1, modes[i]);
+        if (result) goto done;
+    }
+    result = 1;
+    unsigned char buf[CHUNK];
+    for (off_t pos = 0; pos < 2 * CHUNK; pos += CHUNK) {
+        if (pread(fd, buf, sizeof buf, pos) != (ssize_t)sizeof buf) goto done;
+        for (size_t i = 0; i < sizeof buf; ++i)
+            if (buf[i] != 0) goto done;
+    }
+    off_t hole = lseek(fd, 0, SEEK_HOLE);
+    if (hole < 0) { result = unsupported(errno) ? 77 : 1; goto done; }
+    if (hole > 2 * CHUNK) goto done;
+    off_t data = lseek(fd, 0, SEEK_DATA);
+    if (data < 0) {
+        if (unsupported(errno)) { result = 77; goto done; }
+        if (errno != ENXIO || hole != 0) goto done;
+    } else if (data >= 2 * CHUNK || (hole == 2 * CHUNK && data != 0)) {
+        goto done;
+    }
+    struct stat st;
+    if (fstat(fd, &st) || st.st_size != 2 * CHUNK) goto done;
+    /* A filesystem may conservatively report all bytes as data. */
+    result = hole == 2 * CHUNK ? 77 : 0;
+done:
+    if (fclose(file)) result = 1;
+    if (result == 77) puts("NOT VERIFIED: extent boundary capability unavailable");
+    return result;
+}
+
+int main(int argc, char **argv)
+{
+    if (argc == 2 && strcmp(argv[1], "--boundaries") == 0) return boundaries();
+    if (argc != 1) return 1;
     FILE *sparse = tmpfile(), *dense = tmpfile();
     int result = 1;
     if (!sparse || !dense) goto cleanup;

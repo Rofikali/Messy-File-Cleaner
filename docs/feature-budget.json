@@ -1195,8 +1195,10 @@
       "id": "LICENSE-01",
       "title": "Owner licensing and upstream redistribution decision",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "DESIGN ONLY: scoped root-license filename probes, existing dependency/provenance observations, owner options and release evidence checklist. License choice, rights clearance, imports and redistribution remain BLOCKED; actual PR number to register."
+      "prs": [
+        338
+      ],
+      "summary": "DESIGN ONLY: scoped root-license filename probes, existing dependency/provenance observations, owner options and release evidence checklist. License choice, rights clearance, imports and redistribution remain BLOCKED; PR #338 (1/5)."
     },
     {
       "id": "PACKAGING-01",

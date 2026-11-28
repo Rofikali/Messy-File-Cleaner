@@ -17,13 +17,14 @@ static int queue_limit(unsigned int *limit)
         return 77;
     char line[64];
     int result = 77;
+    unsigned int parsed = 0;
     if (fgets(line, sizeof(line), stream) && strchr(line, '\n')) {
         char *end;
         errno = 0;
         unsigned long n = strtoul(line, &end, 10);
         if (!errno && end != line && *end == '\n' && end[1] == '\0' &&
             n > 0 && n <= EVENT_CAP) {
-            *limit = (unsigned int)n;
+            parsed = (unsigned int)n;
             result = 0;
         }
     }
@@ -31,6 +32,8 @@ static int queue_limit(unsigned int *limit)
         result = 1;
     if (fclose(stream) != 0)
         result = 1;
+    if (result == 0)
+        *limit = parsed;
     return result;
 }
 
@@ -90,12 +93,14 @@ static int observe(int fd, int wd, unsigned int *overflow, unsigned int *late)
 
 int main(void)
 {
-    unsigned int limit;
+    unsigned int limit = 0;
     int result = queue_limit(&limit);
     if (result != 0) {
         puts("NOT VERIFIED: queue limit unavailable or outside bounded range");
         return result;
     }
+    if (limit == 0 || limit > EVENT_CAP)
+        return 1;
     char path[] = "/tmp/fc-inotify-overflow-XXXXXX";
     if (!mkdtemp(path))
         return 1;

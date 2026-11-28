@@ -1274,7 +1274,7 @@
       "prs": [
         310
       ],
-      "summary": "PR #310 (1/5): First private raw kernel overflow reference; bounded event generation, marker and missed late event observation. No production recovery; CI pending."
+      "summary": "PR #310 (1/5): First private raw kernel overflow reference; bounded event generation, marker and missed late event observation. No production recovery; CI pending. PR #310 same-slot correction: head b92fa09 had six optimized-build failures from GCC -Werror=maybe-uninitialized on limit; eight checks passed, C17 Debug actual overflow reference PASS (0.05 s). Initialize limit to zero, publish parsed queue limit only after successful stream cleanup, and reject a zero/out-of-cap result before generation. Keep -Werror and all CI gates. Corrected exact-head CI pending; no new PR slot."
     }
   ]
 }

@@ -58,7 +58,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **EVENTFD-SATURATION-EVAL-01 (fourth candidate; #331 merged)** | Full SPSC queue under real saturation, excess rejection, live drain and recovered capacity | Candidate CI pending; integrated-main CI NOT VERIFIED; production code unchanged |
+| **NOW — SAFE FEATURE SELECTION** | **EVENTFD-SATURATION-EVAL-01 (4/5; PR #332 open)** | Full SPSC queue under real saturation, excess rejection, live drain and recovered capacity | Candidate CI pending; integrated-main CI NOT VERIFIED; production code unchanged |
 | **PARTIAL** | **PIDFD-LIFECYCLE-EVAL-01 (5/5; #328 merged)** | All five reference tests PASS | Production supervisor DEFER; integrated-main CI NOT VERIFIED; no sixth PR |
 | **PARTIAL** | **REFLINK-EVAL-01 (3/5; #323 merged)** | Actual fallback and error policy PASS; clone NOT VERIFIED | Production DEFER; avoid repeat skips |
 | **PARTIAL** | **SPARSE-EXTENT-EVAL-01 (5/5; #320 merged)** | Five references PASS; fixture-only 18.7x median time and 99.80% fewer submitted bytes | Production DEFER; independent review unverified; no sixth PR |

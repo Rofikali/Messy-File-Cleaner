@@ -89,7 +89,8 @@ if(BUILD_TESTING)
     target_compile_options(reflink-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME reflink_reference COMMAND reflink-reference)
     add_test(NAME reflink_fallback_reference COMMAND reflink-reference --fallback)
-    set_tests_properties(reflink_reference reflink_fallback_reference PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
+    add_test(NAME reflink_error_reference COMMAND reflink-reference --errors)
+    set_tests_properties(reflink_reference reflink_fallback_reference reflink_error_reference PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
   endif()
 
   # SPARSE-EXTENT-EVAL-01: private disposable extent evidence.

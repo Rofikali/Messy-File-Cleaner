@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "5be759f6c6746eda04456b067b1c47ed6f5d921c",
+  "snapshot_main_sha": "75dec9537e3b8aa16c0a3214755ff9f7cd806b31",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "TIMERFD-DEADLINE-EVAL-01",
+  "active_feature_id": "FS-01B-FIX",
   "features": [
     {
       "id": "PERF-01",
@@ -1182,9 +1182,9 @@
     {
       "id": "FS-01B-FIX",
       "title": "Source-retirement safety and recovery",
-      "status": "BLOCKED",
+      "status": "ACTIVE",
       "prs": [],
-      "summary": "Existing P0; approved trust/crash design, positive unrelated-file preservation, no-clobber, recovery and manual acceptance; no destructive production correction without approval."
+      "summary": "DESIGN ONLY: prepare explicit owner decision packet under existing P0 feature budget. Destructive implementation and release BLOCKED pending accepted trust/crash design, positive preservation, no-clobber, recovery and manual acceptance. No runtime changes; actual PR number to register."
     },
     {
       "id": "LICENSE-01",
@@ -1348,16 +1348,16 @@
     {
       "id": "TIMERFD-DEADLINE-EVAL-01",
       "title": "Linux monotonic timerfd deadline and readiness reference",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         334,
         335,
         336
       ],
-      "summary": "PR #335 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 111 passed/2 skipped, both TimerFD references PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Third candidate verifies periodic expiration coalescing against monotonic count bounds and cleanup; CI pending; PR #336 (3/5).",
-      "last_merged_pr": 335,
-      "last_merge_sha": "5be759f6c6746eda04456b067b1c47ed6f5d921c",
-      "tested_head_sha": "4624df578ba308ad271a0f72b68ef658e55cec29"
+      "summary": "PR #336 merged; 14/14 exact-head returned jobs PASS; C17 Release and Ubuntu C17 112 passed/2 skipped; all three TimerFD references PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. PARTIAL 3/5, retain references and existing poll; production DEFER, close early.",
+      "last_merged_pr": 336,
+      "last_merge_sha": "75dec9537e3b8aa16c0a3214755ff9f7cd806b31",
+      "tested_head_sha": "4882e21e371fdc4f8045cd97b2f37015e10aad2c"
     }
   ]
 }

@@ -33,6 +33,44 @@ static int verify(int fd, unsigned char first, unsigned char last)
     return 0;
 }
 
+/* Narrow capability policy: other errors are failures, never silent fallback. */
+static int fallback_allowed(int err)
+{
+    return err == EOPNOTSUPP || err == ENOTTY || err == ENOSYS || err == EXDEV;
+}
+
+static int error_policy_reference(void)
+{
+    const int allowed[] = { EOPNOTSUPP, ENOTTY, ENOSYS, EXDEV };
+    const int denied[] = { 0, EBADF, EINVAL, EIO, ENOSPC, EDQUOT,
+                           EACCES, EPERM, EINTR, ENOMEM, EFBIG, EROFS };
+    for (size_t i = 0; i < sizeof allowed / sizeof allowed[0]; ++i)
+        if (!fallback_allowed(allowed[i])) return 1;
+    for (size_t i = 0; i < sizeof denied / sizeof denied[0]; ++i)
+        if (fallback_allowed(denied[i])) return 1;
+    FILE *source = tmpfile();
+    if (!source) return 1;
+    int rc = 1, fd = fileno(source);
+    struct stat before, after;
+    char byte = 0;
+    if (fd < 0 || pwrite(fd, "S", 1, 0) != 1 ||
+        fsync(fd) || fstat(fd, &before)) goto done;
+    /* Actual invalid destination descriptor: no write or fallback permitted. */
+    errno = 0;
+    if (ioctl(-1, FICLONE, fd) != -1) goto done;
+    int err = errno;
+    if (err != EBADF || fallback_allowed(err) ||
+        fstat(fd, &after) || before.st_dev != after.st_dev ||
+        before.st_ino != after.st_ino || before.st_size != 1 ||
+        after.st_size != 1 || pread(fd, &byte, 1, 0) != 1 ||
+        byte != 'S') goto done;
+    puts("policy_cases=16 actual_invalid_destination=EBADF source_preserved=YES");
+    rc = 0;
+done:
+    if (fclose(source)) rc = 1;
+    return rc;
+}
+
 static int buffered_copy(int src, int dst)
 {
     unsigned char buf[CHUNK];
@@ -45,6 +83,7 @@ static int buffered_copy(int src, int dst)
 
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--errors") == 0) return error_policy_reference();
     int fallback = argc == 2 && strcmp(argv[1], "--fallback") == 0;
     if (argc != 1 && !fallback) return 1;
     FILE *source = tmpfile(), *dest = tmpfile();
@@ -69,7 +108,7 @@ int main(int argc, char **argv)
     if (ioctl(d, FICLONE, s) != 0) {
         int err = errno;
         fprintf(stderr, "FICLONE errno=%d (%s)\n", err, strerror(err));
-        if (err == EOPNOTSUPP || err == ENOTTY || err == ENOSYS || err == EXDEV) {
+        if (fallback_allowed(err)) {
             if (verify(s, 0, (SIZE - 1) % 251)) goto done;
             if (!fallback) {
                 puts("NOT VERIFIED: clone capability unavailable");

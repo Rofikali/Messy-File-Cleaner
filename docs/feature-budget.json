@@ -1288,9 +1288,10 @@
       "title": "Disposable Linux sparse extent preservation reference",
       "status": "ACTIVE",
       "prs": [
-        316
+        316,
+        317
       ],
-      "summary": "#316 merged; five workflow families successful, seven CMake jobs passed, C17 Release 98 pass/1 skip including sparse reference PASS. Second candidate boundary controls; local NOT RUN, CI pending; integrated-main and independent review unverified.",
+      "summary": "#316 merged; five workflow families successful, seven CMake jobs passed, C17 Release 98 pass/1 skip including sparse reference PASS. Second candidate boundary controls; local NOT RUN, CI pending; integrated-main and independent review unverified. PR #317 (2/5).",
       "last_merged_pr": 316,
       "last_merge_sha": "17608452d63bb9bd752127b7f0e39dee21542e56",
       "tested_head_sha": "e9b2fca5a52acae0bb3b6783d1e0e0f28bd15f78"

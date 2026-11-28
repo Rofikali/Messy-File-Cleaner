@@ -1287,8 +1287,10 @@
       "id": "SPARSE-EXTENT-EVAL-01",
       "title": "Disposable Linux sparse extent preservation reference",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First test-only candidate: 4 MiB logical byte oracle and buffered baseline, bounded extent walk, capability skip and st_blocks report. Actual PR number to register upon creation; local NOT RUN, CI pending. No production integration."
+      "prs": [
+        316
+      ],
+      "summary": "PR #316 (1/5), first test-only candidate: 4 MiB logical byte oracle and buffered baseline, bounded extent walk, capability skip and st_blocks report. Local NOT RUN; CI pending; no production integration."
     }
   ]
 }

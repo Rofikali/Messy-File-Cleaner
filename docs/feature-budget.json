@@ -1239,8 +1239,10 @@
       "id": "LANDLOCK-PREVIEW-EVAL-01",
       "title": "Linux Landlock preview restriction reference",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "Private BUILD_TESTING-only child-process reference; installed UAPI, runtime denial and fixture preservation; no source import or production sandbox. CI pending."
+      "prs": [
+        300
+      ],
+      "summary": "PR #300 first private BUILD_TESTING-only child-process reference; installed UAPI, runtime denial and fixture preservation; no source import or production sandbox. CI pending."
     }
   ]
 }

@@ -42,7 +42,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **PIDFD-LIFECYCLE-EVAL-01 (first candidate)** | Owned child readiness before/after exit, close-on-exec and reaping | Local NOT RUN; CI pending; no production helper |
+| **NOW — SAFE FEATURE SELECTION** | **PIDFD-LIFECYCLE-EVAL-01 (1/5; PR #324 open)** | Owned child readiness before/after exit, close-on-exec and reaping | Local NOT RUN; CI pending; no production helper |
 | **PARTIAL** | **REFLINK-EVAL-01 (3/5; #323 merged)** | Actual fallback and error policy PASS; clone NOT VERIFIED | Production DEFER; avoid repeat skips |
 | **PARTIAL** | **SPARSE-EXTENT-EVAL-01 (5/5; #320 merged)** | Five references PASS; fixture-only 18.7x median time and 99.80% fewer submitted bytes | Production DEFER; independent review unverified; no sixth PR |
 | **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |

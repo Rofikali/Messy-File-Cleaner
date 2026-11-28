@@ -83,6 +83,14 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # PIDFD-LIFECYCLE-EVAL-01: owned child, test-only lifecycle reference.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(pidfd-lifecycle-reference tests/integration/test_pidfd_lifecycle_reference.c)
+    target_compile_options(pidfd-lifecycle-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME pidfd_lifecycle_reference COMMAND pidfd-lifecycle-reference)
+    set_tests_properties(pidfd_lifecycle_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+  endif()
+
   # REFLINK-EVAL-01: private whole-file clone and copy-on-write reference.
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(reflink-reference tests/integration/test_reflink_reference.c)

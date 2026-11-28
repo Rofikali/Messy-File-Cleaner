@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
+**Linux pidfd research (2026-11-28):** #323 merged at `d579c883fe6eb86546ddedca13c909ac994fb7db`; four returned exact-head workflow families passed, Ubuntu in progress at inspection; C17 Release 104 passed/2 skipped, actual reflink fallback/error references PASS, clone NOT VERIFIED (EOPNOTSUPP 95, magic 0xef53). REFLINK-EVAL-01 PARTIAL 3/5; retain references, DEFER production; do not spend slots on repeated skips. Select distinct PIDFD-LIFECYCLE-EVAL-01 test-only reference for a possible future isolated preview helper: own child, pipe-gated exit, pidfd CLOEXEC, poll readiness and waitpid cleanup. No production helper approval. Local NOT RUN; CI pending; independent review and integrated-main unverified. No imports, dependencies, spend or release.
+
 **Reflink error policy research (2026-11-28):** #322 merged at `626fb5c368617d80c83a058d90dde934e1e1e029`; five exact-head workflow families PASS, C17 Release and Ubuntu C17 103 passed/2 skipped, actual unsupported fallback PASS, clone NOT VERIFIED. C17 Release fixture filesystem magic 0xef53, FICLONE EOPNOTSUPP (95). Third test-only candidate tests four allowed and twelve denied policy cases, actual invalid destination EBADF and source marker/identity preservation. Unexpected errors remain fail-closed; no claim of actual injected EIO/ENOSPC. Local NOT RUN; CI pending; independent review and integrated-main unverified. No production change, imports, dependencies, spend or release.
 
 **Reflink fallback research (2026-11-28):** #321 merged at `ae205795daf6c629a70582a8e673824ae0e556c3`; five exact-head workflow families PASS, C17 Release and Ubuntu C17 102 passed/2 skipped, reflink capability NOT VERIFIED in both. Second test-only candidate exposes filesystem magic and actual ioctl errno, discards attempted destination on explicitly unsupported capability, copies into a fresh distinct temporary file and verifies complete bytes and bidirectional write isolation. Supported clone environments skip the actual-unsupported fallback test rather than fake evidence. No production fallback, imports, dependencies, spend or release. Local NOT RUN; CI pending; independent review and integrated-main unverified.
@@ -40,7 +42,8 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **REFLINK-EVAL-01 (3/5; PR #323 open)** | #322 merged; narrow fallback error policy and actual invalid descriptor preservation | Clone NOT VERIFIED; local NOT RUN; CI pending; no production adoption |
+| **NOW — SAFE FEATURE SELECTION** | **PIDFD-LIFECYCLE-EVAL-01 (1/5; PR #324 open)** | Owned child readiness before/after exit, close-on-exec and reaping | Local NOT RUN; CI pending; no production helper |
+| **PARTIAL** | **REFLINK-EVAL-01 (3/5; #323 merged)** | Actual fallback and error policy PASS; clone NOT VERIFIED | Production DEFER; avoid repeat skips |
 | **PARTIAL** | **SPARSE-EXTENT-EVAL-01 (5/5; #320 merged)** | Five references PASS; fixture-only 18.7x median time and 99.80% fewer submitted bytes | Production DEFER; independent review unverified; no sixth PR |
 | **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |
 | **PARTIAL** | **STATX-MOUNT-EVAL-01 (5/5; #309 merged)** | 14/14 exact-head checks; 92 passed/1 skipped; retain fstat | Same-device topology and independent review unverified; no sixth PR |

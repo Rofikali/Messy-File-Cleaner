@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "c3d0d9513a3dff49ecb03d26e6c14e44f3d81d8e",
+  "snapshot_main_sha": "22e11eabf60a5abfbd8073acb25ba685b83fd4ac",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "WATCH-OVERFLOW-EVAL-01",
+  "active_feature_id": null,
   "features": [
     {
       "id": "PERF-01",
@@ -1270,7 +1270,7 @@
     {
       "id": "WATCH-OVERFLOW-EVAL-01",
       "title": "Bounded actual inotify overflow and read-only reconciliation",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         310,
         311,
@@ -1278,10 +1278,10 @@
         313,
         314
       ],
-      "summary": "#313 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 96 passed/1 skipped, four Inotify references PASS; integrated-main 12/14 checks PASS, 2 pending at inspection. PR #314 (5/5) gap creation invalidation and adoption decision; retain fail-closed watcher, no sixth PR. CI pending.",
-      "last_merged_pr": 313,
-      "last_merge_sha": "c3d0d9513a3dff49ecb03d26e6c14e44f3d81d8e",
-      "tested_head_sha": "3340e5a0998220bf414591199aa8969b2f17b1d7"
+      "summary": "5/5 exhausted; #314 merged; five returned exact-head workflow families success; individual jobs, integrated-main and independent review not verified. Retain fail-closed watcher; no sixth PR.",
+      "last_merged_pr": 314,
+      "last_merge_sha": "22e11eabf60a5abfbd8073acb25ba685b83fd4ac",
+      "tested_head_sha": "242a2d5dc3a712e7317fddea7e42df88395c4451"
     }
   ]
 }

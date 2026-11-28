@@ -1171,9 +1171,10 @@
       "title": "Release baseline CI incident and evidence reconciliation",
       "status": "ACTIVE",
       "prs": [
-        298
+        298,
+        299
       ],
-      "summary": "PR #298 merged; 13/13 returned PR-head jobs and 13/13 integrated-main checks passed. Native scanner failed on push with zero jobs; unsupported runner context in job env statically confirmed; second candidate moves TMPDIR to step scope, no dispatch. New CI and independent review pending; no release.",
+      "summary": "PR #298 merged; 13/13 returned PR-head jobs and 13/13 integrated-main checks passed. Native scanner failed on push with zero jobs; unsupported runner context in job env statically confirmed; PR #299 moves TMPDIR to step scope, no dispatch. New CI and independent review pending; no release.",
       "last_merged_pr": 298,
       "last_merge_sha": "02b1de63057abf997d1bde0c3e8190a77221910a",
       "tested_head_sha": "331ebc393b99eb0513f131fbe3a3f46396bbca24"

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "e9c1d56b9d09d161e6ca6ff43ff7392cf3f64fb3",
+  "snapshot_main_sha": "23edab1ac888cae370d2f43c38c03a5aef7e0551",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "WATCH-OVERFLOW-EVAL-01",
   "features": [
@@ -1276,10 +1276,10 @@
         311,
         312
       ],
-      "summary": "#311 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 94 passed/1 skipped, both Inotify references PASS; integrated-main 9/14 checks PASS, 5 pending at inspection. PR #312 (3/5) deterministic stale identity rejection during rescan, no production recovery, CI pending.",
-      "last_merged_pr": 311,
-      "last_merge_sha": "e9c1d56b9d09d161e6ca6ff43ff7392cf3f64fb3",
-      "tested_head_sha": "63a5799efc276e75ce746b14af047571f4a7d187"
+      "summary": "#312 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 95 passed/1 skipped, all three Inotify references PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. Fourth candidate fresh-instance restart with old queue discard; no production recovery, CI pending.",
+      "last_merged_pr": 312,
+      "last_merge_sha": "23edab1ac888cae370d2f43c38c03a5aef7e0551",
+      "tested_head_sha": "6ecd7175f5d08eb19ff57232606fad557cacab34"
     }
   ]
 }

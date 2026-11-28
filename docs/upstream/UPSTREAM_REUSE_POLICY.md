@@ -1,5 +1,9 @@
 # Linux-native upstream reuse policy
 
+**Owner direction (2026-11-28):** Continually identify Linux kernel and mature userspace techniques even when absent from the roadmap. Record real unmet requirement, falsifiable hypothesis, baseline, negative controls, capability/portability limits, licensing/provenance, maintenance/TCO, rejection and rollback criteria before selecting one bounded feature. Prefer native interfaces and independent designs; no blanket source-copy approval, no production safety gate bypass, no spend or release. See the Linux hypotheses and upstream reuse policy.
+
+**Live reconciliation (2026-11-28):** PR #314 merged at `22e11eabf60a5abfbd8073acb25ba685b83fd4ac`; exact head `242a2d5dc3a712e7317fddea7e42df88395c4451`, five returned PR workflow families successful (CMake, Ubuntu, Docker, Makefile, FCJ4 TSan). Individual jobs, integrated-main and independent review not verified. WATCH-OVERFLOW-EVAL-01 PARTIAL 5/5; retain fail-closed watcher, no sixth PR. FS-01B-FIX and REL-01 remain blocked.
+
 Owner approved strategy 2026-11-25; not approval of any individual component or legal license. [Master plan](UPSTREAM_MASTER_PLAN.md), [registry](upstream-registry.json), [live selector](../../next.md), [five-PR policy](../FEATURE_DELIVERY_AND_ACCEPTANCE_POLICY.md).
 
 1. Reconcile current main, all PRs, branch, exact CI and ledger; define a real requirement, baseline, risk and non-goals.

@@ -83,6 +83,14 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # WATCH-OVERFLOW-EVAL-01: private Linux queue only; no sysctl writes.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(inotify-overflow-reference tests/integration/test_inotify_overflow_reference.c)
+    target_compile_options(inotify-overflow-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME inotify_overflow_reference COMMAND inotify-overflow-reference)
+    set_tests_properties(inotify_overflow_reference PROPERTIES TIMEOUT 30 SKIP_RETURN_CODE 77)
+  endif()
+
   # STATX-MOUNT-EVAL-01: installed libc/UAPI, private fixture only.
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include(CheckCSourceCompiles)

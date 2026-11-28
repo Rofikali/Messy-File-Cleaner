@@ -83,6 +83,14 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # TIMERFD-DEADLINE-EVAL-01: isolated Linux monotonic deadline reference.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(timerfd-deadline-reference tests/integration/test_timerfd_deadline_reference.c)
+    target_compile_options(timerfd-deadline-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME timerfd_deadline_reference COMMAND timerfd-deadline-reference)
+    set_tests_properties(timerfd_deadline_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+  endif()
+
   # PIDFD-LIFECYCLE-EVAL-01: owned child, test-only lifecycle reference.
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(pidfd-lifecycle-reference tests/integration/test_pidfd_lifecycle_reference.c)

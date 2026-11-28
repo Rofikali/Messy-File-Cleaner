@@ -110,6 +110,10 @@ int main(void) { return P_PIDFD == P_PID ? 1 : 0; }
     target_compile_options(pidfd-waitid-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME pidfd_waitid_reference COMMAND pidfd-waitid-reference)
     set_tests_properties(pidfd_waitid_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+    add_executable(pidfd-resource-reference tests/integration/test_pidfd_resource_reference.c)
+    target_compile_options(pidfd-resource-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME pidfd_resource_reference COMMAND pidfd-resource-reference)
+    set_tests_properties(pidfd_resource_reference PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
   endif()
 
   # REFLINK-EVAL-01: private whole-file clone and copy-on-write reference.

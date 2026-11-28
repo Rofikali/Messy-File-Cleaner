@@ -19,6 +19,7 @@ int main(void)
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <unistd.h>
+#include <time.h>
 
 #define REQUIRED_MASK (STATX_TYPE | STATX_INO | STATX_MNT_ID)
 
@@ -201,8 +202,114 @@ cleanup:
     return result;
 }
 
+enum { TIMING_SAMPLES = 7, TIMING_CALLS = 10000, WARMUP_CALLS = 256 };
+
+static int timed_batch(int fd, const struct statx *expected, int extended,
+                       unsigned int calls, uint64_t *elapsed)
+{
+    struct timespec start, end;
+    if (clock_gettime(CLOCK_MONOTONIC, &start) != 0)
+        return 1;
+    for (unsigned int i = 0; i < calls; ++i) {
+        if (extended) {
+            struct statx value;
+            if (statx(fd, "", AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW,
+                      REQUIRED_MASK, &value) != 0 ||
+                (value.stx_mask & REQUIRED_MASK) != REQUIRED_MASK ||
+                value.stx_dev_major != expected->stx_dev_major ||
+                value.stx_dev_minor != expected->stx_dev_minor ||
+                value.stx_ino != expected->stx_ino ||
+                (value.stx_mode & S_IFMT) != (expected->stx_mode & S_IFMT) ||
+                value.stx_mnt_id != expected->stx_mnt_id)
+                return 1;
+        } else {
+            struct stat value;
+            if (fstat(fd, &value) != 0 ||
+                major(value.st_dev) != expected->stx_dev_major ||
+                minor(value.st_dev) != expected->stx_dev_minor ||
+                (uint64_t)value.st_ino != expected->stx_ino ||
+                (value.st_mode & S_IFMT) != (expected->stx_mode & S_IFMT))
+                return 1;
+        }
+    }
+    if (clock_gettime(CLOCK_MONOTONIC, &end) != 0)
+        return 1;
+    if (end.tv_sec < start.tv_sec ||
+        (end.tv_sec == start.tv_sec && end.tv_nsec <= start.tv_nsec))
+        return 1;
+    uint64_t seconds = (uint64_t)(end.tv_sec - start.tv_sec);
+    if (seconds > 10)
+        return 1;
+    *elapsed = seconds * UINT64_C(1000000000) +
+               (uint64_t)end.tv_nsec - (uint64_t)start.tv_nsec;
+    return *elapsed == 0;
+}
+
+static uint64_t median_per_call(uint64_t samples[TIMING_SAMPLES])
+{
+    for (unsigned int i = 1; i < TIMING_SAMPLES; ++i) {
+        uint64_t v = samples[i];
+        unsigned int j = i;
+        while (j > 0 && samples[j - 1] > v) {
+            samples[j] = samples[j - 1];
+            --j;
+        }
+        samples[j] = v;
+    }
+    return samples[TIMING_SAMPLES / 2] / TIMING_CALLS;
+}
+
+static int timing_reference(void)
+{
+    char path[] = "/tmp/fc-statx-timing-XXXXXX";
+    if (mkdtemp(path) == NULL)
+        return 1;
+    int fd = open(path, O_PATH | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    int result = 1;
+    if (fd < 0)
+        goto cleanup;
+    struct statx expected = {0};
+    result = query(fd, &expected, 1);
+    if (result != 0)
+        goto cleanup;
+    result = 1;
+    uint64_t ignored, conventional[TIMING_SAMPLES], extended[TIMING_SAMPLES];
+    if (timed_batch(fd, &expected, 0, WARMUP_CALLS, &ignored) ||
+        timed_batch(fd, &expected, 1, WARMUP_CALLS, &ignored))
+        goto cleanup;
+    for (unsigned int i = 0; i < TIMING_SAMPLES; ++i) {
+        if (i % 2 == 0) {
+            if (timed_batch(fd, &expected, 0, TIMING_CALLS, &conventional[i]) ||
+                timed_batch(fd, &expected, 1, TIMING_CALLS, &extended[i]))
+                goto cleanup;
+        } else {
+            if (timed_batch(fd, &expected, 1, TIMING_CALLS, &extended[i]) ||
+                timed_batch(fd, &expected, 0, TIMING_CALLS, &conventional[i]))
+                goto cleanup;
+        }
+        printf("statx_timing sample=%u calls=%u first=%s fstat_batch_ns=%" PRIu64
+               " statx_batch_ns=%" PRIu64 "\n", i + 1, (unsigned int)TIMING_CALLS,
+               i % 2 == 0 ? "fstat" : "statx", conventional[i], extended[i]);
+    }
+    printf("statx_timing median_fstat_ns_per_call=%" PRIu64
+           " median_statx_ns_per_call=%" PRIu64
+           " scope=warm_single_fd_with_validation\n",
+           median_per_call(conventional), median_per_call(extended));
+    result = 0;
+cleanup:
+    if (fd >= 0 && close(fd) != 0)
+        result = 1;
+    if (rmdir(path) != 0)
+        result = 1;
+    if (result == 77)
+        puts("NOT VERIFIED: statx timing capability unavailable");
+    return result;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--timing") == 0)
+        return timing_reference();
     if (argc == 2 && strcmp(argv[1], "--errors") == 0)
         return error_reference();
     if (argc == 2 && strcmp(argv[1], "--fdinfo") == 0)

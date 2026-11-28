@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
+**Sparse extent reference (2026-11-28):** #315 merged at `fb82c8ab64d53e0345c517b8cade6d2104cd7c2f`; four returned PR workflow families passed, independent review not returned. SPARSE-EXTENT-EVAL-01 first candidate: disposable 4 MiB sparse and buffered fixtures, two marker bytes, full logical byte oracle, allocated-block observation, bounded SEEK_DATA/SEEK_HOLE traversal and explicit capability skip. No performance, physical savings or production copier claim. Local NOT RUN; CI pending. FS-01B-FIX/REL-01 remain blocked.
+
 **Next selected research:** SPARSE-EXTENT-EVAL-01 (0/5), distinct test-only sparse extent evaluation using SEEK_DATA/SEEK_HOLE on disposable Linux files. Compare logical bytes, allocated blocks, extent boundaries, unsupported capability and error cases against buffered baseline; reflink is a conditional later experiment only if scoped evidence justifies it. No production copy/mover change. Governance PR #315 is not a feature attempt. Exact-head CI pending; FS-01B-FIX and REL-01 remain blocked.
 
 **Owner direction (2026-11-28):** Continually identify Linux kernel and mature userspace techniques even when absent from the roadmap. Record real unmet requirement, falsifiable hypothesis, baseline, negative controls, capability/portability limits, licensing/provenance, maintenance/TCO, rejection and rollback criteria before selecting one bounded feature. Prefer native interfaces and independent designs; no blanket source-copy approval, no production safety gate bypass, no spend or release. See the Linux hypotheses and upstream reuse policy.
@@ -24,7 +26,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SPARSE-EXTENT-EVAL-01 (0/5; selected)** | Test-only sparse extent discovery, logical-byte and allocated-block comparison with buffered baseline | Capability/benefit not yet verified; no production mover or release |
+| **NOW — SAFE FEATURE SELECTION** | **SPARSE-EXTENT-EVAL-01 (first candidate)** | Disposable sparse and dense reference; verify logical bytes, extent boundaries and report blocks | Local NOT RUN; CI pending; no production copier or release |
 | **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |
 | **PARTIAL** | **STATX-MOUNT-EVAL-01 (5/5; #309 merged)** | 14/14 exact-head checks; 92 passed/1 skipped; retain fstat | Same-device topology and independent review unverified; no sixth PR |
 | **PARTIAL** | **LANDLOCK-PREVIEW-EVAL-01 (5/5; #304 merged)** | 14/14 exact-head checks and five reference tests PASS; retain research | Independent review unverified; production DEFER; no sixth PR |

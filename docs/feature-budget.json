@@ -1240,9 +1240,10 @@
       "title": "Linux Landlock preview restriction reference",
       "status": "ACTIVE",
       "prs": [
-        300
+        300,
+        301
       ],
-      "summary": "#300 merged, 14/14 exact-head checks, C17 Release 83/83 and actual Landlock PASS; integrated-main 12/14 returned checks PASS, 2 pending at inspection. Second candidate adds separate ABI 3 mutation test. No production sandbox/import/release, CI pending.",
+      "summary": "#300 merged, 14/14 exact-head checks, C17 Release 83/83 and actual Landlock PASS; integrated-main 12/14 returned checks PASS, 2 pending at inspection. PR #301 (2/5) adds separate ABI 3 mutation test. No production sandbox/import/release, CI pending.",
       "last_merged_pr": 300,
       "last_merge_sha": "cd8063ecc27d0c76e705ff9567c86249cd00e2f1",
       "tested_head_sha": "3112f09c45d40bafe83bc355100768cafa46f05b"

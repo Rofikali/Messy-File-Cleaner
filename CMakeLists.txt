@@ -97,6 +97,19 @@ if(BUILD_TESTING)
     target_compile_options(pidfd-epoll-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME pidfd_epoll_reference COMMAND pidfd-epoll-reference)
     set_tests_properties(pidfd_epoll_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+    include(CheckCSourceCompiles)
+    check_c_source_compiles([=[
+#define _GNU_SOURCE
+#include <sys/wait.h>
+int main(void) { return P_PIDFD == P_PID ? 1 : 0; }
+]=] FC_HAVE_P_PIDFD)
+    add_executable(pidfd-waitid-reference tests/integration/test_pidfd_waitid_reference.c)
+    if(FC_HAVE_P_PIDFD)
+      target_compile_definitions(pidfd-waitid-reference PRIVATE FC_HAVE_P_PIDFD=1)
+    endif()
+    target_compile_options(pidfd-waitid-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME pidfd_waitid_reference COMMAND pidfd-waitid-reference)
+    set_tests_properties(pidfd_waitid_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
   endif()
 
   # REFLINK-EVAL-01: private whole-file clone and copy-on-write reference.

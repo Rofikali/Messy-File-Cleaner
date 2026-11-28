@@ -337,13 +337,59 @@ int main(void)
            errno == EAGAIN);
     assert(!lf_is_empty(&ctx.queues[0]));
     fc_test_release_worker();
+
+    /* Do not request shutdown until the live worker has processed both
+     * items and consumed the saturated counter. Observe readiness only;
+     * the test thread must not read or reset the worker's eventfd. */
+    int drained_live = 0;
+    for (int i = 0; i < 2000; ++i) {
+        assert(atomic_load(&ctx.running) == 1);
+        assert(atomic_load(&ctx.worker_error) == 0);
+        saturated.revents = 0;
+        int ready = poll(&saturated, 1, 0);
+        assert(ready >= 0);
+        assert(!(saturated.revents & (POLLERR | POLLHUP | POLLNVAL)));
+        if (ready == 0 &&
+            atomic_load(&ctx.metrics.dry_run_moves) == moves_before + 2 &&
+            atomic_load(&ctx.active_workers) == 0) {
+            drained_live = 1;
+            break;
+        }
+        sleep_milliseconds(1);
+    }
+    assert(drained_live == 1);
+    assert(lf_is_empty(&ctx.queues[0]));
+
+    /* A new ordinary notification must be accepted after saturation clears.
+     * This verifies continued processing, not wakeup latency: the worker
+     * also has an existing bounded polling timeout. */
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(notify_worker(&ctx, 0) == 0);
+    int recovered_live = 0;
+    for (int i = 0; i < 2000; ++i) {
+        assert(atomic_load(&ctx.running) == 1);
+        assert(atomic_load(&ctx.worker_error) == 0);
+        saturated.revents = 0;
+        int ready = poll(&saturated, 1, 0);
+        assert(ready >= 0);
+        assert(!(saturated.revents & (POLLERR | POLLHUP | POLLNVAL)));
+        if (ready == 0 &&
+            atomic_load(&ctx.metrics.dry_run_moves) == moves_before + 3 &&
+            atomic_load(&ctx.active_workers) == 0) {
+            recovered_live = 1;
+            break;
+        }
+        sleep_milliseconds(1);
+    }
+    assert(recovered_live == 1);
+    assert(lf_is_empty(&ctx.queues[0]));
     assert(join_workers(&ctx) == 0);
     assert(ctx.num_workers == 0 && ctx.efd[0] == -1);
     assert(atomic_load(&ctx.worker_error) == 0);
     assert(atomic_load(&ctx.active_workers) == 0);
     assert(lf_is_empty(&ctx.queues[0]));
-    assert(atomic_load(&ctx.metrics.dry_run_moves) == moves_before + 2);
-    puts("eventfd_saturation=PASS notify_coalesced=PASS queue_drained=PASS");
+    assert(atomic_load(&ctx.metrics.dry_run_moves) == moves_before + 3);
+    puts("eventfd_saturation=PASS notify_coalesced=PASS live_drain=PASS rearm=PASS queue_drained=PASS");
 
     puts("worker lifecycle tests passed");
     return 0;

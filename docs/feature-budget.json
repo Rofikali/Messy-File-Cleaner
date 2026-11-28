@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "75dec9537e3b8aa16c0a3214755ff9f7cd806b31",
+  "snapshot_main_sha": "a5c845c0cb934cafcde50021f17ac9cc6b204079",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "FS-01B-FIX",
+  "active_feature_id": "LICENSE-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1182,18 +1182,21 @@
     {
       "id": "FS-01B-FIX",
       "title": "Source-retirement safety and recovery",
-      "status": "ACTIVE",
+      "status": "BLOCKED",
       "prs": [
         337
       ],
-      "summary": "DESIGN ONLY: prepare explicit owner decision packet under existing P0 feature budget. Destructive implementation and release BLOCKED pending accepted trust/crash design, positive preservation, no-clobber, recovery and manual acceptance. No runtime changes; PR #337 (1/5)."
+      "summary": "PR #337 merged; 13/13 exact-head returned jobs PASS; C17 Release and Ubuntu C17 112 passed/2 skipped. Known-race test reproduces risk; design only. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. BLOCKED 1/5 pending explicit trust/crash approval and positive preservation/manual acceptance.",
+      "last_merged_pr": 337,
+      "last_merge_sha": "a5c845c0cb934cafcde50021f17ac9cc6b204079",
+      "tested_head_sha": "731a1428a264f965054e760ece31ebf81e6dabf0"
     },
     {
       "id": "LICENSE-01",
       "title": "Owner licensing and upstream redistribution decision",
-      "status": "BLOCKED",
+      "status": "ACTIVE",
       "prs": [],
-      "summary": "Prepare license/provenance inventory and options; owner selects terms before redistribution or imports."
+      "summary": "DESIGN ONLY: scoped root-license filename probes, existing dependency/provenance observations, owner options and release evidence checklist. License choice, rights clearance, imports and redistribution remain BLOCKED; actual PR number to register."
     },
     {
       "id": "PACKAGING-01",

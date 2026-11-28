@@ -464,16 +464,33 @@ int main(void)
     atomic_store(&ctx.running, 1);
     lf_init(&ctx.queues[0]);
     const uint64_t full_before = atomic_load(&ctx.metrics.dry_run_moves);
+    /* Capture only this phase, with no other pool live. Use private
+     * temporary storage, not a pipe that could block the consumer. */
+    FILE *trace = tmpfile();
+    assert(trace != NULL);
+    assert(fflush(stderr) == 0);
+    int saved_stderr = dup(STDERR_FILENO);
+    assert(saved_stderr >= 0);
+    assert(dup2(fileno(trace), STDERR_FILENO) == STDERR_FILENO);
+    FileEvent numbered = {0};
+    numbered.type = FILE_FOUND;
+    assert(snprintf(numbered.path, sizeof(numbered.path),
+                    "/tmp/fc-eventfd-identity-%04d", 0) > 0);
     fc_test_pause_worker_before_process();
-    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(lf_enqueue(&ctx.queues[0], &numbered) == 1);
     assert(start_workers(&ctx, 1) == 0);
     assert(fc_test_wait_for_worker_pause(2000) == 0);
     assert(atomic_load(&ctx.active_workers) == 1);
     assert(write(ctx.efd[0], &limit, sizeof(limit)) == (ssize_t)sizeof(limit));
-    for (int i = 0; i < QUEUE_SIZE - 1; ++i)
-        assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    for (int i = 1; i < QUEUE_SIZE; ++i) {
+        assert(snprintf(numbered.path, sizeof(numbered.path),
+                        "/tmp/fc-eventfd-identity-%04d", i) > 0);
+        assert(lf_enqueue(&ctx.queues[0], &numbered) == 1);
+    }
     /* Full queue rejects an additional event without transferring it. */
-    assert(lf_enqueue(&ctx.queues[0], &active_event) == 0);
+    assert(snprintf(numbered.path, sizeof(numbered.path),
+                    "/tmp/fc-eventfd-rejected") > 0);
+    assert(lf_enqueue(&ctx.queues[0], &numbered) == 0);
     assert(notify_worker(&ctx, 0) == 0);
     errno = 0;
     assert(write(ctx.efd[0], &increment, sizeof(increment)) == -1 &&
@@ -502,7 +519,9 @@ int main(void)
     assert(lf_is_empty(&ctx.queues[0]));
     /* The rejected enqueue did not consume capacity or inflate metrics.
      * Verify a fresh enqueue after wrap-around is accepted and drained. */
-    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(snprintf(numbered.path, sizeof(numbered.path),
+                    "/tmp/fc-eventfd-identity-%04d", QUEUE_SIZE) > 0);
+    assert(lf_enqueue(&ctx.queues[0], &numbered) == 1);
     assert(notify_worker(&ctx, 0) == 0);
     assert(join_workers(&ctx) == 0);
     assert(ctx.num_workers == 0 && ctx.efd[0] == -1);
@@ -511,7 +530,23 @@ int main(void)
     assert(lf_is_empty(&ctx.queues[0]));
     assert(atomic_load(&ctx.metrics.dry_run_moves) ==
            full_before + QUEUE_SIZE + 1);
-    puts("eventfd_full_queue=PASS excess_rejected=PASS live_drain=PASS capacity_recovered=PASS");
+    /* Consumer joined: restore stderr before validating exact FIFO trace. */
+    assert(fflush(stderr) == 0);
+    assert(dup2(saved_stderr, STDERR_FILENO) == STDERR_FILENO);
+    assert(close(saved_stderr) == 0);
+    assert(fseek(trace, 0, SEEK_SET) == 0);
+    char observed[256], expected[256];
+    for (int i = 0; i <= QUEUE_SIZE; ++i) {
+        int n = snprintf(expected, sizeof(expected),
+                         "Would move: /tmp/fc-eventfd-identity-%04d -> Others/\n", i);
+        assert(n > 0 && (size_t)n < sizeof(expected));
+        assert(fgets(observed, sizeof(observed), trace) != NULL);
+        assert(strcmp(observed, expected) == 0);
+    }
+    assert(fgets(observed, sizeof(observed), trace) == NULL);
+    assert(feof(trace) && !ferror(trace));
+    assert(fclose(trace) == 0);
+    puts("eventfd_full_queue=PASS excess_rejected=PASS live_drain=PASS capacity_recovered=PASS fifo_identity=PASS");
 
     puts("worker lifecycle tests passed");
     return 0;

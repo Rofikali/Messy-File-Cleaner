@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "2dc2d0caaaf5f03de59a867cd44da231dca77aea",
+  "snapshot_main_sha": "f4cef3a758e05a5cf97caf21eff7093533c0e9c3",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "PIDFD-LIFECYCLE-EVAL-01",
+  "active_feature_id": "EVENTFD-SATURATION-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1316,7 +1316,7 @@
     {
       "id": "PIDFD-LIFECYCLE-EVAL-01",
       "title": "Owned Linux preview helper pidfd lifecycle readiness reference",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         324,
         325,
@@ -1324,10 +1324,17 @@
         327,
         328
       ],
-      "summary": "PR #327 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 108 passed/2 skipped, four PIDFD references PASS; zero changed files in main comparison, integrated-main CI NOT VERIFIED. Fifth candidate 32 normal/unwind cycles with fd balance and ECHILD each time; CI pending; PR #328 (5/5). No sixth PR; production DEFER.",
-      "last_merged_pr": 327,
-      "last_merge_sha": "2dc2d0caaaf5f03de59a867cd44da231dca77aea",
-      "tested_head_sha": "a43fdf6d48c2d7f3283a650b681e46c5ee7d2db7"
+      "summary": "PR #328 merged; 14/14 returned exact-head jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, all five PIDFD references PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. PARTIAL 5/5: retain test-only references; production DEFER; no sixth PR.",
+      "last_merged_pr": 328,
+      "last_merge_sha": "f4cef3a758e05a5cf97caf21eff7093533c0e9c3",
+      "tested_head_sha": "a9a3afdfbd19f8ac0ed0a2c9900fcf45d06b8e7d"
+    },
+    {
+      "id": "EVENTFD-SATURATION-EVAL-01",
+      "title": "Actual Linux eventfd saturation in existing worker notification path",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "First candidate holds sole worker at existing test gate, fills real counter, observes EAGAIN/readability, invokes existing notify_worker, checks queued dry-run processing and cleanup. CI pending; actual PR number to register."
     }
   ]
 }

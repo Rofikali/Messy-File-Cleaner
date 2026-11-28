@@ -1320,9 +1320,10 @@
       "prs": [
         324,
         325,
-        326
+        326,
+        327
       ],
-      "summary": "PR #326 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 107 passed/2 skipped, all three PIDFD references PASS; main comparison zero changed files, integrated-main CI NOT VERIFIED. Fourth candidate waitid P_PIDFD nonconsuming observations, consuming wait and ECHILD; CI pending; actual PR number to register.",
+      "summary": "PR #326 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 107 passed/2 skipped, all three PIDFD references PASS; main comparison zero changed files, integrated-main CI NOT VERIFIED. Fourth candidate waitid P_PIDFD nonconsuming observations, consuming wait and ECHILD; CI pending; PR #327 (4/5).",
       "last_merged_pr": 326,
       "last_merge_sha": "63040167637e30fb218292d11060000ae9848ae1",
       "tested_head_sha": "d595ae0151d0d07df268235d1274e11aa60e18fc"

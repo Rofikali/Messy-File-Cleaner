@@ -1333,8 +1333,10 @@
       "id": "EVENTFD-SATURATION-EVAL-01",
       "title": "Actual Linux eventfd saturation in existing worker notification path",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First candidate holds sole worker at existing test gate, fills real counter, observes EAGAIN/readability, invokes existing notify_worker, checks queued dry-run processing and cleanup. CI pending; actual PR number to register."
+      "prs": [
+        329
+      ],
+      "summary": "First candidate holds sole worker at existing test gate, fills real counter, observes EAGAIN/readability, invokes existing notify_worker, checks queued dry-run processing and cleanup. CI pending; PR #329 (1/5)."
     }
   ]
 }

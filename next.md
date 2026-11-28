@@ -34,7 +34,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SPARSE-EXTENT-EVAL-01 (fifth candidate)** | #319 merged; final descriptor rejection controls, trial evidence and adoption decision | CI pending; DEFER production; no sixth PR |
+| **NOW — SAFE FEATURE SELECTION** | **SPARSE-EXTENT-EVAL-01 (5/5; PR #320 open)** | #319 merged; final descriptor rejection controls, trial evidence and adoption decision | CI pending; DEFER production; no sixth PR |
 | **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |
 | **PARTIAL** | **STATX-MOUNT-EVAL-01 (5/5; #309 merged)** | 14/14 exact-head checks; 92 passed/1 skipped; retain fstat | Same-device topology and independent review unverified; no sixth PR |
 | **PARTIAL** | **LANDLOCK-PREVIEW-EVAL-01 (5/5; #304 merged)** | 14/14 exact-head checks and five reference tests PASS; retain research | Independent review unverified; production DEFER; no sixth PR |

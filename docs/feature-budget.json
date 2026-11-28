@@ -1183,8 +1183,10 @@
       "id": "FS-01B-FIX",
       "title": "Source-retirement safety and recovery",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "DESIGN ONLY: prepare explicit owner decision packet under existing P0 feature budget. Destructive implementation and release BLOCKED pending accepted trust/crash design, positive preservation, no-clobber, recovery and manual acceptance. No runtime changes; actual PR number to register."
+      "prs": [
+        337
+      ],
+      "summary": "DESIGN ONLY: prepare explicit owner decision packet under existing P0 feature budget. Destructive implementation and release BLOCKED pending accepted trust/crash design, positive preservation, no-clobber, recovery and manual acceptance. No runtime changes; PR #337 (1/5)."
     },
     {
       "id": "LICENSE-01",

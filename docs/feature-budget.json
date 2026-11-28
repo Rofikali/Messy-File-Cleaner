@@ -1335,9 +1335,10 @@
       "status": "ACTIVE",
       "prs": [
         329,
-        330
+        330,
+        331
       ],
-      "summary": "PR #330 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, live worker drain and rearm PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Third candidate tests two-worker eventfd readiness isolation, targeted notifications and four-item live drain; CI pending; actual PR number to register.",
+      "summary": "PR #330 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, live worker drain and rearm PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Third candidate tests two-worker eventfd readiness isolation, targeted notifications and four-item live drain; CI pending; PR #331 (3/5).",
       "last_merged_pr": 330,
       "last_merge_sha": "568209a07ab3c18766fa4537d198e0297f20e7e7",
       "tested_head_sha": "1d6e32beb0693c157ae601f1f3b797dc82afc771"

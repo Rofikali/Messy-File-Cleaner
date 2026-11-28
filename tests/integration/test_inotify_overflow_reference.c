@@ -100,7 +100,8 @@ static int same_regular(const struct stat *a, const struct stat *b)
            a->st_size == 0 && b->st_size == 0;
 }
 
-enum { RESCAN_OK = 0, RESCAN_ERROR = 1, RESCAN_STALE = 2 };
+enum { RESCAN_OK = 0, RESCAN_ERROR = 1, RESCAN_STALE = 2,
+       RESCAN_UNEXPECTED = 3 };
 
 struct interposition {
     int *late_owned;
@@ -172,7 +173,11 @@ static int rescan(int root, const struct stat *stable, const struct stat *late,
             bit = 4;
         else if (strcmp(name, "subdir") == 0 && S_ISDIR(value.st_mode))
             bit = 8;
-        if (bit == 0 || (seen & bit) != 0)
+        if (bit == 0) {
+            result = RESCAN_UNEXPECTED;
+            break;
+        }
+        if ((seen & bit) != 0)
             break;
         seen |= bit;
     }
@@ -229,7 +234,7 @@ static int fresh_event(int fd, int wd)
 /* Single-threaded fixture; no claim about concurrent re-registration gaps. */
 static int restart_reference(int root, const char *path, int *fd, int *wd,
                              int *churn, int *fresh, const struct stat *stable,
-                             const struct stat *late)
+                             const struct stat *late, int gap_mode, int *gap_owned)
 {
     if (create_empty(root, "churn", churn) || unlinkat(root, "churn", 0) != 0)
         return 1;
@@ -242,14 +247,35 @@ static int restart_reference(int root, const char *path, int *fd, int *wd,
     *wd = -1;
     if (close(old) != 0)
         return 1;
+    struct stat gap_identity = {0};
+    if (gap_mode &&
+        (create_empty(root, "gap", gap_owned) ||
+         fstatat(root, "gap", &gap_identity, AT_SYMLINK_NOFOLLOW) != 0 ||
+         !S_ISREG(gap_identity.st_mode) || gap_identity.st_size != 0))
+        return 1;
     *fd = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (*fd < 0)
         return 1;
     *wd = inotify_add_watch(*fd, path, IN_CREATE | IN_DELETE | IN_ONLYDIR | IN_DONT_FOLLOW);
-    if (*wd < 0 || queue_empty(*fd) || rescan(root, stable, late, NULL) != RESCAN_OK ||
-        queue_empty(*fd) || create_empty(root, "fresh", fresh) || fresh_event(*fd, *wd))
+    if (*wd < 0 || queue_empty(*fd))
         return 1;
+    int snapshot = rescan(root, stable, late, NULL);
     struct stat a, b, c;
+    if (gap_mode) {
+        if (snapshot != RESCAN_UNEXPECTED || queue_empty(*fd) ||
+            fstatat(root, "gap", &c, AT_SYMLINK_NOFOLLOW) != 0 ||
+            !same_regular(&c, &gap_identity) ||
+            fstatat(root, "stable", &a, AT_SYMLINK_NOFOLLOW) != 0 ||
+            !same_regular(&a, stable) ||
+            fstatat(root, "late", &b, AT_SYMLINK_NOFOLLOW) != 0 ||
+            !same_regular(&b, late))
+            return 1;
+        puts("inotify_gap new_queue_empty=1 gap_present=1 snapshot=INCOMPLETE reason=UNEXPECTED_MEMBERSHIP");
+        return 0;
+    }
+    if (snapshot != RESCAN_OK || queue_empty(*fd) ||
+        create_empty(root, "fresh", fresh) || fresh_event(*fd, *wd))
+        return 1;
     if (fstatat(root, "stable", &a, AT_SYMLINK_NOFOLLOW) != 0 ||
         !same_regular(&a, stable) ||
         fstatat(root, "late", &b, AT_SYMLINK_NOFOLLOW) != 0 ||
@@ -264,7 +290,8 @@ static int restart_reference(int root, const char *path, int *fd, int *wd,
 int main(int argc, char **argv)
 {
     int invalidate = argc == 2 && strcmp(argv[1], "--invalidate") == 0;
-    int restart = argc == 2 && strcmp(argv[1], "--restart") == 0;
+    int gap_mode = argc == 2 && strcmp(argv[1], "--gap") == 0;
+    int restart = gap_mode || (argc == 2 && strcmp(argv[1], "--restart") == 0);
     int reconcile = invalidate || restart || (argc == 2 && strcmp(argv[1], "--rescan") == 0);
     if (argc != 1 && !reconcile)
         return 1;
@@ -282,6 +309,7 @@ int main(int argc, char **argv)
     int root = open(path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
     int fd = -1, wd = -1, churn = 0, late = 0;
     int stable_owned = 0, alias_owned = 0, subdir_owned = 0, fresh_owned = 0;
+    int gap_owned = 0;
     struct interposition hook = { .late_owned = &late };
     struct stat stable = {0};
     result = 1;
@@ -353,7 +381,7 @@ int main(int argc, char **argv)
             puts("inotify_rescan fixture_snapshot=INCOMPLETE reason=STALE_IDENTITY original_preserved=1 replacement_preserved=1");
         } else if (restart) {
             if (restart_reference(root, path, &fd, &wd, &churn, &fresh_owned,
-                                  &stable, &late_identity) != 0)
+                                  &stable, &late_identity, gap_mode, &gap_owned) != 0)
                 goto cleanup;
         } else {
             puts("inotify_rescan fixture_snapshot=COMPLETE regular=2 excluded_symlink=1 excluded_directory=1");
@@ -366,6 +394,8 @@ cleanup:
     if (fd >= 0 && close(fd) != 0)
         result = 1;
     if (churn && unlinkat(root, "churn", 0) != 0)
+        result = 1;
+    if (gap_owned && unlinkat(root, "gap", 0) != 0)
         result = 1;
     if (fresh_owned && unlinkat(root, "fresh", 0) != 0)
         result = 1;

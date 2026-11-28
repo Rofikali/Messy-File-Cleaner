@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/vfs.h>
 #include <unistd.h>
 #include <linux/fs.h>
 #include <sys/ioctl.h>
@@ -32,8 +33,20 @@ static int verify(int fd, unsigned char first, unsigned char last)
     return 0;
 }
 
-int main(void)
+static int buffered_copy(int src, int dst)
 {
+    unsigned char buf[CHUNK];
+    for (off_t pos = 0; pos < SIZE; pos += CHUNK) {
+        if (pread(src, buf, sizeof buf, pos) != (ssize_t)sizeof buf ||
+            pwrite(dst, buf, sizeof buf, pos) != (ssize_t)sizeof buf) return 1;
+    }
+    return 0;
+}
+
+int main(int argc, char **argv)
+{
+    int fallback = argc == 2 && strcmp(argv[1], "--fallback") == 0;
+    if (argc != 1 && !fallback) return 1;
     FILE *source = tmpfile(), *dest = tmpfile();
     int rc = 1;
     if (!source || !dest) goto done;
@@ -50,14 +63,38 @@ int main(void)
         if (pwrite(s, buf, sizeof buf, pos) != (ssize_t)sizeof buf) goto done;
     }
     if (fsync(s) || verify(s, 0, (SIZE - 1) % 251)) goto done;
+    struct statfs fs;
+    if (fstatfs(s, &fs)) goto done;
+    printf("filesystem_magic=0x%lx\n", (unsigned long)fs.f_type);
     if (ioctl(d, FICLONE, s) != 0) {
         int err = errno;
         fprintf(stderr, "FICLONE errno=%d (%s)\n", err, strerror(err));
         if (err == EOPNOTSUPP || err == ENOTTY || err == ENOSYS || err == EXDEV) {
             if (verify(s, 0, (SIZE - 1) % 251)) goto done;
-            puts("NOT VERIFIED: clone capability unavailable");
-            rc = 77;
+            if (!fallback) {
+                puts("NOT VERIFIED: clone capability unavailable");
+                rc = 77;
+                goto done;
+            }
+            /* Discard the attempted destination rather than reuse possibly
+             * modified contents. The replacement must be a fresh owned file. */
+            FILE *fresh = tmpfile();
+            if (!fresh) goto done;
+            int closed = fclose(dest);
+            dest = fresh;
+            if (closed) goto done;
+            d = fileno(dest);
+            if (d < 0 || fstat(d, &ds) || !S_ISREG(ds.st_mode) ||
+                ds.st_size != 0 ||
+                (ds.st_dev == ss.st_dev && ds.st_ino == ss.st_ino) ||
+                buffered_copy(s, d)) goto done;
+            puts("fallback=buffered actual_unsupported_ioctl=YES");
+        } else {
+            goto done;
         }
+    } else if (fallback) {
+        puts("NOT VERIFIED: actual unsupported capability not observed");
+        rc = 77;
         goto done;
     }
     if (fsync(d) || verify(d, 0, (SIZE - 1) % 251) ||
@@ -73,7 +110,8 @@ int main(void)
         sa.st_dev != ss.st_dev || sa.st_ino != ss.st_ino ||
         da.st_dev != ds.st_dev || da.st_ino != ds.st_ino ||
         sa.st_size != SIZE || da.st_size != SIZE) goto done;
-    printf("FICLONE logical_bytes=%d bidirectional_isolation=PASS\n", SIZE);
+    printf("method=%s logical_bytes=%d bidirectional_isolation=PASS\n",
+           fallback ? "buffered-fallback" : "FICLONE", SIZE);
     rc = 0;
 done:
     if (source && fclose(source)) rc = 1;

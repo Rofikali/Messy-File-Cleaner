@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ae205795daf6c629a70582a8e673824ae0e556c3",
+  "snapshot_main_sha": "626fb5c368617d80c83a058d90dde934e1e1e029",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "REFLINK-EVAL-01",
   "features": [
@@ -1307,10 +1307,10 @@
         321,
         322
       ],
-      "summary": "#321 merged; five workflow families PASS, C17 Release and Ubuntu C17 102 passed/2 skipped, actual reflink NOT VERIFIED. Second candidate actual unsupported fallback; local NOT RUN, CI pending; independent review and integrated-main unverified. PR #322 (2/5).",
-      "last_merged_pr": 321,
-      "last_merge_sha": "ae205795daf6c629a70582a8e673824ae0e556c3",
-      "tested_head_sha": "d0bb74001136265dd800773841b886c94bf5d626"
+      "summary": "#322 merged; five workflow families PASS, C17 Release and Ubuntu C17 103 passed/2 skipped, actual fallback PASS, clone NOT VERIFIED; fixture magic 0xef53, EOPNOTSUPP 95. Third candidate narrow error policy and actual EBADF preservation; local NOT RUN, CI pending; independent review and integrated-main unverified.",
+      "last_merged_pr": 322,
+      "last_merge_sha": "626fb5c368617d80c83a058d90dde934e1e1e029",
+      "tested_head_sha": "dc3b0b0b73d27eb1903548d8f89e59ef728f7f2f"
     }
   ]
 }

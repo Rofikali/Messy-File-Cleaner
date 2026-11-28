@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "101620482fe837ecc27c726238d5ec50c249d8fc",
+  "snapshot_main_sha": "5be759f6c6746eda04456b067b1c47ed6f5d921c",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "TIMERFD-DEADLINE-EVAL-01",
   "features": [
@@ -1353,10 +1353,10 @@
         334,
         335
       ],
-      "summary": "PR #334 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 110 passed/2 skipped, timerfd_deadline_reference PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Second candidate disarms unread expiry, rejects invalid nanoseconds and verifies exact new monotonic expiry; CI pending; PR #335 (2/5).",
-      "last_merged_pr": 334,
-      "last_merge_sha": "101620482fe837ecc27c726238d5ec50c249d8fc",
-      "tested_head_sha": "41a7e15fa26ceda03b670ae863ac0ed9d3c74023"
+      "summary": "PR #335 merged; 14/14 returned jobs PASS, C17 Release and Ubuntu C17 111 passed/2 skipped, both TimerFD references PASS. Zero changed files head-to-main; integrated-main CI NOT VERIFIED. Third candidate verifies periodic expiration coalescing against monotonic count bounds and cleanup; CI pending; actual PR number to register.",
+      "last_merged_pr": 335,
+      "last_merge_sha": "5be759f6c6746eda04456b067b1c47ed6f5d921c",
+      "tested_head_sha": "4624df578ba308ad271a0f72b68ef658e55cec29"
     }
   ]
 }

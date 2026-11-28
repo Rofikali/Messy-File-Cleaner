@@ -36,7 +36,7 @@ static int check_read(int dirfd)
     return n != 1 || value != 'X' || closed != 0;
 }
 
-static int restricted_child(int dirfd, int extended)
+static int restrict_preview(int dirfd, int extended)
 {
     struct landlock_ruleset_attr rules = {
         .handled_access_fs = LANDLOCK_ACCESS_FS_WRITE_FILE |
@@ -76,6 +76,14 @@ static int restricted_child(int dirfd, int extended)
         return 1;
     if (restricted != 0)
         return unavailable(err) ? 77 : 1;
+    return 0;
+}
+
+static int restricted_child(int dirfd, int extended)
+{
+    int setup = restrict_preview(dirfd, extended);
+    if (setup != 0)
+        return setup;
     if (check_read(dirfd) != 0)
         return 1;
     int fd = openat(dirfd, "source", O_WRONLY | O_CLOEXEC | O_NOFOLLOW);
@@ -107,8 +115,123 @@ static int restricted_child(int dirfd, int extended)
     return 0;
 }
 
+static int descriptor_child(int dirfd, int inherited, int close_first)
+{
+    if (close_first && close(inherited) != 0)
+        return 1;
+    int setup = restrict_preview(dirfd, 0);
+    if (setup != 0)
+        return setup;
+
+    int fresh = openat(dirfd, "descriptor", O_WRONLY | O_NOFOLLOW | O_CLOEXEC);
+    if (fresh >= 0) {
+        (void)close(fresh);
+        return 1;
+    }
+    if (errno != EACCES)
+        return 1;
+
+    if (close_first) {
+        if (fcntl(inherited, F_GETFD) != -1 || errno != EBADF)
+            return 1;
+        if (pwrite(inherited, "Z", 1, 0) != -1 || errno != EBADF)
+            return 1;
+    } else {
+        /* Deliberately exercise only our disposable one-byte fixture. */
+        if (pwrite(inherited, "Y", 1, 0) != 1)
+            return 1;
+        if (close(inherited) != 0)
+            return 1;
+    }
+    return 0;
+}
+
+static int run_descriptor_child(int dirfd, int fd, int close_first)
+{
+    pid_t child = fork();
+    if (child < 0)
+        return 1;
+    if (child == 0)
+        _exit(descriptor_child(dirfd, fd, close_first));
+    int status;
+    pid_t waited;
+    do {
+        waited = waitpid(child, &status, 0);
+    } while (waited < 0 && errno == EINTR);
+    if (waited != child || !WIFEXITED(status))
+        return 1;
+    return WEXITSTATUS(status);
+}
+
+static int descriptor_fixture_matches(int dirfd, int fd,
+                                      const struct stat *before, char expected)
+{
+    struct stat current, named;
+    char actual = 0;
+    if (fstat(fd, &current) != 0 ||
+        fstatat(dirfd, "descriptor", &named, AT_SYMLINK_NOFOLLOW) != 0 ||
+        !S_ISREG(named.st_mode) || current.st_dev != before->st_dev ||
+        current.st_ino != before->st_ino || current.st_dev != named.st_dev ||
+        current.st_ino != named.st_ino || current.st_size != 1 ||
+        current.st_nlink != 1 || pread(fd, &actual, 1, 0) != 1 ||
+        actual != expected)
+        return 0;
+    return 1;
+}
+
+static int descriptor_reference(void)
+{
+    char path[] = "/tmp/fc-landlock-descriptor-XXXXXX";
+    if (mkdtemp(path) == NULL)
+        return 1;
+    int dirfd = open(path, O_RDONLY | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (dirfd < 0) {
+        (void)rmdir(path);
+        return 1;
+    }
+    int result = 1;
+    int fd = openat(dirfd, "descriptor", O_RDWR | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+    if (fd < 0)
+        goto cleanup;
+    struct stat before;
+    if (write(fd, "X", 1) != 1 || fstat(fd, &before) != 0 ||
+        !descriptor_fixture_matches(dirfd, fd, &before, 'X'))
+        goto close_file;
+    result = run_descriptor_child(dirfd, fd, 0);
+    if (result != 0) {
+        if (!descriptor_fixture_matches(dirfd, fd, &before, 'X'))
+            result = 1;
+        goto close_file;
+    }
+    if (!descriptor_fixture_matches(dirfd, fd, &before, 'Y')) {
+        result = 1;
+        goto close_file;
+    }
+    result = run_descriptor_child(dirfd, fd, 1);
+    if (!descriptor_fixture_matches(dirfd, fd, &before, 'Y'))
+        result = 1;
+    /* A second-child skip cannot establish the paired hypothesis. */
+close_file:
+    if (close(fd) != 0)
+        result = 1;
+cleanup:
+    if (unlinkat(dirfd, "descriptor", 0) != 0 && errno != ENOENT)
+        result = 1;
+    if (close(dirfd) != 0)
+        result = 1;
+    if (rmdir(path) != 0)
+        result = 1;
+    if (result == 0)
+        puts("PASS: inherited writable fd retained authority; explicit close denied access");
+    else if (result == 77)
+        puts("NOT VERIFIED: Landlock descriptor reference unavailable");
+    return result;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--descriptor") == 0)
+        return descriptor_reference();
     int extended = argc == 2 && strcmp(argv[1], "--extended") == 0;
     if (argc != 1 && !extended)
         return 1;

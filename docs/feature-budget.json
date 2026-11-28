@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "cd8063ecc27d0c76e705ff9567c86249cd00e2f1",
+  "snapshot_main_sha": "b9588dd697e2579a9391fd40105e5a96773ebe0d",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LANDLOCK-PREVIEW-EVAL-01",
   "features": [
@@ -1241,12 +1241,13 @@
       "status": "ACTIVE",
       "prs": [
         300,
-        301
+        301,
+        302
       ],
-      "summary": "#300 merged, 14/14 exact-head checks, C17 Release 83/83 and actual Landlock PASS; integrated-main 12/14 returned checks PASS, 2 pending at inspection. PR #301 (2/5) adds separate ABI 3 mutation test. No production sandbox/import/release, CI pending.",
-      "last_merged_pr": 300,
-      "last_merge_sha": "cd8063ecc27d0c76e705ff9567c86249cd00e2f1",
-      "tested_head_sha": "3112f09c45d40bafe83bc355100768cafa46f05b"
+      "summary": "#301 merged; 14/14 exact-head checks, C17 Release 84/84, both Landlock tests PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #302 (3/5) tests inherited writable descriptor authority and closure; test-only, no import or release, CI pending.",
+      "last_merged_pr": 301,
+      "last_merge_sha": "b9588dd697e2579a9391fd40105e5a96773ebe0d",
+      "tested_head_sha": "28c0becb7a2ee28a8f51216e7d1f984898f4fed3"
     }
   ]
 }

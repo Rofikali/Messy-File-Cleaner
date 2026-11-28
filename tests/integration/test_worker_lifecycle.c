@@ -3,6 +3,9 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdatomic.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <poll.h>
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -304,6 +307,43 @@ int main(void)
         assert(atomic_load(&ctx.metrics.dry_run_moves) == 34);
     }
     classifier_init(&ctx.classifier, &ctx.cfg.ext_map, "Others/");
+
+    /* Real eventfd saturation, not an injected errno. Hold the sole
+     * consumer at the existing test gate before filling its counter. */
+    atomic_store(&ctx.running, 1);
+    lf_init(&ctx.queues[0]);
+    const uint64_t moves_before = atomic_load(&ctx.metrics.dry_run_moves);
+    fc_test_pause_worker_before_process();
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(start_workers(&ctx, 1) == 0);
+    assert(fc_test_wait_for_worker_pause(2000) == 0);
+    assert(atomic_load(&ctx.active_workers) == 1);
+
+    const int saturated_fd = ctx.efd[0];
+    const uint64_t limit = UINT64_MAX - UINT64_C(1);
+    const uint64_t increment = 1;
+    assert(write(saturated_fd, &limit, sizeof(limit)) == (ssize_t)sizeof(limit));
+    errno = 0;
+    assert(write(saturated_fd, &increment, sizeof(increment)) == -1 &&
+           errno == EAGAIN);
+    struct pollfd saturated = { .fd = saturated_fd, .events = POLLIN };
+    assert(poll(&saturated, 1, 0) == 1 && (saturated.revents & POLLIN));
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(notify_worker(&ctx, 0) == 0);
+
+    /* The counter remains saturated and the queued item remains pending. */
+    errno = 0;
+    assert(write(saturated_fd, &increment, sizeof(increment)) == -1 &&
+           errno == EAGAIN);
+    assert(!lf_is_empty(&ctx.queues[0]));
+    fc_test_release_worker();
+    assert(join_workers(&ctx) == 0);
+    assert(ctx.num_workers == 0 && ctx.efd[0] == -1);
+    assert(atomic_load(&ctx.worker_error) == 0);
+    assert(atomic_load(&ctx.active_workers) == 0);
+    assert(lf_is_empty(&ctx.queues[0]));
+    assert(atomic_load(&ctx.metrics.dry_run_moves) == moves_before + 2);
+    puts("eventfd_saturation=PASS notify_coalesced=PASS queue_drained=PASS");
 
     puts("worker lifecycle tests passed");
     return 0;

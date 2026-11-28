@@ -93,6 +93,10 @@ if(BUILD_TESTING)
     target_compile_options(pidfd-negative-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME pidfd_negative_reference COMMAND pidfd-negative-reference)
     set_tests_properties(pidfd_negative_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+    add_executable(pidfd-epoll-reference tests/integration/test_pidfd_epoll_reference.c)
+    target_compile_options(pidfd-epoll-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME pidfd_epoll_reference COMMAND pidfd-epoll-reference)
+    set_tests_properties(pidfd_epoll_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
   endif()
 
   # REFLINK-EVAL-01: private whole-file clone and copy-on-write reference.

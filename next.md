@@ -1,6 +1,6 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
-**Linux-native next research (2026-11-28):** #302 merged at `41ed88fdef6dd6ed548564f30b7ddb667f776969`; 14/14 exact-head checks PASS, GCC C17 Release and hosted Ubuntu C17 85/85, all three Landlock references PASS (not skipped); integrated-main 8/14 checks PASS, 6 pending at inspection; independent review unverified. LANDLOCK-PREVIEW-EVAL-01 (4/5; PR #303 open) tests inherited restriction in a forked descendant and an unrestricted parent control using only a disposable fixture. No production sandbox, universal descriptor audit, same-UID isolation, kernel source import or FS-01B/release closure. Candidate CI pending. [Hypotheses and evidence](docs/upstream/LINUX_NEXT_HYPOTHESES.md).
+**Linux-native next research (2026-11-28):** #303 merged at `27a5ce5a4254d3f2df8e80c380dfe678d1e23450`; 14/14 exact-head checks PASS, GCC C17 Release and hosted Ubuntu C17 86/86, all four Landlock references PASS (not skipped); integrated-main 10/14 checks PASS, 4 pending at inspection; independent review unverified. LANDLOCK-PREVIEW-EVAL-01 (5/5; PR #304 open) adds actual exec inheritance reference and production adoption decision: retain reference, DEFER production. No production sandbox, kernel source import, complete isolation, FS-01B/release closure or spend. Candidate CI pending; no sixth PR. [Hypotheses and evidence](docs/upstream/LINUX_NEXT_HYPOTHESES.md).
 
 **Owner release/distribution direction (2026-11-27):** [Release roadmap](docs/RELEASE_PACKAGING_DISTRIBUTION_ROADMAP.md). The manual keyword `go ahead` (also continue/next/next milestone) and hourly autopilot use the single NOW row below. #296 is merged at `caf3056bc09854a8846a7409c91ba1ef1de893f3`; no open PR was observed before this governance change. FS-01B-FIX is the critical release prerequisite; production correction requires approved trust/crash design. CI-RECONCILIATION-01 is the independent eligible release-baseline incident. Roadmap planning is not release authorization.
 
@@ -18,7 +18,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **LANDLOCK-PREVIEW-EVAL-01 (4/5; #302 merged; #303 open)** | Descendant restriction inheritance and parent authority control; [hypotheses](docs/upstream/LINUX_NEXT_HYPOTHESES.md) | Candidate CI pending; no universal isolation, production sandbox or release |
+| **NOW — SAFE FEATURE SELECTION** | **LANDLOCK-PREVIEW-EVAL-01 (5/5; #303 merged; #304 open)** | Actual exec inheritance and final reference-only adoption decision; [hypotheses](docs/upstream/LINUX_NEXT_HYPOTHESES.md) | Candidate CI pending; no sixth PR, production sandbox or release |
 | **PARTIAL** | **CI-RECONCILIATION-01 (2/5; #299 merged)** | 13/13 exact-head and integrated-main checks PASS; native push failure not returned | Independent review and manual benchmark not verified |
 | **PARTIAL** | **UPSTREAM-COST-01 (5/5; #296 merged)** | Final evidence-first decision gate; PR-head Ubuntu/CMake/Docker/Makefile/TSan PASS; native scanner workflow failed; integrated Ubuntu failed dependency install | Actual billing/ROI and independent review unverified; no sixth PR |
 | **NEXT — gated** | **LICENSE-01** | Owner license decision, SPDX/provenance inventory | No license selection or imports automatically |

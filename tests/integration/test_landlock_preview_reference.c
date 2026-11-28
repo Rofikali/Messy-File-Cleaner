@@ -289,7 +289,44 @@ static int descendant_fixture_matches(int dirfd, const struct stat *before,
     return matched;
 }
 
-static int descendant_reference(void)
+static int exec_reference_child(int dirfd)
+{
+    if (fchdir(dirfd) != 0)
+        return 1;
+    int setup = restrict_preview(dirfd, 0);
+    if (setup != 0)
+        return setup;
+    if (descendant_denials(dirfd) != 0 || close(dirfd) != 0)
+        return 1;
+    execl("/proc/self/exe", "landlock-preview-reference", "--exec-child",
+          (char *)NULL);
+    return errno == ENOENT || errno == ENOTDIR ? 77 : 1;
+}
+
+static int exec_reference_image(void)
+{
+    int dirfd = open(".", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+    if (dirfd < 0)
+        return 1;
+    /* Do not exercise mutation checks outside our private fixture. */
+    struct stat fixture;
+    int result = 1;
+    if (fstatat(dirfd, "source", &fixture, AT_SYMLINK_NOFOLLOW) == 0 &&
+        S_ISREG(fixture.st_mode) && fixture.st_size == 1 &&
+        fixture.st_uid == geteuid() && fixture.st_nlink == 1)
+        if (check_read(dirfd) == 0) {
+            int fd = openat(dirfd, "source", O_WRONLY | O_NOFOLLOW | O_CLOEXEC);
+            if (fd < 0 && errno == EACCES)
+                result = 0;
+            else if (fd >= 0)
+                (void)close(fd);
+        }
+    if (close(dirfd) != 0)
+        result = 1;
+    return result;
+}
+
+static int descendant_reference(int exec_mode)
 {
     char path[] = "/tmp/fc-landlock-descendant-XXXXXX";
     if (mkdtemp(path) == NULL)
@@ -312,7 +349,7 @@ static int descendant_reference(void)
     if (child < 0)
         goto cleanup;
     if (child == 0)
-        _exit(descendant_child(dirfd));
+        _exit(exec_mode ? exec_reference_child(dirfd) : descendant_child(dirfd));
     result = wait_reference_child(child);
     if (!descendant_fixture_matches(dirfd, &before, 'X'))
         result = 1;
@@ -336,7 +373,8 @@ cleanup:
     if (rmdir(path) != 0)
         result = 1;
     if (result == 0)
-        puts("PASS: child and descendant restricted; parent retained authority");
+        puts(exec_mode ? "PASS: exec image retained read/write-open restriction; parent retained authority" :
+                         "PASS: child and descendant restricted; parent retained authority");
     else if (result == 77)
         puts("NOT VERIFIED: Landlock descendant reference unavailable");
     return result;
@@ -344,8 +382,12 @@ cleanup:
 
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--exec-child") == 0)
+        return exec_reference_image();
+    if (argc == 2 && strcmp(argv[1], "--exec-reference") == 0)
+        return descendant_reference(1);
     if (argc == 2 && strcmp(argv[1], "--descendant") == 0)
-        return descendant_reference();
+        return descendant_reference(0);
     if (argc == 2 && strcmp(argv[1], "--descriptor") == 0)
         return descriptor_reference();
     int extended = argc == 2 && strcmp(argv[1], "--extended") == 0;

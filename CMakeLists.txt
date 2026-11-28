@@ -90,7 +90,8 @@ if(BUILD_TESTING)
     add_test(NAME sparse_extent_reference COMMAND sparse-extent-reference)
     add_test(NAME sparse_extent_boundaries COMMAND sparse-extent-reference --boundaries)
     add_test(NAME sparse_extent_copy COMMAND sparse-extent-reference --copy)
-    set_tests_properties(sparse_extent_reference sparse_extent_boundaries sparse_extent_copy PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
+    add_test(NAME sparse_extent_measurement COMMAND sparse-extent-reference --measure)
+    set_tests_properties(sparse_extent_reference sparse_extent_boundaries sparse_extent_copy sparse_extent_measurement PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
   endif()
 
   # WATCH-OVERFLOW-EVAL-01: private Linux queue only; no sysctl writes.

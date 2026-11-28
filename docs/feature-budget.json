@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "54ff9a38cd3c1f9083eeb0194ce5a6bd9d492596",
+  "snapshot_main_sha": "3922dbad4a326e64370a892a6781c8d0c4006131",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SPARSE-EXTENT-EVAL-01",
   "features": [
@@ -1290,12 +1290,13 @@
       "prs": [
         316,
         317,
-        318
+        318,
+        319
       ],
-      "summary": "#317 merged; five workflow families and seven CMake jobs PASS; C17 Release 99 passed/1 skipped, both sparse references PASS. Third candidate test-only extent copy; local NOT RUN, CI pending, independent review and integrated-main unverified. PR #318 (3/5).",
-      "last_merged_pr": 317,
-      "last_merge_sha": "54ff9a38cd3c1f9083eeb0194ce5a6bd9d492596",
-      "tested_head_sha": "4c74cd503dd1b9230dab394ecded3d17ae423096"
+      "summary": "#318 merged; four workflow families PASS, Ubuntu pending at inspection; seven CMake jobs PASS, C17 Release 100 passed/1 skipped, all three sparse references PASS. Fourth candidate paired measurement; local NOT RUN, CI pending; independent review and integrated-main unverified. PR #319 (4/5).",
+      "last_merged_pr": 318,
+      "last_merge_sha": "3922dbad4a326e64370a892a6781c8d0c4006131",
+      "tested_head_sha": "d5977ed154d4ed41b2d3c0a99e26e9e32a8a0d84"
     }
   ]
 }

@@ -11,6 +11,7 @@ int main(void)
 #include <errno.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 #include <linux/magic.h>
@@ -85,8 +86,127 @@ cleanup:
     return result;
 }
 
+static int rejected(int fd, const char *path, unsigned int mask, int expected)
+{
+    struct statx value = {0};
+    return statx(fd, path, AT_SYMLINK_NOFOLLOW, mask, &value) == -1 &&
+           errno == expected;
+}
+
+static int error_reference(void)
+{
+    char path[] = "/tmp/fc-statx-errors-XXXXXX";
+    if (mkdtemp(path) == NULL)
+        return 1;
+    int root = open(path, O_PATH | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    int result = 1;
+    if (root < 0)
+        goto cleanup;
+    struct statx before = {0}, after = {0};
+    result = query(root, &before, 1);
+    if (result != 0)
+        goto cleanup;
+    result = 1;
+    if (!rejected(root, "missing", REQUIRED_MASK, ENOENT) ||
+        !rejected(-1, ".", REQUIRED_MASK, EBADF) ||
+        !rejected(root, ".", REQUIRED_MASK | 0x80000000U, EINVAL) ||
+        query(root, &after, 0) != 0 ||
+        before.stx_mnt_id != after.stx_mnt_id ||
+        before.stx_ino != after.stx_ino)
+        goto cleanup;
+    result = 0;
+cleanup:
+    if (root >= 0 && close(root) != 0)
+        result = 1;
+    if (rmdir(path) != 0)
+        result = 1;
+    if (result == 0)
+        puts("PASS: ENOENT, EBADF, EINVAL and valid repeat query");
+    else if (result == 77)
+        puts("NOT VERIFIED: statx error reference unavailable");
+    return result;
+}
+
+static int parse_mount_id(const char *line, uintmax_t *value)
+{
+    const char *p = line + 7; /* exact mnt_id: prefix checked by caller */
+    while (*p == ' ' || *p == '\t')
+        ++p;
+    if (*p < '0' || *p > '9')
+        return 1;
+    char *end;
+    errno = 0;
+    uintmax_t parsed = strtoumax(p, &end, 10);
+    if (errno != 0 || end == p)
+        return 1;
+    while (*end == ' ' || *end == '\t')
+        ++end;
+    if (*end != '\n' || end[1] != '\0')
+        return 1;
+    *value = parsed;
+    return 0;
+}
+
+static int fdinfo_reference(void)
+{
+    int root = open("/", O_PATH | O_DIRECTORY | O_CLOEXEC | O_NOFOLLOW);
+    if (root < 0)
+        return 1;
+    struct statx value = {0};
+    int result = query(root, &value, 1);
+    if (result != 0)
+        goto cleanup;
+    result = 1;
+    char path[64];
+    int n = snprintf(path, sizeof(path), "/proc/self/fdinfo/%d", root);
+    if (n < 0 || (size_t)n >= sizeof(path))
+        goto cleanup;
+    FILE *stream = fopen(path, "r");
+    if (stream == NULL) {
+        if (errno == ENOENT || errno == ENOTDIR ||
+            errno == EACCES || errno == EPERM)
+            result = 77;
+        goto cleanup;
+    }
+    char line[256];
+    int found = 0, valid = 1;
+    uintmax_t observed = 0;
+    unsigned int lines = 0;
+    while (fgets(line, sizeof(line), stream) != NULL) {
+        if (++lines > 64 || strchr(line, '\n') == NULL) {
+            valid = 0;
+            break;
+        }
+        if (strncmp(line, "mnt_id:", 7) == 0) {
+            if (found || parse_mount_id(line, &observed) != 0) {
+                valid = 0;
+                break;
+            }
+            found = 1;
+        }
+    }
+    if (ferror(stream))
+        valid = 0;
+    if (fclose(stream) != 0)
+        valid = 0;
+    if (valid)
+        result = !found ? 77 : observed == (uintmax_t)value.stx_mnt_id ? 0 : 1;
+cleanup:
+    if (close(root) != 0)
+        result = 1;
+    if (result == 0)
+        puts("PASS: ordinary statx and own fdinfo mount IDs agree");
+    else if (result == 77)
+        puts("NOT VERIFIED: statx/fdinfo mount metadata unavailable");
+    return result;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--errors") == 0)
+        return error_reference();
+    if (argc == 2 && strcmp(argv[1], "--fdinfo") == 0)
+        return fdinfo_reference();
     if (argc == 2 && strcmp(argv[1], "--cross-mount") == 0)
         return cross_mount_reference();
     if (argc != 1)

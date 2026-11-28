@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "ae2554740c2cecbeafa36738f92a371194c98f27",
+  "snapshot_main_sha": "ae205795daf6c629a70582a8e673824ae0e556c3",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "REFLINK-EVAL-01",
   "features": [
@@ -1306,7 +1306,10 @@
       "prs": [
         321
       ],
-      "summary": "First isolated FICLONE candidate, full 64 KiB byte oracle and bidirectional write isolation; actual PR to register, CI pending. No production integration. PR #321 (1/5)."
+      "summary": "#321 merged; five workflow families PASS, C17 Release and Ubuntu C17 102 passed/2 skipped, actual reflink NOT VERIFIED. Second candidate actual unsupported fallback; local NOT RUN, CI pending; independent review and integrated-main unverified.",
+      "last_merged_pr": 321,
+      "last_merge_sha": "ae205795daf6c629a70582a8e673824ae0e556c3",
+      "tested_head_sha": "d0bb74001136265dd800773841b886c94bf5d626"
     }
   ]
 }

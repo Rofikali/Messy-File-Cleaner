@@ -459,6 +459,60 @@ int main(void)
     assert(atomic_load(&ctx.metrics.dry_run_moves) == isolation_before + 4);
     puts("eventfd_worker_isolation=PASS distinct_readiness=PASS live_drain=PASS");
 
+    /* Combine actual eventfd saturation with the documented SPSC queue
+     * capacity. The sole consumer is gated after its first dequeue. */
+    atomic_store(&ctx.running, 1);
+    lf_init(&ctx.queues[0]);
+    const uint64_t full_before = atomic_load(&ctx.metrics.dry_run_moves);
+    fc_test_pause_worker_before_process();
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(start_workers(&ctx, 1) == 0);
+    assert(fc_test_wait_for_worker_pause(2000) == 0);
+    assert(atomic_load(&ctx.active_workers) == 1);
+    assert(write(ctx.efd[0], &limit, sizeof(limit)) == (ssize_t)sizeof(limit));
+    for (int i = 0; i < QUEUE_SIZE - 1; ++i)
+        assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    /* Full queue rejects an additional event without transferring it. */
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 0);
+    assert(notify_worker(&ctx, 0) == 0);
+    errno = 0;
+    assert(write(ctx.efd[0], &increment, sizeof(increment)) == -1 &&
+           errno == EAGAIN);
+    struct pollfd full_counter = { .fd = ctx.efd[0], .events = POLLIN };
+    assert(poll(&full_counter, 1, 0) == 1 &&
+           full_counter.revents == POLLIN);
+    fc_test_release_worker();
+    int full_drained = 0;
+    for (int i = 0; i < 5000; ++i) {
+        assert(atomic_load(&ctx.running) == 1);
+        assert(atomic_load(&ctx.worker_error) == 0);
+        int ready = poll(&full_counter, 1, 0);
+        assert(ready >= 0);
+        assert(!(full_counter.revents & (POLLERR | POLLHUP | POLLNVAL)));
+        if (ready == 0 &&
+            atomic_load(&ctx.metrics.dry_run_moves) ==
+                full_before + QUEUE_SIZE &&
+            atomic_load(&ctx.active_workers) == 0) {
+            full_drained = 1;
+            break;
+        }
+        sleep_milliseconds(1);
+    }
+    assert(full_drained == 1);
+    assert(lf_is_empty(&ctx.queues[0]));
+    /* The rejected enqueue did not consume capacity or inflate metrics.
+     * Verify a fresh enqueue after wrap-around is accepted and drained. */
+    assert(lf_enqueue(&ctx.queues[0], &active_event) == 1);
+    assert(notify_worker(&ctx, 0) == 0);
+    assert(join_workers(&ctx) == 0);
+    assert(ctx.num_workers == 0 && ctx.efd[0] == -1);
+    assert(atomic_load(&ctx.worker_error) == 0);
+    assert(atomic_load(&ctx.active_workers) == 0);
+    assert(lf_is_empty(&ctx.queues[0]));
+    assert(atomic_load(&ctx.metrics.dry_run_moves) ==
+           full_before + QUEUE_SIZE + 1);
+    puts("eventfd_full_queue=PASS excess_rejected=PASS live_drain=PASS capacity_recovered=PASS");
+
     puts("worker lifecycle tests passed");
     return 0;
 }

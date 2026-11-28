@@ -1257,9 +1257,10 @@
       "status": "ACTIVE",
       "prs": [
         305,
-        306
+        306,
+        307
       ],
-      "summary": "#306 merged; 14/14 exact-head checks, C17 Release 89/89 and both statx references PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. Third candidate adds error-path and procfs fdinfo consistency tests; no production change, CI pending.",
+      "summary": "#306 merged; 14/14 exact-head checks, C17 Release 89/89 and both statx references PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #307 (3/5) adds error-path and procfs fdinfo consistency tests; no production change, CI pending.",
       "last_merged_pr": 306,
       "last_merge_sha": "0b42b91bc264dc1e215477232668c6216a0033ff",
       "tested_head_sha": "065af9a5db721ad53ea562d6074123c022a1d43e"

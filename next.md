@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
+**Next selected research:** SPARSE-EXTENT-EVAL-01 (0/5), distinct test-only sparse extent evaluation using SEEK_DATA/SEEK_HOLE on disposable Linux files. Compare logical bytes, allocated blocks, extent boundaries, unsupported capability and error cases against buffered baseline; reflink is a conditional later experiment only if scoped evidence justifies it. No production copy/mover change. Governance PR #315 is not a feature attempt. Exact-head CI pending; FS-01B-FIX and REL-01 remain blocked.
+
 **Owner direction (2026-11-28):** Continually identify Linux kernel and mature userspace techniques even when absent from the roadmap. Record real unmet requirement, falsifiable hypothesis, baseline, negative controls, capability/portability limits, licensing/provenance, maintenance/TCO, rejection and rollback criteria before selecting one bounded feature. Prefer native interfaces and independent designs; no blanket source-copy approval, no production safety gate bypass, no spend or release. See the Linux hypotheses and upstream reuse policy.
 
 **Live reconciliation (2026-11-28):** PR #314 merged at `22e11eabf60a5abfbd8073acb25ba685b83fd4ac`; exact head `242a2d5dc3a712e7317fddea7e42df88395c4451`, five returned PR workflow families successful (CMake, Ubuntu, Docker, Makefile, FCJ4 TSan). Individual jobs, integrated-main and independent review not verified. WATCH-OVERFLOW-EVAL-01 PARTIAL 5/5; retain fail-closed watcher, no sixth PR. FS-01B-FIX and REL-01 remain blocked.
@@ -22,7 +24,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **No active implementation; research intake** | Reconcile live CI and select distinct evidence-backed candidate; sparse/reflink first proposed | No automatic production activation; FS-01B and REL-01 blocked |
+| **NOW — SAFE FEATURE SELECTION** | **SPARSE-EXTENT-EVAL-01 (0/5; selected)** | Test-only sparse extent discovery, logical-byte and allocated-block comparison with buffered baseline | Capability/benefit not yet verified; no production mover or release |
 | **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |
 | **PARTIAL** | **STATX-MOUNT-EVAL-01 (5/5; #309 merged)** | 14/14 exact-head checks; 92 passed/1 skipped; retain fstat | Same-device topology and independent review unverified; no sixth PR |
 | **PARTIAL** | **LANDLOCK-PREVIEW-EVAL-01 (5/5; #304 merged)** | 14/14 exact-head checks and five reference tests PASS; retain research | Independent review unverified; production DEFER; no sixth PR |

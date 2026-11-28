@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 enum { SIZE = 4 * 1024 * 1024, SECOND = 3 * 1024 * 1024, CHUNK = 4096 };
@@ -181,8 +182,99 @@ done:
     return result;
 }
 
+/* Timing includes destination sizing/copy/sync, excludes fixture creation and oracle. */
+static int measure_copy(int src, int dst, int sparse, off_t *written, double *ms)
+{
+    struct timespec start, end;
+    unsigned char buf[CHUNK];
+    if (clock_gettime(CLOCK_MONOTONIC, &start)) return 1;
+    if (sparse) {
+        int rc = copy_extents(src, dst, SIZE, written);
+        if (rc) return rc;
+    } else {
+        *written = 0;
+        if (ftruncate(dst, SIZE)) return 1;
+        for (off_t pos = 0; pos < SIZE; pos += CHUNK) {
+            if (pread(src, buf, sizeof buf, pos) != (ssize_t)sizeof buf ||
+                pwrite(dst, buf, sizeof buf, pos) != (ssize_t)sizeof buf) return 1;
+            *written += CHUNK;
+        }
+    }
+    if (fsync(dst) || clock_gettime(CLOCK_MONOTONIC, &end)) return 1;
+    *ms = ((double)end.tv_sec - (double)start.tv_sec) * 1000.0 +
+          ((double)end.tv_nsec - (double)start.tv_nsec) / 1000000.0;
+    return *ms < 0.0 ? 1 : 0;
+}
+
+static int measurement_trial(unsigned trial)
+{
+    FILE *files[3] = {tmpfile(), tmpfile(), tmpfile()};
+    int rc = 1, fd[3];
+    struct stat st[3];
+    off_t bytes[2] = {0, 0};
+    double ms[2] = {0.0, 0.0};
+    unsigned char buf[3][CHUNK];
+    for (unsigned i = 0; i < 3; ++i) {
+        if (!files[i] || (fd[i] = fileno(files[i])) < 0 ||
+            fstat(fd[i], &st[i]) || !S_ISREG(st[i].st_mode) ||
+            st[i].st_size != 0) goto done;
+        for (unsigned j = 0; j < i; ++j)
+            if (st[i].st_dev == st[j].st_dev && st[i].st_ino == st[j].st_ino)
+                goto done;
+    }
+    if (ftruncate(fd[0], SIZE) || pwrite(fd[0], "A", 1, CHUNK) != 1 ||
+        pwrite(fd[0], "Z", 1, SECOND + 1) != 1 || fsync(fd[0])) goto done;
+    /* Alternate order; cache state is uncontrolled, not a cold-storage benchmark. */
+    for (unsigned i = 0; i < 2; ++i) {
+        unsigned k = (i + trial) % 2;
+        rc = measure_copy(fd[0], fd[k + 1], k == 0, &bytes[k], &ms[k]);
+        if (rc) goto done;
+    }
+    rc = 1;
+    for (off_t pos = 0; pos < SIZE; pos += CHUNK) {
+        for (unsigned i = 0; i < 3; ++i)
+            if (pread(fd[i], buf[i], CHUNK, pos) != CHUNK) goto done;
+        if (memcmp(buf[0], buf[1], CHUNK) || memcmp(buf[0], buf[2], CHUNK))
+            goto done;
+        for (size_t i = 0; i < CHUNK; ++i) {
+            off_t off = pos + (off_t)i;
+            unsigned char expected = off == CHUNK ? 'A' : off == SECOND + 1 ? 'Z' : 0;
+            if (buf[0][i] != expected) goto done;
+        }
+    }
+    for (unsigned i = 0; i < 3; ++i) {
+        struct stat now;
+        if (fstat(fd[i], &now) || now.st_dev != st[i].st_dev ||
+            now.st_ino != st[i].st_ino || now.st_size != SIZE) goto done;
+        st[i] = now;
+    }
+    if (bytes[0] <= 0 || bytes[0] > SIZE || bytes[1] != SIZE) goto done;
+    printf("trial=%u order=%s logical_bytes=%d extent_bytes=%jd buffered_bytes=%jd extent_blocks_512=%jd buffered_blocks_512=%jd extent_ms=%.3f buffered_ms=%.3f\n",
+           trial + 1, trial % 2 ? "buffered-first" : "extent-first", SIZE,
+           (intmax_t)bytes[0], (intmax_t)bytes[1],
+           (intmax_t)st[1].st_blocks, (intmax_t)st[2].st_blocks, ms[0], ms[1]);
+    rc = bytes[0] == SIZE ? 77 : 0;
+done:
+    for (unsigned i = 0; i < 3; ++i)
+        if (files[i] && fclose(files[i])) rc = 1;
+    return rc;
+}
+
+static int measurement_reference(void)
+{
+    for (unsigned i = 0; i < 4; ++i) {
+        int rc = measurement_trial(i);
+        if (rc) {
+            if (rc == 77) puts("NOT VERIFIED: sparse measurement capability unavailable");
+            return rc;
+        }
+    }
+    return 0;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--measure") == 0) return measurement_reference();
     if (argc == 2 && strcmp(argv[1], "--copy") == 0) return copy_reference();
     if (argc == 2 && strcmp(argv[1], "--boundaries") == 0) return boundaries();
     if (argc != 1) return 1;

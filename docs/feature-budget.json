@@ -4,7 +4,7 @@
   "policy_effective_date": "2026-11-21",
   "snapshot_main_sha": "22e11eabf60a5abfbd8073acb25ba685b83fd4ac",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": null,
+  "active_feature_id": "SPARSE-EXTENT-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1282,6 +1282,13 @@
       "last_merged_pr": 314,
       "last_merge_sha": "22e11eabf60a5abfbd8073acb25ba685b83fd4ac",
       "tested_head_sha": "242a2d5dc3a712e7317fddea7e42df88395c4451"
+    },
+    {
+      "id": "SPARSE-EXTENT-EVAL-01",
+      "title": "Disposable Linux sparse extent preservation reference",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "0/5; selected by governance PR #315; test-only sparse extent and buffered baseline byte/allocation evidence, capability and error controls. No production mover integration or release."
     }
   ]
 }

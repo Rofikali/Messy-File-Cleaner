@@ -1,5 +1,11 @@
 # Linux-native next hypotheses — 28 November 2026
 
+**Next selected research:** SPARSE-EXTENT-EVAL-01 (0/5), distinct test-only sparse extent evaluation using SEEK_DATA/SEEK_HOLE on disposable Linux files. Compare logical bytes, allocated blocks, extent boundaries, unsupported capability and error cases against buffered baseline; reflink is a conditional later experiment only if scoped evidence justifies it. No production copy/mover change. Governance PR #315 is not a feature attempt. Exact-head CI pending; FS-01B-FIX and REL-01 remain blocked.
+
+**Owner direction (2026-11-28):** Continually identify Linux kernel and mature userspace techniques even when absent from the roadmap. Record real unmet requirement, falsifiable hypothesis, baseline, negative controls, capability/portability limits, licensing/provenance, maintenance/TCO, rejection and rollback criteria before selecting one bounded feature. Prefer native interfaces and independent designs; no blanket source-copy approval, no production safety gate bypass, no spend or release. See the Linux hypotheses and upstream reuse policy.
+
+**Live reconciliation (2026-11-28):** PR #314 merged at `22e11eabf60a5abfbd8073acb25ba685b83fd4ac`; exact head `242a2d5dc3a712e7317fddea7e42df88395c4451`, five returned PR workflow families successful (CMake, Ubuntu, Docker, Makefile, FCJ4 TSan). Individual jobs, integrated-main and independent review not verified. WATCH-OVERFLOW-EVAL-01 PARTIAL 5/5; retain fail-closed watcher, no sixth PR. FS-01B-FIX and REL-01 remain blocked.
+
 Owner direction: investigate further Linux features using hypothesis, reasoning, and measured acceptance. No copied implementation, new dependency, kernel module, root requirement, production change, paid service or public release is approved here. The live board and feature ledger control selection. Prior completed/exhausted budgets remain intact. The kernel runs below this user-space application; using a syscall differs from copying implementation text.
 
 ## Baseline and ordered new questions
@@ -183,3 +189,11 @@ Add separate --gap CTest. After actual overflow and positive old snapshot rescan
 
 ### Adoption decision
 Retain current production root-only fail-closed overflow behavior and manual restart guidance. Preserve all five research references; do not turn the fixed-fixture oracle into a production recovery path. An empty new kernel queue is insufficient to certify state after a registration gap. A future separately approved recovery feature needs a generation-aware application work queue, invalidation of outstanding work, bounded rescan and change detection across registration and enumeration, repeated-overflow retry/stop policy, cancellation and descriptor lifetime tests, real concurrent workload acceptance and FS-01B safety approval before destructive dispatch. No atomic snapshot or exactly-once guarantee from Inotify alone. Independent review, real customer filesystem acceptance and production performance remain unverified. L1–L7: retain proven baseline; CISSP: fail closed, no trust elevation; Linux/SRE: explicit incomplete state and bounded resources; CCIE: network N/A; CA/MBA/management: actual costs unknown, no additional authorized cash outlay, prioritize safety and release readiness over speculative adoption. After actual PR registration and merge close scoped PARTIAL due to missing concurrent/independent evidence; no sixth PR or reset. Next distinct candidate: sparse-file SEEK_DATA/SEEK_HOLE read-only reference only after review of prior coverage; FS-01B remains critical owner-gated. Revert rollback.
+
+## Continuous discovery candidates (proposals only)
+
+- Sparse extent and reflink: compare byte equality, allocation, holes, CPU/wall time and unsupported/error cases in disposable fixtures against buffered copy. No mover integration.
+- Lock-order assertions: first prove a real multi-lock graph; inject inversion in debug test, measure overhead, reject if no useful graph.
+- XArray-inspired indexing and RCU-inspired immutable snapshots: require demonstrated inventory bottleneck; compare memory, lookup, publication, reclamation and concurrency safety against baseline; no kernel code imports.
+- pidfd, eventfd and seccomp: require real helper lifecycle, notification or isolation need; test runtime support, descriptor ownership, failure, cancellation and compatibility; no production adoption by default.
+- Evaluate L1–L7 engineering, security/CISSP, Linux/SRE, CCIE (network only where relevant), CA/CFO cash and noncash TCO, MBA/management value and opportunity cost. No invented ROI or performance. Official upstream source review and exact version evidence required before implementation. Preserve every existing feature budget.

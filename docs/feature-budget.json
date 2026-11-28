@@ -1273,9 +1273,10 @@
       "status": "ACTIVE",
       "prs": [
         310,
-        311
+        311,
+        312
       ],
-      "summary": "#311 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 94 passed/1 skipped, both Inotify references PASS; integrated-main 9/14 checks PASS, 5 pending at inspection. Third candidate deterministic stale identity rejection during rescan, no production recovery, CI pending.",
+      "summary": "#311 merged; exact-head 14/14 PASS, C17 Release and Ubuntu C17 94 passed/1 skipped, both Inotify references PASS; integrated-main 9/14 checks PASS, 5 pending at inspection. PR #312 (3/5) deterministic stale identity rejection during rescan, no production recovery, CI pending.",
       "last_merged_pr": 311,
       "last_merge_sha": "e9c1d56b9d09d161e6ca6ff43ff7392cf3f64fb3",
       "tested_head_sha": "63a5799efc276e75ce746b14af047571f4a7d187"

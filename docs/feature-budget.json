@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "f4cef3a758e05a5cf97caf21eff7093533c0e9c3",
+  "snapshot_main_sha": "b495ee823d20ba64040400f0045c848cb86273b8",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "EVENTFD-SATURATION-EVAL-01",
   "features": [
@@ -1336,7 +1336,10 @@
       "prs": [
         329
       ],
-      "summary": "First candidate holds sole worker at existing test gate, fills real counter, observes EAGAIN/readability, invokes existing notify_worker, checks queued dry-run processing and cleanup. CI pending; PR #329 (1/5)."
+      "summary": "PR #329 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, worker_lifecycle PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Second candidate tests live counter drain, normal notification rearm and exact dry-run count before shutdown; CI pending; actual PR number to register.",
+      "last_merged_pr": 329,
+      "last_merge_sha": "b495ee823d20ba64040400f0045c848cb86273b8",
+      "tested_head_sha": "5ce1b76f3527c3a4a1308f986de7a77ef2ce4a7f"
     }
   ]
 }

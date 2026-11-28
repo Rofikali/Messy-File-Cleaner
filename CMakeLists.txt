@@ -83,6 +83,14 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # SPARSE-EXTENT-EVAL-01: private disposable extent evidence.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(sparse-extent-reference tests/integration/test_sparse_extent_reference.c)
+    target_compile_options(sparse-extent-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME sparse_extent_reference COMMAND sparse-extent-reference)
+    set_tests_properties(sparse_extent_reference PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
+  endif()
+
   # WATCH-OVERFLOW-EVAL-01: private Linux queue only; no sysctl writes.
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(inotify-overflow-reference tests/integration/test_inotify_overflow_reference.c)

@@ -1349,8 +1349,10 @@
       "id": "TIMERFD-DEADLINE-EVAL-01",
       "title": "Linux monotonic timerfd deadline and readiness reference",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First isolated reference: empty nonblocking read, independent eventfd readiness, absolute monotonic one-shot expiry, count and cleanup. No production polling replacement; CI pending; actual PR number to register."
+      "prs": [
+        334
+      ],
+      "summary": "First isolated reference: empty nonblocking read, independent eventfd readiness, absolute monotonic one-shot expiry, count and cleanup. No production polling replacement; CI pending; PR #334 (1/5)."
     }
   ]
 }

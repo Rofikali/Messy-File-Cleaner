@@ -1271,8 +1271,10 @@
       "id": "WATCH-OVERFLOW-EVAL-01",
       "title": "Bounded actual inotify overflow and read-only reconciliation",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First private raw kernel overflow reference; bounded event generation, marker and missed late event observation. No production recovery; CI pending."
+      "prs": [
+        310
+      ],
+      "summary": "PR #310 (1/5): First private raw kernel overflow reference; bounded event generation, marker and missed late event observation. No production recovery; CI pending."
     }
   ]
 }

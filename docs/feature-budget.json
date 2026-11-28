@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "6444f02cf9323a26668dc9e460ca5ed49c414a69",
+  "snapshot_main_sha": "c25b7b2d1a2b900ec8df7908bde83946d704fcc1",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "STATX-MOUNT-EVAL-01",
   "features": [
@@ -1261,10 +1261,10 @@
         307,
         308
       ],
-      "summary": "#307 merged; 14/14 exact-head checks, C17 Release 91/91 and all four statx references PASS; integrated-main 11/14 checks PASS, 3 pending at inspection. PR #308 (4/5) paired warm metadata timing and CI evidence; no production claim, CI pending. PR #308 same-PR correction: head 1b52ad25 had malformed CMake YAML from a replacement-string error affecting two regex commands; workflow 46108571391 failed with zero jobs. Other seven checks passed; Ubuntu C17 92/92, timing test PASS 0.03 s (rounded CTest duration, not per-call evidence). Restore exact base workflow and append one correctly quoted timing command; new exact-head CI pending. No new feature slot or bypass.",
-      "last_merged_pr": 307,
-      "last_merge_sha": "6444f02cf9323a26668dc9e460ca5ed49c414a69",
-      "tested_head_sha": "7fb43fd9e30e0bd469ec95b145ce11a815e5e70d"
+      "summary": "#308 corrected and merged; 14/14 exact-head checks, C17 Release and Ubuntu C17 92/92, five statx references PASS; integrated-main 9/14 checks PASS, 5 pending at inspection. Actual median fstat 590 vs statx 624 ns/call warm single fd with validation. Final candidate optional same-device mount observation and ADR; retain production fstat, defer statx, no sixth PR. CI pending.",
+      "last_merged_pr": 308,
+      "last_merge_sha": "c25b7b2d1a2b900ec8df7908bde83946d704fcc1",
+      "tested_head_sha": "312964dc81e63adc5550f94b0692e12b3a878a4e"
     }
   ]
 }

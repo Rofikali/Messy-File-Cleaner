@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "27a5ce5a4254d3f2df8e80c380dfe678d1e23450",
+  "snapshot_main_sha": "990f14256507cc0f3f406681545fa1676878657f",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "LANDLOCK-PREVIEW-EVAL-01",
+  "active_feature_id": "STATX-MOUNT-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1238,7 +1238,7 @@
     {
       "id": "LANDLOCK-PREVIEW-EVAL-01",
       "title": "Linux Landlock preview restriction reference",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         300,
         301,
@@ -1246,10 +1246,17 @@
         303,
         304
       ],
-      "summary": "#303 merged; 14/14 exact-head checks, C17 Release 86/86, four Landlock tests PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #304 (5/5) exec inheritance and reference-only adoption decision; production DEFER, CI pending, no sixth PR.",
-      "last_merged_pr": 303,
-      "last_merge_sha": "27a5ce5a4254d3f2df8e80c380dfe678d1e23450",
-      "tested_head_sha": "715b08ab96c63983460a2b64669584c9998141f9"
+      "summary": "#304 merged; 14/14 exact-head checks, C17 Release and Ubuntu C17 87/87, all five Landlock tests PASS; integrated-main 11/14 checks PASS, 3 pending at inspection. Scoped PARTIAL 5/5; independent review unverified, production DEFER, no sixth PR.",
+      "last_merged_pr": 304,
+      "last_merge_sha": "990f14256507cc0f3f406681545fa1676878657f",
+      "tested_head_sha": "2d6130ddf97535a5841ed162326e48043a9a81c5"
+    },
+    {
+      "id": "STATX-MOUNT-EVAL-01",
+      "title": "Linux statx mount identity diagnostics",
+      "status": "ACTIVE",
+      "prs": [],
+      "summary": "First test-only installed statx reference: returned-mask gate, same-mount descriptor metadata, hard-link and separate-file identity distinction. Cross-mount NOT RUN. No production change; CI pending."
     }
   ]
 }

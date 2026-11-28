@@ -1334,9 +1334,10 @@
       "title": "Actual Linux eventfd saturation in existing worker notification path",
       "status": "ACTIVE",
       "prs": [
-        329
+        329,
+        330
       ],
-      "summary": "PR #329 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, worker_lifecycle PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Second candidate tests live counter drain, normal notification rearm and exact dry-run count before shutdown; CI pending; actual PR number to register.",
+      "summary": "PR #329 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, worker_lifecycle PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Second candidate tests live counter drain, normal notification rearm and exact dry-run count before shutdown; CI pending; PR #330 (2/5).",
       "last_merged_pr": 329,
       "last_merge_sha": "b495ee823d20ba64040400f0045c848cb86273b8",
       "tested_head_sha": "5ce1b76f3527c3a4a1308f986de7a77ef2ce4a7f"

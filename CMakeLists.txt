@@ -91,6 +91,8 @@ if(BUILD_TESTING)
     add_test(NAME sparse_extent_boundaries COMMAND sparse-extent-reference --boundaries)
     add_test(NAME sparse_extent_copy COMMAND sparse-extent-reference --copy)
     add_test(NAME sparse_extent_measurement COMMAND sparse-extent-reference --measure)
+    add_test(NAME sparse_extent_rejections COMMAND sparse-extent-reference --reject)
+    set_tests_properties(sparse_extent_rejections PROPERTIES TIMEOUT 15)
     set_tests_properties(sparse_extent_reference sparse_extent_boundaries sparse_extent_copy sparse_extent_measurement PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
   endif()
 

@@ -1,5 +1,7 @@
 # Messy-File-Cleaner — Compact LIVE NOW / NEXT / LATER
 
+**Sparse extent final acceptance (2026-11-28):** #319 merged at `11278c4f9bc77c380231b06ea26d7e81e7d8c2fb`; five returned exact-head workflow families succeeded, C17 Release and Ubuntu C17 101 passed/1 skipped (102 registered), all four sparse tests PASS. Individual trial numbers were not exposed in those logs. Fifth test-only candidate rejects nonfresh/aliased/invalid descriptors and size mismatch before destination mutation, verifies preservation and exposes paired measurement output in existing C17 Release CI. Decision: retain reference; DEFER production adoption pending representative evidence and FS-01B safety review. No sixth PR. Local NOT RUN; CI pending, independent review and integrated-main unverified. No production change, imports, dependencies, spend or release.
+
 **Sparse copy measurement (2026-11-28):** #318 merged at `3922dbad4a326e64370a892a6781c8d0c4006131`; four returned exact-head workflow families passed, Ubuntu in progress at inspection; seven CMake jobs PASS, C17 Release 100 passed/1 skipped, all three sparse tests PASS. Fourth test-only candidate compares four paired trials, alternating order, with fresh distinct temporary files, full byte oracle, monotonic elapsed copy/sync time, submitted bytes and allocated blocks. No speed threshold, physical I/O or production claim. Local NOT RUN; CI pending; independent review and integrated-main unverified. No production change, imports, dependencies, spend or release.
 
 **Sparse-preserving copy reference (2026-11-28):** #317 merged at `54ff9a38cd3c1f9083eeb0194ce5a6bd9d492596`; five returned exact-head workflow families and seven CMake jobs succeeded; C17 Release 99 passed/1 skipped, both sparse references PASS. Independent review and integrated-main not verified. Third test-only candidate copies reported extents to a distinct fresh temporary file and checks all bytes against source, known oracle and buffered reference; reports transferred bytes and allocated blocks, not speed or exclusive physical savings. Local NOT RUN; CI pending. No production mover, source imports, dependencies, spend or release.
@@ -32,7 +34,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **SPARSE-EXTENT-EVAL-01 (4/5; PR #319 open)** | #318 merged; paired extent/buffered copy and allocation measurements | Local NOT RUN; CI pending; no production copier or release |
+| **NOW — SAFE FEATURE SELECTION** | **SPARSE-EXTENT-EVAL-01 (5/5; PR #320 open)** | #319 merged; final descriptor rejection controls, trial evidence and adoption decision | CI pending; DEFER production; no sixth PR |
 | **PARTIAL** | **WATCH-OVERFLOW-EVAL-01 (5/5; #314 merged)** | Five returned exact-head workflow families successful | Individual jobs, integrated-main and independent review unverified; no sixth PR |
 | **PARTIAL** | **STATX-MOUNT-EVAL-01 (5/5; #309 merged)** | 14/14 exact-head checks; 92 passed/1 skipped; retain fstat | Same-device topology and independent review unverified; no sixth PR |
 | **PARTIAL** | **LANDLOCK-PREVIEW-EVAL-01 (5/5; #304 merged)** | 14/14 exact-head checks and five reference tests PASS; retain research | Independent review unverified; production DEFER; no sixth PR |

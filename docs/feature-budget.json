@@ -1337,9 +1337,10 @@
         329,
         330,
         331,
-        332
+        332,
+        333
       ],
-      "summary": "PR #332 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, full queue saturation PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Fifth candidate tests unique FIFO identities, rejected sentinel absence and exact trace; CI pending; actual PR number to register. No sixth PR.",
+      "summary": "PR #332 merged; 13/13 returned jobs PASS, C17 Release and Ubuntu C17 109 passed/2 skipped, full queue saturation PASS. FCJ4 TSan not returned; integrated-main CI NOT VERIFIED, zero changed files head-to-main. Fifth candidate tests unique FIFO identities, rejected sentinel absence and exact trace; CI pending; PR #333 (5/5). No sixth PR.",
       "last_merged_pr": 332,
       "last_merge_sha": "1ee0842baa847bc21a5d7496ab89b7b9b278b1f4",
       "tested_head_sha": "d7341fa5fd6cf0cb9c53e0cbb732444d8c35c040"

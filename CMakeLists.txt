@@ -89,8 +89,9 @@ if(BUILD_TESTING)
     target_compile_options(inotify-overflow-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
     add_test(NAME inotify_overflow_reference COMMAND inotify-overflow-reference)
     add_test(NAME inotify_rescan_reference COMMAND inotify-overflow-reference --rescan)
+    add_test(NAME inotify_rescan_invalidation_reference COMMAND inotify-overflow-reference --invalidate)
     set_tests_properties(inotify_overflow_reference inotify_rescan_reference
-      PROPERTIES TIMEOUT 30 SKIP_RETURN_CODE 77)
+      inotify_rescan_invalidation_reference PROPERTIES TIMEOUT 30 SKIP_RETURN_CODE 77)
   endif()
 
   # STATX-MOUNT-EVAL-01: installed libc/UAPI, private fixture only.

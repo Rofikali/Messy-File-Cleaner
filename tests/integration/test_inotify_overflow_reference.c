@@ -99,8 +99,34 @@ static int same_regular(const struct stat *a, const struct stat *b)
            a->st_size == 0 && b->st_size == 0;
 }
 
+enum { RESCAN_OK = 0, RESCAN_ERROR = 1, RESCAN_STALE = 2 };
+
+struct interposition {
+    int *late_owned;
+    int displaced_owned;
+    int ran;
+};
+
+/* Only the private test fixture is mutated; keep the original inode linked. */
+static int replace_late(int root, struct interposition *hook)
+{
+    struct stat value;
+    if (fstatat(root, "displaced", &value, AT_SYMLINK_NOFOLLOW) != -1 ||
+        errno != ENOENT)
+        return 1;
+    if (renameat(root, "late", root, "displaced") != 0)
+        return 1;
+    *hook->late_owned = 0;
+    hook->displaced_owned = 1;
+    if (create_empty(root, "late", hook->late_owned) != 0)
+        return 1;
+    hook->ran = 1;
+    return 0;
+}
+
 /* Fixed-fixture oracle, not a general or atomic snapshot API. */
-static int rescan(int root, const struct stat *stable, const struct stat *late)
+static int rescan(int root, const struct stat *stable, const struct stat *late,
+                  struct interposition *hook)
 {
     int fd = openat(root, ".", O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
     if (fd < 0)
@@ -125,9 +151,17 @@ static int rescan(int root, const struct stat *stable, const struct stat *late)
             continue;
         if (++entries > 16)
             break;
+        if (hook && strcmp(name, "late") == 0 && !hook->ran &&
+            replace_late(root, hook) != 0)
+            break;
         struct stat value;
         if (fstatat(root, name, &value, AT_SYMLINK_NOFOLLOW) != 0)
             break;
+        if ((strcmp(name, "stable") == 0 && !same_regular(&value, stable)) ||
+            (strcmp(name, "late") == 0 && !same_regular(&value, late))) {
+            result = RESCAN_STALE;
+            break;
+        }
         unsigned int bit = 0;
         if (strcmp(name, "stable") == 0 && same_regular(&value, stable))
             bit = 1;
@@ -148,7 +182,8 @@ static int rescan(int root, const struct stat *stable, const struct stat *late)
 
 int main(int argc, char **argv)
 {
-    int reconcile = argc == 2 && strcmp(argv[1], "--rescan") == 0;
+    int invalidate = argc == 2 && strcmp(argv[1], "--invalidate") == 0;
+    int reconcile = invalidate || (argc == 2 && strcmp(argv[1], "--rescan") == 0);
     if (argc != 1 && !reconcile)
         return 1;
     unsigned int limit = 0;
@@ -165,6 +200,7 @@ int main(int argc, char **argv)
     int root = open(path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
     int fd = -1, wd = -1, churn = 0, late = 0;
     int stable_owned = 0, alias_owned = 0, subdir_owned = 0;
+    struct interposition hook = { .late_owned = &late };
     struct stat stable = {0};
     result = 1;
     if (root < 0)
@@ -216,9 +252,26 @@ int main(int argc, char **argv)
            limit, 2 * pairs + 1, overflow, late_events);
     if (reconcile) {
         puts("inotify_rescan event_state=INCOMPLETE");
-        if (rescan(root, &stable, &late_identity) != 0)
+        if (rescan(root, &stable, &late_identity, NULL) != RESCAN_OK)
             goto cleanup;
-        puts("inotify_rescan fixture_snapshot=COMPLETE regular=2 excluded_symlink=1 excluded_directory=1");
+        if (invalidate) {
+            if (rescan(root, &stable, &late_identity, &hook) != RESCAN_STALE ||
+                !hook.ran || !hook.displaced_owned || !late)
+                goto cleanup;
+            struct stat original, replacement, unchanged;
+            if (fstatat(root, "displaced", &original, AT_SYMLINK_NOFOLLOW) != 0 ||
+                !same_regular(&original, &late_identity) ||
+                fstatat(root, "late", &replacement, AT_SYMLINK_NOFOLLOW) != 0 ||
+                !S_ISREG(replacement.st_mode) || replacement.st_size != 0 ||
+                (replacement.st_dev == original.st_dev &&
+                 replacement.st_ino == original.st_ino) ||
+                fstatat(root, "stable", &unchanged, AT_SYMLINK_NOFOLLOW) != 0 ||
+                !same_regular(&unchanged, &stable))
+                goto cleanup;
+            puts("inotify_rescan fixture_snapshot=INCOMPLETE reason=STALE_IDENTITY original_preserved=1 replacement_preserved=1");
+        } else {
+            puts("inotify_rescan fixture_snapshot=COMPLETE regular=2 excluded_symlink=1 excluded_directory=1");
+        }
     }
     result = 0;
 cleanup:
@@ -229,6 +282,8 @@ cleanup:
     if (churn && unlinkat(root, "churn", 0) != 0)
         result = 1;
     if (late && unlinkat(root, "late", 0) != 0)
+        result = 1;
+    if (hook.displaced_owned && unlinkat(root, "displaced", 0) != 0)
         result = 1;
     if (subdir_owned && unlinkat(root, "subdir", AT_REMOVEDIR) != 0)
         result = 1;

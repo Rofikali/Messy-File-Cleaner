@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "990f14256507cc0f3f406681545fa1676878657f",
+  "snapshot_main_sha": "3085b749314fbfcc1bfe322149beaec58b7c08f3",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "STATX-MOUNT-EVAL-01",
   "features": [
@@ -1258,7 +1258,10 @@
       "prs": [
         305
       ],
-      "summary": "PR #305 (1/5): First test-only installed statx reference: returned-mask gate, same-mount descriptor metadata, hard-link and separate-file identity distinction. Cross-mount NOT RUN. No production change; CI pending."
+      "summary": "#305 merged; 14/14 exact-head checks, hosted Ubuntu C17 88/88 and same-mount statx PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. Second candidate adds read-only cross-mount root/procfs reference; bind mounts NOT RUN, no production change, CI pending.",
+      "last_merged_pr": 305,
+      "last_merge_sha": "3085b749314fbfcc1bfe322149beaec58b7c08f3",
+      "tested_head_sha": "45e00e0ffbdfd4c3cba988890ff1c0b64ba35ed2"
     }
   ]
 }

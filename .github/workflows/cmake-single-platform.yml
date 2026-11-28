@@ -62,3 +62,4 @@ jobs:
           ctest --test-dir build-c17-Release -R '^config_stream_fault$' --no-tests=error --verbose --output-on-failure
           ctest --test-dir build-c17-Release -R '^statx_timing_reference$' --no-tests=error --verbose --output-on-failure
           ctest --test-dir build-c17-Release -R '^sparse_extent_measurement$' --no-tests=error --verbose --output-on-failure
+          ctest --test-dir build-c17-Release -R '^reflink_(fallback_)?reference$' --no-tests=error --verbose --output-on-failure

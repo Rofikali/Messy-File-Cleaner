@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "22e11eabf60a5abfbd8073acb25ba685b83fd4ac",
+  "snapshot_main_sha": "fb82c8ab64d53e0345c517b8cade6d2104cd7c2f",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "SPARSE-EXTENT-EVAL-01",
   "features": [
@@ -1287,8 +1287,10 @@
       "id": "SPARSE-EXTENT-EVAL-01",
       "title": "Disposable Linux sparse extent preservation reference",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "0/5; selected by governance PR #315; test-only sparse extent and buffered baseline byte/allocation evidence, capability and error controls. No production mover integration or release."
+      "prs": [
+        316
+      ],
+      "summary": "PR #316 (1/5), first test-only candidate: 4 MiB logical byte oracle and buffered baseline, bounded extent walk, capability skip and st_blocks report. Local NOT RUN; CI pending; no production integration."
     }
   ]
 }

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "cc0c2b849fcb9d18d3900e1c3a527640ad30181e",
+  "snapshot_main_sha": "cd8063ecc27d0c76e705ff9567c86249cd00e2f1",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "LANDLOCK-PREVIEW-EVAL-01",
   "features": [
@@ -1242,7 +1242,10 @@
       "prs": [
         300
       ],
-      "summary": "PR #300 first private BUILD_TESTING-only child-process reference; installed UAPI, runtime denial and fixture preservation; no source import or production sandbox. CI pending."
+      "summary": "#300 merged, 14/14 exact-head checks, C17 Release 83/83 and actual Landlock PASS; integrated-main 12/14 returned checks PASS, 2 pending at inspection. Second candidate adds separate ABI 3 mutation test. No production sandbox/import/release, CI pending.",
+      "last_merged_pr": 300,
+      "last_merge_sha": "cd8063ecc27d0c76e705ff9567c86249cd00e2f1",
+      "tested_head_sha": "3112f09c45d40bafe83bc355100768cafa46f05b"
     }
   ]
 }

@@ -32,7 +32,6 @@ jobs:
     env:
       SCAN_FILES: ${{ inputs.files }}
       SCAN_RUNS: ${{ inputs.runs }}
-      TMPDIR: ${{ runner.temp }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -44,6 +43,8 @@ jobs:
 
       - name: Validate workload and configure portable C17 Release
         shell: bash
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: |
           set -euo pipefail
           case "$SCAN_FILES" in 1000|5000|10000) ;; *) exit 2 ;; esac
@@ -55,6 +56,8 @@ jobs:
 
       - name: Record provenance and run read-only scanner
         shell: bash
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: |
           set -euo pipefail
           umask 077
@@ -83,6 +86,8 @@ jobs:
 
       - name: Verify report before artifact upload
         shell: bash
+        env:
+          TMPDIR: ${{ runner.temp }}
         run: |
           set -euo pipefail
           python3 tests/performance/benchmark_scanner.py \

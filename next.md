@@ -64,7 +64,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — SAFE FEATURE SELECTION** | **TIMERFD-DEADLINE-EVAL-01 (second candidate; #334 merged)** | Disarm unread expiry, invalid nanoseconds, exact monotonic rearm | Candidate CI pending; integrated-main CI NOT VERIFIED; existing polling retained |
+| **NOW — SAFE FEATURE SELECTION** | **TIMERFD-DEADLINE-EVAL-01 (2/5; PR #335 open)** | Disarm unread expiry, invalid nanoseconds, exact monotonic rearm | Candidate CI pending; integrated-main CI NOT VERIFIED; existing polling retained |
 | **PARTIAL** | **EVENTFD-SATURATION-EVAL-01 (5/5; #333 merged)** | All scoped worker regressions PASS | Existing implementation retained; integrated-main CI NOT VERIFIED; no sixth PR |
 | **PARTIAL** | **PIDFD-LIFECYCLE-EVAL-01 (5/5; #328 merged)** | All five reference tests PASS | Production supervisor DEFER; integrated-main CI NOT VERIFIED; no sixth PR |
 | **PARTIAL** | **REFLINK-EVAL-01 (3/5; #323 merged)** | Actual fallback and error policy PASS; clone NOT VERIFIED | Production DEFER; avoid repeat skips |

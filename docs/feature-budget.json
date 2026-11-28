@@ -1289,9 +1289,10 @@
       "status": "ACTIVE",
       "prs": [
         316,
-        317
+        317,
+        318
       ],
-      "summary": "#317 merged; five workflow families and seven CMake jobs PASS; C17 Release 99 passed/1 skipped, both sparse references PASS. Third candidate test-only extent copy; local NOT RUN, CI pending, independent review and integrated-main unverified.",
+      "summary": "#317 merged; five workflow families and seven CMake jobs PASS; C17 Release 99 passed/1 skipped, both sparse references PASS. Third candidate test-only extent copy; local NOT RUN, CI pending, independent review and integrated-main unverified. PR #318 (3/5).",
       "last_merged_pr": 317,
       "last_merge_sha": "54ff9a38cd3c1f9083eeb0194ce5a6bd9d492596",
       "tested_head_sha": "4c74cd503dd1b9230dab394ecded3d17ae423096"

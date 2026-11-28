@@ -228,8 +228,124 @@ cleanup:
     return result;
 }
 
+static int descendant_denials(int dirfd)
+{
+    if (check_read(dirfd) != 0)
+        return 1;
+    int fd = openat(dirfd, "source", O_WRONLY | O_NOFOLLOW | O_CLOEXEC);
+    if (fd >= 0) {
+        (void)close(fd);
+        return 1;
+    }
+    if (errno != EACCES)
+        return 1;
+    if (unlinkat(dirfd, "source", 0) != -1 || errno != EACCES)
+        return 1;
+    return 0;
+}
+
+static int wait_reference_child(pid_t child)
+{
+    int status;
+    pid_t waited;
+    do {
+        waited = waitpid(child, &status, 0);
+    } while (waited < 0 && errno == EINTR);
+    if (waited != child || !WIFEXITED(status))
+        return 1;
+    return WEXITSTATUS(status);
+}
+
+static int descendant_child(int dirfd)
+{
+    int setup = restrict_preview(dirfd, 0);
+    if (setup != 0)
+        return setup;
+    if (descendant_denials(dirfd) != 0)
+        return 1;
+    pid_t grandchild = fork();
+    if (grandchild < 0)
+        return 1;
+    if (grandchild == 0)
+        _exit(descendant_denials(dirfd));
+    return wait_reference_child(grandchild);
+}
+
+static int descendant_fixture_matches(int dirfd, const struct stat *before,
+                                     char expected)
+{
+    struct stat current;
+    char actual = 0;
+    int fd = openat(dirfd, "source", O_RDONLY | O_NOFOLLOW | O_CLOEXEC);
+    if (fd < 0)
+        return 0;
+    int matched = fstat(fd, &current) == 0 && S_ISREG(current.st_mode) &&
+                  current.st_dev == before->st_dev &&
+                  current.st_ino == before->st_ino &&
+                  current.st_size == 1 && current.st_nlink == 1 &&
+                  read(fd, &actual, 1) == 1 && actual == expected;
+    if (close(fd) != 0)
+        return 0;
+    return matched;
+}
+
+static int descendant_reference(void)
+{
+    char path[] = "/tmp/fc-landlock-descendant-XXXXXX";
+    if (mkdtemp(path) == NULL)
+        return 1;
+    int dirfd = open(path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC);
+    if (dirfd < 0) {
+        (void)rmdir(path);
+        return 1;
+    }
+    int result = 1;
+    int fd = openat(dirfd, "source", O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, 0600);
+    if (fd < 0)
+        goto cleanup;
+    struct stat before;
+    int ready = write(fd, "X", 1) == 1 && fstat(fd, &before) == 0;
+    int closed = close(fd);
+    if (!ready || closed != 0 || !descendant_fixture_matches(dirfd, &before, 'X'))
+        goto cleanup;
+    pid_t child = fork();
+    if (child < 0)
+        goto cleanup;
+    if (child == 0)
+        _exit(descendant_child(dirfd));
+    result = wait_reference_child(child);
+    if (!descendant_fixture_matches(dirfd, &before, 'X'))
+        result = 1;
+    if (result != 0)
+        goto cleanup;
+
+    /* Parent remains outside the Landlock domain. */
+    result = 1;
+    fd = openat(dirfd, "source", O_WRONLY | O_NOFOLLOW | O_CLOEXEC);
+    if (fd < 0)
+        goto cleanup;
+    int written = pwrite(fd, "Y", 1, 0) == 1;
+    closed = close(fd);
+    if (written && closed == 0 && descendant_fixture_matches(dirfd, &before, 'Y'))
+        result = 0;
+cleanup:
+    if (unlinkat(dirfd, "source", 0) != 0 && errno != ENOENT)
+        result = 1;
+    if (close(dirfd) != 0)
+        result = 1;
+    if (rmdir(path) != 0)
+        result = 1;
+    if (result == 0)
+        puts("PASS: child and descendant restricted; parent retained authority");
+    else if (result == 77)
+        puts("NOT VERIFIED: Landlock descendant reference unavailable");
+    return result;
+}
+
 int main(int argc, char **argv)
 {
+    if (argc == 2 && strcmp(argv[1], "--descendant") == 0)
+        return descendant_reference();
     if (argc == 2 && strcmp(argv[1], "--descriptor") == 0)
         return descriptor_reference();
     int extended = argc == 2 && strcmp(argv[1], "--extended") == 0;

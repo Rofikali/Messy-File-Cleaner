@@ -104,8 +104,10 @@ if(BUILD_TESTING)
     add_test(NAME landlock_preview_reference COMMAND landlock-preview-reference)
     add_test(NAME landlock_preview_extended COMMAND landlock-preview-reference --extended)
     add_test(NAME landlock_descriptor_reference COMMAND landlock-preview-reference --descriptor)
+    add_test(NAME landlock_descendant_reference COMMAND landlock-preview-reference --descendant)
     set_tests_properties(landlock_preview_reference landlock_preview_extended
-      landlock_descriptor_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+      landlock_descriptor_reference landlock_descendant_reference
+      PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
   endif()
 
   # UPSTREAM-COST-01: synthetic integer cost reference, never a product target.

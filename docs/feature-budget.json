@@ -1291,9 +1291,10 @@
         316,
         317,
         318,
-        319
+        319,
+        320
       ],
-      "summary": "#319 merged; five workflow families PASS, C17 Release and Ubuntu C17 101 passed/1 skipped, four sparse references PASS. Fifth candidate rejection controls and verbose measurement output; production DEFER. Local NOT RUN; CI pending; independent review and integrated-main unverified. No sixth PR.",
+      "summary": "#319 merged; five workflow families PASS, C17 Release and Ubuntu C17 101 passed/1 skipped, four sparse references PASS. Fifth candidate rejection controls and verbose measurement output; production DEFER. Local NOT RUN; CI pending; independent review and integrated-main unverified. No sixth PR. PR #320 (5/5).",
       "last_merged_pr": 319,
       "last_merge_sha": "11278c4f9bc77c380231b06ea26d7e81e7d8c2fb",
       "tested_head_sha": "b1563d9a357d4d67bbb07973284bb2aee1262b48"

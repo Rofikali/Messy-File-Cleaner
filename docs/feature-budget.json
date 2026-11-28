@@ -1241,9 +1241,10 @@
       "status": "ACTIVE",
       "prs": [
         300,
-        301
+        301,
+        302
       ],
-      "summary": "#301 merged; 14/14 exact-head checks, C17 Release 84/84, both Landlock tests PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. Third candidate tests inherited writable descriptor authority and closure; test-only, no import or release, CI pending.",
+      "summary": "#301 merged; 14/14 exact-head checks, C17 Release 84/84, both Landlock tests PASS; integrated-main 10/14 checks PASS, 4 pending at inspection. PR #302 (3/5) tests inherited writable descriptor authority and closure; test-only, no import or release, CI pending.",
       "last_merged_pr": 301,
       "last_merge_sha": "b9588dd697e2579a9391fd40105e5a96773ebe0d",
       "tested_head_sha": "28c0becb7a2ee28a8f51216e7d1f984898f4fed3"

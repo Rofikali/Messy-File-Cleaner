@@ -83,6 +83,29 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # STATX-MOUNT-EVAL-01: installed libc/UAPI, private fixture only.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    include(CheckCSourceCompiles)
+    check_c_source_compiles([=[
+      #define _GNU_SOURCE
+      #include <fcntl.h>
+      #include <sys/stat.h>
+      int main(void) {
+        struct statx value = {0};
+        return statx(AT_FDCWD, ".", AT_SYMLINK_NOFOLLOW,
+          STATX_TYPE | STATX_INO | STATX_MNT_ID, &value) +
+          (int)(value.stx_mnt_id + AT_EMPTY_PATH);
+      }
+    ]=] FC_HAVE_STATX_MOUNT_REFERENCE)
+    add_executable(statx-mount-reference tests/integration/test_statx_mount_reference.c)
+    if(FC_HAVE_STATX_MOUNT_REFERENCE)
+      target_compile_definitions(statx-mount-reference PRIVATE FC_HAVE_STATX_MOUNT_REFERENCE)
+    endif()
+    target_compile_options(statx-mount-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME statx_mount_reference COMMAND statx-mount-reference)
+    set_tests_properties(statx_mount_reference PROPERTIES TIMEOUT 10 SKIP_RETURN_CODE 77)
+  endif()
+
   # LANDLOCK-PREVIEW-EVAL-01: test-only installed UAPI and child restriction.
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include(CheckCSourceCompiles)

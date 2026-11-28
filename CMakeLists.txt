@@ -83,6 +83,14 @@ else()
 endif()
 
 if(BUILD_TESTING)
+  # REFLINK-EVAL-01: private whole-file clone and copy-on-write reference.
+  if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    add_executable(reflink-reference tests/integration/test_reflink_reference.c)
+    target_compile_options(reflink-reference PRIVATE -Wall -Wextra -Wpedantic -Werror -Wstrict-prototypes)
+    add_test(NAME reflink_reference COMMAND reflink-reference)
+    set_tests_properties(reflink_reference PROPERTIES TIMEOUT 15 SKIP_RETURN_CODE 77)
+  endif()
+
   # SPARSE-EXTENT-EVAL-01: private disposable extent evidence.
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     add_executable(sparse-extent-reference tests/integration/test_sparse_extent_reference.c)

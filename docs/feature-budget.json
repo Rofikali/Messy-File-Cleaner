@@ -2,9 +2,9 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "c25b7b2d1a2b900ec8df7908bde83946d704fcc1",
+  "snapshot_main_sha": "fabf43680422765e0842eeb5e1f40afd4725e6bc",
   "max_opened_prs_per_feature": 5,
-  "active_feature_id": "STATX-MOUNT-EVAL-01",
+  "active_feature_id": "WATCH-OVERFLOW-EVAL-01",
   "features": [
     {
       "id": "PERF-01",
@@ -1254,7 +1254,7 @@
     {
       "id": "STATX-MOUNT-EVAL-01",
       "title": "Linux statx mount identity diagnostics",
-      "status": "ACTIVE",
+      "status": "PARTIAL",
       "prs": [
         305,
         306,
@@ -1262,10 +1262,19 @@
         308,
         309
       ],
-      "summary": "#308 corrected and merged; 14/14 exact-head checks, C17 Release and Ubuntu C17 92/92, five statx references PASS; integrated-main 9/14 checks PASS, 5 pending at inspection. Actual median fstat 590 vs statx 624 ns/call warm single fd with validation. PR #309 (5/5) optional same-device mount observation and ADR; retain production fstat, defer statx, no sixth PR. CI pending.",
-      "last_merged_pr": 308,
-      "last_merge_sha": "c25b7b2d1a2b900ec8df7908bde83946d704fcc1",
-      "tested_head_sha": "312964dc81e63adc5550f94b0692e12b3a878a4e"
+      "summary": "#309 merged; 14/14 exact-head checks, C17 Release and Ubuntu C17 92 passed/1 skipped; same-device mount NOT VERIFIED, repeated median 593/625 ns; integrated-main 12/14 checks PASS, 2 pending at inspection. PARTIAL 5/5, retain fstat, independent review unverified, no sixth PR.",
+      "last_merged_pr": 309,
+      "last_merge_sha": "fabf43680422765e0842eeb5e1f40afd4725e6bc",
+      "tested_head_sha": "e3a28bfb396397fa738cd132d063624fb59ba556"
+    },
+    {
+      "id": "WATCH-OVERFLOW-EVAL-01",
+      "title": "Bounded actual inotify overflow and read-only reconciliation",
+      "status": "ACTIVE",
+      "prs": [
+        310
+      ],
+      "summary": "PR #310 (1/5): First private raw kernel overflow reference; bounded event generation, marker and missed late event observation. No production recovery; CI pending. PR #310 same-slot correction: head b92fa09 had six optimized-build failures from GCC -Werror=maybe-uninitialized on limit; eight checks passed, C17 Debug actual overflow reference PASS (0.05 s). Initialize limit to zero, publish parsed queue limit only after successful stream cleanup, and reject a zero/out-of-cap result before generation. Keep -Werror and all CI gates. Corrected exact-head CI pending; no new PR slot."
     }
   ]
 }

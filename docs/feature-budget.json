@@ -1317,8 +1317,10 @@
       "id": "PIDFD-LIFECYCLE-EVAL-01",
       "title": "Owned Linux preview helper pidfd lifecycle readiness reference",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First test-only owned child lifecycle reference: pipe-gated exit, pidfd CLOEXEC, poll readiness and waitpid cleanup. Actual PR to register; CI pending; no production helper."
+      "prs": [
+        324
+      ],
+      "summary": "First test-only owned child lifecycle reference: pipe-gated exit, pidfd CLOEXEC, poll readiness and waitpid cleanup. Actual PR to register; CI pending; no production helper. PR #324 (1/5)."
     }
   ]
 }

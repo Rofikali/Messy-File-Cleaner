@@ -68,7 +68,7 @@
 
 | Lane | ID / budget / status | Concrete deliverable | What is NOT proven |
 | --- | --- | --- | --- |
-| **NOW — DESIGN ONLY** | **FS-01B-FIX (first design candidate)** | Explicit owner decision packet for threat boundary, refusal, recovery and destination-temp authority | Runtime correction and release BLOCKED; no approval inferred; candidate CI pending |
+| **NOW — DESIGN ONLY** | **FS-01B-FIX (1/5; PR #337 open; design only)** | Explicit owner decision packet for threat boundary, refusal, recovery and destination-temp authority | Runtime correction and release BLOCKED; no approval inferred; candidate CI pending |
 | **PARTIAL** | **TIMERFD-DEADLINE-EVAL-01 (3/5; #336 merged)** | Three reference tests PASS; close early | Existing poll retained; production DEFER; integrated-main CI NOT VERIFIED |
 | **PARTIAL** | **EVENTFD-SATURATION-EVAL-01 (5/5; #333 merged)** | All scoped worker regressions PASS | Existing implementation retained; integrated-main CI NOT VERIFIED; no sixth PR |
 | **PARTIAL** | **PIDFD-LIFECYCLE-EVAL-01 (5/5; #328 merged)** | All five reference tests PASS | Production supervisor DEFER; integrated-main CI NOT VERIFIED; no sixth PR |

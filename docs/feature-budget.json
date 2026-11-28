@@ -1303,8 +1303,10 @@
       "id": "REFLINK-EVAL-01",
       "title": "Disposable Linux whole-file reflink and copy-on-write semantics",
       "status": "ACTIVE",
-      "prs": [],
-      "summary": "First isolated FICLONE candidate, full 64 KiB byte oracle and bidirectional write isolation; actual PR to register, CI pending. No production integration."
+      "prs": [
+        321
+      ],
+      "summary": "First isolated FICLONE candidate, full 64 KiB byte oracle and bidirectional write isolation; actual PR to register, CI pending. No production integration. PR #321 (1/5)."
     }
   ]
 }

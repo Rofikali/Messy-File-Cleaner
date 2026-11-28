@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "Rofikali/Messy-File-Cleaner",
   "policy_effective_date": "2026-11-21",
-  "snapshot_main_sha": "d579c883fe6eb86546ddedca13c909ac994fb7db",
+  "snapshot_main_sha": "f3a9788ce603c746af2db6f12ec95e3ada25a050",
   "max_opened_prs_per_feature": 5,
   "active_feature_id": "PIDFD-LIFECYCLE-EVAL-01",
   "features": [
@@ -1320,7 +1320,10 @@
       "prs": [
         324
       ],
-      "summary": "First test-only owned child lifecycle reference: pipe-gated exit, pidfd CLOEXEC, poll readiness and waitpid cleanup. Actual PR to register; CI pending; no production helper. PR #324 (1/5)."
+      "summary": "PR #324 merged; 14/14 exact-head jobs PASS, C17 Release and Ubuntu C17 105 passed/2 skipped, pidfd lifecycle PASS; main comparison zero changed files, integrated-main CI NOT VERIFIED. Second candidate invalid flags, live self and closed descriptor negative controls; CI pending; actual new PR number to register.",
+      "last_merged_pr": 324,
+      "last_merge_sha": "f3a9788ce603c746af2db6f12ec95e3ada25a050",
+      "tested_head_sha": "5fbfd2a3bec75974052f55ac44b0288080951901"
     }
   ]
 }
